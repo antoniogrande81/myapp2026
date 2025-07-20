@@ -3,11 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MyApp Home</title>
+  <title>MyApp2026 – Sindacato Carabinieri</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-primary text-white p-4 font-base">
-  <h1 class="text-2xl font-bold">✅ Benvenuto su MyApp</h1>
-  <p class="mt-2">Vai al <a href="login.html" class="underline text-accent">Login</a></p>
+<body>
+  <header>
+    <div class="navbar">
+      <h1>Benvenuto su MyApp2026</h1>
+    </div>
+  </header>
+
+  <main>
+    <section class="intro">
+      <h2>La tua piattaforma dedicata al personale Carabinieri</h2>
+      <p>Accedi per consultare la tessera, i turni e molto altro.</p>
+      <a href="login.html" class="btn">Accedi</a>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 MyApp2026. Tutti i diritti riservati.</p>
+  </footer>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const SUPABASE_URL = "https://lycrgzptkdkksukcwrld.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk";
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Se l'utente è già loggato → reindirizza a home protetta
+    async function checkUser() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (user) {
+        window.location.href = "home.html";
+      }
+    }
+
+    checkUser();
+  </script>
 </body>
 </html>
