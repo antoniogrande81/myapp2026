@@ -3,36 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Home - MyApp</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>Home - MyApp2026</title>
+  <link rel="stylesheet" href="../style.css" />
 </head>
-<body class="bg-gradient">
-  <header class="app-header">
-    <h1>Benvenuto!</h1>
-    <span class="user-icon">👤</span>
+<body>
+  <header>
+    <div class="navbar">
+      <h1>Benvenuto su MyApp2026</h1>
+      <nav>
+        <a href="../app/tessera.html">Tessera</a>
+        <a href="login.html" onclick="logout()">Logout</a>
+      </nav>
+    </div>
   </header>
 
-  <section class="cards">
-    <div class="card">
-      <h2>Ultime Notizie</h2>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-    </div>
-    <div class="card">
-      <h2>Tutela Legale</h2>
-      <p>Accesso rapido ai tuoi diritti.</p>
-    </div>
-    <div class="card">
-      <h2>Assistenza Fiscale</h2>
-      <p>Aiuto con le pratiche.</p>
-    </div>
-  </section>
+  <main>
+    <section class="welcome">
+      <h2>Ciao!</h2>
+      <p>Hai effettuato l'accesso correttamente.</p>
+    </section>
 
-  <nav class="bottom-nav">
-    <a href="home.html">🏠</a>
-    <a href="#">🔔</a>
-    <a href="#">🔍</a>
-  </nav>
+    <section class="info-box">
+      <h3>Funzionalità disponibili</h3>
+      <ul>
+        <li>Visualizza la tua tessera digitale</li>
+        <li>Genera e mostra il tuo QR Code</li>
+        <li>Accedi ai tuoi dati personali</li>
+      </ul>
+      <a class="btn" href="../app/tessera.html">Vai alla tessera</a>
+    </section>
+  </main>
 
-  <button class="sos-floating">SOS</button>
+  <footer>
+    <p>&copy; 2026 MyApp2026. Tutti i diritti riservati.</p>
+  </footer>
+
+  <script>
+    function logout() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+  </script>
 </body>
 </html>
