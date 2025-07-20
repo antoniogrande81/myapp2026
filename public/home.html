@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyApp – Home</title>
+  <link href="/style.css" rel="stylesheet" />
+</head>
+<body class="font-sans bg-gradient-to-br from-primary to-secondary min-h-screen text-white">
+  <header class="flex items-center justify-between p-4">
+    <h1 class="text-xl font-bold">MyApp</h1>
+    <div class="rounded-full bg-white p-2">
+      <img src="https://img.icons8.com/ios-filled/24/user.png" alt="Profilo" />
+    </div>
+  </header>
+
+  <main class="px-4 space-y-6 pb-20">
+    <section>
+      <h2 class="text-lg font-semibold">Benvenuto!</h2>
+      <p class="text-sm text-white/80">Accedi ai tuoi servizi</p>
+    </section>
+
+    <section class="bg-white text-black rounded-xl p-4 shadow">
+      <h3 class="font-bold mb-2">Ultime Notizie</h3>
+      <ul class="space-y-2 text-sm">
+        <li>• Lorem ipsum dolor sit amet, consectetuer.</li>
+        <li>• Nuova convenzione attiva con FLIXBUS.</li>
+      </ul>
+    </section>
+
+    <section class="grid grid-cols-2 gap-4">
+      <button class="bg-white text-primary font-bold p-4 rounded-xl shadow">Tutela Legale</button>
+      <button class="bg-white text-primary font-bold p-4 rounded-xl shadow">Assistenza Fiscale</button>
+    </section>
+
+    <section>
+      <h3 class="text-lg font-semibold mb-2">Convenzioni</h3>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-white text-black p-3 rounded-xl shadow">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fb/Flixbus_logo.svg/320px-Flixbus_logo.svg.png" alt="Flixbus" class="h-6 mb-2" />
+          <p class="text-xs">Sconti dedicati</p>
+        </div>
+        <div class="bg-white text-black p-3 rounded-xl shadow">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Logo_Santalucia_Bufalini.svg/320px-Logo_Santalucia_Bufalini.svg.png" alt="Bufalini" class="h-6 mb-2" />
+          <p class="text-xs">Furojacete tutela</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3 class="text-lg font-semibold mb-2">Dirigenti Sindacali</h3>
+      <div class="space-y-2">
+        <div class="bg-white text-black p-3 rounded-xl shadow flex items-center space-x-4">
+          <img src="https://randomuser.me/api/portraits/men/45.jpg" class="w-10 h-10 rounded-full" />
+          <div>
+            <p class="font-bold text-sm">Mario Rossi</p>
+            <p class="text-xs text-gray-600">Segretario Regionale</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <button class="fixed bottom-4 right-4 bg-secondary text-white p-4 rounded-full shadow-xl text-xl">
+    🆘
+  </button>
+
+  <script src="/scripts/home.js" type="module"></script>
+</body>
+</html>

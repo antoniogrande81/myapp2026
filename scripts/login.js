@@ -1,21 +1,19 @@
-const { createClient } = supabase;
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-const SUPABASE_URL = 'https://lycrgzptkdkksukcwrld.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
+const supabase = createClient(
+  'https://lycrgzptkdkksukcwrld.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ...'
+)
 
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-document.getElementById("login-form").addEventListener("submit", async function (e) {
+document.querySelector("#login-form").addEventListener("submit", async (e) => {
   e.preventDefault();
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+  const email = document.querySelector("#email").value;
+  const password = document.querySelector("#password").value;
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) {
-    document.getElementById("error").textContent = "❌ Email o password errati.";
-    document.getElementById("error").classList.remove("hidden");
+    alert("Credenziali errate");
   } else {
-    window.location.href = "../app/tessera.html";
+    window.location.href = "/home.html";
   }
 });
