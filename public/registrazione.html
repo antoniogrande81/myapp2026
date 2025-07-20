@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registrazione - MyApp2026</title>
+  <link rel="stylesheet" href="../style.css" />
+</head>
+<body>
+  <header>
+    <div class="navbar">
+      <h1>Registrati a MyApp2026</h1>
+      <nav>
+        <a href="login.html">Hai un account? Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="form-container">
+      <h2>Crea un nuovo account</h2>
+      <form id="register-form">
+        <label for="name">Nome:</label>
+        <input type="text" id="name" name="name" required />
+
+        <label for="surname">Cognome:</label>
+        <input type="text" id="surname" name="surname" required />
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
+
+        <button type="submit" class="btn">Registrati</button>
+      </form>
+      <p id="message"></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 MyApp2026. Tutti i diritti riservati.</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const SUPABASE_URL = "https://lycrgzptkdkksukcwrld.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk";
+
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    document.getElementById("register-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const surname = document.getElementById("surname").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name, surname },
+          emailRedirectTo: "https://myapp2026.onrender.com/public/home.html"
+        }
+      });
+
+      const messageEl = document.getElementById("message");
+      if (error) {
+        messageEl.textContent = "Errore: " + error.message;
+        messageEl.style.color = "red";
+      } else {
+        messageEl.textContent = "Registrazione completata! Controlla la tua email per confermare.";
+        messageEl.style.color = "green";
+        document.getElementById("register-form").reset();
+      }
+    });
+  </script>
+</body>
+</html>
