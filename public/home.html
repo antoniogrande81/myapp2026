@@ -4,45 +4,60 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Home - MyApp2026</title>
-  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <div class="navbar">
-      <h1>Benvenuto su MyApp2026</h1>
-      <nav>
-        <a href="../app/tessera.html">Tessera</a>
-        <a href="login.html" onclick="logout()">Logout</a>
-      </nav>
-    </div>
+  <header class="app-header">
+    <h1>Benvenuto su MyApp</h1>
+    <button id="logout-btn">Logout</button>
   </header>
 
-  <main>
-    <section class="welcome">
-      <h2>Ciao!</h2>
-      <p>Hai effettuato l'accesso correttamente.</p>
+  <main class="home-dashboard">
+    <section class="notizie">
+      <h2>Ultime Notizie</h2>
+      <div class="notizia">
+        <h3>Lorem ipsum dolor</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      </div>
+      <div class="notizia">
+        <h3>Aliquam tincidunt</h3>
+        <p>Aliquam tincidunt mauris eu risus.</p>
+      </div>
     </section>
 
-    <section class="info-box">
-      <h3>Funzionalità disponibili</h3>
-      <ul>
-        <li>Visualizza la tua tessera digitale</li>
-        <li>Genera e mostra il tuo QR Code</li>
-        <li>Accedi ai tuoi dati personali</li>
-      </ul>
-      <a class="btn" href="../app/tessera.html">Vai alla tessera</a>
+    <section class="servizi">
+      <h2>Servizi</h2>
+      <div class="card">
+        <h3>⚖️ Tutela Legale</h3>
+        <p>Supporto legale per i tuoi diritti.</p>
+      </div>
+      <div class="card">
+        <h3>📅 Assistenza Fiscale</h3>
+        <p>Consulenza fiscale gratuita per i tesserati.</p>
+      </div>
     </section>
   </main>
 
-  <footer>
-    <p>&copy; 2026 MyApp2026. Tutti i diritti riservati.</p>
+  <footer class="app-footer">
+    <nav>
+      <a href="home.html" class="active">🏠</a>
+      <a href="tessera.html">🌐</a>
+      <a href="#">⚙️</a>
+    </nav>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
-    function logout() {
-      localStorage.clear();
+    const SUPABASE_URL = 'https://lycrgzptkdkksukcwrld.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
+
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    document.getElementById("logout-btn").addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
       window.location.href = "login.html";
-    }
+    });
   </script>
 </body>
 </html>
