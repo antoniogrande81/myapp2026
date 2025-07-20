@@ -3,36 +3,90 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Home - MyApp</title>
+  <title>Home - MyApp2026</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="bg-gradient">
+<body>
   <header class="app-header">
-    <h1>Benvenuto!</h1>
-    <span class="user-icon">👤</span>
+    <div class="profile-box">
+      <img id="user-avatar" src="" alt="Avatar" class="avatar" />
+      <div>
+        <h1 id="user-name">Benvenuto</h1>
+        <p id="user-email"></p>
+      </div>
+    </div>
+    <button id="logout-btn">Logout</button>
   </header>
 
-  <section class="cards">
-    <div class="card">
+  <main class="home-dashboard">
+    <section class="notizie">
       <h2>Ultime Notizie</h2>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-    </div>
-    <div class="card">
-      <h2>Tutela Legale</h2>
-      <p>Accesso rapido ai tuoi diritti.</p>
-    </div>
-    <div class="card">
-      <h2>Assistenza Fiscale</h2>
-      <p>Aiuto con le pratiche.</p>
-    </div>
-  </section>
+      <div class="notizia">
+        <h3>Lorem ipsum dolor</h3>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+      </div>
+      <div class="notizia">
+        <h3>Aliquam tincidunt</h3>
+        <p>Aliquam tincidunt mauris eu risus.</p>
+      </div>
+    </section>
 
-  <nav class="bottom-nav">
-    <a href="home.html">🏠</a>
-    <a href="#">🔔</a>
-    <a href="#">🔍</a>
-  </nav>
+    <section class="servizi">
+      <h2>Servizi</h2>
+      <div class="card">
+        <h3>⚖️ Tutela Legale</h3>
+        <p>Supporto legale per i tuoi diritti.</p>
+      </div>
+      <div class="card">
+        <h3>📅 Assistenza Fiscale</h3>
+        <p>Consulenza fiscale gratuita per i tesserati.</p>
+      </div>
+    </section>
 
-  <button class="sos-floating">SOS</button>
+    <section class="qr-code">
+      <h2>La tua Tessera Digitale</h2>
+      <canvas id="qr-code"></canvas>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <nav>
+      <a href="home.html" class="active">🏠</a>
+      <a href="tessera.html">🌐</a>
+      <a href="#">⚙️</a>
+    </nav>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode"></script>
+  <script>
+    const SUPABASE_URL = 'https://lycrgzptkdkksukcwrld.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
+
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function loadUser() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (user) {
+        document.getElementById("user-name").textContent = `Ciao, ${user.user_metadata?.nome || 'Utente'}`;
+        document.getElementById("user-email").textContent = user.email;
+        document.getElementById("user-avatar").src = user.user_metadata?.avatar_url || 'https://via.placeholder.com/50';
+
+        QRCode.toCanvas(document.getElementById('qr-code'), user.email, function (error) {
+          if (error) console.error(error);
+        });
+      } else {
+        window.location.href = "login.html";
+      }
+    }
+
+    loadUser();
+
+    document.getElementById("logout-btn").addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+      window.location.href = "login.html";
+    });
+  </script>
 </body>
 </html>
