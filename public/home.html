@@ -8,7 +8,13 @@
 </head>
 <body>
   <header class="app-header">
-    <h1>Benvenuto su MyApp</h1>
+    <div class="profile-box">
+      <img id="user-avatar" src="" alt="Avatar" class="avatar" />
+      <div>
+        <h1 id="user-name">Benvenuto</h1>
+        <p id="user-email"></p>
+      </div>
+    </div>
     <button id="logout-btn">Logout</button>
   </header>
 
@@ -36,6 +42,11 @@
         <p>Consulenza fiscale gratuita per i tesserati.</p>
       </div>
     </section>
+
+    <section class="qr-code">
+      <h2>La tua Tessera Digitale</h2>
+      <canvas id="qr-code"></canvas>
+    </section>
   </main>
 
   <footer class="app-footer">
@@ -47,12 +58,30 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode"></script>
   <script>
     const SUPABASE_URL = 'https://lycrgzptkdkksukcwrld.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
 
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function loadUser() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (user) {
+        document.getElementById("user-name").textContent = `Ciao, ${user.user_metadata?.nome || 'Utente'}`;
+        document.getElementById("user-email").textContent = user.email;
+        document.getElementById("user-avatar").src = user.user_metadata?.avatar_url || 'https://via.placeholder.com/50';
+
+        QRCode.toCanvas(document.getElementById('qr-code'), user.email, function (error) {
+          if (error) console.error(error);
+        });
+      } else {
+        window.location.href = "login.html";
+      }
+    }
+
+    loadUser();
 
     document.getElementById("logout-btn").addEventListener("click", async () => {
       await supabaseClient.auth.signOut();
