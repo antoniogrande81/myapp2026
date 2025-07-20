@@ -5,27 +5,184 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MyApp2026 – Sindacato Carabinieri</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #2400C1, #8E008C);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      padding: 2rem;
+      text-align: center;
+    }
+    header img {
+      width: 80px;
+      margin-bottom: 1rem;
+    }
+    header h1 {
+      font-size: 2rem;
+      margin: 0;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    main h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+    main p {
+      font-size: 1rem;
+      max-width: 600px;
+      margin-bottom: 2rem;
+    }
+    .cta-btn {
+      display: inline-block;
+      width: 220px;
+      background-color: #ffffff;
+      color: #2400C1;
+      border: none;
+      padding: 1rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: background 0.3s ease;
+      margin: 0.5rem;
+      text-align: center;
+    }
+    .cta-btn:hover {
+      background-color: #e4e4f8;
+    }
+    .cta-dirigenti {
+      background-color: #8E008C;
+      color: white;
+    }
+    .tag-section {
+      margin: 2rem 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+    }
+    .tag {
+      background-color: #e0e0e0;
+      color: #1C1C1E;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+    }
+    .link-container {
+      margin-top: 2rem;
+    }
+    .link-container a {
+      display: inline-block;
+      background: #ffffff;
+      color: #2400C1;
+      margin: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .link-container a:hover {
+      background: #e8e8e8;
+    }
+    .services-section {
+      padding: 3rem 1rem;
+      background: white;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+    .service-card {
+      background: #f4f4f8;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 1rem;
+      width: 250px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .service-card h3 {
+      margin-top: 0;
+      color: #2400C1;
+    }
+    .service-card p {
+      font-size: 0.95rem;
+      color: #444;
+    }
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.8rem;
+      background: rgba(0, 0, 0, 0.05);
+    }
+  </style>
 </head>
 <body>
   <header>
-    <div class="navbar">
-      <h1>Benvenuto su MyApp2026</h1>
-    </div>
+    <img src="logo.png" alt="Logo MyApp" />
+    <h1>Benvenuto su MyApp2026</h1>
   </header>
 
   <main>
-    <section class="intro">
-      <h2>La tua piattaforma dedicata al personale Carabinieri</h2>
-      <p>Accedi per consultare la tessera, i turni e molto altro.</p>
-      <a href="login.html" class="btn">Accedi</a>
+    <h2>La piattaforma digitale per i Carabinieri</h2>
+    <p>Accedi ai tuoi servizi riservati, consulta la tua tessera, i tuoi turni e tutte le funzionalità dedicate al personale del Sindacato Carabinieri.</p>
+
+    <div>
+      <a href="login.html" class="cta-btn">Accedi</a>
+      <a href="registrazione.html" class="cta-btn">Registrati</a>
+      <a href="login-dirigenti.html" class="cta-btn cta-dirigenti">Area Dirigenti</a>
+    </div>
+
+    <div class="tag-section">
+      <div class="tag">Servizi Esclusivi</div>
+      <div class="tag">Accesso Dirigenti</div>
+      <div class="tag">Assistenza Dedicata</div>
+    </div>
+
+    <section class="services-section">
+      <div class="service-card">
+        <h3>Convenzioni Locali</h3>
+        <p>Sconti riservati per negozi, palestre, assicurazioni e attività convenzionate.</p>
+      </div>
+      <div class="service-card">
+        <h3>Tessera Digitale</h3>
+        <p>Visualizza la tua tessera sindacale direttamente dal tuo smartphone con QR Code.</p>
+      </div>
+      <div class="service-card">
+        <h3>Turni e Licenze</h3>
+        <p>Consulta e scarica i tuoi turni di servizio, recuperi e permessi.</p>
+      </div>
+      <div class="service-card">
+        <h3>Supporto Legale</h3>
+        <p>Accedi all’assistenza legale gratuita riservata agli iscritti.</p>
+      </div>
     </section>
+
+    <div class="link-container">
+      <a href="chi-siamo.html">Chi siamo</a>
+      <a href="contatti.html">Contatti</a>
+      <a href="privacy.html">Privacy</a>
+    </div>
   </main>
 
   <footer>
-    <p>&copy; 2026 MyApp2026. Tutti i diritti riservati.</p>
+    &copy; 2026 MyApp2026. Tutti i diritti riservati.
   </footer>
 
-  <!-- Supabase -->
+  <!-- Supabase auto-redirect -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
     const SUPABASE_URL = "https://lycrgzptkdkksukcwrld.supabase.co";
@@ -33,14 +190,12 @@
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Se l'utente è già loggato → reindirizza a home protetta
     async function checkUser() {
       const { data: { user } } = await supabaseClient.auth.getUser();
       if (user) {
         window.location.href = "home.html";
       }
     }
-
     checkUser();
   </script>
 </body>
