@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - MyApp</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="bg-backgroundLight font-base p-4 text-textDark">
+  <div class="max-w-md mx-auto mt-20 bg-white p-6 rounded-lg shadow-lg">
+    <h1 class="text-xl font-bold text-center mb-4 text-primary">Login MyApp</h1>
+
+    <form id="login-form" class="space-y-4">
+      <input type="email" id="email" placeholder="Email" required class="w-full border p-2 rounded" />
+      <input type="password" id="password" placeholder="Password" required class="w-full border p-2 rounded" />
+      <button type="submit" class="bg-primary text-white w-full py-2 rounded">Accedi</button>
+    </form>
+
+    <p id="error" class="text-red-500 text-sm mt-2 hidden"></p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="../scripts/login.js"></script>
+</body>
+</html>

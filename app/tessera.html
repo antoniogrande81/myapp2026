@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tessera Digitale</title>
+  <link rel="stylesheet" href="../public/style.css" />
+</head>
+<body class="bg-backgroundLight text-textDark font-base p-4">
+  <div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow-lg mt-10">
+    <h1 class="text-xl font-bold text-primary mb-4 text-center">Tessera Digitale</h1>
+
+    <div id="card-content" class="space-y-2 text-center">
+      <p><strong>Nome:</strong> <span id="nome"></span></p>
+      <p><strong>Cognome:</strong> <span id="cognome"></span></p>
+      <p><strong>Matricola:</strong> <span id="matricola"></span></p>
+      <p><strong>Email:</strong> <span id="email"></span></p>
+      <div class="mt-4">
+        <canvas id="qr-code"></canvas>
+      </div>
+    </div>
+
+    <button id="logout" class="mt-6 w-full bg-secondary text-white py-2 rounded">🔓 Logout</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode"></script>
+  <script src="../scripts/tessera.js"></script>
+</body>
+</html>
