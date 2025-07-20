@@ -4,49 +4,29 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login - MyApp2026</title>
-  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <div class="navbar">
-      <h1>Accedi a MyApp2026</h1>
-      <nav>
-        <a href="registrazione.html">Non hai un account? Registrati</a>
-      </nav>
-    </div>
-  </header>
-
-  <main>
-    <section class="form-container">
-      <h2>Login</h2>
-      <form id="login-form">
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required />
-
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required />
-
-        <button type="submit" class="btn">Accedi</button>
-      </form>
-      <p id="message"></p>
-    </section>
+  <main class="login-container">
+    <h2>Accesso MyApp2026</h2>
+    <form id="login-form">
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button type="submit">Accedi</button>
+    </form>
+    <p><a href="register.html">Non sei registrato? Crea un account</a></p>
   </main>
 
-  <footer>
-    <p>&copy; 2026 MyApp2026. Tutti i diritti riservati.</p>
-  </footer>
-
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
-    const SUPABASE_URL = "https://lycrgzptkdkksukcwrld.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk";
-
+    const SUPABASE_URL = 'https://lycrgzptkdkksukcwrld.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz...';
     const { createClient } = supabase;
     const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     document.getElementById("login-form").addEventListener("submit", async function (e) {
       e.preventDefault();
-
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
@@ -55,14 +35,10 @@
         password
       });
 
-      const messageEl = document.getElementById("message");
       if (error) {
-        messageEl.textContent = "Errore nel login: " + error.message;
-        messageEl.style.color = "red";
+        alert("Errore nel login: " + error.message);
       } else {
-        messageEl.textContent = "Login riuscito! Reindirizzamento in corso...";
-        messageEl.style.color = "green";
-        setTimeout(() => window.location.href = "home.html", 1500);
+        window.location.href = "home.html";
       }
     });
   </script>
