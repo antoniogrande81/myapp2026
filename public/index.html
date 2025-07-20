@@ -19,6 +19,10 @@
       padding: 2rem;
       text-align: center;
     }
+    header img {
+      width: 80px;
+      margin-bottom: 1rem;
+    }
     header h1 {
       font-size: 2rem;
       margin: 0;
@@ -50,9 +54,19 @@
       font-size: 1rem;
       text-decoration: none;
       transition: background 0.3s ease;
+      margin: 0.5rem;
     }
     .cta-btn:hover {
       background-color: #0099cc;
+    }
+    .link-container {
+      margin-top: 2rem;
+    }
+    .link-container a {
+      color: #ffffff;
+      margin: 0 0.5rem;
+      text-decoration: underline;
+      font-size: 0.9rem;
     }
     footer {
       text-align: center;
@@ -64,13 +78,21 @@
 </head>
 <body>
   <header>
+    <img src="logo.png" alt="Logo MyApp" />
     <h1>Benvenuto su MyApp2026</h1>
   </header>
 
   <main>
-    <h2>La piattaforma digitale per i Carabinieri</h2>
-    <p>Accedi ai tuoi servizi riservati, consulta la tua tessera, i tuoi turni e tutte le funzionalità dedicate al personale del Sindacato Carabinieri.</p>
+    <h2>La tua piattaforma digitale</h2>
+    <p>Accedi ai tuoi servizi riservati, consulta la tua tessera, i tuoi turni e tutte le funzionalità a te dedicate.</p>
     <a href="login.html" class="cta-btn">Accedi all'area riservata</a>
+    <a href="registrazione.html" class="cta-btn">Registrati</a>
+
+    <div class="link-container">
+      <a href="chi-siamo.html">Chi siamo</a>
+      <a href="contatti.html">Contatti</a>
+      <a href="privacy.html">Privacy</a>
+    </div>
   </main>
 
   <footer>
