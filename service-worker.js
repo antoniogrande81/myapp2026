@@ -1,115 +1,60 @@
-// MyApp Service Worker v1.2.0
-const CACHE_NAME = 'myapp-v1.2.0';
-const CACHE_STATIC = 'myapp-static-v1.2.0';
-const CACHE_DYNAMIC = 'myapp-dynamic-v1.2.0';
-const CACHE_API = 'myapp-api-v1.2.0';
+// MyApp Service Worker - Versione Semplificata v1.3.0
+const CACHE_NAME = 'myapp-simple-v1.3.0';
 
-// Risorse statiche da cachare sempre
+// Solo risorse statiche essenziali
 const STATIC_CACHE_URLS = [
   '/',
-  '/index.html',
-  '/login.html',
-  '/registrazione.html',
-  '/recupero-password.html',
-  '/convenzioni.html',
-  '/contatti.html',
-  '/privacy.html',
-  '/servizi.html',
-  '/dirigenti.html',
-  '/strumenti.html',
-  
-  // App protette
-  '/app/home.html',
-  '/app/tessera.html',
-  '/app/profilo.html',
-  '/app/dirigenti.html',
-  '/app/admin.html',
-  
-  // Assets esterni essenziali
-  'https://cdn.tailwindcss.com',
-  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm',
-  
-  // Fallback offline
+  '/public/index.html',
   '/offline.html'
 ];
 
-// Pattern URL da cachare dinamicamente
-const DYNAMIC_CACHE_PATTERNS = [
-  /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
-  /\.(?:css|js)$/,
-  /\.(?:woff|woff2|ttf|eot)$/
-];
-
-// API endpoints da cachare con strategy specifiche
-const API_CACHE_PATTERNS = [
-  /\/api\/convenzioni/,
-  /\/api\/dirigenti/,
-  /\/api\/notizie/
-];
-
-// URLs da non cachare mai
+// URLs da NON cachare MAI (importante per evitare problemi)
 const NEVER_CACHE_PATTERNS = [
-  /\/api\/auth/,
-  /\/api\/user/,
-  /analytics/,
-  /tracking/
+  /\/public\/login\.html/,           // Non cachare login
+  /\/app\//,                         // Non cachare app protette
+  /\/api\/auth/,                     // Non cachare API auth
+  /supabase\.co/,                    // Non cachare Supabase
+  /\.auth\./,                        // Non cachare auth endpoints
+  /auth/,                            // Non cachare percorsi auth
+  /login/,                           // Non cachare login
+  /logout/,                          // Non cachare logout
+  /session/,                         // Non cachare sessioni
+  /token/                            // Non cachare token
 ];
-
-// Timeout per richieste network
-const NETWORK_TIMEOUT = 5000;
-
-// Maximum cache size (numero di entries)
-const MAX_CACHE_SIZE = {
-  static: 50,
-  dynamic: 100,
-  api: 30
-};
 
 /**
- * Install Event - Cache delle risorse statiche
+ * Install Event - Cache minimo essenziale
  */
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing Service Worker v1.2.0');
+  console.log('[SW] Installing Simple Service Worker v1.3.0');
   
   event.waitUntil(
     (async () => {
       try {
-        const staticCache = await caches.open(CACHE_STATIC);
+        const cache = await caches.open(CACHE_NAME);
         
-        // Cache delle risorse critiche
-        const criticalResources = [
+        // Cache solo la homepage e offline
+        await cache.addAll([
           '/',
-          '/index.html',
-          '/login.html',
-          '/app/home.html'
-        ];
+          '/public/index.html'
+        ].filter(url => url));
         
-        await staticCache.addAll(criticalResources);
-        console.log('[SW] Critical resources cached');
-        
-        // Cache delle risorse secondarie (non bloccare l'install)
-        try {
-          await staticCache.addAll(STATIC_CACHE_URLS);
-          console.log('[SW] All static resources cached');
-        } catch (error) {
-          console.warn('[SW] Some static resources failed to cache:', error);
-        }
-        
-        // Force activation
+        console.log('[SW] Essential resources cached');
         self.skipWaiting();
         
       } catch (error) {
-        console.error('[SW] Install failed:', error);
+        console.warn('[SW] Install failed, continuing anyway:', error);
+        self.skipWaiting();
       }
     })()
   );
 });
 
 /**
- * Activate Event - Cleanup vecchie cache
+ * Activate Event - Cleanup
  */
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating Service Worker v1.2.0');
+  console.log('[SW] Activating Simple Service Worker v1.3.0');
   
   event.waitUntil(
     (async () => {
@@ -118,7 +63,7 @@ self.addEventListener('activate', (event) => {
         const cacheNames = await caches.keys();
         const oldCaches = cacheNames.filter(name => 
           name.startsWith('myapp-') && 
-          !name.includes('v1.2.0')
+          name !== CACHE_NAME
         );
         
         await Promise.all(
@@ -128,19 +73,18 @@ self.addEventListener('activate', (event) => {
           })
         );
         
-        // Take control of all pages
         await self.clients.claim();
-        console.log('[SW] Service Worker activated and claimed clients');
+        console.log('[SW] Simple Service Worker activated');
         
       } catch (error) {
-        console.error('[SW] Activation failed:', error);
+        console.warn('[SW] Activation warning:', error);
       }
     })()
   );
 });
 
 /**
- * Fetch Event - Strategia di caching intelligente
+ * Fetch Event - Strategia ultra-semplice
  */
 self.addEventListener('fetch', (event) => {
   const { request } = event;
@@ -151,167 +95,187 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Skip chrome-extension and other protocols
+  // Skip chrome-extension e altri protocolli
   if (!url.protocol.startsWith('http')) {
     return;
   }
   
-  // Skip URLs che non dovrebbero essere cachate
-  if (NEVER_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname))) {
+  // ⚠️ IMPORTANTE: Skip URLs critiche per evitare problemi
+  const shouldSkip = NEVER_CACHE_PATTERNS.some(pattern => {
+    const shouldMatch = pattern.test(url.href) || 
+                       pattern.test(url.pathname) || 
+                       pattern.test(request.url);
+    
+    if (shouldMatch) {
+      console.log('[SW] Skipping cache for:', url.pathname);
+    }
+    
+    return shouldMatch;
+  });
+  
+  if (shouldSkip) {
+    // Passa direttamente alla rete senza cache
     return;
   }
   
-  event.respondWith(handleFetchRequest(request));
+  // Per tutto il resto, usa una strategia network-first molto semplice
+  event.respondWith(handleRequest(request));
 });
 
 /**
- * Gestisce le richieste fetch con strategia appropriata
+ * Gestione richieste semplificata
  */
-async function handleFetchRequest(request) {
+async function handleRequest(request) {
   const url = new URL(request.url);
   
   try {
-    // 1. HTML Pages - Stale While Revalidate
-    if (request.headers.get('accept')?.includes('text/html')) {
-      return await staleWhileRevalidate(request, CACHE_STATIC);
-    }
-    
-    // 2. API Calls - Network First con cache fallback
-    if (API_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname))) {
-      return await networkFirst(request, CACHE_API);
-    }
-    
-    // 3. Static Assets - Cache First
-    if (DYNAMIC_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname))) {
-      return await cacheFirst(request, CACHE_DYNAMIC);
-    }
-    
-    // 4. Supabase/External APIs - Network First con timeout
-    if (url.origin !== location.origin) {
-      return await networkFirstWithTimeout(request, CACHE_DYNAMIC);
-    }
-    
-    // 5. Default - Network First
-    return await networkFirst(request, CACHE_DYNAMIC);
-    
-  } catch (error) {
-    console.warn('[SW] Fetch failed:', error);
-    return await getOfflineFallback(request);
-  }
-}
-
-/**
- * Strategy: Stale While Revalidate
- */
-async function staleWhileRevalidate(request, cacheName) {
-  const cache = await caches.open(cacheName);
-  const cachedResponse = await cache.match(request);
-  
-  const networkPromise = fetch(request).then(response => {
-    if (response.ok) {
-      cache.put(request, response.clone());
-    }
-    return response;
-  });
-  
-  return cachedResponse || networkPromise;
-}
-
-/**
- * Strategy: Network First
- */
-async function networkFirst(request, cacheName) {
-  try {
+    // Prova sempre la rete prima
     const response = await fetch(request);
     
-    if (response.ok) {
-      const cache = await caches.open(cacheName);
-      cache.put(request, response.clone());
-      await limitCacheSize(cacheName, MAX_CACHE_SIZE.dynamic);
+    // Se è una pagina HTML pubblica e la risposta è ok, cachala
+    if (response.ok && 
+        request.headers.get('accept')?.includes('text/html') &&
+        url.pathname.startsWith('/public/') &&
+        !url.pathname.includes('login')) {
+      
+      try {
+        const cache = await caches.open(CACHE_NAME);
+        cache.put(request, response.clone());
+      } catch (cacheError) {
+        console.warn('[SW] Cache put failed:', cacheError);
+      }
     }
     
     return response;
-  } catch (error) {
-    const cache = await caches.open(cacheName);
-    const cachedResponse = await cache.match(request);
     
-    if (cachedResponse) {
-      return cachedResponse;
+  } catch (networkError) {
+    console.log('[SW] Network failed for:', url.pathname);
+    
+    // Solo per pagine HTML, prova la cache
+    if (request.headers.get('accept')?.includes('text/html')) {
+      const cache = await caches.open(CACHE_NAME);
+      const cachedResponse = await cache.match(request);
+      
+      if (cachedResponse) {
+        console.log('[SW] Serving from cache:', url.pathname);
+        return cachedResponse;
+      }
+      
+      // Fallback offline solo per homepage
+      if (url.pathname === '/' || url.pathname === '/public/index.html') {
+        const offlineResponse = await cache.match('/offline.html');
+        if (offlineResponse) {
+          return offlineResponse;
+        }
+      }
+      
+      // Fallback HTML semplice
+      return new Response(`
+        <!DOCTYPE html>
+        <html lang="it">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Offline - MyApp</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              text-align: center; 
+              padding: 50px; 
+              background: linear-gradient(135deg, #2400C1, #8E008C);
+              color: white;
+              min-height: 100vh;
+              margin: 0;
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+            }
+            .container {
+              background: rgba(255,255,255,0.1);
+              padding: 30px;
+              border-radius: 15px;
+              backdrop-filter: blur(10px);
+              max-width: 400px;
+              margin: 0 auto;
+            }
+            button {
+              background: white;
+              color: #2400C1;
+              border: none;
+              padding: 12px 24px;
+              border-radius: 8px;
+              cursor: pointer;
+              font-weight: bold;
+              margin-top: 20px;
+            }
+            button:hover {
+              opacity: 0.9;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>🔌 Connessione Assente</h1>
+            <p>Non è possibile caricare la pagina senza connessione internet.</p>
+            <button onclick="location.reload()">🔄 Riprova</button>
+            <button onclick="location.href='/public/index.html'">🏠 Home</button>
+          </div>
+        </body>
+        </html>
+      `, {
+        status: 503,
+        headers: { 'Content-Type': 'text/html' }
+      });
     }
     
-    throw error;
+    // Per richieste non-HTML, fallisce semplicemente
+    throw networkError;
   }
 }
 
 /**
- * Strategy: Cache First
+ * Gestione messaggi
  */
-async function cacheFirst(request, cacheName) {
-  const cache = await caches.open(cacheName);
-  const cachedResponse = await cache.match(request);
+self.addEventListener('message', (event) => {
+  console.log('[SW] Message received:', event.data);
   
-  if (cachedResponse) {
-    return cachedResponse;
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
   }
   
-  const response = await fetch(request);
-  
-  if (response.ok) {
-    cache.put(request, response.clone());
-    await limitCacheSize(cacheName, MAX_CACHE_SIZE.dynamic);
+  if (event.data && event.data.type === 'CLEAR_CACHE') {
+    caches.delete(CACHE_NAME).then(() => {
+      console.log('[SW] Cache cleared');
+      event.ports[0]?.postMessage({ success: true });
+    });
   }
-  
-  return response;
-}
+});
 
 /**
- * Strategy: Network First con timeout
+ * Background sync quando la connessione torna
  */
-async function networkFirstWithTimeout(request, cacheName) {
-  try {
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('Network timeout')), NETWORK_TIMEOUT)
-    );
-    
-    const response = await Promise.race([
-      fetch(request),
-      timeoutPromise
-    ]);
-    
-    if (response.ok) {
-      const cache = await caches.open(cacheName);
-      cache.put(request, response.clone());
-    }
-    
-    return response;
-  } catch (error) {
-    const cache = await caches.open(cacheName);
-    const cachedResponse = await cache.match(request);
-    
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-    
-    throw error;
-  }
-}
+self.addEventListener('online', () => {
+  console.log('[SW] Connection restored');
+  
+  self.clients.matchAll().then(clients => {
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'CONNECTION_RESTORED'
+      });
+    });
+  });
+});
 
-/**
- * Fallback offline per richieste fallite
- */
-async function getOfflineFallback(request) {
-  const url = new URL(request.url);
+// Funzione di debug
+self.debugServiceWorker = () => {
+  console.log('🔍 Service Worker Debug Info:');
+  console.log('- Version:', CACHE_NAME);
+  console.log('- Registration:', self.registration);
+  console.log('- Clients count:', self.clients.matchAll().then(c => c.length));
   
-  // HTML fallback
-  if (request.headers.get('accept')?.includes('text/html')) {
-    const cache = await caches.open(CACHE_STATIC);
-    return await cache.match('/offline.html') || 
-           await cache.match('/') ||
-           new Response('Offline - Connessione non disponibile', { status: 503 });
-  }
-  
-  // JSON API fallback
-  if (request.headers.get('accept')?.includes('application/json')) {
-    return new Response(
-      JSON.stringify({
-        error: 'Offline
+  caches.keys().then(names => {
+    console.log('- Active caches:', names);
+  });
+};
+
+console.log('✅ Simple Service Worker v1.3.0 loaded');

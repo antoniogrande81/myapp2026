@@ -269,7 +269,7 @@
 
         <!-- CTA Buttons -->
         <div class="space-y-3 md:space-y-4 w-full max-w-xs md:max-w-sm mb-8">
-            <a href="login.html" class="btn-primary block w-full py-3 md:py-4 px-4 md:px-6 rounded-xl font-semibold text-center text-decoration-none">
+            <a href="login-minimal.html" class="btn-primary block w-full py-3 md:py-4 px-4 md:px-6 rounded-xl font-semibold text-center text-decoration-none">
                 🔐 Accedi al Portale
             </a>
             <a href="registrazione.html" class="btn-primary block w-full py-3 md:py-4 px-4 md:px-6 rounded-xl font-semibold text-center text-decoration-none">
@@ -339,7 +339,7 @@
                     <p class="text-gray-600 text-sm leading-relaxed mb-4">
                         La tua tessera sindacale sempre con te, con QR code sicuro e funzioni avanzate
                     </p>
-                    <a href="login.html" class="text-primary font-semibold text-sm hover:underline">
+                    <a href="login-minimal.html" class="text-primary font-semibold text-sm hover:underline">
                         Accedi →
                     </a>
                 </div>
@@ -418,7 +418,7 @@
                     <div class="text-white font-semibold text-xs md:text-sm">Privacy</div>
                 </a>
 
-                <a href="login.html" class="glass-light rounded-xl p-3 md:p-4 text-center card-hover text-decoration-none">
+                <a href="login-minimal.html" class="glass-light rounded-xl p-3 md:p-4 text-center card-hover text-decoration-none">
                     <div class="text-2xl md:text-3xl mb-2">🔐</div>
                     <div class="text-white font-semibold text-xs md:text-sm">Login</div>
                 </a>
@@ -501,6 +501,8 @@
 
         // Add intersection observer for animations
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 MyApp homepage loaded - Service Worker DISABLED for login testing');
+            
             const observerOptions = {
                 threshold: 0.1,
                 rootMargin: '0px 0px -50px 0px'
@@ -523,7 +525,9 @@
                 observer.observe(card);
             });
 
-            // Register service worker
+            // SERVICE WORKER TEMPORANEAMENTE DISABILITATO
+            // per risolvere problemi di interferenza con il login
+            /*
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('/service-worker.js')
                     .then((registration) => {
@@ -533,6 +537,8 @@
                         console.log('SW registration failed: ', registrationError);
                     });
             }
+            */
+            console.log('ℹ️ Service Worker disabilitato per test login');
         });
 
         // Responsive handling
