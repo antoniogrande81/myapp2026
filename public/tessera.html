@@ -5,26 +5,60 @@
     <title>Tessera Digitale</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="/js/qrcode.min.js"></script>
+    <style>
+      body {
+        background: linear-gradient(to bottom, #2400C1, #8E008C);
+      }
+    </style>
   </head>
-  <body class="bg-backgroundLight text-primary flex items-center justify-center min-h-screen p-4">
-    <div id="tessera" class="w-full max-w-sm rounded-2xl shadow-xl bg-gradient-to-br from-[#2400C1] to-[#8E008C] text-white p-6 relative">
-      <div class="text-center pt-6 pb-4">
-        <h2 id="nomeCompleto" class="text-2xl font-bold tracking-wide">Caricamento...</h2>
-      </div>
-      <div class="bg-white rounded-xl p-4 flex justify-center items-center shadow-md">
-        <div id="qrcode"></div>
-      </div>
-      <div id="numeroTessera" class="mt-4 text-sm text-center bg-white text-primary px-2 py-1 rounded-md font-medium"></div>
+  <body class="min-h-screen flex flex-col justify-between items-center text-white font-sans">
 
-      <div class="flex justify-between items-center mt-6 text-xs text-white opacity-80">
-        <button id="logoutBtn" class="bg-danger text-white py-1 px-3 rounded-lg hover:bg-red-700">Logout</button>
-        <button id="downloadBtn" class="bg-white text-primary py-1 px-3 rounded-lg font-semibold hover:opacity-90">Scarica Tessera</button>
-      </div>
+    <!-- HEADER con logout -->
+    <header class="w-full max-w-md flex justify-between items-center px-4 py-3">
+      <h1 class="text-xl font-bold">Tessera Digitale</h1>
+      <button id="logoutBtn" class="bg-red-600 text-white text-sm px-3 py-1 rounded-full font-semibold hover:bg-red-700">
+        Logout
+      </button>
+    </header>
 
-      <div class="absolute bottom-3 right-4 text-[10px] opacity-60"> by MyApp</div>
-    </div>
+    <!-- Tessera Card -->
+    <main class="flex-1 flex items-center justify-center w-full px-4">
+      <div id="tessera" class="w-full max-w-sm rounded-2xl bg-white text-primary shadow-2xl p-6 relative border-4 border-primary">
+        <div class="flex flex-col items-center">
+          <div class="w-24 h-24 bg-gray-200 rounded-full mb-4 flex items-center justify-center text-gray-400 text-xl font-bold">
+            <span>👤</span>
+          </div>
+          <h2 id="nomeCompleto" class="text-2xl font-semibold text-center mb-1">Nome Cognome</h2>
+          <div id="numeroTessera" class="text-sm text-center bg-primary text-white px-3 py-1 rounded-md font-medium mb-4">
+            Tessera N° 000000
+          </div>
+          <div class="bg-gray-100 rounded-lg p-3 shadow-md">
+            <div id="qrcode"></div>
+          </div>
+        </div>
+        <div class="absolute bottom-3 right-4 text-[10px] opacity-50">Powered by Supabase</div>
+      </div>
+    </main>
+
+    <!-- Nav inferiore -->
+    <nav class="bg-white text-primary rounded-t-2xl shadow-lg py-2 px-6 flex justify-around items-center w-full max-w-md fixed bottom-0">
+      <a href="/home.html" class="flex flex-col items-center text-xs">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10l9-7 9 7v10a2 2 0 01-2 2H5a2 2 0 01-2-2V10z"/></svg>
+        Home
+      </a>
+      <a href="/convenzioni.html" class="flex flex-col items-center text-xs">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        Convenzioni
+      </a>
+      <a href="/profilo.html" class="flex flex-col items-center text-xs">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A4.978 4.978 0 0112 15c1.657 0 3.156.804 4.121 2.804M15 10a3 3 0 10-6 0 3 3 0 006 0z"/></svg>
+        Profilo
+      </a>
+    </nav>
+
+    <!-- Script principale -->
     <script type="module" src="/js/tessera.js"></script>
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
   </body>
 </html>
