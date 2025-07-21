@@ -1,256 +1,317 @@
-// 🚀 MyApp Service Worker v2.0.0 - VERSIONE INTELLIGENTE
-// Gestisce correttamente login, autenticazione e routing
+// MyApp Service Worker v1.2.1
+const CACHE_NAME = 'myapp-v1.2.1';
+const CACHE_STATIC = 'myapp-static-v1.2.1';
+const CACHE_DYNAMIC = 'myapp-dynamic-v1.2.1';
+const CACHE_API = 'myapp-api-v1.2.1';
 
-const CACHE_VERSION = 'myapp-v2.0.0';
-const CACHE_STATIC = `${CACHE_VERSION}-static`;
-const CACHE_DYNAMIC = `${CACHE_VERSION}-dynamic`;
-const CACHE_API = `${CACHE_VERSION}-api`;
-
-// Timeout per richieste di rete
-const NETWORK_TIMEOUT = 8000;
-
-// Risorse essenziali da cachare (NON includere pagine di login/auth)
-const ESSENTIAL_CACHE = [
+// Risorse statiche da cachare sempre - STRUTTURA CORRETTA
+const STATIC_CACHE_URLS = [
   '/',
-  '/index.html',
-  '/offline.html',
+  '/public/index.html',
+  '/public/login.html',
+  '/public/registrazione.html',
+  '/public/recupero-password.html',
+  '/public/convenzioni.html',
+  '/public/contatti.html',
+  '/public/privacy.html',
+  '/public/dirigenti.html',
+  '/public/strumenti.html',
   
-  // Pagine pubbliche
-  '/convenzioni.html',
-  '/contatti.html',
-  '/privacy.html',
-  '/dirigenti.html',
+  // App protette - CARTELLA APP CORRETTA
+  '/app/home.html',
+  '/app/tessera.html',
+  '/app/profilo.html',
+  '/app/dirigenti.html',
+  '/app/notifiche.html',
+  '/app/servizi.html',
+  '/app/strumenti.html',
+  '/app/virgilio.html',
+  '/app/adimin.html',
   
-  // CSS/JS esterni critici
+  // Assets esterni essenziali
   'https://cdn.tailwindcss.com',
+  'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm',
   
-  // Manifest e icone
-  '/manifest.json'
+  // Fallback offline
+  '/offline.html'
 ];
 
-// Pattern delle pagine dell'app protetta
-const PROTECTED_PAGES = [
-  /\/app\//,
-  /\/login/,
-  /\/registrazione/,
-  /\/recupero/
+// Pattern URL da cachare dinamicamente
+const DYNAMIC_CACHE_PATTERNS = [
+  /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+  /\.(?:css|js)$/,
+  /\.(?:woff|woff2|ttf|eot)$/
 ];
 
-// Pattern API da NON cachare MAI (autenticazione sensibile)
+// API endpoints da cachare con strategy specifiche
+const API_CACHE_PATTERNS = [
+  /\/api\/convenzioni/,
+  /\/api\/dirigenti/,
+  /\/api\/notizie/
+];
+
+// URLs da non cachare mai
 const NEVER_CACHE_PATTERNS = [
-  /\/auth\//,
-  /supabase\.co.*\/auth\//,
-  /supabase\.co.*\/rest\/v1\/rpc/,
-  /googleapis\.com/,
+  /\/api\/auth/,
+  /\/api\/user/,
   /analytics/,
   /tracking/,
-  /login/,
-  /logout/,
-  /signin/,
-  /signup/
+  /supabase\.co/
 ];
 
-// Pattern richieste che devono sempre andare in rete
-const NETWORK_FIRST_PATTERNS = [
-  /\.json$/,
-  /\/api\//,
-  /supabase\.co/,
-  /cdn\.jsdelivr\.net/
-];
+// Timeout per richieste network
+const NETWORK_TIMEOUT = 5000;
+
+// Maximum cache size (numero di entries)
+const MAX_CACHE_SIZE = {
+  static: 50,
+  dynamic: 100,
+  api: 30
+};
 
 /**
- * Install Event - Cache delle risorse essenziali
+ * Install Event - Cache delle risorse statiche
  */
 self.addEventListener('install', (event) => {
-  console.log('[SW v2.0] Installing...');
+  console.log('[SW] Installing Service Worker v1.2.1');
   
   event.waitUntil(
     (async () => {
       try {
-        const cache = await caches.open(CACHE_STATIC);
+        const staticCache = await caches.open(CACHE_STATIC);
         
-        // Cache solo le risorse essenziali che sicuramente esistono
-        const safeResources = [
+        // Cache delle risorse critiche AGGIORNATE
+        const criticalResources = [
           '/',
-          '/index.html',
-          '/manifest.json'
+          '/public/index.html',
+          '/public/login.html',
+          '/app/home.html'
         ];
         
-        // Prova a cachare le risorse una per volta
-        for (const resource of safeResources) {
+        // Cache delle risorse critiche una alla volta per evitare errori
+        const cachePromises = criticalResources.map(async (url) => {
           try {
-            await cache.add(resource);
-            console.log(`[SW v2.0] Cached: ${resource}`);
+            const response = await fetch(url);
+            if (response.ok) {
+              await staticCache.put(url, response);
+              console.log(`[SW] Cached: ${url}`);
+            }
           } catch (error) {
-            console.warn(`[SW v2.0] Failed to cache ${resource}:`, error);
+            console.warn(`[SW] Failed to cache: ${url}`, error);
           }
-        }
+        });
         
-        // Forza attivazione immediata
+        await Promise.allSettled(cachePromises);
+        console.log('[SW] Critical resources cached');
+        
+        // Cache delle risorse secondarie (non bloccare l'install)
+        const secondaryPromises = STATIC_CACHE_URLS.filter(url => 
+          !criticalResources.includes(url)
+        ).map(async (url) => {
+          try {
+            const response = await fetch(url);
+            if (response.ok) {
+              await staticCache.put(url, response);
+            }
+          } catch (error) {
+            console.warn(`[SW] Failed to cache secondary resource: ${url}`);
+          }
+        });
+        
+        await Promise.allSettled(secondaryPromises);
+        console.log('[SW] Secondary resources cached');
+        
+        // Force activation
         self.skipWaiting();
-        console.log('[SW v2.0] Installation completed');
         
       } catch (error) {
-        console.error('[SW v2.0] Installation failed:', error);
+        console.error('[SW] Install failed:', error);
       }
     })()
   );
 });
 
 /**
- * Activate Event - Pulizia cache vecchie
+ * Activate Event - Cleanup vecchie cache
  */
 self.addEventListener('activate', (event) => {
-  console.log('[SW v2.0] Activating...');
+  console.log('[SW] Activating Service Worker v1.2.1');
   
   event.waitUntil(
     (async () => {
       try {
-        // Rimuovi cache vecchie
+        // Cleanup vecchie cache
         const cacheNames = await caches.keys();
         const oldCaches = cacheNames.filter(name => 
           name.startsWith('myapp-') && 
-          !name.includes('v2.0.0')
+          !name.includes('v1.2.1')
         );
         
         await Promise.all(
           oldCaches.map(cacheName => {
-            console.log(`[SW v2.0] Deleting old cache: ${cacheName}`);
+            console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           })
         );
         
-        // Prendi controllo di tutte le pagine
+        // Take control of all pages
         await self.clients.claim();
-        console.log('[SW v2.0] Activated and claimed clients');
+        console.log('[SW] Service Worker activated and claimed clients');
         
       } catch (error) {
-        console.error('[SW v2.0] Activation failed:', error);
+        console.error('[SW] Activation failed:', error);
       }
     })()
   );
 });
 
 /**
- * Fetch Event - Strategia intelligente
+ * Fetch Event - Strategia di caching intelligente
  */
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
   
-  // Skip richieste non-GET
+  // Skip non-GET requests
   if (request.method !== 'GET') {
     return;
   }
   
-  // Skip protocolli non-HTTP
+  // Skip chrome-extension and other protocols
   if (!url.protocol.startsWith('http')) {
     return;
   }
   
-  // 🚫 NEVER CACHE - Sempre rete per autenticazione
-  if (shouldNeverCache(url, request)) {
-    console.log(`[SW v2.0] NEVER CACHE: ${url.pathname}`);
-    return; // Lascia che il browser gestisca normalmente
-  }
-  
-  // 🔐 PROTECTED PAGES - Strategia speciale per app area
-  if (isProtectedPage(url)) {
-    event.respondWith(handleProtectedPage(request));
+  // Skip URLs che non dovrebbero essere cachate
+  if (NEVER_CACHE_PATTERNS.some(pattern => pattern.test(url.href))) {
     return;
   }
   
-  // 🌐 NETWORK FIRST - API e contenuti dinamici
-  if (shouldUseNetworkFirst(url, request)) {
-    event.respondWith(networkFirstStrategy(request));
-    return;
-  }
-  
-  // 📄 STATIC ASSETS - Cache first per risorse statiche
-  if (isStaticAsset(url)) {
-    event.respondWith(cacheFirstStrategy(request));
-    return;
-  }
-  
-  // 🏠 HTML PAGES - Stale while revalidate
-  if (isHTMLPage(request)) {
-    event.respondWith(staleWhileRevalidateStrategy(request));
-    return;
-  }
-  
-  // Default: Network first con timeout
-  event.respondWith(networkFirstWithTimeout(request));
+  event.respondWith(handleFetchRequest(request));
 });
 
 /**
- * Gestione speciale per pagine protette (area app/)
+ * Gestisce le richieste fetch con strategia appropriata
  */
-async function handleProtectedPage(request) {
+async function handleFetchRequest(request) {
   const url = new URL(request.url);
   
-  console.log(`[SW v2.0] Handling protected page: ${url.pathname}`);
-  
   try {
-    // Per le pagine dell'app, sempre network first
-    const response = await networkFirstWithTimeout(request);
-    
-    // Se la risposta è OK, cachela per offline
-    if (response.ok) {
-      const cache = await caches.open(CACHE_DYNAMIC);
-      cache.put(request, response.clone());
+    // 1. HTML Pages - Stale While Revalidate con fallback per auth
+    if (request.headers.get('accept')?.includes('text/html')) {
+      return await handleHtmlRequest(request);
     }
     
-    return response;
+    // 2. API Calls - Network First con cache fallback
+    if (API_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname))) {
+      return await networkFirst(request, CACHE_API);
+    }
+    
+    // 3. Static Assets - Cache First
+    if (DYNAMIC_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname))) {
+      return await cacheFirst(request, CACHE_DYNAMIC);
+    }
+    
+    // 4. Supabase/External APIs - Network First con timeout
+    if (url.origin !== location.origin) {
+      return await networkFirstWithTimeout(request, CACHE_DYNAMIC);
+    }
+    
+    // 5. Default - Network First
+    return await networkFirst(request, CACHE_DYNAMIC);
     
   } catch (error) {
-    console.log(`[SW v2.0] Protected page offline, checking cache: ${url.pathname}`);
-    
-    // Se offline, prova la cache
-    const cache = await caches.open(CACHE_DYNAMIC);
-    const cachedResponse = await cache.match(request);
-    
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-    
-    // Se non in cache, redirect alla home o offline page
-    if (url.pathname.includes('/app/')) {
-      return Response.redirect('/', 302);
-    }
-    
-    return getOfflinePage();
+    console.warn('[SW] Fetch failed:', error);
+    return await getOfflineFallback(request);
   }
 }
 
 /**
- * Network First Strategy - Per API e contenuti dinamici
+ * Gestione speciale per le pagine HTML con controllo auth
  */
-async function networkFirstStrategy(request) {
+async function handleHtmlRequest(request) {
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+  
+  // Per le pagine dell'app protetta, verifica se sono accessibili
+  if (pathname.startsWith('/app/')) {
+    try {
+      // Prova prima la rete
+      const response = await fetch(request);
+      
+      if (response.ok) {
+        const cache = await caches.open(CACHE_STATIC);
+        cache.put(request, response.clone());
+        return response;
+      }
+      
+      // Se la rete fallisce, prova la cache
+      const cachedResponse = await caches.match(request);
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      
+      // Se non c'è cache, redirect al login
+      return Response.redirect('/public/login.html', 302);
+      
+    } catch (error) {
+      // Errore di rete, prova la cache
+      const cachedResponse = await caches.match(request);
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+      
+      // Fallback al login se non c'è cache
+      const loginResponse = await caches.match('/public/login.html');
+      return loginResponse || Response.redirect('/public/login.html', 302);
+    }
+  }
+  
+  // Per le pagine pubbliche, usa stale-while-revalidate normale
+  return await staleWhileRevalidate(request, CACHE_STATIC);
+}
+
+/**
+ * Strategy: Stale While Revalidate
+ */
+async function staleWhileRevalidate(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  const cachedResponse = await cache.match(request);
+  
+  const networkPromise = fetch(request).then(response => {
+    if (response.ok) {
+      cache.put(request, response.clone());
+    }
+    return response;
+  }).catch(() => {
+    // Ignora errori di rete per stale-while-revalidate
+    return null;
+  });
+  
+  // Restituisci subito la cache se disponibile, altrimenti aspetta la rete
+  return cachedResponse || networkPromise;
+}
+
+/**
+ * Strategy: Network First
+ */
+async function networkFirst(request, cacheName) {
   try {
     const response = await fetch(request);
     
-    // Cache solo risposte OK
-    if (response.ok && request.url.includes('supabase')) {
-      const cache = await caches.open(CACHE_API);
-      // Cache per un tempo limitato
+    if (response.ok) {
+      const cache = await caches.open(cacheName);
       cache.put(request, response.clone());
-      
-      // Limita dimensione cache API
-      setTimeout(() => limitCacheSize(CACHE_API, 50), 1000);
+      await limitCacheSize(cacheName, MAX_CACHE_SIZE.dynamic);
     }
     
     return response;
-    
   } catch (error) {
-    // Fallback su cache per API non critiche
-    if (!request.url.includes('/auth/')) {
-      const cache = await caches.open(CACHE_API);
-      const cachedResponse = await cache.match(request);
-      
-      if (cachedResponse) {
-        console.log(`[SW v2.0] Using cached API response: ${request.url}`);
-        return cachedResponse;
-      }
+    const cache = await caches.open(cacheName);
+    const cachedResponse = await cache.match(request);
+    
+    if (cachedResponse) {
+      return cachedResponse;
     }
     
     throw error;
@@ -258,58 +319,30 @@ async function networkFirstStrategy(request) {
 }
 
 /**
- * Cache First Strategy - Per assets statici
+ * Strategy: Cache First
  */
-async function cacheFirstStrategy(request) {
-  const cache = await caches.open(CACHE_STATIC);
+async function cacheFirst(request, cacheName) {
+  const cache = await caches.open(cacheName);
   const cachedResponse = await cache.match(request);
   
   if (cachedResponse) {
-    // Aggiorna in background
-    fetch(request).then(response => {
-      if (response.ok) {
-        cache.put(request, response.clone());
-      }
-    }).catch(() => {
-      // Ignora errori di update in background
-    });
-    
     return cachedResponse;
   }
   
-  // Non in cache, fetch dalla rete
   const response = await fetch(request);
   
   if (response.ok) {
     cache.put(request, response.clone());
+    await limitCacheSize(cacheName, MAX_CACHE_SIZE.dynamic);
   }
   
   return response;
 }
 
 /**
- * Stale While Revalidate - Per pagine HTML
+ * Strategy: Network First con timeout
  */
-async function staleWhileRevalidateStrategy(request) {
-  const cache = await caches.open(CACHE_DYNAMIC);
-  const cachedResponse = await cache.match(request);
-  
-  // Fetch in background per aggiornare
-  const networkPromise = fetch(request).then(response => {
-    if (response.ok) {
-      cache.put(request, response.clone());
-    }
-    return response;
-  }).catch(() => cachedResponse);
-  
-  // Ritorna cache se disponibile, altrimenti aspetta la rete
-  return cachedResponse || networkPromise;
-}
-
-/**
- * Network First con timeout
- */
-async function networkFirstWithTimeout(request) {
+async function networkFirstWithTimeout(request, cacheName) {
   try {
     const timeoutPromise = new Promise((_, reject) => 
       setTimeout(() => reject(new Error('Network timeout')), NETWORK_TIMEOUT)
@@ -320,116 +353,132 @@ async function networkFirstWithTimeout(request) {
       timeoutPromise
     ]);
     
+    if (response.ok) {
+      const cache = await caches.open(cacheName);
+      cache.put(request, response.clone());
+    }
+    
     return response;
-    
   } catch (error) {
-    console.log(`[SW v2.0] Network failed for ${request.url}, trying cache`);
-    
-    const cache = await caches.open(CACHE_DYNAMIC);
+    const cache = await caches.open(cacheName);
     const cachedResponse = await cache.match(request);
     
     if (cachedResponse) {
       return cachedResponse;
     }
     
-    // Ultima risorsa: offline page
-    return getOfflinePage();
+    throw error;
   }
 }
 
 /**
- * Utility Functions
+ * Limita la dimensione della cache
  */
-function shouldNeverCache(url, request) {
-  return NEVER_CACHE_PATTERNS.some(pattern => 
-    pattern.test(url.href) || pattern.test(url.pathname)
-  );
+async function limitCacheSize(cacheName, maxEntries) {
+  try {
+    const cache = await caches.open(cacheName);
+    const keys = await cache.keys();
+    
+    if (keys.length > maxEntries) {
+      const keysToDelete = keys.slice(0, keys.length - maxEntries);
+      await Promise.all(keysToDelete.map(key => cache.delete(key)));
+    }
+  } catch (error) {
+    console.warn('[SW] Failed to limit cache size:', error);
+  }
 }
 
-function isProtectedPage(url) {
-  return PROTECTED_PAGES.some(pattern => pattern.test(url.pathname));
-}
-
-function shouldUseNetworkFirst(url, request) {
-  return NETWORK_FIRST_PATTERNS.some(pattern => 
-    pattern.test(url.href) || pattern.test(url.pathname)
-  );
-}
-
-function isStaticAsset(url) {
-  return /\.(css|js|jpg|png|svg|ico|woff|woff2)$/i.test(url.pathname);
-}
-
-function isHTMLPage(request) {
-  return request.headers.get('accept')?.includes('text/html');
-}
-
-async function getOfflinePage() {
-  const cache = await caches.open(CACHE_STATIC);
-  const offlinePage = await cache.match('/offline.html');
+/**
+ * Fallback offline per richieste fallite
+ */
+async function getOfflineFallback(request) {
+  const url = new URL(request.url);
   
-  if (offlinePage) {
-    return offlinePage;
+  // HTML fallback
+  if (request.headers.get('accept')?.includes('text/html')) {
+    const cache = await caches.open(CACHE_STATIC);
+    
+    // Per le app protette, prova il login
+    if (url.pathname.startsWith('/app/')) {
+      return await cache.match('/public/login.html') || 
+             await cache.match('/public/index.html') ||
+             new Response(`
+               <!DOCTYPE html>
+               <html><head><title>Offline</title></head>
+               <body style="font-family: Arial; text-align: center; padding: 50px;">
+                 <h1>App non disponibile offline</h1>
+                 <p>Connessione richiesta per accedere all'area riservata.</p>
+                 <a href="/public/index.html">Torna alla home</a>
+               </body></html>
+             `, { 
+               status: 503, 
+               headers: { 'Content-Type': 'text/html' } 
+             });
+    }
+    
+    // Per le pagine pubbliche
+    return await cache.match('/offline.html') || 
+           await cache.match('/public/index.html') ||
+           new Response(`
+             <!DOCTYPE html>
+             <html><head><title>Offline</title></head>
+             <body style="font-family: Arial; text-align: center; padding: 50px;">
+               <h1>Connessione non disponibile</h1>
+               <p>Verifica la tua connessione e riprova.</p>
+             </body></html>
+           `, { 
+             status: 503, 
+             headers: { 'Content-Type': 'text/html' } 
+           });
   }
   
-  // Fallback offline page
-  return new Response(`
-    <!DOCTYPE html>
-    <html><head><title>Offline</title><style>
-    body{background:linear-gradient(135deg,#2400C1,#8E008C);color:white;
-    font-family:Arial;text-align:center;padding:2rem;min-height:100vh;
-    display:flex;align-items:center;justify-content:center;}
-    .card{background:rgba(255,255,255,0.1);padding:2rem;border-radius:15px;}
-    </style></head><body>
-    <div class="card">
-    <h1>📱 MyApp</h1>
-    <h2>Sei offline</h2>
-    <p>Verifica la connessione e riprova</p>
-    <button onclick="location.reload()">🔄 Riprova</button>
-    </div></body></html>
-  `, {
+  // JSON API fallback
+  if (request.headers.get('accept')?.includes('application/json')) {
+    return new Response(
+      JSON.stringify({
+        error: 'Offline',
+        message: 'Servizio non disponibile senza connessione',
+        offline: true
+      }),
+      {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+  
+  // Generic fallback
+  return new Response('Servizio non disponibile offline', { 
     status: 503,
-    headers: { 'Content-Type': 'text/html' }
+    headers: { 'Content-Type': 'text/plain' }
   });
 }
 
-async function limitCacheSize(cacheName, maxSize) {
-  const cache = await caches.open(cacheName);
-  const keys = await cache.keys();
+// Background sync per quando la connessione torna disponibile
+self.addEventListener('online', () => {
+  console.log('[SW] Connection restored');
   
-  if (keys.length > maxSize) {
-    // Rimuovi le voci più vecchie
-    const oldKeys = keys.slice(0, keys.length - maxSize);
-    await Promise.all(oldKeys.map(key => cache.delete(key)));
-    console.log(`[SW v2.0] Cache ${cacheName} limited to ${maxSize} entries`);
-  }
-}
+  // Notifica ai client che la connessione è tornata
+  self.clients.matchAll().then(clients => {
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'CONNECTION_RESTORED'
+      });
+    });
+  });
+});
 
-/**
- * Message handler per comunicazione con l'app
- */
+// Gestione messaggi dai client
 self.addEventListener('message', (event) => {
-  const { data } = event;
-  
-  if (data && data.type === 'SKIP_WAITING') {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
   
-  if (data && data.type === 'GET_VERSION') {
-    event.ports[0].postMessage({ version: CACHE_VERSION });
-  }
-  
-  if (data && data.type === 'CLEAR_CACHE') {
-    clearAllCaches().then(() => {
-      event.ports[0].postMessage({ success: true });
+  if (event.data && event.data.type === 'GET_VERSION') {
+    event.ports[0].postMessage({
+      version: CACHE_NAME
     });
   }
 });
 
-async function clearAllCaches() {
-  const cacheNames = await caches.keys();
-  await Promise.all(cacheNames.map(name => caches.delete(name)));
-  console.log('[SW v2.0] All caches cleared');
-}
-
-console.log('✅ MyApp Service Worker v2.0.0 loaded - Smart caching with auth protection');
+console.log('[SW] Service Worker v1.2.1 loaded and configured');
