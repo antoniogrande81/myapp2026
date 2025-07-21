@@ -1,80 +1,263 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strumenti - MyApp</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#2400C1',
-                        secondary: '#8E008C',
-                        accent: '#00BFFF',
-                        textDark: '#1C1C1E',
-                        backgroundLight: '#F4F4F8',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            background: linear-gradient(135deg, #2400C1, #8E008C);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-        }
-        .text-white {
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-        }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Strumenti – MyApp2026</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+  <link rel="manifest" href="manifest.json" />
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css' rel='stylesheet' />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background: #f4f4f8;
+      color: #1C1C1E;
+    }
+    h1 {
+      text-align: center;
+      color: #2400C1;
+      margin-bottom: 2rem;
+    }
+    .section {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    .section h2 {
+      color: #8E008C;
+      margin-top: 0;
+    }
+    .download-link, .add-event-btn {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.6rem 1.2rem;
+      background: #2400C1;
+      color: white;
+      border-radius: 6px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    #calendar {
+      max-width: 100%;
+      margin-top: 1rem;
+    }
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      z-index: 1000;
+      display: none;
+    }
+    .modal input, .modal select {
+      display: block;
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 999;
+      display: none;
+    }
+  </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="w-full px-4 py-4 relative z-10">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <button onclick="history.back()" class="text-white hover:text-accent transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                </button>
-                <h1 class="text-xl font-bold text-white drop-shadow-lg">Strumenti</h1>
-            </div>
-        </div>
-    </header>
+  <h1>Strumenti Personali</h1>
+  <div class="section">
+    <h2>Turni di Servizio</h2>
+    <div id='calendar'></div>
+    <button class="add-event-btn" onclick="apriModal()">Aggiungi Turno</button>
+  </div>
 
-    <!-- Content -->
-    <main class="flex-1 flex items-center justify-center px-4 pb-20">
-        <div class="glass-effect rounded-2xl p-8 text-center max-w-sm w-full">
-            <div class="w-20 h-20 bg-gradient-to-br from-accent to-blue-500 rounded-full mx-auto mb-6 flex items-center justify-center">
-                <span class="text-3xl text-white">🛠️</span>
-            </div>
-            <h2 class="text-2xl font-bold text-primary mb-4">Strumenti</h2>
-            <p class="text-gray-600 mb-6">
-                Questa sezione sarà presto disponibile con tutti gli strumenti per la gestione turni, permessi e utilities.
-            </p>
-            <div class="bg-blue-50 rounded-lg p-4 text-left">
-                <h3 class="font-semibold text-blue-800 mb-2">🚀 Prossimamente:</h3>
-                <ul class="text-sm text-blue-700 space-y-1">
-                    <li>• Gestione turni e servizi</li>
-                    <li>• Richiesta permessi</li>
-                    <li>• Calcolo ore straordinario</li>
-                    <li>• Calendario personale</li>
-                    <li>• Tools utili</li>
-                </ul>
-            </div>
-            <button onclick="history.back()" class="mt-6 bg-primary hover:bg-secondary text-white font-semibold py-3 px-6 rounded-lg transition-colors">
-                ← Torna Indietro
-            </button>
-        </div>
-    </main>
+  <div class="section">
+    <h2>Licenze</h2>
+    <table>
+      <thead>
+        <tr><th>Tipo</th><th>Inizio</th><th>Fine</th><th>Note</th></tr>
+      </thead>
+      <tbody id="licenze-table"></tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Recuperi / Riposi</h2>
+    <table>
+      <thead>
+        <tr><th>Motivo</th><th>Data</th><th>Usato</th></tr>
+      </thead>
+      <tbody id="recuperi-table"></tbody>
+    </table>
+  </div>
+
+  <div class="modal" id="turnoModal">
+    <h3>Gestione Turno</h3>
+    <input type="hidden" id="turnoId">
+    <label>Tipo:</label>
+    <select id="turnoTipo">
+      <option value="mattina">Mattina</option>
+      <option value="pomeriggio">Pomeriggio</option>
+      <option value="sera">Sera</option>
+      <option value="notte">Notte</option>
+      <option value="riposo">Riposo</option>
+    </select>
+    <label>Data:</label>
+    <input type="date" id="turnoData">
+    <button onclick="salvaTurno()">Salva</button>
+    <button onclick="chiudiModal()">Annulla</button>
+  </div>
+  <div class="overlay" id="overlay" onclick="chiudiModal()"></div>
+
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.js'></script>
+  <script>
+    const SUPABASE_URL = "https://lycrgzptkdkksukcwrld.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let calendar, editingEvent = null;
+    let currentUser = null;
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return alert("Devi effettuare il login per accedere ai tuoi dati.");
+      currentUser = user;
+
+      calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        initialView: 'dayGridMonth',
+        locale: 'it',
+        editable: true,
+        selectable: true,
+        eventClick: function(info) {
+          editingEvent = info.event;
+          document.getElementById('turnoId').value = editingEvent.extendedProps.id;
+          document.getElementById('turnoTipo').value = editingEvent.title.toLowerCase();
+          document.getElementById('turnoData').value = editingEvent.startStr;
+          apriModal();
+        },
+        events: []
+      });
+      calendar.render();
+      await caricaTurni();
+      await caricaLicenze();
+      await caricaRecuperi();
+    });
+
+    async function caricaTurni() {
+      const { data, error } = await supabase.from('turni').select('*').eq('user_id', currentUser.id);
+      if (!error && data) {
+        calendar.removeAllEvents();
+        data.forEach(turno => {
+          calendar.addEvent({
+            id: turno.id,
+            title: turno.titolo,
+            start: turno.data_inizio,
+            end: turno.data_fine,
+            color: coloreTurno(turno.titolo),
+            extendedProps: { id: turno.id }
+          });
+        });
+      }
+    }
+
+    async function caricaLicenze() {
+      const { data, error } = await supabase.from('licenze').select('*').eq('user_id', currentUser.id);
+      if (!error && data) {
+        const tbody = document.getElementById("licenze-table");
+        tbody.innerHTML = "";
+        data.forEach(row => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${row.tipo_licenza}</td><td>${row.data_inizio}</td><td>${row.data_fine}</td><td>${row.note}</td>`;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    async function caricaRecuperi() {
+      const { data, error } = await supabase.from('recuperi').select('*').eq('user_id', currentUser.id);
+      if (!error && data) {
+        const tbody = document.getElementById("recuperi-table");
+        tbody.innerHTML = "";
+        data.forEach(row => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${row.motivo}</td><td>${row.data_maturazione}</td><td>${row.usato ? 'Sì' : 'No'}</td>`;
+          tbody.appendChild(tr);
+        });
+      }
+    }
+
+    function coloreTurno(tipo) {
+      switch (tipo.toLowerCase()) {
+        case 'mattina': return '#00BFFF';
+        case 'pomeriggio': return '#FFA500';
+        case 'sera': return '#FF69B4';
+        case 'notte': return '#2400C1';
+        case 'riposo': return '#999';
+        default: return '#8E008C';
+      }
+    }
+
+    function apriModal() {
+      document.getElementById('overlay').style.display = 'block';
+      document.getElementById('turnoModal').style.display = 'block';
+    }
+    function chiudiModal() {
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('turnoModal').style.display = 'none';
+      document.getElementById('turnoId').value = '';
+      editingEvent = null;
+    }
+
+    async function salvaTurno() {
+      const tipo = document.getElementById('turnoTipo').value;
+      const data = document.getElementById('turnoData').value;
+      const id = document.getElementById('turnoId').value;
+      if (!data || !tipo) return alert("Compila tutti i campi correttamente.");
+
+      if (id) {
+        await supabase.from('turni').update({
+          titolo: tipo,
+          tipo_evento: tipo,
+          data_inizio: data,
+          data_fine: data
+        }).eq('id', id).eq('user_id', currentUser.id);
+        await caricaTurni();
+      } else {
+        const { data: inserted } = await supabase.from('turni').insert({
+          user_id: currentUser.id,
+          titolo: tipo,
+          tipo_evento: tipo,
+          data_inizio: data,
+          data_fine: data
+        }).select().single();
+        if (inserted) {
+          calendar.addEvent({
+            id: inserted.id,
+            title: tipo,
+            start: data,
+            end: data,
+            color: coloreTurno(tipo),
+            extendedProps: { id: inserted.id }
+          });
+        }
+      }
+      chiudiModal();
+    }
+  </script>
 </body>
 </html>
