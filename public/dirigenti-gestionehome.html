@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strumenti - MyApp</title>
+    <title>Gestione Dirigenti - MyApp</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -46,35 +46,50 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
                 </button>
-                <h1 class="text-xl font-bold text-white drop-shadow-lg">Strumenti</h1>
+                <h1 class="text-xl font-bold text-white drop-shadow-lg">Gestione Dirigenti</h1>
             </div>
+            <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-full font-semibold transition-colors shadow-lg">
+                Logout
+            </button>
         </div>
     </header>
 
     <!-- Content -->
     <main class="flex-1 flex items-center justify-center px-4 pb-20">
         <div class="glass-effect rounded-2xl p-8 text-center max-w-sm w-full">
-            <div class="w-20 h-20 bg-gradient-to-br from-accent to-blue-500 rounded-full mx-auto mb-6 flex items-center justify-center">
-                <span class="text-3xl text-white">🛠️</span>
+            <div class="w-20 h-20 bg-gradient-to-br from-secondary to-primary rounded-full mx-auto mb-6 flex items-center justify-center">
+                <span class="text-3xl text-white">👥</span>
             </div>
-            <h2 class="text-2xl font-bold text-primary mb-4">Strumenti</h2>
+            <h2 class="text-2xl font-bold text-primary mb-4">Gestione Dirigenti</h2>
             <p class="text-gray-600 mb-6">
-                Questa sezione sarà presto disponibile con tutti gli strumenti per la gestione turni, permessi e utilities.
+                Pannello per la gestione delle informazioni dei dirigenti che appaiono sulla homepage e nell'elenco pubblico.
             </p>
-            <div class="bg-blue-50 rounded-lg p-4 text-left">
-                <h3 class="font-semibold text-blue-800 mb-2">🚀 Prossimamente:</h3>
-                <ul class="text-sm text-blue-700 space-y-1">
-                    <li>• Gestione turni e servizi</li>
-                    <li>• Richiesta permessi</li>
-                    <li>• Calcolo ore straordinario</li>
-                    <li>• Calendario personale</li>
-                    <li>• Tools utili</li>
+            <div class="bg-yellow-50 rounded-lg p-4 text-left">
+                <h3 class="font-semibold text-yellow-800 mb-2">📋 Funzionalità da implementare:</h3>
+                <ul class="text-sm text-yellow-700 space-y-1">
+                    <li>• CRUD dirigenti completo</li>
+                    <li>• Upload foto profilo dirigenti</li>
+                    <li>• Gestione contatti e province</li>
+                    <li>• Ordinamento e visibilità</li>
+                    <li>• Sync con homepage</li>
                 </ul>
             </div>
-            <button onclick="history.back()" class="mt-6 bg-primary hover:bg-secondary text-white font-semibold py-3 px-6 rounded-lg transition-colors">
-                ← Torna Indietro
-            </button>
+            <div class="mt-6 space-y-2">
+                <button onclick="history.back()" class="w-full bg-primary hover:bg-secondary text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                    ← Torna alla Dashboard
+                </button>
+                <p class="text-xs text-gray-500">Accesso riservato agli amministratori</p>
+            </div>
         </div>
     </main>
+
+    <script>
+        // Basic auth check and logout
+        document.getElementById('logoutBtn')?.addEventListener('click', () => {
+            if (confirm('Sei sicuro di voler uscire?')) {
+                window.location.href = '../login.html';
+            }
+        });
+    </script>
 </body>
 </html>
