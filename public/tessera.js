@@ -1,43 +1,32 @@
-const { createClient } = supabase;
+import { supabase } from '../lib/supabaseClient.js';
 
-const SUPABASE_URL = 'https://lycrgzptkdkksukcwrld.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
+const { data: { user } } = await supabase.auth.getUser();
 
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+// Recupera nome, cognome e tessera
+const { data: profile } = await supabase
+  .from('profiles')
+  .select('nome, cognome')
+  .eq('id', user.id)
+  .single();
 
-async function loadProfile() {
-  const {
-    data: { user }
-  } = await supabaseClient.auth.getUser();
+const { data: tessera } = await supabase
+  .from('tessere')
+  .select('numero_tessera')
+  .eq('user_id', user.id)
+  .single();
 
-  if (!user) {
-    alert("Devi fare login!");
-    window.location.href = "../public/login.html";
-    return;
+// Mostra dati
+document.getElementById('nomeCompleto').textContent = `${profile.nome} ${profile.cognome}`;
+document.getElementById('numeroTessera').textContent = `Tessera N° ${tessera.numero_tessera}`;
+
+// QR
+QRCode.toCanvas(
+  document.createElement("canvas"),
+  tessera.numero_tessera,
+  { width: 128 },
+  function (err, canvas) {
+    if (!err) {
+      document.getElementById('qrcode').appendChild(canvas);
+    }
   }
-
-  const { data, error } = await supabaseClient
-    .from("profili")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-
-  if (error || !data) {
-    alert("Errore nel caricamento profilo.");
-    return;
-  }
-
-  document.getElementById("nome").textContent = data.nome;
-  document.getElementById("cognome").textContent = data.cognome;
-  document.getElementById("matricola").textContent = data.matricola || "—";
-  document.getElementById("email").textContent = data.email;
-
-  QRCode.toCanvas(document.getElementById("qr-code"), `Tessera ${data.matricola || user.id}`, { width: 150 });
-}
-
-document.getElementById("logout").addEventListener("click", async () => {
-  await supabaseClient.auth.signOut();
-  window.location.href = "../public/login.html";
-});
-
-loadProfile();
+);

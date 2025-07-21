@@ -1,74 +1,30 @@
 <!DOCTYPE html>
 <html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tessera Digitale</title>
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="stylesheet" href="style.css">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #2400C1, #8E008C);
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem;
-    }
-    .card-container {
-      background: #fff;
-      color: #1C1C1E;
-      border-radius: 16px;
-      padding: 2rem;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      margin-top: 3rem;
-    }
-    .card-container h2 {
-      color: #2400C1;
-      margin-bottom: 1rem;
-    }
-    .info {
-      font-size: 1rem;
-      margin-bottom: 0.5rem;
-    }
-    .qr-code {
-      margin: 1.5rem 0;
-    }
-    .btn-pdf {
-      background: #2400C1;
-      color: #fff;
-      padding: 0.8rem 1.2rem;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    .btn-pdf:hover {
-      background: #1a007a;
-    }
-  </style>
-</head>
-<body>
-  <div class="card-container">
-    <h2>Tessera Digitale</h2>
-    <div class="info">Nome: <strong>Mario</strong></div>
-    <div class="info">Cognome: <strong>Rossi</strong></div>
-    <div class="info">Matricola: <strong>123456</strong></div>
-    <div class="info">N. Tessera: <strong>CARAB2026-001</strong></div>
-    <div class="info">Scadenza: <strong>31/12/2026</strong></div>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tessera Digitale</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/js/qrcode.min.js"></script>
+  </head>
+  <body class="bg-backgroundLight text-primary flex items-center justify-center min-h-screen p-4">
+    <div id="tessera" class="w-full max-w-sm rounded-2xl shadow-xl bg-gradient-to-br from-[#2400C1] to-[#8E008C] text-white p-6 relative">
+      <div class="text-center pt-6 pb-4">
+        <h2 id="nomeCompleto" class="text-2xl font-bold tracking-wide">Caricamento...</h2>
+      </div>
+      <div class="bg-white rounded-xl p-4 flex justify-center items-center shadow-md">
+        <div id="qrcode"></div>
+      </div>
+      <div id="numeroTessera" class="mt-4 text-sm text-center bg-white text-primary px-2 py-1 rounded-md font-medium"></div>
 
-    <div class="qr-code">
-      <img src="qr-placeholder.png" alt="QR Code" width="160">
+      <div class="flex justify-between items-center mt-6 text-xs text-white opacity-80">
+        <button id="logoutBtn" class="bg-danger text-white py-1 px-3 rounded-lg hover:bg-red-700">Logout</button>
+        <button id="downloadBtn" class="bg-white text-primary py-1 px-3 rounded-lg font-semibold hover:opacity-90">Scarica Tessera</button>
+      </div>
+
+      <div class="absolute bottom-3 right-4 text-[10px] opacity-60"> by MyApp</div>
     </div>
-
-    <button class="btn-pdf">Scarica in PDF</button>
-  </div>
-</body>
+    <script type="module" src="/js/tessera.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  </body>
 </html>
