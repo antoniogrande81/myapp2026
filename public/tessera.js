@@ -1,32 +1,65 @@
-import { supabase } from '../lib/supabaseClient.js';
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-const { data: { user } } = await supabase.auth.getUser();
+// Configurazione Supabase
+const supabase = createClient(
+  'https://lycrgzptkdkksukcwrld.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk'
+);
 
-// Recupera nome, cognome e tessera
-const { data: profile } = await supabase
-  .from('profiles')
-  .select('nome, cognome')
-  .eq('id', user.id)
+console.log("tessera.js caricato");
+
+// Recupera utente autenticato
+const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+if (!user || userError) {
+  alert("Utente non autenticato");
+  window.location.href = "/login.html"; // o altra route di login
+}
+
+// Recupera dati profilo
+const { data: profile, error: profileError } = await supabase
+  .from("profiles")
+  .select("nome, cognome")
+  .eq("id", user.id)
   .single();
 
-const { data: tessera } = await supabase
-  .from('tessere')
-  .select('numero_tessera')
-  .eq('user_id', user.id)
+if (profileError || !profile) {
+  alert("Errore nel caricamento del profilo");
+  console.error(profileError);
+}
+
+// Recupera numero tessera
+const { data: tessera, error: tesseraError } = await supabase
+  .from("tessere")
+  .select("numero_tessera")
+  .eq("user_id", user.id)
   .single();
 
-// Mostra dati
-document.getElementById('nomeCompleto').textContent = `${profile.nome} ${profile.cognome}`;
-document.getElementById('numeroTessera').textContent = `Tessera N° ${tessera.numero_tessera}`;
+if (tesseraError || !tessera) {
+  alert("Errore nel caricamento della tessera");
+  console.error(tesseraError);
+}
 
-// QR
+// Popola il DOM
+document.getElementById("nomeCompleto").textContent = `${profile.nome} ${profile.cognome}`;
+document.getElementById("numeroTessera").textContent = `Tessera N° ${tessera.numero_tessera}`;
+
+// Genera QRCode
 QRCode.toCanvas(
   document.createElement("canvas"),
   tessera.numero_tessera,
   { width: 128 },
   function (err, canvas) {
     if (!err) {
-      document.getElementById('qrcode').appendChild(canvas);
+      document.getElementById("qrcode").appendChild(canvas);
+    } else {
+      console.error("Errore QRCode:", err);
     }
   }
 );
+
+// Logout
+document.getElementById("logoutBtn").addEventListener("click", async () => {
+  await supabase.auth.signOut();
+  window.location.href = "/login.html"; // modifica se serve
+});
