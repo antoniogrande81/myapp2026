@@ -1,211 +1,485 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-  <link rel="manifest" href="manifest.json" />
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MyApp2026 – Sindacato Carabinieri</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #2400C1, #8E008C);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    header {
-      padding: 2rem;
-      text-align: center;
-    }
-    header img {
-      width: 80px;
-      margin-bottom: 1rem;
-    }
-    header h1 {
-      font-size: 2.2rem;
-      margin: 0;
-    }
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 2rem;
-    }
-    main h2 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-    main p {
-      font-size: 1.1rem;
-      max-width: 600px;
-      margin-bottom: 2rem;
-    }
-    .cta-btn {
-      display: inline-block;
-      width: 240px;
-      background: linear-gradient(to right, #ffffff, #eaeaea);
-      color: #2400C1;
-      border: 2px solid #ffffff;
-      padding: 1rem;
-      border-radius: 16px;
-      font-size: 1.05rem;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.3s ease;
-      margin: 0.5rem;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-    }
-    .cta-btn:hover {
-      background: #f7f7f7;
-      transform: translateY(-2px);
-    }
-    .cta-dirigenti {
-      background: linear-gradient(to right, #8E008C, #c000c7);
-      color: white;
-      border: none;
-    }
-    .tag-section {
-      margin: 3rem 0 1rem;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0.8rem;
-    }
-    .tag {
-      background: rgba(255, 255, 255, 0.2);
-      color: #ffffff;
-      padding: 0.7rem 1.4rem;
-      border-radius: 999px;
-      font-size: 0.95rem;
-      font-weight: 500;
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      backdrop-filter: blur(6px);
-    }
-    .services-section {
-      padding: 4rem 1rem;
-      background: white;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-    }
-    .service-card {
-      background: linear-gradient(145deg, #f9f9fb, #e4e4ec);
-      border-radius: 16px;
-      padding: 2rem 1.5rem;
-      text-align: center;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
-      transition: transform 0.3s ease;
-    }
-    .service-card:hover {
-      transform: translateY(-4px);
-    }
-    .service-card h3 {
-      margin-top: 0;
-      font-size: 1.2rem;
-      color: #2400C1;
-    }
-    .service-card p {
-      font-size: 0.95rem;
-      color: #333;
-    }
-    .link-container {
-      margin-top: 2rem;
-    }
-    .link-container a {
-      display: inline-block;
-      background: #ffffff;
-      color: #2400C1;
-      margin: 0.5rem;
-      padding: 0.5rem 1rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      text-decoration: none;
-      font-size: 0.9rem;
-    }
-    .link-container a:hover {
-      background: #e8e8e8;
-    }
-    footer {
-      text-align: center;
-      padding: 1rem;
-      font-size: 0.8rem;
-      background: rgba(0, 0, 0, 0.05);
-    }
-  </style>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <link rel="manifest" href="manifest.json" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyApp – Sindacato Carabinieri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2400C1',
+                        secondary: '#8E008C', 
+                        accent: '#00BFFF',
+                        textDark: '#1C1C1E',
+                        backgroundLight: '#F4F4F8',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #2400C1, #8E008C);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .text-white {
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-light {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, rgba(36, 0, 193, 0.1), rgba(142, 0, 140, 0.1));
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffffff, #f0f0f0);
+            color: #2400C1;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #f8f8f8, #e8e8e8);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #8E008C, #b000b5);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(142, 0, 140, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #a000a0, #c800c8);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(142, 0, 140, 0.4);
+        }
+
+        .floating-icons {
+            position: absolute;
+            opacity: 0.1;
+            font-size: 2rem;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .floating-icons:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .floating-icons:nth-child(2) { top: 20%; right: 15%; animation-delay: 2s; }
+        .floating-icons:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 4s; }
+        .floating-icons:nth-child(4) { bottom: 20%; right: 10%; animation-delay: 1s; }
+
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .service-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #2400C1, #8E008C);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 16px;
+            box-shadow: 0 4px 15px rgba(36, 0, 193, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .service-icon:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 25px rgba(36, 0, 193, 0.4);
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .tag-badge {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .tag-badge:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .logo-container {
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+    </style>
 </head>
-<body>
-<header>
-    <img src="logo.png" alt="Logo MyApp" />
-    <h1>Benvenuto su MyApp2026</h1>
-  </header>
+<body class="relative overflow-x-hidden">
+    
+    <!-- Floating Background Icons -->
+    <div class="floating-icons">🛡️</div>
+    <div class="floating-icons">⭐</div>
+    <div class="floating-icons">📱</div>
+    <div class="floating-icons">👥</div>
 
-  <main>
-    <h2>La piattaforma digitale per i Carabinieri</h2>
-    <p>Accedi ai tuoi servizi riservati, consulta la tua tessera, i tuoi turni e tutte le funzionalità dedicate al personale del Sindacato Carabinieri.</p>
+    <!-- Hero Section -->
+    <section class="min-h-screen flex flex-col justify-center items-center text-center px-4 relative">
+        
+        <!-- Logo -->
+        <div class="logo-container">
+            <span class="text-white text-4xl font-bold">SIM</span>
+        </div>
 
-    <div>
-      <a href="login.html" class="cta-btn">Accedi</a>
-      <a href="registrazione.html" class="cta-btn">Registrati</a>
-      <a href="login-dirigenti.html" class="cta-btn cta-dirigenti">Area Dirigenti</a>
-    </div>
+        <!-- Main Title -->
+        <h1 class="text-4xl md:text-5xl font-bold text-white drop-shadow-lg mb-4">
+            MyApp 
+            <span class="bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
+                Sindacato Carabinieri
+            </span>
+        </h1>
 
-    <div class="tag-section">
-      <div class="tag">⭐ Servizi Esclusivi</div>
-      <div class="tag">👤 Accesso Dirigenti</div>
-      <div class="tag">📞 Assistenza Dedicata</div>
-    </div>
+        <!-- Subtitle -->
+        <p class="text-xl text-blue-100 mb-8 max-w-2xl leading-relaxed">
+            La piattaforma digitale completa per i Carabinieri. 
+            Accedi ai servizi riservati, gestisci la tua tessera e rimani sempre aggiornato.
+        </p>
 
-    <section class="services-section">
-      <div class="service-card">
-        <h3>Convenzioni Locali</h3>
-        <p>Sconti riservati per negozi, palestre, assicurazioni e attività convenzionate.</p>
-      </div>
-      <div class="service-card">
-        <h3>Tessera Digitale</h3>
-        <p>Visualizza la tua tessera sindacale direttamente dal tuo smartphone con QR Code.</p>
-      </div>
-      <div class="service-card">
-        <h3>Turni e Licenze</h3>
-        <p>Consulta e scarica i tuoi turni di servizio, recuperi e permessi.</p>
-      </div>
-      <div class="service-card">
-        <h3>Supporto Legale</h3>
-        <p>Accedi all’assistenza legale gratuita riservata agli iscritti.</p>
-      </div>
+        <!-- Stats Row -->
+        <div class="grid grid-cols-3 gap-4 mb-8 w-full max-w-md">
+            <div class="stats-card rounded-xl p-4 text-center">
+                <div class="text-2xl font-bold text-white drop-shadow-lg mb-1">1000+</div>
+                <div class="text-xs text-blue-200">Iscritti</div>
+            </div>
+            <div class="stats-card rounded-xl p-4 text-center">
+                <div class="text-2xl font-bold text-white drop-shadow-lg mb-1">50+</div>
+                <div class="text-xs text-blue-200">Convenzioni</div>
+            </div>
+            <div class="stats-card rounded-xl p-4 text-center">
+                <div class="text-2xl font-bold text-white drop-shadow-lg mb-1">24/7</div>
+                <div class="text-xs text-blue-200">Supporto</div>
+            </div>
+        </div>
+
+        <!-- CTA Buttons -->
+        <div class="space-y-4 w-full max-w-sm mb-8">
+            <a href="login.html" class="btn-primary block w-full py-4 px-6 rounded-xl font-semibold text-center">
+                🔐 Accedi al Portale
+            </a>
+            <a href="registrazione.html" class="btn-primary block w-full py-4 px-6 rounded-xl font-semibold text-center">
+                👤 Registrati Ora
+            </a>
+            <a href="login-dirigenti.html" class="btn-secondary block w-full py-4 px-6 rounded-xl font-semibold text-center">
+                👨‍💼 Area Dirigenti
+            </a>
+        </div>
+
+        <!-- Feature Tags -->
+        <div class="flex flex-wrap justify-center gap-3 mb-8">
+            <span class="tag-badge px-4 py-2 rounded-full text-sm font-medium text-white">
+                ⭐ Servizi Esclusivi
+            </span>
+            <span class="tag-badge px-4 py-2 rounded-full text-sm font-medium text-white">
+                🛡️ Sicuro & Privato
+            </span>
+            <span class="tag-badge px-4 py-2 rounded-full text-sm font-medium text-white">
+                📞 Assistenza 24/7
+            </span>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator text-white text-2xl pulse-animation">
+            ⬇️
+        </div>
     </section>
 
-    <div class="link-container">
-      <a href="chi-siamo.html">Chi siamo</a>
-      <a href="contatti.html">Contatti</a>
-      <a href="privacy.html">Privacy</a>
-    </div>
-  </main>
+    <!-- Services Section -->
+    <section class="py-16 px-4" style="background: linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0.1));">
+        <div class="max-w-6xl mx-auto">
+            
+            <!-- Section Header -->
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-white drop-shadow-lg mb-4">
+                    I Nostri Servizi
+                </h2>
+                <p class="text-blue-100 text-lg max-w-2xl mx-auto">
+                    Tutto quello di cui hai bisogno in un'unica app sicura e facile da usare
+                </p>
+            </div>
 
-  <footer>
-    &copy; 2026 MyApp2026. Tutti i diritti riservati.
-  </footer>
+            <!-- Services Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- Convenzioni -->
+                <div class="glass-effect rounded-2xl p-6 card-hover text-center">
+                    <div class="service-icon">
+                        🏪
+                    </div>
+                    <h3 class="font-bold text-textDark text-lg mb-3">Convenzioni</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Sconti esclusivi in negozi, palestre, assicurazioni e attività locali convenzionate
+                    </p>
+                    <div class="mt-4">
+                        <a href="convenzioni.html" class="text-primary font-semibold text-sm hover:underline">
+                            Scopri di più →
+                        </a>
+                    </div>
+                </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script>
-    const SUPABASE_URL = "https://lycrgzptkdkksukcwrld.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz..."; // accorciato per sicurezza
-    const { createClient } = supabase;
-    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                <!-- Tessera Digitale -->
+                <div class="glass-effect rounded-2xl p-6 card-hover text-center">
+                    <div class="service-icon">
+                        🆔
+                    </div>
+                    <h3 class="font-bold text-textDark text-lg mb-3">Tessera Digitale</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        La tua tessera sindacale sempre con te, con QR code sicuro e funzioni avanzate
+                    </p>
+                    <div class="mt-4">
+                        <a href="login.html" class="text-primary font-semibold text-sm hover:underline">
+                            Accedi →
+                        </a>
+                    </div>
+                </div>
 
-    async function checkUser() {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      if (user) {
-        window.location.href = "home.html";
-      }
-    }
-    checkUser();
-  </script>
+                <!-- Turni e Gestione -->
+                <div class="glass-effect rounded-2xl p-6 card-hover text-center">
+                    <div class="service-icon">
+                        📅
+                    </div>
+                    <h3 class="font-bold text-textDark text-lg mb-3">Turni & Licenze</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Consulta i tuoi turni, richiedi permessi e gestisci i recuperi in modo semplice
+                    </p>
+                    <div class="mt-4">
+                        <a href="login.html" class="text-primary font-semibold text-sm hover:underline">
+                            Gestisci →
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Supporto Legale -->
+                <div class="glass-effect rounded-2xl p-6 card-hover text-center">
+                    <div class="service-icon">
+                        ⚖️
+                    </div>
+                    <h3 class="font-bold text-textDark text-lg mb-3">Supporto Legale</h3>
+                    <p class="text-gray-600 text-sm leading-relaxed">
+                        Assistenza legale gratuita e consulenze specializzate per tutti gli iscritti
+                    </p>
+                    <div class="mt-4">
+                        <a href="contatti.html" class="text-primary font-semibold text-sm hover:underline">
+                            Contattaci →
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Access Section -->
+    <section class="py-16 px-4">
+        <div class="max-w-4xl mx-auto">
+            
+            <!-- Section Header -->
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-white drop-shadow-lg mb-4">
+                    Accesso Rapido
+                </h2>
+                <p class="text-blue-100 text-lg">
+                    Le sezioni più utilizzate dai nostri iscritti
+                </p>
+            </div>
+
+            <!-- Quick Links Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                
+                <a href="elenco-dirigenti.html" class="glass-light rounded-xl p-4 text-center card-hover">
+                    <div class="text-3xl mb-2">👥</div>
+                    <div class="text-white font-semibold text-sm">Dirigenti</div>
+                </a>
+
+                <a href="servizi.html" class="glass-light rounded-xl p-4 text-center card-hover">
+                    <div class="text-3xl mb-2">🛠️</div>
+                    <div class="text-white font-semibold text-sm">Servizi</div>
+                </a>
+
+                <a href="contatti.html" class="glass-light rounded-xl p-4 text-center card-hover">
+                    <div class="text-3xl mb-2">📞</div>
+                    <div class="text-white font-semibold text-sm">Contatti</div>
+                </a>
+
+                <a href="convenzioni.html" class="glass-light rounded-xl p-4 text-center card-hover">
+                    <div class="text-3xl mb-2">🏪</div>
+                    <div class="text-white font-semibold text-sm">Convenzioni</div>
+                </a>
+
+                <a href="privacy.html" class="glass-light rounded-xl p-4 text-center card-hover">
+                    <div class="text-3xl mb-2">🛡️</div>
+                    <div class="text-white font-semibold text-sm">Privacy</div>
+                </a>
+
+                <a href="login.html" class="glass-light rounded-xl p-4 text-center card-hover">
+                    <div class="text-3xl mb-2">🔐</div>
+                    <div class="text-white font-semibold text-sm">Login</div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 px-4 text-center border-t border-white border-opacity-20">
+        <div class="max-w-4xl mx-auto">
+            
+            <!-- Footer Links -->
+            <div class="flex flex-wrap justify-center gap-6 mb-6">
+                <a href="chi-siamo.html" class="text-blue-200 hover:text-white transition-colors text-sm">
+                    Chi Siamo
+                </a>
+                <a href="contatti.html" class="text-blue-200 hover:text-white transition-colors text-sm">
+                    Contatti
+                </a>
+                <a href="privacy.html" class="text-blue-200 hover:text-white transition-colors text-sm">
+                    Privacy Policy
+                </a>
+                <a href="servizi.html" class="text-blue-200 hover:text-white transition-colors text-sm">
+                    Servizi
+                </a>
+            </div>
+
+            <!-- Copyright -->
+            <div class="glass-light rounded-lg py-4 px-6">
+                <p class="text-white text-sm">
+                    &copy; 2026 <strong>MyApp - Sindacato Carabinieri</strong>. Tutti i diritti riservati.
+                </p>
+                <p class="text-blue-200 text-xs mt-2">
+                    Sviluppato con ❤️ per i Carabinieri d'Italia
+                </p>
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        const supabaseUrl = 'https://lycrgzptkdkksukcwrld.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
+
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // Check if user is already logged in
+        async function checkUser() {
+            try {
+                const { data: { user }, error } = await supabase.auth.getUser();
+                if (user) {
+                    // Redirect to home/dashboard if user is logged in
+                    window.location.href = '/app/tessera.html';
+                }
+            } catch (error) {
+                console.log('User not logged in');
+            }
+        }
+
+        // Smooth scroll for scroll indicator
+        document.querySelector('.scroll-indicator')?.addEventListener('click', () => {
+            document.querySelector('section:nth-of-type(2)').scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkUser();
+            
+            // Add intersection observer for animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe service cards
+            document.querySelectorAll('.card-hover').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+        });
+    </script>
 </body>
 </html>
