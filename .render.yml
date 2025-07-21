@@ -1,5 +1,0 @@
-services:
-  - type: static
-    name: myapp2026
-    env: static
-    staticPublishPath: public
