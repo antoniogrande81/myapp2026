@@ -4,6 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profilo - MyApp Sindacato Carabinieri</title>
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2400C1">
+    <meta name="background-color" content="#2400C1">
+
+    <!-- Icone Standard -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/public/icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/public/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/public/icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/public/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/public/icons/icon-512x512.png">
+
+    <!-- iOS Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="MyApp">
+    <link rel="apple-touch-icon" href="/public/icons/apple-touch-icon.png">
+
+    <!-- Android Support -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="MyApp">
+    <meta name="msapplication-TileColor" content="#2400C1">
+    
+    <!-- Preconnect per performance -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://lycrgzptkdkksukcwrld.supabase.co">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -93,6 +121,17 @@
             font-size: 14px;
             margin-top: 4px;
         }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            text-align: center;
+            display: none;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen font-sans">
@@ -131,6 +170,11 @@
                 ✅ Profilo aggiornato con successo!
             </div>
 
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message">
+                ❌ <span id="errorText">Errore nel caricamento</span>
+            </div>
+
             <!-- Profile Header Card -->
             <div class="glass-effect rounded-2xl p-6 card-hover text-center">
                 <div class="w-24 h-24 bg-gradient-to-br from-primary to-secondary rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -138,7 +182,7 @@
                 </div>
                 <h2 class="text-xl font-bold text-textDark mb-2" id="fullNameDisplay">Caricamento...</h2>
                 <p class="text-gray-600 text-sm" id="roleDisplay">Ruolo</p>
-                <p class="text-gray-500 text-xs mt-1" id="matricolaDisplay">Matricola: ---</p>
+                <p class="text-gray-500 text-xs mt-1" id="matricolaDisplay">Telefono: ---</p>
             </div>
 
             <!-- Profile Form -->
@@ -295,8 +339,17 @@
 
         function showError(message) {
             hideLoading();
-            alert(`Errore: ${message}`);
             console.error('Errore:', message);
+            
+            const errorMsg = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorMsg.style.display = 'block';
+            
+            // Nascondi dopo 5 secondi
+            setTimeout(() => {
+                errorMsg.style.display = 'none';
+            }, 5000);
         }
 
         function showSuccess() {
@@ -312,11 +365,18 @@
             try {
                 const { data: { user }, error } = await supabase.auth.getUser();
                 
-                if (error || !user) {
+                if (error) {
+                    console.error('Errore auth:', error);
+                    throw error;
+                }
+                
+                if (!user) {
+                    console.log('Utente non autenticato');
                     window.location.href = '/login.html';
                     return null;
                 }
                 
+                console.log('Utente autenticato:', user.email);
                 return user;
             } catch (error) {
                 console.error('Errore autenticazione:', error);
@@ -325,26 +385,43 @@
             }
         }
 
-        // Load user profile
+        // Load user profile - METODO CORRETTO
         async function caricaDatiPagina() {
             showLoading();
             try {
                 const user = await verificaAutenticazione();
                 if (!user) return;
 
-                // Carica dati profilo
+                console.log('Cerco profilo per email:', user.email);
+
+                // CORREZIONE: Usa l'ID dell'utente, non l'email
                 const { data: profile, error } = await supabase
                     .from('profiles')
                     .select('*')
-                    .eq('email', user.email)
+                    .eq('id', user.id)  // Cambiato da .eq('email', user.email)
                     .single();
 
                 if (error) {
-                    console.error('Errore caricamento profilo:', error);
-                    showError('Impossibile caricare i dati del profilo');
+                    console.error('Errore query profilo:', error);
+                    
+                    // Se il profilo non esiste, crealo
+                    if (error.code === 'PGRST116') {
+                        console.log('Profilo non trovato, creo nuovo profilo...');
+                        await creaNuovoProfilo(user);
+                        return;
+                    }
+                    
+                    showError('Impossibile caricare i dati del profilo: ' + error.message);
                     return;
                 }
 
+                if (!profile) {
+                    console.log('Profilo non trovato, creo nuovo profilo...');
+                    await creaNuovoProfilo(user);
+                    return;
+                }
+
+                console.log('Profilo caricato:', profile);
                 userData = profile;
                 originalData = { ...profile };
                 
@@ -352,10 +429,51 @@
                 aggiornaDisplay(profile);
 
             } catch (error) {
-                console.error('Errore:', error);
-                showError('Errore nel caricamento dei dati');
+                console.error('Errore generale:', error);
+                showError('Errore nel caricamento dei dati: ' + error.message);
             } finally {
                 hideLoading();
+            }
+        }
+
+        // Crea nuovo profilo se non esiste
+        async function creaNuovoProfilo(user) {
+            try {
+                console.log('Creazione nuovo profilo per:', user.email);
+                
+                const nuovoProfilo = {
+                    id: user.id,
+                    email: user.email,
+                    nome: '',
+                    cognome: '',
+                    telefono: null,
+                    ruolo: 'USER',
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
+
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .insert([nuovoProfilo])
+                    .select()
+                    .single();
+
+                if (error) {
+                    console.error('Errore creazione profilo:', error);
+                    showError('Impossibile creare il profilo: ' + error.message);
+                    return;
+                }
+
+                console.log('Profilo creato:', data);
+                userData = data;
+                originalData = { ...data };
+                
+                popolaForm(data);
+                aggiornaDisplay(data);
+
+            } catch (error) {
+                console.error('Errore creazione profilo:', error);
+                showError('Errore nella creazione del profilo: ' + error.message);
             }
         }
 
@@ -377,12 +495,12 @@
         // Aggiorna il display header
         function aggiornaDisplay(data) {
             const fullName = `${data.nome || ''} ${data.cognome || ''}`.trim() || 'Nome Utente';
-            const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) || 'NU';
             
             document.getElementById('fullNameDisplay').textContent = fullName;
             document.getElementById('initialsDisplay').textContent = initials;
             document.getElementById('roleDisplay').textContent = getRoleDisplay(data.ruolo);
-            document.getElementById('matricolaDisplay').textContent = `Matricola: ${data.telefono || 'Non specificata'}`;
+            document.getElementById('matricolaDisplay').textContent = `Telefono: ${data.telefono || 'Non specificato'}`;
         }
 
         function getRoleDisplay(ruolo) {
@@ -441,6 +559,8 @@
                     updatedData.ruolo = formData.get('ruolo');
                 }
 
+                console.log('Salvataggio dati:', updatedData);
+
                 const { data, error } = await supabase
                     .from('profiles')
                     .update(updatedData)
@@ -450,10 +570,11 @@
 
                 if (error) {
                     console.error('Errore aggiornamento:', error);
-                    showError('Impossibile aggiornare il profilo');
+                    showError('Impossibile aggiornare il profilo: ' + error.message);
                     return;
                 }
 
+                console.log('Profilo aggiornato:', data);
                 userData = data;
                 originalData = { ...data };
                 aggiornaDisplay(data);
@@ -461,7 +582,7 @@
 
             } catch (error) {
                 console.error('Errore salvataggio:', error);
-                showError('Errore nel salvataggio dei dati');
+                showError('Errore nel salvataggio dei dati: ' + error.message);
             } finally {
                 hideLoading();
             }
@@ -492,14 +613,14 @@
                 });
                 
                 if (error) {
-                    showError('Impossibile aggiornare la password');
+                    showError('Impossibile aggiornare la password: ' + error.message);
                     return;
                 }
                 
                 alert('Password aggiornata con successo!');
             } catch (error) {
                 console.error('Errore cambio password:', error);
-                showError('Errore nell\'aggiornamento della password');
+                showError('Errore nell\'aggiornamento della password: ' + error.message);
             } finally {
                 hideLoading();
             }
