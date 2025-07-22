@@ -395,30 +395,47 @@
                 console.log('Cerco profilo per email:', user.email);
 
                 // CORREZIONE: Usa l'ID dell'utente, non l'email
-                const { data: profile, error } = await supabase
+                let { data: profile, error } = await supabase
                     .from('profiles')
                     .select('*')
                     .eq('id', user.id)  // Cambiato da .eq('email', user.email)
                     .single();
 
-                if (error) {
+                if (error && error.code !== 'PGRST116') {
                     console.error('Errore query profilo:', error);
-                    
-                    // Se il profilo non esiste, crealo
-                    if (error.code === 'PGRST116') {
-                        console.log('Profilo non trovato, creo nuovo profilo...');
-                        await creaNuovoProfilo(user);
-                        return;
-                    }
-                    
                     showError('Impossibile caricare i dati del profilo: ' + error.message);
                     return;
                 }
 
-                if (!profile) {
+                if (!profile || error?.code === 'PGRST116') {
                     console.log('Profilo non trovato, creo nuovo profilo...');
-                    await creaNuovoProfilo(user);
-                    return;
+                    
+                    // Crea nuovo profilo
+                    const nuovoProfilo = {
+                        id: user.id,
+                        email: user.email,
+                        nome: '',
+                        cognome: '',
+                        telefono: null,
+                        ruolo: ['USER'], // Array come richiesto da Supabase
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    };
+
+                    const { data: nuovoProfiloData, error: erroreInserimento } = await supabase
+                        .from('profiles')
+                        .insert([nuovoProfilo])
+                        .select()
+                        .single();
+
+                    if (erroreInserimento) {
+                        console.error('Errore creazione profilo:', erroreInserimento);
+                        showError('Impossibile creare il profilo: ' + erroreInserimento.message);
+                        return;
+                    }
+
+                    profile = nuovoProfiloData;
+                    console.log('Nuovo profilo creato:', profile);
                 }
 
                 console.log('Profilo caricato:', profile);
@@ -447,7 +464,7 @@
                     nome: '',
                     cognome: '',
                     telefono: null,
-                    ruolo: 'USER',
+                    ruolo: ['USER'], // Array come richiesto da Supabase
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString()
                 };
@@ -483,10 +500,27 @@
             document.getElementById('cognome').value = data.cognome || '';
             document.getElementById('email').value = data.email || '';
             document.getElementById('telefono').value = data.telefono || '';
-            document.getElementById('ruolo').value = data.ruolo || 'USER';
+            
+            // Gestione corretta del campo ruolo (array)
+            let ruoloValore = 'USER'; // Default
+            if (data.ruolo && Array.isArray(data.ruolo)) {
+                // Se è un array, prendi il primo valore o il più alto privilegio
+                if (data.ruolo.includes('ADMIN')) {
+                    ruoloValore = 'ADMIN';
+                } else if (data.ruolo.includes('DIRIGENTE')) {
+                    ruoloValore = 'DIRIGENTE';
+                } else if (data.ruolo.includes('USER')) {
+                    ruoloValore = 'USER';
+                }
+            } else if (typeof data.ruolo === 'string') {
+                // Se è una stringa (retrocompatibilità)
+                ruoloValore = data.ruolo;
+            }
+            
+            document.getElementById('ruolo').value = ruoloValore;
             
             // Disabilita il ruolo se non è admin
-            if (data.ruolo !== 'ADMIN') {
+            if (!data.ruolo || !data.ruolo.includes('ADMIN')) {
                 document.getElementById('ruolo').disabled = true;
                 document.getElementById('ruolo').classList.add('bg-gray-100');
             }
@@ -504,11 +538,18 @@
         }
 
         function getRoleDisplay(ruolo) {
-            switch(ruolo) {
-                case 'ADMIN': return 'Amministratore';
-                case 'DIRIGENTE': return 'Dirigente';
-                default: return 'Utente';
+            if (Array.isArray(ruolo)) {
+                if (ruolo.includes('ADMIN')) return 'Amministratore';
+                if (ruolo.includes('DIRIGENTE')) return 'Dirigente';
+                return 'Utente';
+            } else if (typeof ruolo === 'string') {
+                switch(ruolo) {
+                    case 'ADMIN': return 'Amministratore';
+                    case 'DIRIGENTE': return 'Dirigente';
+                    default: return 'Utente';
+                }
             }
+            return 'Utente';
         }
 
         // Validation
@@ -547,6 +588,8 @@
             showLoading();
             try {
                 const formData = new FormData(document.getElementById('profileForm'));
+                const ruoloSelezionato = formData.get('ruolo');
+                
                 const updatedData = {
                     nome: formData.get('nome').trim(),
                     cognome: formData.get('cognome').trim(),
@@ -554,9 +597,10 @@
                     updated_at: new Date().toISOString()
                 };
 
-                // Include ruolo only if user is admin
-                if (userData.ruolo === 'ADMIN') {
-                    updatedData.ruolo = formData.get('ruolo');
+                // Gestione corretta del ruolo come array
+                if (userData && userData.ruolo && userData.ruolo.includes('ADMIN')) {
+                    // Solo admin può modificare i ruoli
+                    updatedData.ruolo = [ruoloSelezionato];
                 }
 
                 console.log('Salvataggio dati:', updatedData);
