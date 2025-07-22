@@ -385,57 +385,57 @@
             }
         }
 
-        // Load user profile - METODO CORRETTO
+        // Load user profile - METODO MIGLIORATO
         async function caricaDatiPagina() {
             showLoading();
             try {
                 const user = await verificaAutenticazione();
                 if (!user) return;
 
-                console.log('Cerco profilo per email:', user.email);
+                console.log('Cerco profilo per ID:', user.id);
 
-                // CORREZIONE: Usa l'ID dell'utente, non l'email
+                // Prova a caricare il profilo esistente
                 let { data: profile, error } = await supabase
                     .from('profiles')
                     .select('*')
-                    .eq('id', user.id)  // Cambiato da .eq('email', user.email)
-                    .single();
+                    .eq('id', user.id)
+                    .maybeSingle(); // Usa maybeSingle invece di single per evitare errori
 
-                if (error && error.code !== 'PGRST116') {
+                if (error) {
                     console.error('Errore query profilo:', error);
-                    showError('Impossibile caricare i dati del profilo: ' + error.message);
+                    showError('Errore nel caricamento: ' + error.message);
                     return;
                 }
 
-                if (!profile || error?.code === 'PGRST116') {
-                    console.log('Profilo non trovato, creo nuovo profilo...');
+                // Se il profilo non esiste, crealo
+                if (!profile) {
+                    console.log('Profilo non trovato, creo nuovo profilo per:', user.email);
                     
-                    // Crea nuovo profilo
                     const nuovoProfilo = {
                         id: user.id,
                         email: user.email,
                         nome: '',
                         cognome: '',
                         telefono: null,
-                        ruolo: ['USER'], // Array come richiesto da Supabase
+                        ruoli: ['USER'], // Cambiato da 'ruolo' a 'ruoli'
                         created_at: new Date().toISOString(),
                         updated_at: new Date().toISOString()
                     };
 
-                    const { data: nuovoProfiloData, error: erroreInserimento } = await supabase
+                    const { data: profiloCreato, error: erroreCreazione } = await supabase
                         .from('profiles')
                         .insert([nuovoProfilo])
                         .select()
                         .single();
 
-                    if (erroreInserimento) {
-                        console.error('Errore creazione profilo:', erroreInserimento);
-                        showError('Impossibile creare il profilo: ' + erroreInserimento.message);
+                    if (erroreCreazione) {
+                        console.error('Errore creazione profilo:', erroreCreazione);
+                        showError('Impossibile creare il profilo: ' + erroreCreazione.message);
                         return;
                     }
 
-                    profile = nuovoProfiloData;
-                    console.log('Nuovo profilo creato:', profile);
+                    profile = profiloCreato;
+                    console.log('Nuovo profilo creato con successo:', profile);
                 }
 
                 console.log('Profilo caricato:', profile);
@@ -501,26 +501,26 @@
             document.getElementById('email').value = data.email || '';
             document.getElementById('telefono').value = data.telefono || '';
             
-            // Gestione corretta del campo ruolo (array)
+            // Gestione corretta del campo ruoli (array) - CAMPO CORRETTO: ruoli
             let ruoloValore = 'USER'; // Default
-            if (data.ruolo && Array.isArray(data.ruolo)) {
+            if (data.ruoli && Array.isArray(data.ruoli)) {
                 // Se è un array, prendi il primo valore o il più alto privilegio
-                if (data.ruolo.includes('ADMIN')) {
+                if (data.ruoli.includes('ADMIN')) {
                     ruoloValore = 'ADMIN';
-                } else if (data.ruolo.includes('DIRIGENTE')) {
+                } else if (data.ruoli.includes('DIRIGENTE')) {
                     ruoloValore = 'DIRIGENTE';
-                } else if (data.ruolo.includes('USER')) {
+                } else if (data.ruoli.includes('USER')) {
                     ruoloValore = 'USER';
                 }
-            } else if (typeof data.ruolo === 'string') {
+            } else if (typeof data.ruoli === 'string') {
                 // Se è una stringa (retrocompatibilità)
-                ruoloValore = data.ruolo;
+                ruoloValore = data.ruoli;
             }
             
             document.getElementById('ruolo').value = ruoloValore;
             
             // Disabilita il ruolo se non è admin
-            if (!data.ruolo || !data.ruolo.includes('ADMIN')) {
+            if (!data.ruoli || !data.ruoli.includes('ADMIN')) {
                 document.getElementById('ruolo').disabled = true;
                 document.getElementById('ruolo').classList.add('bg-gray-100');
             }
@@ -533,17 +533,17 @@
             
             document.getElementById('fullNameDisplay').textContent = fullName;
             document.getElementById('initialsDisplay').textContent = initials;
-            document.getElementById('roleDisplay').textContent = getRoleDisplay(data.ruolo);
+            document.getElementById('roleDisplay').textContent = getRoleDisplay(data.ruoli);
             document.getElementById('matricolaDisplay').textContent = `Telefono: ${data.telefono || 'Non specificato'}`;
         }
 
-        function getRoleDisplay(ruolo) {
-            if (Array.isArray(ruolo)) {
-                if (ruolo.includes('ADMIN')) return 'Amministratore';
-                if (ruolo.includes('DIRIGENTE')) return 'Dirigente';
+        function getRoleDisplay(ruoli) {
+            if (Array.isArray(ruoli)) {
+                if (ruoli.includes('ADMIN')) return 'Amministratore';
+                if (ruoli.includes('DIRIGENTE')) return 'Dirigente';
                 return 'Utente';
-            } else if (typeof ruolo === 'string') {
-                switch(ruolo) {
+            } else if (typeof ruoli === 'string') {
+                switch(ruoli) {
                     case 'ADMIN': return 'Amministratore';
                     case 'DIRIGENTE': return 'Dirigente';
                     default: return 'Utente';
@@ -581,7 +581,7 @@
             return isValid;
         }
 
-        // Save profile
+        // Save profile - VERSIONE MIGLIORATA
         async function salvaProfiloNelDB() {
             if (!validateForm()) return;
             
@@ -597,28 +597,39 @@
                     updated_at: new Date().toISOString()
                 };
 
-                // Gestione corretta del ruolo come array
-                if (userData && userData.ruolo && userData.ruolo.includes('ADMIN')) {
+                // Gestione corretta del ruoli come array
+                if (userData && userData.ruoli && Array.isArray(userData.ruoli) && userData.ruoli.includes('ADMIN')) {
                     // Solo admin può modificare i ruoli
-                    updatedData.ruolo = [ruoloSelezionato];
+                    updatedData.ruoli = [ruoloSelezionato];
                 }
 
-                console.log('Salvataggio dati:', updatedData);
+                console.log('Aggiornamento profilo ID:', userData.id);
+                console.log('Dati da salvare:', updatedData);
 
+                // Usa upsert per gestire sia aggiornamenti che inserimenti
                 const { data, error } = await supabase
                     .from('profiles')
-                    .update(updatedData)
-                    .eq('id', userData.id)
+                    .upsert(
+                        { 
+                            id: userData.id, 
+                            email: userData.email,
+                            ...updatedData 
+                        },
+                        { 
+                            onConflict: 'id',
+                            ignoreDuplicates: false 
+                        }
+                    )
                     .select()
                     .single();
 
                 if (error) {
-                    console.error('Errore aggiornamento:', error);
-                    showError('Impossibile aggiornare il profilo: ' + error.message);
+                    console.error('Errore salvataggio:', error);
+                    showError('Impossibile salvare il profilo: ' + error.message);
                     return;
                 }
 
-                console.log('Profilo aggiornato:', data);
+                console.log('Profilo salvato:', data);
                 userData = data;
                 originalData = { ...data };
                 aggiornaDisplay(data);
@@ -626,7 +637,7 @@
 
             } catch (error) {
                 console.error('Errore salvataggio:', error);
-                showError('Errore nel salvataggio dei dati: ' + error.message);
+                showError('Errore nel salvataggio: ' + error.message);
             } finally {
                 hideLoading();
             }
