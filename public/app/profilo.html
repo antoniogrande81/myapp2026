@@ -32,7 +32,10 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://lycrgzptkdkksukcwrld.supabase.co">
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> dca6c55fc659bd2de813bbbb8966edd617c4bdf3
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -122,6 +125,17 @@
             font-size: 14px;
             margin-top: 4px;
         }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            text-align: center;
+            display: none;
+        }
     </style>
 </head>
 <body class="flex flex-col min-h-screen font-sans">
@@ -160,6 +174,11 @@
                 ✅ Profilo aggiornato con successo!
             </div>
 
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message">
+                ❌ <span id="errorText">Errore nel caricamento</span>
+            </div>
+
             <!-- Profile Header Card -->
             <div class="glass-effect rounded-2xl p-6 card-hover text-center">
                 <div class="w-24 h-24 bg-gradient-to-br from-primary to-secondary rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -167,7 +186,7 @@
                 </div>
                 <h2 class="text-xl font-bold text-textDark mb-2" id="fullNameDisplay">Caricamento...</h2>
                 <p class="text-gray-600 text-sm" id="roleDisplay">Ruolo</p>
-                <p class="text-gray-500 text-xs mt-1" id="matricolaDisplay">Matricola: ---</p>
+                <p class="text-gray-500 text-xs mt-1" id="matricolaDisplay">Telefono: ---</p>
             </div>
 
             <!-- Profile Form -->
@@ -324,8 +343,17 @@
 
         function showError(message) {
             hideLoading();
-            alert(`Errore: ${message}`);
             console.error('Errore:', message);
+            
+            const errorMsg = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorMsg.style.display = 'block';
+            
+            // Nascondi dopo 5 secondi
+            setTimeout(() => {
+                errorMsg.style.display = 'none';
+            }, 5000);
         }
 
         function showSuccess() {
@@ -341,11 +369,18 @@
             try {
                 const { data: { user }, error } = await supabase.auth.getUser();
                 
-                if (error || !user) {
+                if (error) {
+                    console.error('Errore auth:', error);
+                    throw error;
+                }
+                
+                if (!user) {
+                    console.log('Utente non autenticato');
                     window.location.href = '/login.html';
                     return null;
                 }
                 
+                console.log('Utente autenticato:', user.email);
                 return user;
             } catch (error) {
                 console.error('Errore autenticazione:', error);
@@ -354,26 +389,60 @@
             }
         }
 
-        // Load user profile
+        // Load user profile - METODO MIGLIORATO
         async function caricaDatiPagina() {
             showLoading();
             try {
                 const user = await verificaAutenticazione();
                 if (!user) return;
 
-                // Carica dati profilo
-                const { data: profile, error } = await supabase
+                console.log('Cerco profilo per ID:', user.id);
+
+                // Prova a caricare il profilo esistente
+                let { data: profile, error } = await supabase
                     .from('profiles')
                     .select('*')
-                    .eq('email', user.email)
-                    .single();
+                    .eq('id', user.id)
+                    .maybeSingle(); // Usa maybeSingle invece di single per evitare errori
 
                 if (error) {
-                    console.error('Errore caricamento profilo:', error);
-                    showError('Impossibile caricare i dati del profilo');
+                    console.error('Errore query profilo:', error);
+                    showError('Errore nel caricamento: ' + error.message);
                     return;
                 }
 
+                // Se il profilo non esiste, crealo
+                if (!profile) {
+                    console.log('Profilo non trovato, creo nuovo profilo per:', user.email);
+                    
+                    const nuovoProfilo = {
+                        id: user.id,
+                        email: user.email,
+                        nome: '',
+                        cognome: '',
+                        telefono: null,
+                        ruoli: ['USER'], // Cambiato da 'ruolo' a 'ruoli'
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    };
+
+                    const { data: profiloCreato, error: erroreCreazione } = await supabase
+                        .from('profiles')
+                        .insert([nuovoProfilo])
+                        .select()
+                        .single();
+
+                    if (erroreCreazione) {
+                        console.error('Errore creazione profilo:', erroreCreazione);
+                        showError('Impossibile creare il profilo: ' + erroreCreazione.message);
+                        return;
+                    }
+
+                    profile = profiloCreato;
+                    console.log('Nuovo profilo creato con successo:', profile);
+                }
+
+                console.log('Profilo caricato:', profile);
                 userData = profile;
                 originalData = { ...profile };
                 
@@ -381,10 +450,51 @@
                 aggiornaDisplay(profile);
 
             } catch (error) {
-                console.error('Errore:', error);
-                showError('Errore nel caricamento dei dati');
+                console.error('Errore generale:', error);
+                showError('Errore nel caricamento dei dati: ' + error.message);
             } finally {
                 hideLoading();
+            }
+        }
+
+        // Crea nuovo profilo se non esiste
+        async function creaNuovoProfilo(user) {
+            try {
+                console.log('Creazione nuovo profilo per:', user.email);
+                
+                const nuovoProfilo = {
+                    id: user.id,
+                    email: user.email,
+                    nome: '',
+                    cognome: '',
+                    telefono: null,
+                    ruolo: ['USER'], // Array come richiesto da Supabase
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
+
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .insert([nuovoProfilo])
+                    .select()
+                    .single();
+
+                if (error) {
+                    console.error('Errore creazione profilo:', error);
+                    showError('Impossibile creare il profilo: ' + error.message);
+                    return;
+                }
+
+                console.log('Profilo creato:', data);
+                userData = data;
+                originalData = { ...data };
+                
+                popolaForm(data);
+                aggiornaDisplay(data);
+
+            } catch (error) {
+                console.error('Errore creazione profilo:', error);
+                showError('Errore nella creazione del profilo: ' + error.message);
             }
         }
 
@@ -394,10 +504,27 @@
             document.getElementById('cognome').value = data.cognome || '';
             document.getElementById('email').value = data.email || '';
             document.getElementById('telefono').value = data.telefono || '';
-            document.getElementById('ruolo').value = data.ruolo || 'USER';
+            
+            // Gestione corretta del campo ruoli (array) - CAMPO CORRETTO: ruoli
+            let ruoloValore = 'USER'; // Default
+            if (data.ruoli && Array.isArray(data.ruoli)) {
+                // Se è un array, prendi il primo valore o il più alto privilegio
+                if (data.ruoli.includes('ADMIN')) {
+                    ruoloValore = 'ADMIN';
+                } else if (data.ruoli.includes('DIRIGENTE')) {
+                    ruoloValore = 'DIRIGENTE';
+                } else if (data.ruoli.includes('USER')) {
+                    ruoloValore = 'USER';
+                }
+            } else if (typeof data.ruoli === 'string') {
+                // Se è una stringa (retrocompatibilità)
+                ruoloValore = data.ruoli;
+            }
+            
+            document.getElementById('ruolo').value = ruoloValore;
             
             // Disabilita il ruolo se non è admin
-            if (data.ruolo !== 'ADMIN') {
+            if (!data.ruoli || !data.ruoli.includes('ADMIN')) {
                 document.getElementById('ruolo').disabled = true;
                 document.getElementById('ruolo').classList.add('bg-gray-100');
             }
@@ -406,20 +533,27 @@
         // Aggiorna il display header
         function aggiornaDisplay(data) {
             const fullName = `${data.nome || ''} ${data.cognome || ''}`.trim() || 'Nome Utente';
-            const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) || 'NU';
             
             document.getElementById('fullNameDisplay').textContent = fullName;
             document.getElementById('initialsDisplay').textContent = initials;
-            document.getElementById('roleDisplay').textContent = getRoleDisplay(data.ruolo);
-            document.getElementById('matricolaDisplay').textContent = `Matricola: ${data.telefono || 'Non specificata'}`;
+            document.getElementById('roleDisplay').textContent = getRoleDisplay(data.ruoli);
+            document.getElementById('matricolaDisplay').textContent = `Telefono: ${data.telefono || 'Non specificato'}`;
         }
 
-        function getRoleDisplay(ruolo) {
-            switch(ruolo) {
-                case 'ADMIN': return 'Amministratore';
-                case 'DIRIGENTE': return 'Dirigente';
-                default: return 'Utente';
+        function getRoleDisplay(ruoli) {
+            if (Array.isArray(ruoli)) {
+                if (ruoli.includes('ADMIN')) return 'Amministratore';
+                if (ruoli.includes('DIRIGENTE')) return 'Dirigente';
+                return 'Utente';
+            } else if (typeof ruoli === 'string') {
+                switch(ruoli) {
+                    case 'ADMIN': return 'Amministratore';
+                    case 'DIRIGENTE': return 'Dirigente';
+                    default: return 'Utente';
+                }
             }
+            return 'Utente';
         }
 
         // Validation
@@ -451,13 +585,15 @@
             return isValid;
         }
 
-        // Save profile
+        // Save profile - VERSIONE MIGLIORATA
         async function salvaProfiloNelDB() {
             if (!validateForm()) return;
             
             showLoading();
             try {
                 const formData = new FormData(document.getElementById('profileForm'));
+                const ruoloSelezionato = formData.get('ruolo');
+                
                 const updatedData = {
                     nome: formData.get('nome').trim(),
                     cognome: formData.get('cognome').trim(),
@@ -465,24 +601,39 @@
                     updated_at: new Date().toISOString()
                 };
 
-                // Include ruolo only if user is admin
-                if (userData.ruolo === 'ADMIN') {
-                    updatedData.ruolo = formData.get('ruolo');
+                // Gestione corretta del ruoli come array
+                if (userData && userData.ruoli && Array.isArray(userData.ruoli) && userData.ruoli.includes('ADMIN')) {
+                    // Solo admin può modificare i ruoli
+                    updatedData.ruoli = [ruoloSelezionato];
                 }
 
+                console.log('Aggiornamento profilo ID:', userData.id);
+                console.log('Dati da salvare:', updatedData);
+
+                // Usa upsert per gestire sia aggiornamenti che inserimenti
                 const { data, error } = await supabase
                     .from('profiles')
-                    .update(updatedData)
-                    .eq('id', userData.id)
+                    .upsert(
+                        { 
+                            id: userData.id, 
+                            email: userData.email,
+                            ...updatedData 
+                        },
+                        { 
+                            onConflict: 'id',
+                            ignoreDuplicates: false 
+                        }
+                    )
                     .select()
                     .single();
 
                 if (error) {
-                    console.error('Errore aggiornamento:', error);
-                    showError('Impossibile aggiornare il profilo');
+                    console.error('Errore salvataggio:', error);
+                    showError('Impossibile salvare il profilo: ' + error.message);
                     return;
                 }
 
+                console.log('Profilo salvato:', data);
                 userData = data;
                 originalData = { ...data };
                 aggiornaDisplay(data);
@@ -490,7 +641,7 @@
 
             } catch (error) {
                 console.error('Errore salvataggio:', error);
-                showError('Errore nel salvataggio dei dati');
+                showError('Errore nel salvataggio: ' + error.message);
             } finally {
                 hideLoading();
             }
@@ -521,14 +672,14 @@
                 });
                 
                 if (error) {
-                    showError('Impossibile aggiornare la password');
+                    showError('Impossibile aggiornare la password: ' + error.message);
                     return;
                 }
                 
                 alert('Password aggiornata con successo!');
             } catch (error) {
                 console.error('Errore cambio password:', error);
-                showError('Errore nell\'aggiornamento della password');
+                showError('Errore nell\'aggiornamento della password: ' + error.message);
             } finally {
                 hideLoading();
             }
