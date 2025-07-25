@@ -116,14 +116,6 @@
         .chat-container::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.5);
         }
-        .quick-question-card {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .quick-question-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
         .dirigente-card {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
             border: 1px solid rgba(255, 255, 255, 0.3);
@@ -292,52 +284,6 @@
         let totalTokensUsed = 0;
         let dirigenti = [];
 
-        // 🎨 DATI DELLE DOMANDE FREQUENTI
-        const frequentQuestions = [
-            {
-                id: 'ccnl',
-                title: 'Contratto di Lavoro',
-                emoji: '📋',
-                description: 'Informazioni su CCNL, stipendi e progressioni',
-                question: 'Dimmi tutto sul contratto di lavoro dei Carabinieri: CCNL, stipendi e progressioni di carriera'
-            },
-            {
-                id: 'ferie',
-                title: 'Ferie e Permessi',
-                emoji: '🏖️',
-                description: 'Diritti su ferie, permessi e congedi',
-                question: 'Quali sono i miei diritti per ferie, permessi e congedi? Come richiederli?'
-            },
-            {
-                id: 'malattia',
-                title: 'Permessi Malattia',
-                emoji: '🏥',
-                description: 'Come funzionano i permessi per malattia',
-                question: 'Come funzionano i permessi per malattia? Cosa devo fare quando mi ammalo?'
-            },
-            {
-                id: 'diritti',
-                title: 'Diritti Sindacali',
-                emoji: '⚖️',
-                description: 'Diritti, rappresentanza e tutele',
-                question: 'Quali sono i miei diritti sindacali? Come funziona la rappresentanza e le tutele?'
-            },
-            {
-                id: 'disciplinare',
-                title: 'Procedure Disciplinari',
-                emoji: '📝',
-                description: 'Procedure disciplinari e ricorsi',
-                question: 'Come funzionano le procedure disciplinari? Cosa fare in caso di sanzioni?'
-            },
-            {
-                id: 'concorsi',
-                title: 'Concorsi e Carriera',
-                emoji: '🎯',
-                description: 'Concorsi interni e progressioni',
-                question: 'Informazioni su concorsi interni, progressioni di carriera e opportunità di crescita'
-            }
-        ];
-
         // --- FUNZIONI DI UTILITÀ ---
         
         function addMessage(content, type = 'bot', timestamp = new Date()) {
@@ -380,43 +326,6 @@
             messagesContainer.appendChild(messageDiv);
             
             // Scroll automatico con ritardo
-            setTimeout(() => {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }, 100);
-        }
-
-        function addQuickQuestionCard(question) {
-            const messagesContainer = document.getElementById('chatMessages');
-            const cardDiv = document.createElement('div');
-            cardDiv.className = 'flex justify-center mb-4 animate-fade-in';
-            
-            cardDiv.innerHTML = `
-                <div class="quick-question-card message-bot rounded-2xl p-4 max-w-sm w-full cursor-pointer" data-question="${question.question}">
-                    <div class="flex items-center space-x-3 mb-2">
-                        <span class="text-2xl">${question.emoji}</span>
-                        <h3 class="font-semibold text-textDark">${question.title}</h3>
-                    </div>
-                    <p class="text-sm text-gray-600 mb-3">${question.description}</p>
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs text-primary font-medium">Clicca per chiedere</span>
-                        <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                        </svg>
-                    </div>
-                </div>
-            `;
-            
-            messagesContainer.appendChild(cardDiv);
-            
-            // Event listener per il click
-            cardDiv.querySelector('.quick-question-card').addEventListener('click', () => {
-                const questionText = question.question;
-                document.getElementById('messageInput').value = questionText;
-                updateCharCount();
-                updateSendButton();
-                sendMessage();
-            });
-            
             setTimeout(() => {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }, 100);
@@ -571,12 +480,12 @@
             return CHATBOT_CONFIG.apiEndpoint;
         }
 
-        // Inizializza la chat con messaggio di benvenuto e domande frequenti
+        // Inizializza la chat con messaggio di benvenuto pulito
         function initializeChat() {
             const messagesContainer = document.getElementById('chatMessages');
             messagesContainer.innerHTML = '';
 
-            // Messaggio di benvenuto
+            // Messaggio di benvenuto semplificato
             setTimeout(() => {
                 addMessage(`Ciao! Sono <strong>Virgilio</strong> 🤖, il tuo assistente sindacale AI.
                 <br><br>
@@ -586,25 +495,18 @@
                 <br>• Diritti sindacali ⚖️
                 <br>• Procedure e normative 📝
                 <br><br>
-                <strong>Scegli una delle domande qui sotto o scrivi la tua!</strong>`, 'bot');
+                <strong>Scrivi la tua domanda nell'area qui sotto!</strong>`, 'bot');
             }, 500);
-
-            // Aggiungi domande frequenti una alla volta
-            frequentQuestions.forEach((question, index) => {
-                setTimeout(() => {
-                    addQuickQuestionCard(question);
-                }, 1000 + (index * 300));
-            });
 
             // Aggiungi card contatti dirigenti
             setTimeout(() => {
                 addMessage(`Se hai bisogno di assistenza personalizzata o di parlare con un responsabile, 
                 ecco i contatti dei nostri dirigenti:`, 'system');
-            }, 1000 + (frequentQuestions.length * 300) + 500);
+            }, 1500);
 
             setTimeout(() => {
                 addDirigentiCard();
-            }, 1000 + (frequentQuestions.length * 300) + 1000);
+            }, 2000);
         }
 
         async function sendMessage() {
@@ -876,9 +778,8 @@
         });
 
         // Debug info
-        console.log('🤖 Virgilio Chat Migliorata inizializzata');
+        console.log('🤖 Virgilio Chat Semplificata inizializzata');
         console.log('🔧 Configurazione:', CHATBOT_CONFIG);
-        console.log('💡 Domande frequenti caricate:', frequentQuestions.length);
     </script>
 </body>
 </html>
