@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strumenti - MyApp</title>
+    <title>Strumenti</title>
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#2400C1">
@@ -402,8 +402,16 @@
                             <span class="font-semibold" id="stat-mattina">0</span>
                         </div>
                         <div class="flex justify-between">
+                            <span>Turni Pomeriggio:</span>
+                            <span class="font-semibold" id="stat-pomeriggio">0</span>
+                        </div>
+                        <div class="flex justify-between">
                             <span>Turni Sera:</span>
                             <span class="font-semibold" id="stat-sera">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Turni Notte:</span>
+                            <span class="font-semibold" id="stat-notte">0</span>
                         </div>
                         <div class="flex justify-between">
                             <span>Giorni Riposo:</span>
@@ -1378,7 +1386,9 @@
             
             const stats = {
                 mattina: turniData.filter(t => t.tipo_turno === 'mattina').length,
+                pomeriggio: turniData.filter(t => t.tipo_turno === 'pomeriggio').length,
                 sera: turniData.filter(t => t.tipo_turno === 'sera').length,
+                notte: turniData.filter(t => t.tipo_turno === 'notte').length,
                 riposo: turniData.filter(t => t.tipo_turno === 'riposo').length,
                 licenze: licenzeData.filter(l => {
                     const dataInizio = new Date(l.data_inizio);
@@ -1390,7 +1400,9 @@
             };
             
             document.getElementById('stat-mattina').textContent = stats.mattina;
+            document.getElementById('stat-pomeriggio').textContent = stats.pomeriggio;
             document.getElementById('stat-sera').textContent = stats.sera;
+            document.getElementById('stat-notte').textContent = stats.notte;
             document.getElementById('stat-riposo').textContent = stats.riposo;
             document.getElementById('stat-licenze').textContent = stats.licenze;
         }
