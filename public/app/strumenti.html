@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -32,8 +33,8 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://lycrgzptkdkksukcwrld.supabase.co">
 
-
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -44,6 +45,7 @@
                         accent: '#00BFFF',
                         textDark: '#1C1C1E',
                         backgroundLight: '#F4F4F8',
+                        danger: '#DC2626',
                     }
                 }
             }
@@ -63,12 +65,231 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        /* Stili calendario */
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            background: #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .calendar-day {
+            background: white;
+            padding: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            font-size: 0.75rem;
+        }
+        
+        .calendar-day:hover {
+            background: #f3f4f6;
+            transform: translateY(-2px);
+        }
+        
+        .calendar-day.header {
+            background: linear-gradient(135deg, #2400C1, #8E008C);
+            color: white;
+            font-weight: bold;
+            cursor: default;
+            min-height: 35px;
+        }
+        
+        .calendar-day.header:hover {
+            transform: none;
+        }
+        
+        .calendar-day.turno-mattina { 
+            background: #fef3c7; 
+            color: #92400e;
+            border-left: 3px solid #f59e0b;
+        }
+        .calendar-day.turno-pomeriggio { 
+            background: #fed7aa; 
+            color: #9a3412;
+            border-left: 3px solid #ea580c;
+        }
+        .calendar-day.turno-sera { 
+            background: #fca5a5; 
+            color: #991b1b;
+            border-left: 3px solid #dc2626;
+        }
+        .calendar-day.turno-notte { 
+            background: #c7d2fe; 
+            color: #3730a3;
+            border-left: 3px solid #4f46e5;
+        }
+        .calendar-day.turno-riposo { 
+            background: #d1fae5; 
+            color: #065f46;
+            border-left: 3px solid #10b981;
+        }
+        .calendar-day.vuoto { 
+            background: #f9fafb; 
+            color: #6b7280;
+            border-left: none;
+        }
+        .calendar-day.licenza { 
+            background: #e0e7ff; 
+            color: #3730a3;
+            border-left: 3px solid #6366f1;
+        }
+        .calendar-day.oggi {
+            background: linear-gradient(135deg, #dc2626, #ef4444) !important;
+            color: white !important;
+            box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
+            border-left: 3px solid #ffffff !important;
+        }
+        
+        .turno-label {
+            font-size: 0.6rem;
+            font-weight: 600;
+            margin-top: 0.25rem;
+        }
+
+        .edit-button {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 0.5rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .calendar-day:hover .edit-button {
+            opacity: 1;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .action-btn {
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: none;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .edit-btn {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #2563eb;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+        }
+
+        /* Sezioni strumenti */
+        .tool-section {
+            display: none;
+        }
+        .tool-section.active {
+            display: block;
+        }
+
+        /* Pulsanti di navigazione strumenti */
+        .tool-nav-btn {
+            transition: all 0.3s ease;
+        }
+        .tool-nav-btn.active {
+            background: linear-gradient(135deg, #2400C1, #8E008C);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(36, 0, 193, 0.3);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .calendar-day {
+                padding: 0.25rem;
+                min-height: 50px;
+                font-size: 0.7rem;
+            }
+            
+            .turno-label {
+                font-size: 0.5rem;
+            }
+
+            .edit-button {
+                width: 14px;
+                height: 14px;
+                font-size: 0.4rem;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Header -->
     <header class="w-full px-4 py-4 relative z-10">
-        <div class="max-w-md mx-auto flex justify-between items-center">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <button onclick="history.back()" class="text-white hover:text-accent transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,33 +298,1373 @@
                 </button>
                 <h1 class="text-xl font-bold text-white drop-shadow-lg">Strumenti</h1>
             </div>
+            <button onclick="logout()" class="text-white hover:text-accent transition-colors text-sm">
+                Logout
+            </button>
         </div>
     </header>
 
     <!-- Content -->
-    <main class="flex-1 flex items-center justify-center px-4 pb-20">
-        <div class="glass-effect rounded-2xl p-8 text-center max-w-sm w-full">
-            <div class="w-20 h-20 bg-gradient-to-br from-accent to-blue-500 rounded-full mx-auto mb-6 flex items-center justify-center">
-                <span class="text-3xl text-white">🛠️</span>
+    <main class="flex-1 px-4 pb-20 max-w-4xl mx-auto">
+        
+        <!-- Menu Strumenti -->
+        <div class="glass-effect rounded-2xl p-6 mb-6">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-gradient-to-br from-accent to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <span class="text-2xl text-white">🛠️</span>
+                </div>
+                <h2 class="text-2xl font-bold text-primary mb-2">Strumenti Sindacali</h2>
+                <p class="text-gray-600">Gestisci turni, licenze e strumenti di lavoro</p>
             </div>
-            <h2 class="text-2xl font-bold text-primary mb-4">Strumenti</h2>
-            <p class="text-gray-600 mb-6">
-                Questa sezione sarà presto disponibile con tutti gli strumenti per la gestione turni, permessi e utilities.
-            </p>
-            <div class="bg-blue-50 rounded-lg p-4 text-left">
-                <h3 class="font-semibold text-blue-800 mb-2">🚀 Prossimamente:</h3>
-                <ul class="text-sm text-blue-700 space-y-1">
-                    <li>• Gestione turni e servizi</li>
-                    <li>• Richiesta permessi</li>
-                    <li>• Calcolo ore straordinario</li>
-                    <li>• Calendario personale</li>
-                    <li>• Tools utili</li>
-                </ul>
+
+            <!-- Navigation Tabs -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <button onclick="showTool('turni')" class="tool-nav-btn active bg-white/70 hover:bg-white p-4 rounded-xl font-semibold text-primary border border-primary/20">
+                    🗓️ Turni
+                </button>
+                <button onclick="showTool('licenze')" class="tool-nav-btn bg-white/70 hover:bg-white p-4 rounded-xl font-semibold text-primary border border-primary/20">
+                    🏖️ Licenze
+                </button>
+                <button onclick="showTool('recuperi')" class="tool-nav-btn bg-white/70 hover:bg-white p-4 rounded-xl font-semibold text-primary border border-primary/20">
+                    🔄 Recuperi
+                </button>
+                <button onclick="showTool('utilita')" class="tool-nav-btn bg-white/70 hover:bg-white p-4 rounded-xl font-semibold text-primary border border-primary/20">
+                    ⚙️ Utilità
+                </button>
             </div>
-            <button onclick="history.back()" class="mt-6 bg-primary hover:bg-secondary text-white font-semibold py-3 px-6 rounded-lg transition-colors">
-                ← Torna Indietro
-            </button>
         </div>
+
+        <!-- Sezione Turni -->
+        <div id="turni-section" class="tool-section active">
+            <!-- Calendario Turni -->
+            <div class="glass-card rounded-2xl p-6 mb-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-white" id="calendar-title">📅 Calendario Turni</h3>
+                    <div class="flex gap-2">
+                        <button onclick="previousMonth()" class="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
+                            ← Prec
+                        </button>
+                        <button onclick="nextMonth()" class="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors">
+                            Succ →
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="calendar mb-4" id="calendar-container">
+                    <!-- Calendario generato dinamicamente -->
+                </div>
+                
+                <!-- Legenda -->
+                <div class="grid grid-cols-3 md:grid-cols-6 gap-2 text-xs text-center text-white">
+                    <div class="flex items-center justify-center space-x-1">
+                        <div class="w-3 h-3 bg-yellow-200 rounded border-l-2 border-yellow-500"></div>
+                        <span>Mattina</span>
+                    </div>
+                    <div class="flex items-center justify-center space-x-1">
+                        <div class="w-3 h-3 bg-orange-200 rounded border-l-2 border-orange-500"></div>
+                        <span>Pomeriggio</span>
+                    </div>
+                    <div class="flex items-center justify-center space-x-1">
+                        <div class="w-3 h-3 bg-red-200 rounded border-l-2 border-red-500"></div>
+                        <span>Sera</span>
+                    </div>
+                    <div class="flex items-center justify-center space-x-1">
+                        <div class="w-3 h-3 bg-blue-200 rounded border-l-2 border-blue-500"></div>
+                        <span>Notte</span>
+                    </div>
+                    <div class="flex items-center justify-center space-x-1">
+                        <div class="w-3 h-3 bg-green-200 rounded border-l-2 border-green-500"></div>
+                        <span>Riposo</span>
+                    </div>
+                    <div class="flex items-center justify-center space-x-1">
+                        <div class="w-3 h-3 bg-indigo-200 rounded border-l-2 border-indigo-500"></div>
+                        <span>Licenza</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Azioni Rapide Turni -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-effect rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-primary mb-4">🗓️ Nuovo Turno</h3>
+                    <button onclick="openTurnoModal()" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-4 rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                        ➕ Programma Turno
+                    </button>
+                    <div class="mt-4 text-xs text-gray-600 bg-blue-50 p-3 rounded-lg">
+                        <strong>💡 Suggerimento:</strong> Clicca su un giorno del calendario per modificarlo rapidamente
+                    </div>
+                </div>
+
+                <div class="glass-effect rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-primary mb-4">📊 Statistiche Mese</h3>
+                    <div class="space-y-2 text-sm" id="stats-container">
+                        <div class="flex justify-between">
+                            <span>Turni Mattina:</span>
+                            <span class="font-semibold" id="stat-mattina">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Turni Sera:</span>
+                            <span class="font-semibold" id="stat-sera">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Giorni Riposo:</span>
+                            <span class="font-semibold" id="stat-riposo">0</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Licenze:</span>
+                            <span class="font-semibold" id="stat-licenze">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sezione Licenze -->
+        <div id="licenze-section" class="tool-section">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-effect rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-primary mb-4">🏖️ Nuova Licenza</h3>
+                    <button onclick="openLicenzaModal()" class="w-full bg-gradient-to-r from-accent to-primary text-white font-bold py-3 px-4 rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 mb-4">
+                        ➕ Programma Licenza/Permesso
+                    </button>
+                </div>
+
+                <div class="glass-effect rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-primary mb-4">📋 Licenze Programmate</h3>
+                    <div class="space-y-3 max-h-60 overflow-y-auto" id="licenze-list">
+                        <p class="text-gray-500 text-sm text-center">Nessuna licenza programmata</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sezione Recuperi -->
+        <div id="recuperi-section" class="tool-section">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-effect rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-primary mb-4">🔄 Nuovo Recupero</h3>
+                    <button onclick="openRecuperoModal()" class="w-full bg-gradient-to-r from-secondary to-accent text-white font-bold py-3 px-4 rounded-xl hover:shadow-lg transition-all duration-300 transform hover:scale-105 mb-4">
+                        ➕ Registra Recupero
+                    </button>
+                </div>
+
+                <div class="glass-effect rounded-2xl p-6">
+                    <h3 class="text-lg font-bold text-primary mb-4">📊 Recuperi Registrati</h3>
+                    <div class="space-y-3 max-h-60 overflow-y-auto" id="recuperi-list">
+                        <p class="text-gray-500 text-sm text-center">Nessun recupero registrato</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sezione Utilità -->
+        <div id="utilita-section" class="tool-section">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="glass-effect rounded-2xl p-6 text-center">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span class="text-xl text-white">📊</span>
+                    </div>
+                    <h3 class="font-bold text-primary mb-2">Rapporti</h3>
+                    <p class="text-sm text-gray-600 mb-4">Genera rapporti sui turni e le ore lavorate</p>
+                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        Prossimamente
+                    </button>
+                </div>
+
+                <div class="glass-effect rounded-2xl p-6 text-center">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span class="text-xl text-white">⏰</span>
+                    </div>
+                    <h3 class="font-bold text-primary mb-2">Calcolo Ore</h3>
+                    <p class="text-sm text-gray-600 mb-4">Calcola ore straordinario e permessi</p>
+                    <button class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        Prossimamente
+                    </button>
+                </div>
+
+                <div class="glass-effect rounded-2xl p-6 text-center">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span class="text-xl text-white">📱</span>
+                    </div>
+                    <h3 class="font-bold text-primary mb-2">Export Data</h3>
+                    <p class="text-sm text-gray-600 mb-4">Esporta dati turni in PDF o Excel</p>
+                    <button class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm transition-colors">
+                        Prossimamente
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </main>
+
+    <!-- Floating Help Button -->
+    <button class="fixed bottom-32 right-6 w-14 h-14 bg-secondary rounded-full flex items-center justify-center shadow-lg z-30 transform hover:scale-110 transition-transform">
+        <span class="text-2xl">🆘</span>
+    </button>
+
+    <!-- MODAL PROGRAMMAZIONE TURNO -->
+    <div id="turnoModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-primary" id="turno-modal-title">Programma Turno</h3>
+                <button onclick="closeTurnoModal()" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+            <form id="turnoForm" class="space-y-4">
+                <input type="hidden" name="turno_id" id="turno-id">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Data</label>
+                    <input name="data_turno" type="date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo Turno</label>
+                    <select name="tipo_turno" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" required>
+                        <option value="">Seleziona turno...</option>
+                        <option value="mattina">🌅 Mattina</option>
+                        <option value="pomeriggio">☀️ Pomeriggio</option>
+                        <option value="sera">🌆 Sera</option>
+                        <option value="notte">🌙 Notte</option>
+                        <option value="riposo">😴 Riposo</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Note (opzionale)</label>
+                    <textarea name="note" rows="2" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" placeholder="Eventuali note..."></textarea>
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-primary text-white py-3 px-4 rounded-lg font-semibold hover:bg-primary/90 transition-colors" id="turno-submit-btn">
+                        ✅ Salva Turno
+                    </button>
+                    <button type="button" onclick="closeTurnoModal()" class="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
+                        ❌ Annulla
+                    </button>
+                </div>
+                <div id="turno-delete-section" class="hidden">
+                    <button type="button" onclick="deleteTurno()" class="w-full bg-red-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-600 transition-colors">
+                        🗑️ Elimina Turno
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL LICENZA/PERMESSO -->
+    <div id="licenzaModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-primary" id="licenza-modal-title">Programma Licenza/Permesso</h3>
+                <button onclick="closeLicenzaModal()" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+            <form id="licenzaForm" class="space-y-4">
+                <input type="hidden" name="licenza_id" id="licenza-id">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo</label>
+                    <select name="tipo_licenza" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" required>
+                        <option value="">Seleziona tipo...</option>
+                        <option value="ordinaria">🏖️ Licenza Ordinaria</option>
+                        <option value="straordinaria">⭐ Licenza Straordinaria</option>
+                        <option value="speciale">🎯 Licenza Speciale</option>
+                        <option value="permesso">📋 Permesso</option>
+                        <option value="riposo_settimanale">🛏️ Riposo Settimanale</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Data Inizio</label>
+                        <input name="data_inizio" type="date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Data Fine</label>
+                        <input name="data_fine" type="date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Note (opzionale)</label>
+                    <textarea name="note" rows="2" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" placeholder="Eventuali note..."></textarea>
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-accent text-white py-3 px-4 rounded-lg font-semibold hover:bg-accent/90 transition-colors" id="licenza-submit-btn">
+                        ✅ Programma
+                    </button>
+                    <button type="button" onclick="closeLicenzaModal()" class="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
+                        ❌ Annulla
+                    </button>
+                </div>
+                <div id="licenza-delete-section" class="hidden">
+                    <button type="button" onclick="deleteLicenzaFromModal()" class="w-full bg-red-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-600 transition-colors">
+                        🗑️ Elimina Licenza
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL RECUPERO -->
+    <div id="recuperoModal" class="modal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-primary" id="recupero-modal-title">Registra Recupero Riposo</h3>
+                <button onclick="closeRecuperoModal()" class="text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            </div>
+            <form id="recuperoForm" class="space-y-4">
+                <input type="hidden" name="recupero_id" id="recupero-id">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tipo Recupero</label>
+                    <select name="tipo_recupero" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" required>
+                        <option value="">Seleziona tipo...</option>
+                        <option value="festività">🎄 Festività</option>
+                        <option value="settimana_del">📅 Settimana del...</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Data</label>
+                    <input name="data_maturazione" type="date" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Descrizione</label>
+                    <textarea name="descrizione" rows="2" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary focus:border-primary" placeholder="Descrivi il motivo del recupero..." required></textarea>
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-secondary text-white py-3 px-4 rounded-lg font-semibold hover:bg-secondary/90 transition-colors" id="recupero-submit-btn">
+                        ✅ Registra
+                    </button>
+                    <button type="button" onclick="closeRecuperoModal()" class="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
+                        ❌ Annulla
+                    </button>
+                </div>
+                <div id="recupero-delete-section" class="hidden">
+                    <button type="button" onclick="deleteRecuperoFromModal()" class="w-full bg-red-500 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-600 transition-colors">
+                        🗑️ Elimina Recupero
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Configurazione Supabase -->
+    <script>
+        // ========================================================================
+        //                    CONFIGURAZIONE SUPABASE
+        // ========================================================================
+        const SUPABASE_URL = "https://lycrgzptkdkksukcwrld.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk";
+        
+        let supabase;
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } catch (error) {
+            console.error("Errore durante l'inizializzazione di Supabase:", error);
+            alert("Impossibile connettersi al database.");
+        }
+    </script>
+
+    <script>
+        // ========================================================================
+        //                    GESTIONE NAVIGAZIONE STRUMENTI
+        // ========================================================================
+        
+        function closeLicenzaModal() {
+            document.getElementById('licenzaModal').classList.remove('active');
+            resetLicenzaModal();
+        }
+
+        function resetLicenzaModal() {
+            editingLicenza = null;
+            const form = document.getElementById('licenzaForm');
+            form.reset();
+            form.licenza_id.value = '';
+            
+            document.getElementById('licenza-modal-title').textContent = 'Programma Licenza/Permesso';
+            document.getElementById('licenza-submit-btn').textContent = '✅ Programma';
+            document.getElementById('licenza-delete-section').classList.add('hidden');
+        }
+
+        function openRecuperoModal() {
+            document.getElementById('recuperoModal').classList.add('active');
+        }
+
+        function closeRecuperoModal() {
+            document.getElementById('recuperoModal').classList.remove('active');
+            resetRecuperoModal();
+        }
+
+        function resetRecuperoModal() {
+            editingRecupero = null;
+            const form = document.getElementById('recuperoForm');
+            form.reset();
+            form.recupero_id.value = '';
+            
+            document.getElementById('recupero-modal-title').textContent = 'Registra Recupero Riposo';
+            document.getElementById('recupero-submit-btn').textContent = '✅ Registra';
+            document.getElementById('recupero-delete-section').classList.add('hidden');
+        }
+
+        function openDayModal(dateStr, turnoId) {
+            if (turnoId && turnoId !== 'null') {
+                editDayTurno(dateStr, turnoId);
+            } else {
+                const form = document.getElementById('turnoForm');
+                form.data_turno.value = dateStr;
+                form.tipo_turno.value = '';
+                openTurnoModal();
+            }
+        }
+
+        function editDayTurno(dateStr, turnoId) {
+            if (turnoId && turnoId !== 'null') {
+                const turno = turniData.find(t => t.id === turnoId);
+                if (turno) {
+                    editingTurno = turno;
+                    
+                    const form = document.getElementById('turnoForm');
+                    form.turno_id.value = turno.id;
+                    form.data_turno.value = turno.data_turno;
+                    form.tipo_turno.value = turno.tipo_turno;
+                    form.note.value = turno.note || '';
+                    
+                    document.getElementById('turno-modal-title').textContent = 'Modifica Turno';
+                    document.getElementById('turno-submit-btn').textContent = '✅ Aggiorna';
+                    document.getElementById('turno-delete-section').classList.remove('hidden');
+                    
+                    openTurnoModal();
+                }
+            } else {
+                const form = document.getElementById('turnoForm');
+                form.data_turno.value = dateStr;
+                form.tipo_turno.value = '';
+                openTurnoModal();
+            }
+        }
+
+        // ========================================================================
+        //                          NAVIGAZIONE CALENDARIO
+        // ========================================================================
+
+        async function previousMonth() {
+            console.log('📅 Navigazione: mese precedente');
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            console.log(`📅 Nuovo periodo: ${currentMonth + 1}/${currentYear}`);
+            await loadTurniFromDB();
+        }
+        
+        async function nextMonth() {
+            console.log('📅 Navigazione: mese successivo');
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            console.log(`📅 Nuovo periodo: ${currentMonth + 1}/${currentYear}`);
+            await loadTurniFromDB();
+        }
+
+        // ========================================================================
+        //                          FUNZIONI HELPER
+        // ========================================================================
+
+        function isDateInLicenza(dateStr) {
+            return licenzeData.some(licenza => {
+                const dataInizio = new Date(licenza.data_inizio);
+                const dataFine = new Date(licenza.data_fine);
+                const dataCheck = new Date(dateStr);
+                
+                return dataCheck >= dataInizio && dataCheck <= dataFine && 
+                       licenza.stato !== 'rifiutata' && licenza.stato !== 'annullata';
+            });
+        }
+
+        function getLicenzaForDate(dateStr) {
+            return licenzeData.find(licenza => {
+                const dataInizio = new Date(licenza.data_inizio);
+                const dataFine = new Date(licenza.data_fine);
+                const dataCheck = new Date(dateStr);
+                
+                return dataCheck >= dataInizio && dataCheck <= dataFine && 
+                       licenza.stato !== 'rifiutata' && licenza.stato !== 'annullata';
+            });
+        }
+
+        function getTurnoLabel(tipo) {
+            const labels = {
+                'mattina': 'Mattina',
+                'pomeriggio': 'Pomeriggio', 
+                'sera': 'Sera',
+                'notte': 'Notte',
+                'riposo': 'Riposo'
+            };
+            return labels[tipo] || '';
+        }
+
+        function getLicenzaShortName(tipo) {
+            const names = {
+                'ordinaria': 'Licenza',
+                'straordinaria': 'Lic. Str.',
+                'speciale': 'Lic. Sp.',
+                'permesso': 'Permesso',
+                'riposo_settimanale': 'Riposo S.'
+            };
+            return names[tipo] || 'Licenza';
+        }
+
+        function getLicenzaIcon(tipo) {
+            const icons = {
+                'ordinaria': '🏖️',
+                'straordinaria': '⭐',
+                'speciale': '🎯',
+                'permesso': '📋',
+                'riposo_settimanale': '🛏️'
+            };
+            return icons[tipo] || '📅';
+        }
+
+        function getLicenzaName(tipo) {
+            const names = {
+                'ordinaria': 'Licenza Ordinaria',
+                'straordinaria': 'Licenza Straordinaria',
+                'speciale': 'Licenza Speciale',
+                'permesso': 'Permesso',
+                'riposo_settimanale': 'Riposo Settimanale'
+            };
+            return names[tipo] || 'Licenza';
+        }
+
+        function getRecuperoIcon(tipo) {
+            const icons = {
+                'festività': '🎄',
+                'settimana_del': '📅'
+            };
+            return icons[tipo] || '📅';
+        }
+
+        function getRecuperoName(tipo) {
+            const names = {
+                'festività': 'Festività',
+                'settimana_del': 'Settimana del...'
+            };
+            return names[tipo] || 'Recupero';
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('it-IT');
+        }
+
+        function calculateDaysBetween(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const timeDiff = end.getTime() - start.getTime();
+            return Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+        }
+
+        // ========================================================================
+        //                          NOTIFICHE E UTILITY
+        // ========================================================================
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            
+            notification.className = `fixed top-24 right-6 ${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.remove('translate-x-full'), 100);
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function logout() {
+            if (confirm('Sei sicuro di voler effettuare il logout?')) {
+                supabase.auth.signOut();
+                window.location.href = '/public/login.html';
+            }
+        }
+
+        // ========================================================================
+        //                          INIZIALIZZAZIONE E EVENT LISTENERS
+        // ========================================================================
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Inizializzazione pagina strumenti...');
+            
+            // Inizializza l'utente
+            await initializeUser();
+            
+            // Carica i dati se l'utente è autenticato
+            if (currentUser) {
+                await loadUserData();
+            }
+            
+            // Form turno
+            const turnoForm = document.getElementById('turnoForm');
+            if (turnoForm) {
+                turnoForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    console.log('📝 Sottomissione form turno...');
+                    
+                    const formData = new FormData(e.target);
+                    const turnoData = {
+                        data: formData.get('data_turno'),
+                        tipo: formData.get('tipo_turno'),
+                        note: formData.get('note')
+                    };
+                    
+                    console.log('📊 Dati turno:', turnoData);
+                    
+                    if (!turnoData.data || !turnoData.tipo) {
+                        showNotification('❌ Compila tutti i campi obbligatori', 'error');
+                        return;
+                    }
+                    
+                    const success = await saveTurnoDB(turnoData);
+                    if (success) {
+                        closeTurnoModal();
+                    }
+                });
+                console.log('✅ Event listener turno aggiunto');
+            }
+
+            // Form licenza
+            const licenzaForm = document.getElementById('licenzaForm');
+            if (licenzaForm) {
+                licenzaForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    console.log('📝 Sottomissione form licenza...');
+                    
+                    const formData = new FormData(e.target);
+                    const licenzaData = {
+                        tipo: formData.get('tipo_licenza'),
+                        dataInizio: formData.get('data_inizio'),
+                        dataFine: formData.get('data_fine'),
+                        note: formData.get('note')
+                    };
+                    
+                    console.log('📊 Dati licenza:', licenzaData);
+                    
+                    if (!licenzaData.tipo || !licenzaData.dataInizio || !licenzaData.dataFine) {
+                        showNotification('❌ Compila tutti i campi obbligatori', 'error');
+                        return;
+                    }
+                    
+                    const success = await saveLicenzaDB(licenzaData);
+                    if (success) {
+                        closeLicenzaModal();
+                    }
+                });
+                console.log('✅ Event listener licenza aggiunto');
+            }
+
+            // Form recupero
+            const recuperoForm = document.getElementById('recuperoForm');
+            if (recuperoForm) {
+                recuperoForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    console.log('📝 Sottomissione form recupero...');
+                    
+                    const formData = new FormData(e.target);
+                    const recuperoData = {
+                        tipo: formData.get('tipo_recupero'),
+                        dataMaturazione: formData.get('data_maturazione'),
+                        descrizione: formData.get('descrizione')
+                    };
+                    
+                    console.log('📊 Dati recupero:', recuperoData);
+                    
+                    if (!recuperoData.tipo || !recuperoData.dataMaturazione || !recuperoData.descrizione) {
+                        showNotification('❌ Compila tutti i campi obbligatori', 'error');
+                        return;
+                    }
+                    
+                    const success = await saveRecuperoDB(recuperoData);
+                    if (success) {
+                        closeRecuperoModal();
+                    }
+                });
+                console.log('✅ Event listener recupero aggiunto');
+            }
+            
+            // Chiudi modal cliccando fuori
+            document.addEventListener('click', function(e) {
+                const modals = document.querySelectorAll('.modal');
+                modals.forEach(modal => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                        if (modal.id === 'turnoModal') resetTurnoModal();
+                        if (modal.id === 'licenzaModal') resetLicenzaModal();
+                        if (modal.id === 'recuperoModal') resetRecuperoModal();
+                    }
+                });
+            });
+            
+            console.log('🎉 Inizializzazione completata');
+        });
+
+        // Esporta funzioni globali per l'uso nei click handlers
+        window.showTool = showTool;
+        window.openTurnoModal = openTurnoModal;
+        window.closeTurnoModal = closeTurnoModal;
+        window.openLicenzaModal = openLicenzaModal;
+        window.closeLicenzaModal = closeLicenzaModal;
+        window.openRecuperoModal = openRecuperoModal;
+        window.closeRecuperoModal = closeRecuperoModal;
+        window.openDayModal = openDayModal;
+        window.editDayTurno = editDayTurno;
+        window.previousMonth = previousMonth;
+        window.nextMonth = nextMonth;
+        window.deleteLicenza = deleteLicenza;
+        window.deleteRecupero = deleteRecupero;
+        window.editLicenza = editLicenza;
+        window.editRecupero = editRecupero;
+        window.deleteTurno = deleteTurno;
+        window.deleteLicenzaFromModal = deleteLicenzaFromModal;
+        window.deleteRecuperoFromModal = deleteRecuperoFromModal;
+        window.logout = logout;
+        
+        console.log('🌐 Funzioni globali esportate');
+    </script>
 </body>
-</html>
+</html> showTool(toolName) {
+            // Nasconde tutte le sezioni
+            document.querySelectorAll('.tool-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Rimuove classe active da tutti i pulsanti
+            document.querySelectorAll('.tool-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Mostra la sezione selezionata
+            document.getElementById(toolName + '-section').classList.add('active');
+            
+            // Attiva il pulsante corrispondente
+            event.target.classList.add('active');
+            
+            // Se è la sezione turni, carica i dati
+            if (toolName === 'turni') {
+                loadUserData();
+            }
+        }
+
+        // ========================================================================
+        //                    VARIABILI GLOBALI E INIZIALIZZAZIONE
+        // ========================================================================
+        
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let currentUser = null;
+        let turniData = [];
+        let licenzeData = [];
+        let recuperiData = [];
+        let editingTurno = null;
+        let editingLicenza = null;
+        let editingRecupero = null;
+        
+        // Inizializzazione
+        async function initializeUser() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) {
+                    window.location.href = '/public/login.html';
+                    return;
+                }
+                currentUser = session.user;
+                console.log('✅ Utente autenticato:', currentUser.id);
+            } catch (error) {
+                console.error('Errore inizializzazione:', error);
+                showNotification('❌ Errore nel caricamento', 'error');
+            }
+        }
+
+        async function loadUserData() {
+            if (!currentUser) return;
+            await Promise.all([
+                loadTurniFromDB(),
+                loadLicenzeFromDB(),
+                loadRecuperiFromDB()
+            ]);
+        }
+
+        // ========================================================================
+        //                          GESTIONE TURNI
+        // ========================================================================
+
+        async function loadTurniFromDB() {
+            try {
+                console.log(`🔄 Caricamento turni per ${currentMonth + 1}/${currentYear}...`);
+                
+                const { data: turni, error } = await supabase
+                    .from('turni')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .gte('data_turno', `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`)
+                    .lt('data_turno', `${currentYear}-${String(currentMonth + 2).padStart(2, '0')}-01`)
+                    .order('data_turno');
+
+                if (error) throw error;
+                
+                turniData = turni || [];
+                console.log(`✅ Caricati ${turniData.length} turni:`, turniData);
+                
+                updateCalendar();
+                updateStats();
+            } catch (error) {
+                console.error('❌ Errore caricamento turni:', error);
+                turniData = [];
+                updateCalendar();
+                updateStats();
+            }
+        }
+
+        async function saveTurnoDB(turnoData) {
+            try {
+                let result;
+                
+                if (editingTurno) {
+                    // Aggiorna turno esistente
+                    const { data, error } = await supabase
+                        .from('turni')
+                        .update({
+                            data_turno: turnoData.data,
+                            tipo_turno: turnoData.tipo,
+                            note: turnoData.note || ''
+                        })
+                        .eq('id', editingTurno.id)
+                        .eq('user_id', currentUser.id)
+                        .select();
+                    
+                    if (error) throw error;
+                    result = data;
+                    showNotification('✅ Turno aggiornato!', 'success');
+                } else {
+                    // Crea nuovo turno
+                    const { data, error } = await supabase
+                        .from('turni')
+                        .upsert({
+                            user_id: currentUser.id,
+                            data_turno: turnoData.data,
+                            tipo_turno: turnoData.tipo,
+                            note: turnoData.note || ''
+                        })
+                        .select();
+
+                    if (error) throw error;
+                    result = data;
+                    showNotification('✅ Turno salvato!', 'success');
+                }
+
+                await loadTurniFromDB();
+                return true;
+            } catch (error) {
+                console.error('Errore salvataggio turno:', error);
+                showNotification('❌ Errore nel salvataggio', 'error');
+                return false;
+            }
+        }
+
+        async function deleteTurno() {
+            if (!editingTurno) return;
+            
+            if (!confirm('Sei sicuro di voler eliminare questo turno?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('turni')
+                    .delete()
+                    .eq('id', editingTurno.id)
+                    .eq('user_id', currentUser.id);
+
+                if (error) throw error;
+                
+                showNotification('✅ Turno eliminato!', 'success');
+                closeTurnoModal();
+                await loadTurniFromDB();
+            } catch (error) {
+                console.error('Errore eliminazione turno:', error);
+                showNotification('❌ Errore nell\'eliminazione', 'error');
+            }
+        }
+
+        // ========================================================================
+        //                          GESTIONE LICENZE
+        // ========================================================================
+
+        async function loadLicenzeFromDB() {
+            try {
+                const { data: licenze, error } = await supabase
+                    .from('licenze')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('data_inizio', { ascending: false });
+
+                if (error) throw error;
+                licenzeData = licenze || [];
+                updateLicenzeList();
+                updateCalendar();
+            } catch (error) {
+                console.error('Errore caricamento licenze:', error);
+                updateLicenzeList();
+                updateCalendar();
+            }
+        }
+
+        async function saveLicenzaDB(licenzaData) {
+            try {
+                let result;
+                
+                if (editingLicenza) {
+                    const { data, error } = await supabase
+                        .from('licenze')
+                        .update({
+                            tipo_licenza: licenzaData.tipo,
+                            data_inizio: licenzaData.dataInizio,
+                            data_fine: licenzaData.dataFine,
+                            giorni_totali: calculateDaysBetween(licenzaData.dataInizio, licenzaData.dataFine),
+                            note: licenzaData.note || ''
+                        })
+                        .eq('id', editingLicenza.id)
+                        .eq('user_id', currentUser.id)
+                        .select();
+                    
+                    if (error) throw error;
+                    result = data;
+                    showNotification('✅ Licenza aggiornata!', 'success');
+                } else {
+                    const { data, error } = await supabase
+                        .from('licenze')
+                        .insert({
+                            user_id: currentUser.id,
+                            tipo_licenza: licenzaData.tipo,
+                            data_inizio: licenzaData.dataInizio,
+                            data_fine: licenzaData.dataFine,
+                            giorni_totali: calculateDaysBetween(licenzaData.dataInizio, licenzaData.dataFine),
+                            note: licenzaData.note || ''
+                        })
+                        .select();
+
+                    if (error) throw error;
+                    result = data;
+                    showNotification('✅ Licenza programmata!', 'success');
+                }
+
+                // Naviga al mese della licenza se necessario
+                const dataInizio = new Date(licenzaData.dataInizio);
+                if (dataInizio.getMonth() !== currentMonth || dataInizio.getFullYear() !== currentYear) {
+                    currentMonth = dataInizio.getMonth();
+                    currentYear = dataInizio.getFullYear();
+                    await loadTurniFromDB();
+                }
+
+                await loadLicenzeFromDB();
+                return true;
+            } catch (error) {
+                console.error('Errore salvataggio licenza:', error);
+                showNotification('❌ Errore nel salvataggio', 'error');
+                return false;
+            }
+        }
+
+        async function deleteLicenza(licenzaId) {
+            if (!confirm('Eliminare questa licenza?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('licenze')
+                    .delete()
+                    .eq('id', licenzaId)
+                    .eq('user_id', currentUser.id);
+
+                if (error) throw error;
+                showNotification('✅ Licenza eliminata!', 'success');
+                await loadLicenzeFromDB();
+            } catch (error) {
+                showNotification('❌ Errore nell\'eliminazione', 'error');
+            }
+        }
+
+        async function deleteLicenzaFromModal() {
+            if (!editingLicenza) return;
+            
+            if (!confirm('Sei sicuro di voler eliminare questa licenza?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('licenze')
+                    .delete()
+                    .eq('id', editingLicenza.id)
+                    .eq('user_id', currentUser.id);
+
+                if (error) throw error;
+                
+                showNotification('✅ Licenza eliminata!', 'success');
+                closeLicenzaModal();
+                await loadLicenzeFromDB();
+            } catch (error) {
+                console.error('Errore eliminazione licenza:', error);
+                showNotification('❌ Errore nell\'eliminazione', 'error');
+            }
+        }
+
+        function editLicenza(licenzaId) {
+            const licenza = licenzeData.find(l => l.id === licenzaId);
+            if (!licenza) return;
+            
+            editingLicenza = licenza;
+            
+            const form = document.getElementById('licenzaForm');
+            form.licenza_id.value = licenza.id;
+            form.tipo_licenza.value = licenza.tipo_licenza;
+            form.data_inizio.value = licenza.data_inizio;
+            form.data_fine.value = licenza.data_fine;
+            form.note.value = licenza.note || '';
+            
+            document.getElementById('licenza-modal-title').textContent = 'Modifica Licenza/Permesso';
+            document.getElementById('licenza-submit-btn').textContent = '✅ Aggiorna';
+            document.getElementById('licenza-delete-section').classList.remove('hidden');
+            
+            openLicenzaModal();
+        }
+
+        // ========================================================================
+        //                          GESTIONE RECUPERI
+        // ========================================================================
+
+        async function loadRecuperiFromDB() {
+            try {
+                const { data: recuperi, error } = await supabase
+                    .from('recuperi')
+                    .select('*')
+                    .eq('user_id', currentUser.id)
+                    .order('data_maturazione', { ascending: false });
+
+                if (error) throw error;
+                recuperiData = recuperi || [];
+                updateRecuperiList();
+            } catch (error) {
+                console.error('Errore caricamento recuperi:', error);
+                updateRecuperiList();
+            }
+        }
+
+        async function saveRecuperoDB(recuperoData) {
+            try {
+                let result;
+                
+                if (editingRecupero) {
+                    const { data, error } = await supabase
+                        .from('recuperi')
+                        .update({
+                            tipo_recupero: recuperoData.tipo,
+                            data_maturazione: recuperoData.dataMaturazione,
+                            descrizione: recuperoData.descrizione
+                        })
+                        .eq('id', editingRecupero.id)
+                        .eq('user_id', currentUser.id)
+                        .select();
+                    
+                    if (error) throw error;
+                    result = data;
+                    showNotification('✅ Recupero aggiornato!', 'success');
+                } else {
+                    const { data, error } = await supabase
+                        .from('recuperi')
+                        .insert({
+                            user_id: currentUser.id,
+                            tipo_recupero: recuperoData.tipo,
+                            data_maturazione: recuperoData.dataMaturazione,
+                            descrizione: recuperoData.descrizione
+                        })
+                        .select();
+
+                    if (error) throw error;
+                    result = data;
+                    showNotification('✅ Recupero registrato!', 'success');
+                }
+
+                await loadRecuperiFromDB();
+                return true;
+            } catch (error) {
+                console.error('Errore salvataggio recupero:', error);
+                showNotification('❌ Errore nel salvataggio', 'error');
+                return false;
+            }
+        }
+
+        async function deleteRecupero(recuperoId) {
+            if (!confirm('Eliminare questo recupero?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('recuperi')
+                    .delete()
+                    .eq('id', recuperoId)
+                    .eq('user_id', currentUser.id);
+
+                if (error) throw error;
+                showNotification('✅ Recupero eliminato!', 'success');
+                await loadRecuperiFromDB();
+            } catch (error) {
+                showNotification('❌ Errore nell\'eliminazione', 'error');
+            }
+        }
+
+        async function deleteRecuperoFromModal() {
+            if (!editingRecupero) return;
+            
+            if (!confirm('Sei sicuro di voler eliminare questo recupero?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('recuperi')
+                    .delete()
+                    .eq('id', editingRecupero.id)
+                    .eq('user_id', currentUser.id);
+
+                if (error) throw error;
+                
+                showNotification('✅ Recupero eliminato!', 'success');
+                closeRecuperoModal();
+                await loadRecuperiFromDB();
+            } catch (error) {
+                console.error('Errore eliminazione recupero:', error);
+                showNotification('❌ Errore nell\'eliminazione', 'error');
+            }
+        }
+
+        function editRecupero(recuperoId) {
+            const recupero = recuperiData.find(r => r.id === recuperoId);
+            if (!recupero) return;
+            
+            editingRecupero = recupero;
+            
+            const form = document.getElementById('recuperoForm');
+            form.recupero_id.value = recupero.id;
+            form.tipo_recupero.value = recupero.tipo_recupero;
+            form.data_maturazione.value = recupero.data_maturazione;
+            form.descrizione.value = recupero.descrizione || '';
+            
+            document.getElementById('recupero-modal-title').textContent = 'Modifica Recupero Riposo';
+            document.getElementById('recupero-submit-btn').textContent = '✅ Aggiorna';
+            document.getElementById('recupero-delete-section').classList.remove('hidden');
+            
+            openRecuperoModal();
+        }
+
+        // ========================================================================
+        //                          AGGIORNAMENTO INTERFACCIA
+        // ========================================================================
+
+        function updateCalendar() {
+            console.log('🖼️ Aggiornamento calendario...');
+            
+            const monthNames = [
+                'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+                'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'
+            ];
+            
+            const calendarTitle = document.getElementById('calendar-title');
+            if (calendarTitle) {
+                calendarTitle.innerHTML = `📅 ${monthNames[currentMonth]} ${currentYear}`;
+            }
+
+            const calendarContainer = document.getElementById('calendar-container');
+            if (!calendarContainer) return;
+
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const daysInMonth = lastDay.getDate();
+            const startingDayOfWeek = firstDay.getDay() === 0 ? 7 : firstDay.getDay();
+
+            let calendarHTML = `
+                <div class="calendar-day header">Lun</div>
+                <div class="calendar-day header">Mar</div>
+                <div class="calendar-day header">Mer</div>
+                <div class="calendar-day header">Gio</div>
+                <div class="calendar-day header">Ven</div>
+                <div class="calendar-day header">Sab</div>
+                <div class="calendar-day header">Dom</div>
+            `;
+
+            // Celle vuote prima del primo giorno
+            for (let i = 1; i < startingDayOfWeek; i++) {
+                calendarHTML += '<div class="calendar-day"></div>';
+            }
+
+            // Giorni del mese
+            const today = new Date();
+            const isCurrentMonth = today.getMonth() === currentMonth && today.getFullYear() === currentYear;
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const turno = turniData.find(t => t.data_turno === dateStr);
+                const isToday = isCurrentMonth && today.getDate() === day;
+                const isInLicenza = isDateInLicenza(dateStr);
+                const licenza = getLicenzaForDate(dateStr);
+                
+                let turnoClass = '';
+                let turnoLabel = '';
+                let displayDay = day;
+                let extraInfo = '';
+                
+                if (isToday) {
+                    turnoClass = 'oggi';
+                    turnoLabel = 'OGGI';
+                } else if (isInLicenza && licenza) {
+                    turnoClass = 'licenza';
+                    turnoLabel = getLicenzaShortName(licenza.tipo_licenza);
+                    if (turno) {
+                        extraInfo = `<div class="turno-info">⏰ ${getTurnoLabel(turno.tipo_turno)}</div>`;
+                    }
+                } else if (turno) {
+                    turnoClass = `turno-${turno.tipo_turno}`;
+                    turnoLabel = getTurnoLabel(turno.tipo_turno);
+                } else {
+                    turnoClass = 'vuoto';
+                    turnoLabel = '';
+                }
+
+                calendarHTML += `
+                    <div class="calendar-day ${turnoClass}" onclick="openDayModal('${dateStr}', ${turno ? `'${turno.id}'` : 'null'})">
+                        <button class="edit-button" onclick="event.stopPropagation(); editDayTurno('${dateStr}', ${turno ? `'${turno.id}'` : 'null'})">✏️</button>
+                        <strong>${displayDay}</strong>
+                        <div class="turno-label">${turnoLabel}</div>
+                        ${extraInfo}
+                    </div>
+                `;
+            }
+
+            calendarContainer.innerHTML = calendarHTML;
+        }
+
+        function updateLicenzeList() {
+            const licenzeList = document.getElementById('licenze-list');
+            if (!licenzeList) return;
+
+            if (licenzeData.length === 0) {
+                licenzeList.innerHTML = '<p class="text-gray-500 text-sm text-center">Nessuna licenza programmata</p>';
+                return;
+            }
+
+            licenzeList.innerHTML = licenzeData.slice(0, 5).map(licenza => `
+                <div class="bg-gray-50 p-3 rounded-lg border">
+                    <div class="flex justify-between items-center">
+                        <div class="flex-1">
+                            <div class="font-semibold text-gray-900 text-sm flex items-center">
+                                <span class="mr-2">${getLicenzaIcon(licenza.tipo_licenza)}</span>
+                                ${getLicenzaName(licenza.tipo_licenza)}
+                            </div>
+                            <div class="text-xs text-gray-600">
+                                ${formatDate(licenza.data_inizio)} - ${formatDate(licenza.data_fine)}
+                            </div>
+                            ${licenza.note ? `<div class="text-xs text-gray-500 mt-1">${licenza.note}</div>` : ''}
+                        </div>
+                        <div class="action-buttons ml-2">
+                            <button onclick="editLicenza('${licenza.id}')" class="action-btn edit-btn">
+                                ✏️
+                            </button>
+                            <button onclick="deleteLicenza('${licenza.id}')" class="action-btn delete-btn">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateRecuperiList() {
+            const recuperiList = document.getElementById('recuperi-list');
+            if (!recuperiList) return;
+
+            if (recuperiData.length === 0) {
+                recuperiList.innerHTML = '<p class="text-gray-500 text-sm text-center">Nessun recupero registrato</p>';
+                return;
+            }
+
+            recuperiList.innerHTML = recuperiData.slice(0, 5).map(recupero => `
+                <div class="bg-gray-50 p-3 rounded-lg border">
+                    <div class="flex justify-between items-center">
+                        <div class="flex-1">
+                            <div class="font-semibold text-gray-900 text-sm flex items-center">
+                                <span class="mr-2">${getRecuperoIcon(recupero.tipo_recupero)}</span>
+                                ${getRecuperoName(recupero.tipo_recupero)}
+                            </div>
+                            <div class="text-xs text-gray-600">
+                                ${formatDate(recupero.data_maturazione)}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                ${recupero.descrizione}
+                            </div>
+                        </div>
+                        <div class="action-buttons ml-2">
+                            <button onclick="editRecupero('${recupero.id}')" class="action-btn edit-btn">
+                                ✏️
+                            </button>
+                            <button onclick="deleteRecupero('${recupero.id}')" class="action-btn delete-btn">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats() {
+            if (!turniData) return;
+            
+            const stats = {
+                mattina: turniData.filter(t => t.tipo_turno === 'mattina').length,
+                sera: turniData.filter(t => t.tipo_turno === 'sera').length,
+                riposo: turniData.filter(t => t.tipo_turno === 'riposo').length,
+                licenze: licenzeData.filter(l => {
+                    const dataInizio = new Date(l.data_inizio);
+                    const dataFine = new Date(l.data_fine);
+                    const meseCorrente = new Date(currentYear, currentMonth, 1);
+                    const meseProssimo = new Date(currentYear, currentMonth + 1, 0);
+                    return (dataInizio <= meseProssimo && dataFine >= meseCorrente);
+                }).length
+            };
+            
+            document.getElementById('stat-mattina').textContent = stats.mattina;
+            document.getElementById('stat-sera').textContent = stats.sera;
+            document.getElementById('stat-riposo').textContent = stats.riposo;
+            document.getElementById('stat-licenze').textContent = stats.licenze;
+        }
+
+        // ========================================================================
+        //                          FUNZIONI MODAL
+        // ========================================================================
+
+        function openTurnoModal() {
+            document.getElementById('turnoModal').classList.add('active');
+        }
+
+        function closeTurnoModal() {
+            document.getElementById('turnoModal').classList.remove('active');
+            resetTurnoModal();
+        }
+
+        function resetTurnoModal() {
+            editingTurno = null;
+            const form = document.getElementById('turnoForm');
+            form.reset();
+            form.turno_id.value = '';
+            
+            document.getElementById('turno-modal-title').textContent = 'Programma Turno';
+            document.getElementById('turno-submit-btn').textContent = '✅ Salva Turno';
+            document.getElementById('turno-delete-section').classList.add('hidden');
+        }
+
+        function openLicenzaModal() {
+            document.getElementById('licenzaModal').classList.add('active');
+        }
+
+        function
