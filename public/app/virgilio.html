@@ -85,6 +85,13 @@
             background: rgba(34, 197, 94, 0.9);
             color: white;
         }
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -106,8 +113,8 @@
                 </div>
             </div>
             <div class="flex items-center space-x-2">
-                <button id="clearChatBtn" class="bg-yellow-600 hover:bg-yellow-700 text-white text-xs px-3 py-2 rounded-full font-semibold shadow-lg">🗑️</button>
-                <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-full font-semibold shadow-lg">Logout</button>
+                <button id="clearChatBtn" class="bg-yellow-600 hover:bg-yellow-700 text-white text-xs px-3 py-2 rounded-full font-semibold shadow-lg transition-colors">🗑️</button>
+                <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-full font-semibold shadow-lg transition-colors">Logout</button>
             </div>
         </div>
     </header>
@@ -142,7 +149,7 @@
         </div>
 
         <!-- Chat Messages -->
-        <div id="chatMessages" class="chat-container mb-4 space-y-4">
+        <div id="chatMessages" class="chat-container mb-4 space-y-4 max-h-96 overflow-y-auto">
             <div class="flex items-start space-x-3" id="welcomeMessage">
                 <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
                     <span class="text-white text-sm">🤖</span>
@@ -253,9 +260,9 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        // 🔧 CONFIGURAZIONE CHATBOT - AGGIORNATA CON SERVER RENDER
+        // 🔧 CONFIGURAZIONE CHATBOT - AGGIORNATA CON IL TUO SERVER
         const CHATBOT_CONFIG = {
-            // ✅ URL del server Render deployato (sostituisci con il tuo URL)
+            // ✅ Il tuo server chatbot funzionante su Render
             apiEndpoint: 'https://myapp-chatbot-server.onrender.com/api/chat',
             
             // Fallback per sviluppo locale
@@ -311,7 +318,10 @@
 
         function showTyping() {
             document.getElementById('typingIndicator').classList.remove('hidden');
-            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+            const container = document.getElementById('chatMessages');
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 100);
         }
 
         function hideTyping() {
@@ -366,8 +376,8 @@
                 return CHATBOT_CONFIG.apiEndpointLocal;
             }
             
-            // Altrimenti usa il server Render
-            console.log('🚀 Usando server Render per produzione');
+            // Altrimenti usa il server chatbot su Render
+            console.log('🚀 Usando server chatbot Render:', CHATBOT_CONFIG.apiEndpoint);
             return CHATBOT_CONFIG.apiEndpoint;
         }
 
@@ -388,6 +398,7 @@
             // Pulisci input
             input.value = '';
             updateCharCount();
+            updateSendButton();
             
             // Mostra typing indicator
             showTyping();
@@ -480,6 +491,10 @@
                     errorMessage = 'Problema di rete, riprova';
                 } else if (error.message.includes('500')) {
                     errorMessage = 'Servizio temporaneamente non disponibile';
+                } else if (error.message.includes('401')) {
+                    errorMessage = 'Autenticazione non valida';
+                } else if (error.message.includes('404')) {
+                    errorMessage = 'Server chatbot non trovato';
                 }
                 
                 showError(errorMessage);
@@ -511,6 +526,42 @@
                 console.error('❌ Errore verifica auth:', error);
                 window.location.href = '../login.html';
                 return null;
+            }
+        }
+
+        // Funzione per testare la connessione API
+        async function testApiConnection() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session) return;
+
+                const healthEndpoint = 'https://myapp-chatbot-server.onrender.com/api/health';
+                
+                console.log('🔍 Testando connessione API:', healthEndpoint);
+                
+                const response = await fetch(healthEndpoint, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${session.access_token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Server chatbot raggiungibile:', data);
+                    updateConnectionStatus(true);
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                console.warn('⚠️ Test connessione API fallito:', error.message);
+                updateConnectionStatus(false);
+                
+                // Mostra warning se il server non è raggiungibile
+                setTimeout(() => {
+                    showError('Server chatbot non raggiungibile. Il servizio potrebbe essere in fase di avvio...');
+                }, 2000);
             }
         }
 
@@ -588,43 +639,6 @@
             testApiConnection();
         });
 
-        // Funzione per testare la connessione API
-        async function testApiConnection() {
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
-                if (!session) return;
-
-                const apiEndpoint = getApiEndpoint();
-                const healthEndpoint = apiEndpoint.replace('/api/chat', '/api/health');
-                
-                console.log('🔍 Testando connessione API:', healthEndpoint);
-                
-                const response = await fetch(healthEndpoint, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${session.access_token}`
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('✅ Server chatbot raggiungibile:', data);
-                    updateConnectionStatus(true);
-                } else {
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                
-            } catch (error) {
-                console.warn('⚠️ Test connessione API fallito:', error.message);
-                updateConnectionStatus(false);
-                
-                // Mostra warning se il server non è raggiungibile
-                setTimeout(() => {
-                    showError('Server chatbot non raggiungibile. Verifica la configurazione.');
-                }, 2000);
-            }
-        }
-
         // Gestione errori globali
         window.addEventListener('error', (event) => {
             console.error('❌ Errore JavaScript:', event.error);
@@ -644,8 +658,10 @@
             }
         });
 
+        // Debug info
         console.log('🤖 Virgilio Chat inizializzato');
         console.log('🔧 Configurazione:', CHATBOT_CONFIG);
+        console.log('🌐 Server endpoint:', CHATBOT_CONFIG.apiEndpoint);
     </script>
 </body>
 </html>
