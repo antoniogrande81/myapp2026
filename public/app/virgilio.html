@@ -597,16 +597,24 @@
         // Aggiungi scroll automatico migliorato
         function scrollToBottom() {
             const container = document.getElementById('chatMessages');
-            setTimeout(() => {
-                container.scrollTo({
-                    top: container.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }, 150);
+            if (container) {
+                setTimeout(() => {
+                    container.scrollTo({
+                        top: container.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }, 150);
+            }
         }
 
         function addMessage(content, type = 'bot', timestamp = new Date()) {
             const messagesContainer = document.getElementById('chatMessages');
+            
+            if (!messagesContainer) {
+                console.error('❌ Container messaggi non trovato!');
+                return;
+            }
+            
             const messageDiv = document.createElement('div');
             messageDiv.className = 'flex items-start space-x-3 animate-fade-in';
             
@@ -643,6 +651,7 @@
             }
             
             messagesContainer.appendChild(messageDiv);
+            console.log('💬 Messaggio aggiunto:', type, content.substring(0, 50) + '...');
             
             // Scroll automatico migliorato
             scrollToBottom();
@@ -746,19 +755,19 @@
             const messagesContainer = document.getElementById('chatMessages');
             messagesContainer.innerHTML = '';
 
-            // Messaggio di benvenuto
-            setTimeout(() => {
-                addMessage(`Ciao! Sono <strong>Virgilio</strong> 🤖, il tuo assistente sindacale AI.
-                <br><br>
-                Sono qui per aiutarti con informazioni su:
-                <br>• Contratti e stipendi 📋
-                <br>• Ferie e permessi 🏖️  
-                <br>• Diritti sindacali ⚖️
-                <br>• Procedure e normative 📝
-                <br>• Contatti dirigenti 👥
-                <br><br>
-                <strong>Scrivi la tua domanda qui sotto!</strong>`, 'bot');
-            }, 500);
+            // Messaggio di benvenuto immediato (senza timeout)
+            addMessage(`Ciao! Sono <strong>Virgilio</strong> 🤖, il tuo assistente sindacale AI.
+            <br><br>
+            Sono qui per aiutarti con informazioni su:
+            <br>• Contratti e stipendi 📋
+            <br>• Ferie e permessi 🏖️  
+            <br>• Diritti sindacali ⚖️
+            <br>• Procedure e normative 📝
+            <br>• Contatti dirigenti 👥
+            <br><br>
+            <strong>Scrivi la tua domanda qui sotto!</strong>`, 'bot');
+            
+            console.log('✅ Chat inizializzata con messaggio di benvenuto');
         }
 
         async function sendMessage() {
@@ -974,15 +983,22 @@
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🔄 Inizializzazione Virgilio...');
+            
             // Verifica autenticazione
             currentUser = await verificaAutenticazione();
             if (!currentUser) return;
 
+            console.log('👤 Utente autenticato, inizializzando chat...');
+
             // Carica dirigenti
             await loadDirigenti();
 
-            // Inizializza chat
-            initializeChat();
+            // Inizializza chat - FORZA il caricamento
+            setTimeout(() => {
+                initializeChat();
+                console.log('💬 Chat dovrebbe essere visibile ora');
+            }, 100);
 
             const input = document.getElementById('messageInput');
             const sendButton = document.getElementById('sendMessage');
@@ -1027,6 +1043,8 @@
 
             // Test connessione API all'avvio
             testApiConnection();
+            
+            console.log('✅ Inizializzazione completata');
         });
 
         // Gestione errori globali
