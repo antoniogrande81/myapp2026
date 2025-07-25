@@ -175,9 +175,9 @@
     </div>
 
     <!-- Main Content -->
-    <main class="max-w-md mx-auto px-4 pb-32">
+    <main class="max-w-md mx-auto px-4 pb-40">
         <!-- Chat Messages -->
-        <div id="chatMessages" class="chat-container space-y-4 max-h-[calc(100vh-180px)] overflow-y-auto pb-4">
+        <div id="chatMessages" class="chat-container space-y-4 max-h-[calc(100vh-220px)] overflow-y-auto pb-6">
             <!-- I messaggi verranno caricati qui dinamicamente -->
         </div>
 
@@ -208,9 +208,9 @@
     </main>
 
     <!-- Chat Input -->
-    <div class="fixed bottom-20 left-0 right-0 px-4 pb-4 z-20 bg-gradient-to-t from-purple-900 via-purple-900/90 to-transparent pt-4">
+    <div class="fixed bottom-20 left-0 right-0 px-4 pb-4 z-20 bg-gradient-to-t from-purple-900 via-purple-900/90 to-transparent pt-6">
         <div class="max-w-md mx-auto">
-            <div class="glass-effect rounded-2xl p-3">
+            <div class="glass-effect rounded-2xl p-3 shadow-2xl">
                 <div class="flex items-center space-x-3">
                     <input type="text" id="messageInput" placeholder="Scrivi la tua domanda..." 
                            class="chat-input flex-1 bg-transparent border-0 text-textDark placeholder-gray-500 text-sm rounded-xl px-4 py-3" 
@@ -393,9 +393,7 @@
             
             messagesContainer.appendChild(cardDiv);
             
-            setTimeout(() => {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }, 100);
+            scrollToBottom();
         }
 
         function addDirigentiSpecificiCard(dirigenti, tipo, provincia = null) {
@@ -456,9 +454,7 @@
             
             messagesContainer.appendChild(cardDiv);
             
-            setTimeout(() => {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }, 100);
+            scrollToBottom();
         }
 
         // Funzione globale per gestire selezione provincia
@@ -491,7 +487,61 @@
             }
         };
 
-        async function handleContactRequest(message) {
+        // 🔍 FUNZIONALITÀ RICERCA WEB
+        function needsWebSearch(message) {
+            const webSearchKeywords = [
+                'che tempo fa', 'meteo', 'previsioni', 'temperatura',
+                'notizie', 'ultime notizie', 'aggiornamenti',
+                'cerca', 'ricerca', 'trova informazioni',
+                'situazione attuale', 'oggi', 'ieri', 'domani',
+                'eventi recenti', 'novità'
+            ];
+            
+            const normalizedMessage = message.toLowerCase();
+            return webSearchKeywords.some(keyword => normalizedMessage.includes(keyword));
+        }
+
+        async function performWebSearch(query) {
+            try {
+                showTyping();
+                
+                // Simula ricerca web (in produzione sostituire con API reale)
+                await new Promise(r => setTimeout(r, 2000));
+                
+                hideTyping();
+                
+                if (query.toLowerCase().includes('tempo') || query.toLowerCase().includes('meteo')) {
+                    addMessage(`Mi dispiace, ma non posso fornire informazioni aggiornate sul meteo. Ti consiglio di controllare un'app o un sito web di previsioni meteorologiche per avere le informazioni più recenti sul tempo a Roma.
+                    
+                    Per le informazioni relative al sindacato e ai diritti dei Carabinieri, sono qui per aiutarti! 🤖`, 'bot');
+                } else if (query.toLowerCase().includes('notizie')) {
+                    addMessage(`Non ho accesso a notizie in tempo reale. Per le ultime notizie, ti consiglio di consultare siti di informazione aggiornati.
+                    
+                    Tuttavia, posso aiutarti con informazioni su:
+                    • Normative e procedure dei Carabinieri
+                    • Diritti sindacali e contrattuali  
+                    • Ferie, permessi e congedi
+                    • Contatti dei dirigenti sindacali
+                    
+                    Cosa ti serve sapere? 😊`, 'bot');
+                } else {
+                    addMessage(`Non ho accesso alla ricerca web in tempo reale. Le mie competenze sono specifiche per:
+                    
+                    🔹 **Questioni sindacali** e diritti dei Carabinieri
+                    🔹 **Normative** e procedure interne
+                    🔹 **Contratti** di lavoro e progressioni
+                    🔹 **Ferie, permessi** e aspetti amministrativi
+                    🔹 **Contatti dirigenti** regionali e provinciali
+                    
+                    Per informazioni aggiornate sul web, ti consiglio di utilizzare un motore di ricerca. Cosa posso aiutarti riguardo il sindacato? 💼`, 'bot');
+                }
+                
+            } catch (error) {
+                console.error('❌ Errore ricerca web:', error);
+                hideTyping();
+                addMessage('Mi dispiace, non riesco ad accedere alle informazioni web al momento. Posso comunque aiutarti con domande relative al sindacato e ai diritti dei Carabinieri! 🤖', 'bot');
+            }
+        }
             const isLocationRequest = detectLocationRequest(message);
             const specificProvince = extractProvince(message);
             
@@ -525,7 +575,7 @@
                     
                     hideTyping();
                     
-                    addMessage('Ecco i contatti dei dirigenti sindacali regionali del Carabinieri:', 'bot');
+                    addMessage('Ecco i contatti dei dirigenti regionali del SIM Carabinieri:', 'bot');
                     addDirigentiSpecificiCard(dirigentiRegionali, 'regionale');
                     
                     // Offri anche l'opzione provinciale
@@ -544,6 +594,17 @@
 
         // --- FUNZIONI DI UTILITÀ ---
         
+        // Aggiungi scroll automatico migliorato
+        function scrollToBottom() {
+            const container = document.getElementById('chatMessages');
+            setTimeout(() => {
+                container.scrollTo({
+                    top: container.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 150);
+        }
+
         function addMessage(content, type = 'bot', timestamp = new Date()) {
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
@@ -583,10 +644,8 @@
             
             messagesContainer.appendChild(messageDiv);
             
-            // Scroll automatico con ritardo
-            setTimeout(() => {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }, 100);
+            // Scroll automatico migliorato
+            scrollToBottom();
         }
 
         function addQuickQuestionCard(question) {
@@ -616,7 +675,7 @@
                     {
                         nome_cognome: 'Segretario Generale',
                         ruolo: 'Responsabile Sindacato',
-                        email: 'segretario@carabinieri.it',
+                        email: 'segretario@sim.carabinieri.it',
                         telefono: '+39 06 1234567'
                     }
                 ];
@@ -625,10 +684,7 @@
 
         function showTyping() {
             document.getElementById('typingIndicator').classList.remove('hidden');
-            const container = document.getElementById('chatMessages');
-            setTimeout(() => {
-                container.scrollTop = container.scrollHeight;
-            }, 150);
+            scrollToBottom();
         }
 
         function hideTyping() {
@@ -726,6 +782,15 @@
             // 🎯 GESTIONE INTELLIGENTE RICHIESTE CONTATTI
             if (detectContactRequest(message)) {
                 await handleContactRequest(message);
+                isProcessing = false;
+                updateSendButton();
+                input.focus();
+                return;
+            }
+
+            // 🔍 GESTIONE RICHIESTE RICERCA WEB
+            if (needsWebSearch(message)) {
+                await performWebSearch(message);
                 isProcessing = false;
                 updateSendButton();
                 input.focus();
