@@ -32,7 +32,6 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://lycrgzptkdkksukcwrld.supabase.co">
 
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -128,6 +127,18 @@
             border-color: #00BFFF;
             outline: none;
         }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #DC2626;
+        }
+
+        .success-message {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #16A34A;
+        }
     </style>
 </head>
 <body>
@@ -145,6 +156,7 @@
                         <span class="text-white font-bold text-sm">🤖</span>
                     </div>
                     <h1 class="text-xl font-bold text-white drop-shadow-lg">Virgilio</h1>
+                    <div id="connectionStatus" class="w-3 h-3 bg-green-500 rounded-full animate-pulse" title="Connesso"></div>
                 </div>
             </div>
             <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-full font-semibold transition-colors shadow-lg border border-red-500">
@@ -165,25 +177,34 @@
     <main class="max-w-md mx-auto px-4 pb-24">
         <!-- Chat Header Info -->
         <div class="glass-light rounded-2xl p-4 mb-4 text-white text-center">
-            <h2 class="text-lg font-bold mb-2">Il tuo Assistente Sindacale</h2>
+            <h2 class="text-lg font-bold mb-2">Il tuo Assistente Sindacale AI</h2>
             <p class="text-sm opacity-90">Chiedi informazioni su contratti, diritti, procedure e molto altro!</p>
+            <div class="text-xs opacity-75 mt-2">
+                Powered by OpenAI GPT-4 • Sicuro e Privato
+            </div>
         </div>
 
         <!-- Quick Actions -->
         <div class="mb-4">
             <h3 class="text-white font-semibold mb-3 text-sm">💡 Domande Frequenti</h3>
             <div class="grid grid-cols-2 gap-2">
-                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-opacity-25 transition-all">
+                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-opacity-25 transition-all" data-message="Dimmi tutto sul contratto di lavoro dei Carabinieri">
                     📋 Contratto di lavoro
                 </button>
-                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-opacity-25 transition-all">
+                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-opacity-25 transition-all" data-message="Come funzionano i permessi per malattia?">
                     🏥 Permessi malattia
                 </button>
-                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-opacity-25 transition-all">
+                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-opacity-25 transition-all" data-message="Quali sono i miei diritti per ferie e permessi?">
                     🏖️ Ferie e permessi
                 </button>
-                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-opacity-25 transition-all">
+                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-opacity-25 transition-all" data-message="Informazioni su stipendio e progressioni di carriera">
                     💰 Stipendio e aumenti
+                </button>
+                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-opacity-25 transition-all" data-message="Diritti sindacali e rappresentanza">
+                    ⚖️ Diritti sindacali
+                </button>
+                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-opacity-25 transition-all" data-message="Procedure disciplinari e ricorsi">
+                    📝 Procedure legali
                 </button>
             </div>
         </div>
@@ -196,7 +217,7 @@
                     <span class="text-white text-sm">🤖</span>
                 </div>
                 <div class="message-bot rounded-2xl p-4 max-w-xs">
-                    <p class="text-textDark text-sm">Ciao! Sono Virgilio, il tuo assistente personale per tutte le questioni sindacali. Come posso aiutarti oggi?</p>
+                    <p class="text-textDark text-sm">Ciao! Sono Virgilio, il tuo assistente sindacale AI. Sono qui per aiutarti con informazioni su contratti, diritti, procedure e tutto ciò che riguarda la vita professionale dei Carabinieri. Come posso aiutarti oggi?</p>
                     <span class="text-xs text-gray-500 mt-2 block">Ora</span>
                 </div>
             </div>
@@ -214,6 +235,12 @@
                     <div class="typing-animation"></div>
                 </div>
             </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message rounded-2xl p-4 mb-4 text-center hidden">
+            <p class="font-semibold">⚠️ Errore di Connessione</p>
+            <p class="text-sm mt-1">Impossibile contattare il server. Riprova tra poco.</p>
         </div>
     </main>
 
@@ -239,12 +266,15 @@
                         </svg>
                     </button>
                 </div>
+                <div class="text-xs text-gray-500 mt-2 px-4">
+                    <span id="charCount">0</span>/500 caratteri
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Floating Help Button -->
-    <button class="floating-help bg-secondary hover:bg-opacity-90 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110">
+    <button class="floating-help bg-secondary hover:bg-opacity-90 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110" onclick="showHelp()">
         <span class="text-xl">🆘</span>
     </button>
 
@@ -291,11 +321,44 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
         const supabase = createClient(supabaseUrl, supabaseKey);
 
+        // Configurazione ChatBot
+        const CHATBOT_CONFIG = {
+            // La chiave API deve essere inserita dal lato server o tramite proxy sicuro
+            apiEndpoint: '/api/chat', // Endpoint del tuo server proxy
+            maxTokens: 1000,
+            temperature: 0.7,
+            model: 'gpt-4',
+            maxHistory: 10 // Numero massimo di messaggi nella cronologia
+        };
+
+        // System prompt per il chatbot sindacale
+        const SYSTEM_PROMPT = `Sei Virgilio, un assistente AI specializzato nel supporto sindacale per i Carabinieri italiani. 
+
+RUOLO E COMPETENZE:
+- Fornisci informazioni accurate su contratti, diritti, procedure sindacali
+- Aiuti con questioni relative a: stipendi, ferie, permessi, malattie, progressioni di carriera
+- Conosci il CCNL delle Forze di Polizia e normative specifiche dei Carabinieri
+- Supporti in procedure disciplinari, ricorsi, tutela dei diritti
+
+STILE DI COMUNICAZIONE:
+- Professionale ma cordiale e accessibile
+- Risposte concise e pratiche (max 200 parole)
+- Usa esempi concreti quando possibile
+- Se non sai qualcosa, ammettilo e suggerisci di contattare il sindacato
+- Non fornire consigli legali specifici, ma indica procedure generali
+
+IMPORTANTE:
+- Mantieni sempre la riservatezza
+- Non chiedere informazioni personali sensibili
+- Per casi complessi, indirizza ai dirigenti sindacali
+- Ricorda sempre che sei un supporto, non sostituisci la consulenza professionale`;
+
         // Variabili globali
         let currentUser = null;
         let conversationHistory = [];
+        let isProcessing = false;
 
-        // Loading functions
+        // Funzioni di utilità
         function showLoading() {
             document.getElementById('loading').classList.remove('hidden');
         }
@@ -304,10 +367,33 @@
             document.getElementById('loading').classList.add('hidden');
         }
 
-        function showError(message) {
-            hideLoading();
-            alert(`Errore: ${message}`);
-            console.error('Errore:', message);
+        function showError(message, persistent = false) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.querySelector('p:last-child').textContent = message;
+            errorDiv.classList.remove('hidden');
+            
+            if (!persistent) {
+                setTimeout(() => {
+                    errorDiv.classList.add('hidden');
+                }, 5000);
+            }
+            
+            setConnectionStatus(false);
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').classList.add('hidden');
+        }
+
+        function setConnectionStatus(connected) {
+            const status = document.getElementById('connectionStatus');
+            if (connected) {
+                status.className = 'w-3 h-3 bg-green-500 rounded-full animate-pulse';
+                status.title = 'Connesso';
+            } else {
+                status.className = 'w-3 h-3 bg-red-500 rounded-full';
+                status.title = 'Disconnesso';
+            }
         }
 
         // Auth check
@@ -349,7 +435,7 @@
             });
         }
 
-        function addMessage(message, isUser = false, isTyping = false) {
+        function addMessage(message, isUser = false) {
             const chatMessages = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             
@@ -357,7 +443,7 @@
                 messageDiv.innerHTML = `
                     <div class="flex items-start space-x-3 justify-end">
                         <div class="message-user rounded-2xl p-4 max-w-xs text-white">
-                            <p class="text-sm">${message}</p>
+                            <p class="text-sm">${escapeHtml(message)}</p>
                             <span class="text-xs opacity-75 mt-2 block">${formatTime()}</span>
                         </div>
                         <div class="w-8 h-8 bg-white rounded-full flex items-center justify-center flex-shrink-0">
@@ -372,7 +458,7 @@
                             <span class="text-white text-sm">🤖</span>
                         </div>
                         <div class="message-bot rounded-2xl p-4 max-w-xs">
-                            <p class="text-textDark text-sm">${message}</p>
+                            <div class="text-textDark text-sm">${formatMessage(message)}</div>
                             <span class="text-xs text-gray-500 mt-2 block">${formatTime()}</span>
                         </div>
                     </div>
@@ -383,58 +469,145 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatMessage(text) {
+            // Formatta il testo con semplici markdown-like elements
+            return escapeHtml(text)
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\n/g, '<br>');
+        }
+
         function showTyping() {
             document.getElementById('typingIndicator').classList.remove('hidden');
-            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
         function hideTyping() {
             document.getElementById('typingIndicator').classList.add('hidden');
         }
 
-        // Simulazione risposta AI (da sostituire con vera integrazione)
-        async function getAIResponse(message) {
-            return new Promise((resolve) => {
-                setTimeout(() => {
-                    const responses = {
-                        'contratto': 'Il contratto collettivo dei Carabinieri prevede specifiche normative su orari, straordinari e diritti. Ti consiglio di consultare la sezione dedicata sui diritti contrattuali nel portale ufficiale.',
-                        'ferie': 'Hai diritto a 30 giorni di ferie annuali più eventuali riposi compensativi. Le richieste vanno presentate tramite il sistema interno almeno 15 giorni prima.',
-                        'malattia': 'Per i permessi malattia, devi presentare certificato medico entro 24 ore. Hai diritto al trattamento economico completo per i primi giorni secondo il contratto.',
-                        'stipendio': 'Lo stipendio viene erogato mensilmente con eventuali aumenti contrattuali. Per informazioni sui cedolini, consulta il portale NoiPA o contatta l\'ufficio personale.',
-                        'default': 'Grazie per la tua domanda! Per questioni specifiche ti consiglio di consultare il regolamento interno o contattare direttamente i nostri dirigenti. Posso aiutarti con altre informazioni generali sui diritti sindacali.'
-                    };
-
-                    const lowerMessage = message.toLowerCase();
-                    let response = responses.default;
-
-                    for (const [key, value] of Object.entries(responses)) {
-                        if (lowerMessage.includes(key) && key !== 'default') {
-                            response = value;
-                            break;
-                        }
-                    }
-
-                    resolve(response);
-                }, 1000 + Math.random() * 2000); // Simula delay realistico
+        // Funzione per chiamare l'API OpenAI tramite proxy sicuro
+        async function callOpenAIAPI(messages) {
+            const response = await fetch(CHATBOT_CONFIG.apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${await supabase.auth.getSession().then(s => s.data.session?.access_token)}`
+                },
+                body: JSON.stringify({
+                    messages: [
+                        { role: 'system', content: SYSTEM_PROMPT },
+                        ...messages
+                    ],
+                    model: CHATBOT_CONFIG.model,
+                    max_tokens: CHATBOT_CONFIG.maxTokens,
+                    temperature: CHATBOT_CONFIG.temperature,
+                    user: currentUser?.id
+                })
             });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Errore del server');
+            }
+
+            return response.json();
         }
 
+        // Fallback per testing (da rimuovere in produzione)
+        async function getFallbackResponse(message) {
+            const responses = {
+                'contratto': 'Il **Contratto Collettivo Nazionale di Lavoro** per il personale dei Carabinieri prevede:\n\n• Orario di lavoro: 36 ore settimanali\n• Straordinario: compensato con riposi o retribuzione\n• Progressioni automatiche e per merito\n• Diritti sindacali garantiti\n\nPer dettagli specifici, consulta il CCNL 2019-2021 o contatta i nostri dirigenti.',
+                
+                'ferie': 'Hai diritto a **30 giorni di ferie** annuali più:\n\n• Riposi compensativi per straordinari\n• Permessi per festività soppresse\n• Congedi per motivi personali/familiari\n\nLe richieste vanno presentate con **almeno 15 giorni** di anticipo tramite il sistema informatico interno.',
+                
+                'malattia': 'Per i **permessi malattia**:\n\n• Certificato medico entro 24 ore\n• Trattamento economico al 100% per i primi 9 mesi\n• Ridotto al 90% dal 10° al 12° mese\n• Visite fiscali secondo normativa\n\nIn caso di infortunio sul lavoro, procedure specifiche INAIL.',
+                
+                'stipendio': 'Lo **stipendio** include:\n\n• Stipendio base per qualifica\n• Indennità di amministrazione\n• Eventuali indennità operative\n• Aumenti contrattuali progressivi\n\nConsulta NoiPA per i cedolini dettagliati. Per chiarimenti contatta l\'ufficio personale.',
+                
+                'sindacali': 'I tuoi **diritti sindacali** comprendono:\n\n• Libertà di associazione\n• Diritto di assemblea (4 ore mensili)\n• Permessi per attività sindacale\n• Tutela contro discriminazioni\n• Rappresentanza nelle controversie\n\nIl sindacato ti assiste gratuitamente in tutte le procedure.',
+                
+                'disciplinari': 'Per **procedure disciplinari**:\n\n• Diritto alla difesa garantito\n• Assistenza sindacale gratuita\n• Termini precisi per contestazioni\n• Possibilità di ricorso\n• Gradualità delle sanzioni\n\nContatta immediatamente i nostri legali in caso di procedimento.',
+                
+                'default': 'Grazie per la tua domanda! Come assistente sindacale, posso aiutarti con:\n\n• **Contratti** e normative\n• **Diritti** e doveri\n• **Procedure** amministrative\n• **Tutela** sindacale\n\nPer casi specifici, ti consiglio di contattare direttamente i nostri dirigenti sindacali. Hanno tutta l\'esperienza necessaria per seguirti al meglio!'
+            };
+
+            const lowerMessage = message.toLowerCase();
+            let response = responses.default;
+
+            for (const [key, value] of Object.entries(responses)) {
+                if (lowerMessage.includes(key) && key !== 'default') {
+                    response = value;
+                    break;
+                }
+            }
+
+            // Simula delay realistico
+            await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 2000));
+            return response;
+        }
+
+        // Funzione principale per ottenere risposta AI
+        async function getAIResponse(message) {
+            try {
+                // Prepara la cronologia messaggi per l'API
+                const messages = conversationHistory
+                    .slice(-CHATBOT_CONFIG.maxHistory)
+                    .map(msg => ({
+                        role: msg.role,
+                        content: msg.content
+                    }));
+                
+                messages.push({ role: 'user', content: message });
+
+                // Tenta chiamata API (sostituire con il tuo endpoint)
+                try {
+                    const response = await callOpenAIAPI(messages);
+                    setConnectionStatus(true);
+                    return response.choices[0].message.content;
+                } catch (apiError) {
+                    console.warn('API non disponibile, uso fallback:', apiError);
+                    // Usa fallback per testing
+                    return await getFallbackResponse(message);
+                }
+                
+            } catch (error) {
+                console.error('Errore completo:', error);
+                setConnectionStatus(false);
+                throw error;
+            }
+        }
+
+        // Invio messaggio
         async function sendMessage() {
+            if (isProcessing) return;
+            
             const messageInput = document.getElementById('messageInput');
             const message = messageInput.value.trim();
             
             if (!message) return;
 
+            isProcessing = true;
+            hideError();
+
             // Aggiungi messaggio utente
             addMessage(message, true);
             messageInput.value = '';
             updateSendButton();
+            updateCharCount();
 
             // Mostra typing
             showTyping();
 
             try {
-                // Salva conversazione
+                // Salva messaggio utente nella cronologia
                 conversationHistory.push({
                     role: 'user',
                     content: message,
@@ -448,7 +621,7 @@
                 hideTyping();
                 addMessage(response);
 
-                // Salva risposta
+                // Salva risposta nella cronologia
                 conversationHistory.push({
                     role: 'assistant',
                     content: response,
@@ -460,16 +633,20 @@
 
             } catch (error) {
                 hideTyping();
-                addMessage('Mi dispiace, si è verificato un errore. Riprova tra poco.', false);
+                addMessage('Mi dispiace, si è verificato un errore tecnico. Riprova tra poco o contatta i dirigenti sindacali per assistenza immediata.', false);
+                showError('Errore di connessione. Verifica la tua connessione internet.');
                 console.error('Errore chat:', error);
+            } finally {
+                isProcessing = false;
             }
         }
 
+        // Salva conversazione nel database
         async function salvaConversazione(userMessage, botResponse) {
             if (!currentUser) return;
 
             try {
-                await supabase.from('chat_messages').insert([
+                const { error } = await supabase.from('chat_messages').insert([
                     {
                         user_id: currentUser.id,
                         user_message: userMessage,
@@ -477,21 +654,71 @@
                         created_at: new Date().toISOString()
                     }
                 ]);
+
+                if (error) {
+                    console.error('Errore salvataggio:', error);
+                }
             } catch (error) {
                 console.error('Errore salvataggio conversazione:', error);
             }
         }
 
+        // Carica cronologia conversazioni
+        async function caricaCronologia() {
+            if (!currentUser) return;
+
+            try {
+                const { data, error } = await supabase
+                    .from('chat_messages')
+                    .select('user_message, bot_response, created_at')
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: true })
+                    .limit(CHATBOT_CONFIG.maxHistory);
+
+                if (error) {
+                    console.error('Errore caricamento cronologia:', error);
+                    return;
+                }
+
+                // Ricostruisci la cronologia
+                conversationHistory = [];
+                data.forEach(row => {
+                    conversationHistory.push(
+                        { role: 'user', content: row.user_message, timestamp: new Date(row.created_at) },
+                        { role: 'assistant', content: row.bot_response, timestamp: new Date(row.created_at) }
+                    );
+                });
+
+            } catch (error) {
+                console.error('Errore caricamento cronologia:', error);
+            }
+        }
+
+        // Update UI functions
         function updateSendButton() {
             const messageInput = document.getElementById('messageInput');
             const sendButton = document.getElementById('sendMessage');
             
-            if (messageInput.value.trim()) {
+            if (messageInput.value.trim() && !isProcessing) {
                 sendButton.disabled = false;
                 sendButton.classList.remove('opacity-50');
             } else {
                 sendButton.disabled = true;
                 sendButton.classList.add('opacity-50');
+            }
+        }
+
+        function updateCharCount() {
+            const messageInput = document.getElementById('messageInput');
+            const charCount = document.getElementById('charCount');
+            const currentLength = messageInput.value.length;
+            
+            charCount.textContent = currentLength;
+            
+            if (currentLength > 400) {
+                charCount.classList.add('text-red-500');
+            } else {
+                charCount.classList.remove('text-red-500');
             }
         }
 
@@ -501,18 +728,46 @@
             
             quickReplies.forEach(button => {
                 button.addEventListener('click', () => {
-                    const text = button.textContent.trim();
-                    document.getElementById('messageInput').value = text.split(' ').slice(1).join(' ');
-                    updateSendButton();
+                    const message = button.getAttribute('data-message');
+                    if (message) {
+                        document.getElementById('messageInput').value = message;
+                        updateSendButton();
+                        updateCharCount();
+                        // Auto-send quick replies
+                        setTimeout(() => sendMessage(), 100);
+                    }
                 });
             });
         }
+
+        // Help function
+        window.showHelp = function() {
+            const helpMessage = `🆘 **Assistenza Immediata**
+
+Per emergenze o questioni urgenti:
+
+📞 **Telefono**: [INSERIRE NUMERO]
+📧 **Email**: [INSERIRE EMAIL]
+🏢 **Sede**: [INSERIRE INDIRIZZO]
+
+**Orari di ricevimento**:
+• Lunedì-Venerdì: 9:00-17:00
+• Sabato: 9:00-12:00
+
+Per assistenza tecnica con l'app, contatta il supporto IT.`;
+
+            addMessage(helpMessage, false);
+        };
 
         // Event listeners
         document.getElementById('logoutBtn')?.addEventListener('click', logout);
         document.getElementById('sendMessage').addEventListener('click', sendMessage);
 
-        document.getElementById('messageInput').addEventListener('input', updateSendButton);
+        document.getElementById('messageInput').addEventListener('input', () => {
+            updateSendButton();
+            updateCharCount();
+        });
+
         document.getElementById('messageInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -520,19 +775,52 @@
             }
         });
 
+        // Gestione della connessione
+        function monitorConnection() {
+            setInterval(async () => {
+                try {
+                    const response = await fetch('/api/health', { 
+                        method: 'HEAD',
+                        cache: 'no-cache' 
+                    });
+                    setConnectionStatus(response.ok);
+                } catch {
+                    setConnectionStatus(false);
+                }
+            }, 30000); // Check ogni 30 secondi
+        }
+
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', async () => {
             showLoading();
             
-            currentUser = await verificaAutenticazione();
-            if (currentUser) {
-                setupQuickReplies();
+            try {
+                currentUser = await verificaAutenticazione();
+                if (currentUser) {
+                    await caricaCronologia();
+                    setupQuickReplies();
+                    monitorConnection();
+                    setConnectionStatus(true);
+                    
+                    // Focus input
+                    setTimeout(() => {
+                        document.getElementById('messageInput').focus();
+                    }, 500);
+                }
+            } catch (error) {
+                console.error('Errore inizializzazione:', error);
+                showError('Errore di inizializzazione. Ricarica la pagina.', true);
+            } finally {
                 hideLoading();
-                
-                // Focus input
-                document.getElementById('messageInput').focus();
             }
         });
+
+        // Service Worker per PWA e caching
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => console.log('SW registrato:', registration))
+                .catch(error => console.log('Errore SW:', error));
+        }
     </script>
 </body>
 </html>
