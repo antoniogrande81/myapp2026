@@ -55,10 +55,17 @@
         .message-bot {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
         .message-user {
             background: linear-gradient(135deg, #2400C1, #8E008C);
             color: white;
+            box-shadow: 0 4px 15px rgba(36, 0, 193, 0.3);
+        }
+        .message-system {
+            background: linear-gradient(135deg, #00BFFF, #0099CC);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 191, 255, 0.3);
         }
         .chat-input:focus {
             outline: none;
@@ -86,10 +93,10 @@
             color: white;
         }
         .animate-fade-in {
-            animation: fadeIn 0.3s ease-in;
+            animation: fadeIn 0.4s ease-out;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .chat-container {
@@ -108,6 +115,23 @@
         }
         .chat-container::-webkit-scrollbar-thumb:hover {
             background: rgba(255, 255, 255, 0.5);
+        }
+        .quick-question-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .quick-question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .dirigente-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        .dirigente-card:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+            transform: translateY(-1px);
         }
     </style>
 </head>
@@ -146,41 +170,13 @@
 
     <!-- Main Content -->
     <main class="max-w-md mx-auto px-4 pb-32">
-        <!-- Chat Header Info -->
-        <div class="glass-light rounded-2xl p-4 mb-4 text-white text-center">
-            <h2 class="text-lg font-bold mb-2">Il tuo Assistente Sindacale AI</h2>
-            <p class="text-sm opacity-90">Chiedi informazioni su contratti, diritti, procedure e molto altro!</p>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="mb-4">
-            <h3 class="text-white font-semibold mb-3 text-sm">💡 Domande Frequenti</h3>
-            <div class="grid grid-cols-2 gap-2">
-                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-white hover:bg-opacity-20 transition-colors" data-message="Dimmi tutto sul contratto di lavoro dei Carabinieri">📋 Contratto</button>
-                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-white hover:bg-opacity-20 transition-colors" data-message="Come funzionano i permessi per malattia?">🏥 Permessi</button>
-                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-white hover:bg-opacity-20 transition-colors" data-message="Quali sono i miei diritti per ferie e permessi?">🏖️ Ferie</button>
-                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-white hover:bg-opacity-20 transition-colors" data-message="Informazioni su stipendio e progressioni di carriera">💰 Stipendio</button>
-                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-white hover:bg-opacity-20 transition-colors" data-message="Diritti sindacali e rappresentanza">⚖️ Diritti</button>
-                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl hover:bg-white hover:bg-opacity-20 transition-colors" data-message="Procedure disciplinari e ricorsi">📝 Legalità</button>
-            </div>
-        </div>
-
         <!-- Chat Messages -->
-        <div id="chatMessages" class="chat-container mb-4 space-y-4 max-h-[calc(100vh-380px)] overflow-y-auto pb-4">
-            <div class="flex items-start space-x-3" id="welcomeMessage">
-                <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
-                    <span class="text-white text-sm">🤖</span>
-                </div>
-                <div class="message-bot rounded-2xl p-4 max-w-xs">
-                    <div class="text-textDark text-sm">
-                        Ciao! Sono <strong>Virgilio</strong>, il tuo assistente sindacale AI. Come posso aiutarti oggi?
-                    </div>
-                </div>
-            </div>
+        <div id="chatMessages" class="chat-container space-y-4 max-h-[calc(100vh-180px)] overflow-y-auto pb-4">
+            <!-- I messaggi verranno caricati qui dinamicamente -->
         </div>
 
         <!-- Typing Indicator -->
-        <div id="typingIndicator" class="flex items-start space-x-3 hidden">
+        <div id="typingIndicator" class="flex items-start space-x-3 hidden mt-4">
             <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
                 <span class="text-white text-sm">🤖</span>
             </div>
@@ -277,14 +273,10 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        // 🔧 CONFIGURAZIONE CHATBOT - AGGIORNATA CON IL TUO SERVER
+        // 🔧 CONFIGURAZIONE CHATBOT
         const CHATBOT_CONFIG = {
-            // ✅ Il tuo server chatbot funzionante su Render
             apiEndpoint: 'https://myapp-chatbot-server.onrender.com/api/chat',
-            
-            // Fallback per sviluppo locale
             apiEndpointLocal: 'http://localhost:3001/api/chat',
-            
             maxTokens: 500,
             temperature: 0.7,
             model: 'gpt-4o-mini',
@@ -298,23 +290,79 @@
         let conversationHistory = [];
         let isProcessing = false;
         let totalTokensUsed = 0;
+        let dirigenti = [];
+
+        // 🎨 DATI DELLE DOMANDE FREQUENTI
+        const frequentQuestions = [
+            {
+                id: 'ccnl',
+                title: 'Contratto di Lavoro',
+                emoji: '📋',
+                description: 'Informazioni su CCNL, stipendi e progressioni',
+                question: 'Dimmi tutto sul contratto di lavoro dei Carabinieri: CCNL, stipendi e progressioni di carriera'
+            },
+            {
+                id: 'ferie',
+                title: 'Ferie e Permessi',
+                emoji: '🏖️',
+                description: 'Diritti su ferie, permessi e congedi',
+                question: 'Quali sono i miei diritti per ferie, permessi e congedi? Come richiederli?'
+            },
+            {
+                id: 'malattia',
+                title: 'Permessi Malattia',
+                emoji: '🏥',
+                description: 'Come funzionano i permessi per malattia',
+                question: 'Come funzionano i permessi per malattia? Cosa devo fare quando mi ammalo?'
+            },
+            {
+                id: 'diritti',
+                title: 'Diritti Sindacali',
+                emoji: '⚖️',
+                description: 'Diritti, rappresentanza e tutele',
+                question: 'Quali sono i miei diritti sindacali? Come funziona la rappresentanza e le tutele?'
+            },
+            {
+                id: 'disciplinare',
+                title: 'Procedure Disciplinari',
+                emoji: '📝',
+                description: 'Procedure disciplinari e ricorsi',
+                question: 'Come funzionano le procedure disciplinari? Cosa fare in caso di sanzioni?'
+            },
+            {
+                id: 'concorsi',
+                title: 'Concorsi e Carriera',
+                emoji: '🎯',
+                description: 'Concorsi interni e progressioni',
+                question: 'Informazioni su concorsi interni, progressioni di carriera e opportunità di crescita'
+            }
+        ];
 
         // --- FUNZIONI DI UTILITÀ ---
         
-        function addMessage(content, isUser = false, timestamp = new Date()) {
+        function addMessage(content, type = 'bot', timestamp = new Date()) {
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = 'flex items-start space-x-3 animate-fade-in';
             
-            if (isUser) {
+            if (type === 'user') {
                 messageDiv.innerHTML = `
                     <div class="flex-1"></div>
                     <div class="message-user rounded-2xl p-4 max-w-xs">
                         <div class="text-white text-sm">${content}</div>
-                        <div class="text-xs text-gray-200 mt-1 opacity-75">${timestamp.toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'})}</div>
+                        <div class="text-xs text-gray-200 mt-2 opacity-75">${timestamp.toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'})}</div>
                     </div>
                     <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                         <span class="text-white text-sm">👤</span>
+                    </div>
+                `;
+            } else if (type === 'system') {
+                messageDiv.innerHTML = `
+                    <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
+                        <span class="text-white text-sm">ℹ️</span>
+                    </div>
+                    <div class="message-system rounded-2xl p-4 max-w-xs w-full">
+                        <div class="text-white text-sm">${content}</div>
                     </div>
                 `;
             } else {
@@ -324,17 +372,141 @@
                     </div>
                     <div class="message-bot rounded-2xl p-4 max-w-xs">
                         <div class="text-textDark text-sm">${content}</div>
-                        <div class="text-xs text-gray-500 mt-1">${timestamp.toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'})}</div>
+                        <div class="text-xs text-gray-500 mt-2">${timestamp.toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'})}</div>
                     </div>
                 `;
             }
             
             messagesContainer.appendChild(messageDiv);
             
-            // Scroll automatico con ritardo per permettere il rendering
+            // Scroll automatico con ritardo
             setTimeout(() => {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }, 100);
+        }
+
+        function addQuickQuestionCard(question) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'flex justify-center mb-4 animate-fade-in';
+            
+            cardDiv.innerHTML = `
+                <div class="quick-question-card message-bot rounded-2xl p-4 max-w-sm w-full cursor-pointer" data-question="${question.question}">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <span class="text-2xl">${question.emoji}</span>
+                        <h3 class="font-semibold text-textDark">${question.title}</h3>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">${question.description}</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-primary font-medium">Clicca per chiedere</span>
+                        <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(cardDiv);
+            
+            // Event listener per il click
+            cardDiv.querySelector('.quick-question-card').addEventListener('click', () => {
+                const questionText = question.question;
+                document.getElementById('messageInput').value = questionText;
+                updateCharCount();
+                updateSendButton();
+                sendMessage();
+            });
+            
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
+        }
+
+        function addDirigentiCard() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'flex justify-center mb-4 animate-fade-in';
+            
+            let dirigentiHtml = '';
+            if (dirigenti.length > 0) {
+                dirigentiHtml = dirigenti.slice(0, 2).map(dirigente => `
+                    <div class="dirigente-card rounded-xl p-3 mb-2 last:mb-0">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                                <span class="text-white font-bold">${dirigente.nome_cognome.charAt(0)}</span>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-white text-sm">${dirigente.nome_cognome}</h4>
+                                <p class="text-xs text-white/80">${dirigente.ruolo}</p>
+                                ${dirigente.telefono ? `<p class="text-xs text-white/70">📞 ${dirigente.telefono}</p>` : ''}
+                            </div>
+                            ${dirigente.email ? `
+                                <a href="mailto:${dirigente.email}" class="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                                    </svg>
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                dirigentiHtml = `
+                    <div class="text-center text-white/80 py-2">
+                        <p class="text-sm">Caricamento contatti...</p>
+                    </div>
+                `;
+            }
+            
+            cardDiv.innerHTML = `
+                <div class="message-system rounded-2xl p-4 max-w-sm w-full">
+                    <div class="flex items-center space-x-2 mb-3">
+                        <span class="text-xl">👥</span>
+                        <h3 class="font-semibold text-white">Contatta i Dirigenti</h3>
+                    </div>
+                    <div class="space-y-2">
+                        ${dirigentiHtml}
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-white/20">
+                        <button onclick="window.location.href='dirigenti.html'" class="w-full bg-white/20 hover:bg-white/30 text-white text-sm py-2 px-4 rounded-lg transition-colors">
+                            Vedi Tutti i Dirigenti
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(cardDiv);
+            
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
+        }
+
+        async function loadDirigenti() {
+            try {
+                const { data, error } = await supabase
+                    .from('dirigenti')
+                    .select('*')
+                    .eq('attivo', true)
+                    .order('ordine', { ascending: true });
+                
+                if (error) throw error;
+                
+                dirigenti = data || [];
+                console.log('✅ Dirigenti caricati:', dirigenti.length);
+                
+            } catch (error) {
+                console.error('❌ Errore caricamento dirigenti:', error);
+                dirigenti = [
+                    {
+                        nome_cognome: 'Segretario Generale',
+                        ruolo: 'Responsabile Sindacato',
+                        email: 'segretario@sim.carabinieri.it',
+                        telefono: '+39 06 1234567'
+                    }
+                ];
+            }
         }
 
         function showTyping() {
@@ -389,20 +561,52 @@
             }
         }
 
-        // Funzione per determinare l'endpoint API
         function getApiEndpoint() {
-            // Se siamo in localhost, usa il server locale
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 console.log('🔧 Usando server locale per sviluppo');
                 return CHATBOT_CONFIG.apiEndpointLocal;
             }
             
-            // Altrimenti usa il server chatbot su Render
             console.log('🚀 Usando server chatbot Render:', CHATBOT_CONFIG.apiEndpoint);
             return CHATBOT_CONFIG.apiEndpoint;
         }
 
-        // Funzione principale per inviare messaggi
+        // Inizializza la chat con messaggio di benvenuto e domande frequenti
+        function initializeChat() {
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.innerHTML = '';
+
+            // Messaggio di benvenuto
+            setTimeout(() => {
+                addMessage(`Ciao! Sono <strong>Virgilio</strong> 🤖, il tuo assistente sindacale AI.
+                <br><br>
+                Sono qui per aiutarti con informazioni su:
+                <br>• Contratti e stipendi 📋
+                <br>• Ferie e permessi 🏖️  
+                <br>• Diritti sindacali ⚖️
+                <br>• Procedure e normative 📝
+                <br><br>
+                <strong>Scegli una delle domande qui sotto o scrivi la tua!</strong>`, 'bot');
+            }, 500);
+
+            // Aggiungi domande frequenti una alla volta
+            frequentQuestions.forEach((question, index) => {
+                setTimeout(() => {
+                    addQuickQuestionCard(question);
+                }, 1000 + (index * 300));
+            });
+
+            // Aggiungi card contatti dirigenti
+            setTimeout(() => {
+                addMessage(`Se hai bisogno di assistenza personalizzata o di parlare con un responsabile, 
+                ecco i contatti dei nostri dirigenti:`, 'system');
+            }, 1000 + (frequentQuestions.length * 300) + 500);
+
+            setTimeout(() => {
+                addDirigentiCard();
+            }, 1000 + (frequentQuestions.length * 300) + 1000);
+        }
+
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
@@ -413,7 +617,7 @@
             updateSendButton();
             
             // Aggiungi messaggio utente
-            addMessage(message, true);
+            addMessage(message, 'user');
             conversationHistory.push({ role: 'user', content: message });
             
             // Pulisci input
@@ -435,12 +639,26 @@
                 const apiEndpoint = getApiEndpoint();
                 console.log('📡 Chiamando API:', apiEndpoint);
 
+                // Crea prompt potenziato con info sui dirigenti
+                let systemContext = '';
+                if (dirigenti.length > 0) {
+                    systemContext = `\n\nCONTATTI DIRIGENTI SINDACATO DISPONIBILI:\n`;
+                    dirigenti.forEach(dirigente => {
+                        systemContext += `- ${dirigente.nome_cognome} (${dirigente.ruolo})`;
+                        if (dirigente.email) systemContext += ` - Email: ${dirigente.email}`;
+                        if (dirigente.telefono) systemContext += ` - Tel: ${dirigente.telefono}`;
+                        systemContext += '\n';
+                    });
+                    systemContext += `\nSe l'utente chiede contatti o vuole parlare con qualcuno, fornisci questi riferimenti.`;
+                }
+
                 // Prepara richiesta
                 const requestBody = {
                     messages: conversationHistory.slice(-CHATBOT_CONFIG.maxHistory),
                     model: CHATBOT_CONFIG.model,
                     max_tokens: CHATBOT_CONFIG.maxTokens,
-                    temperature: CHATBOT_CONFIG.temperature
+                    temperature: CHATBOT_CONFIG.temperature,
+                    system_context: systemContext
                 };
 
                 // Chiamata API con retry
@@ -481,7 +699,7 @@
 
                         updateConnectionStatus(true);
                         console.log('✅ Messaggio inviato con successo');
-                        break; // Esci dal loop di retry
+                        break;
                         
                     } catch (error) {
                         lastError = error;
@@ -493,7 +711,6 @@
                     }
                 }
 
-                // Se tutti i tentativi sono falliti
                 if (lastError) {
                     throw lastError;
                 }
@@ -529,7 +746,6 @@
             }
         }
 
-        // Verifica autenticazione
         async function verificaAutenticazione() {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
@@ -550,7 +766,6 @@
             }
         }
 
-        // Funzione per testare la connessione API
         async function testApiConnection() {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
@@ -579,7 +794,6 @@
                 console.warn('⚠️ Test connessione API fallito:', error.message);
                 updateConnectionStatus(false);
                 
-                // Mostra warning se il server non è raggiungibile
                 setTimeout(() => {
                     showError('Server chatbot non raggiungibile. Il servizio potrebbe essere in fase di avvio...');
                 }, 2000);
@@ -591,6 +805,12 @@
             // Verifica autenticazione
             currentUser = await verificaAutenticazione();
             if (!currentUser) return;
+
+            // Carica dirigenti
+            await loadDirigenti();
+
+            // Inizializza chat
+            initializeChat();
 
             const input = document.getElementById('messageInput');
             const sendButton = document.getElementById('sendMessage');
@@ -610,36 +830,13 @@
 
             sendButton.addEventListener('click', sendMessage);
 
-            // Quick replies
-            document.querySelectorAll('.quick-reply').forEach(button => {
-                button.addEventListener('click', () => {
-                    const message = button.dataset.message;
-                    input.value = message;
-                    updateCharCount();
-                    updateSendButton();
-                    sendMessage();
-                });
-            });
-
             // Clear chat
             document.getElementById('clearChatBtn').addEventListener('click', () => {
                 if (confirm('Vuoi davvero cancellare tutta la conversazione?')) {
-                    const messagesContainer = document.getElementById('chatMessages');
-                    messagesContainer.innerHTML = `
-                        <div class="flex items-start space-x-3" id="welcomeMessage">
-                            <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
-                                <span class="text-white text-sm">🤖</span>
-                            </div>
-                            <div class="message-bot rounded-2xl p-4 max-w-xs">
-                                <div class="text-textDark text-sm">
-                                    Ciao! Sono <strong>Virgilio</strong>, il tuo assistente sindacale AI. Come posso aiutarti oggi?
-                                </div>
-                            </div>
-                        </div>
-                    `;
                     conversationHistory = [];
                     totalTokensUsed = 0;
                     document.getElementById('tokenCount').textContent = '0';
+                    initializeChat();
                     showSuccess('Chat cancellata');
                 }
             });
@@ -674,15 +871,14 @@
         // Gestione visibilità pagina
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden && currentUser) {
-                // Riconnetti quando la pagina torna visibile
                 testApiConnection();
             }
         });
 
         // Debug info
-        console.log('🤖 Virgilio Chat inizializzato');
+        console.log('🤖 Virgilio Chat Migliorata inizializzata');
         console.log('🔧 Configurazione:', CHATBOT_CONFIG);
-        console.log('🌐 Server endpoint:', CHATBOT_CONFIG.apiEndpoint);
+        console.log('💡 Domande frequenti caricate:', frequentQuestions.length);
     </script>
 </body>
 </html>
