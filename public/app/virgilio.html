@@ -92,6 +92,23 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .chat-container {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+        }
+        .chat-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .chat-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .chat-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+        }
+        .chat-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -128,7 +145,7 @@
     </div>
 
     <!-- Main Content -->
-    <main class="max-w-md mx-auto px-4 pb-24">
+    <main class="max-w-md mx-auto px-4 pb-32">
         <!-- Chat Header Info -->
         <div class="glass-light rounded-2xl p-4 mb-4 text-white text-center">
             <h2 class="text-lg font-bold mb-2">Il tuo Assistente Sindacale AI</h2>
@@ -149,7 +166,7 @@
         </div>
 
         <!-- Chat Messages -->
-        <div id="chatMessages" class="chat-container mb-4 space-y-4 max-h-96 overflow-y-auto">
+        <div id="chatMessages" class="chat-container mb-4 space-y-4 max-h-[calc(100vh-380px)] overflow-y-auto pb-4">
             <div class="flex items-start space-x-3" id="welcomeMessage">
                 <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
                     <span class="text-white text-sm">🤖</span>
@@ -189,7 +206,7 @@
     </main>
 
     <!-- Chat Input -->
-    <div class="fixed bottom-16 left-0 right-0 px-4 pb-4">
+    <div class="fixed bottom-20 left-0 right-0 px-4 pb-4 z-20 bg-gradient-to-t from-purple-900 via-purple-900/90 to-transparent pt-4">
         <div class="max-w-md mx-auto">
             <div class="glass-effect rounded-2xl p-3">
                 <div class="flex items-center space-x-3">
@@ -313,7 +330,11 @@
             }
             
             messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Scroll automatico con ritardo per permettere il rendering
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
         }
 
         function showTyping() {
@@ -321,7 +342,7 @@
             const container = document.getElementById('chatMessages');
             setTimeout(() => {
                 container.scrollTop = container.scrollHeight;
-            }, 100);
+            }, 150);
         }
 
         function hideTyping() {
