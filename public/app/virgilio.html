@@ -133,12 +133,6 @@
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
             transform: translateY(-1px);
         }
-        .province-btn {
-            transition: all 0.2s ease;
-        }
-        .province-btn:hover {
-            transform: scale(1.05);
-        }
     </style>
 </head>
 <body>
@@ -175,9 +169,9 @@
     </div>
 
     <!-- Main Content -->
-    <main class="max-w-md mx-auto px-4 pb-40">
+    <main class="max-w-md mx-auto px-4 pb-32">
         <!-- Chat Messages -->
-        <div id="chatMessages" class="chat-container space-y-4 max-h-[calc(100vh-220px)] overflow-y-auto pb-6">
+        <div id="chatMessages" class="chat-container space-y-4 max-h-[calc(100vh-180px)] overflow-y-auto pb-4">
             <!-- I messaggi verranno caricati qui dinamicamente -->
         </div>
 
@@ -208,9 +202,9 @@
     </main>
 
     <!-- Chat Input -->
-    <div class="fixed bottom-20 left-0 right-0 px-4 pb-4 z-20 bg-gradient-to-t from-purple-900 via-purple-900/90 to-transparent pt-6">
+    <div class="fixed bottom-20 left-0 right-0 px-4 pb-4 z-20 bg-gradient-to-t from-purple-900 via-purple-900/90 to-transparent pt-4">
         <div class="max-w-md mx-auto">
-            <div class="glass-effect rounded-2xl p-3 shadow-2xl">
+            <div class="glass-effect rounded-2xl p-3">
                 <div class="flex items-center space-x-3">
                     <input type="text" id="messageInput" placeholder="Scrivi la tua domanda..." 
                            class="chat-input flex-1 bg-transparent border-0 text-textDark placeholder-gray-500 text-sm rounded-xl px-4 py-3" 
@@ -238,7 +232,7 @@
     <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
         <div class="flex justify-around items-center max-w-md mx-auto">
-            <a href="home.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-2 transition-colors">
+            <a href="../index.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-2 transition-colors">
                 <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
                 </svg>
@@ -298,323 +292,56 @@
         let totalTokensUsed = 0;
         let dirigenti = [];
 
-        // 🏛️ GESTIONE INTELLIGENTE DEI CONTATTI
-        function detectContactRequest(message) {
-            const contactKeywords = [
-                'contatto', 'contatti', 'dirigente', 'dirigenti', 'segretario', 'responsabile',
-                'parlare con', 'chi devo contattare', 'numero', 'telefono', 'email',
-                'provinciale', 'regionale', 'provincia', 'regione'
-            ];
-            
-            const normalizedMessage = message.toLowerCase();
-            return contactKeywords.some(keyword => normalizedMessage.includes(keyword));
-        }
-
-        function detectLocationRequest(message) {
-            const normalizedMessage = message.toLowerCase();
-            const provinceKeywords = [
-                'provincia', 'provinciale', 'venezia', 'padova', 'verona', 'vicenza',
-                'treviso', 'rovigo', 'belluno'
-            ];
-            
-            return provinceKeywords.some(keyword => normalizedMessage.includes(keyword));
-        }
-
-        function extractProvince(message) {
-            const provinces = {
-                'venezia': 'Venezia', 'padova': 'Padova', 'verona': 'Verona', 
-                'vicenza': 'Vicenza', 'treviso': 'Treviso', 'rovigo': 'Rovigo', 
-                'belluno': 'Belluno'
-            };
-            
-            const normalizedMessage = message.toLowerCase();
-            for (const [key, value] of Object.entries(provinces)) {
-                if (normalizedMessage.includes(key)) {
-                    return value;
-                }
+        // 🎨 DATI DELLE DOMANDE FREQUENTI
+        const frequentQuestions = [
+            {
+                id: 'ccnl',
+                title: 'Contratto di Lavoro',
+                emoji: '📋',
+                description: 'Informazioni su CCNL, stipendi e progressioni',
+                question: 'Dimmi tutto sul contratto di lavoro dei Carabinieri: CCNL, stipendi e progressioni di carriera'
+            },
+            {
+                id: 'ferie',
+                title: 'Ferie e Permessi',
+                emoji: '🏖️',
+                description: 'Diritti su ferie, permessi e congedi',
+                question: 'Quali sono i miei diritti per ferie, permessi e congedi? Come richiederli?'
+            },
+            {
+                id: 'malattia',
+                title: 'Permessi Malattia',
+                emoji: '🏥',
+                description: 'Come funzionano i permessi per malattia',
+                question: 'Come funzionano i permessi per malattia? Cosa devo fare quando mi ammalo?'
+            },
+            {
+                id: 'diritti',
+                title: 'Diritti Sindacali',
+                emoji: '⚖️',
+                description: 'Diritti, rappresentanza e tutele',
+                question: 'Quali sono i miei diritti sindacali? Come funziona la rappresentanza e le tutele?'
+            },
+            {
+                id: 'disciplinare',
+                title: 'Procedure Disciplinari',
+                emoji: '📝',
+                description: 'Procedure disciplinari e ricorsi',
+                question: 'Come funzionano le procedure disciplinari? Cosa fare in caso di sanzioni?'
+            },
+            {
+                id: 'concorsi',
+                title: 'Concorsi e Carriera',
+                emoji: '🎯',
+                description: 'Concorsi interni e progressioni',
+                question: 'Informazioni su concorsi interni, progressioni di carriera e opportunità di crescita'
             }
-            return null;
-        }
-
-        async function loadDirigentiByLocation(isProvincial = false, provincia = null) {
-            try {
-                let query = supabase
-                    .from('organico_dirigentisindacali')
-                    .select('*');
-
-                if (isProvincial && provincia) {
-                    // Cerca dirigenti provinciali per quella provincia specifica
-                    query = query.ilike('ruolo', `%${provincia}%`);
-                } else if (isProvincial) {
-                    // Tutti i dirigenti provinciali
-                    query = query.ilike('ruolo', '%provinciale%');
-                } else {
-                    // Dirigenti regionali
-                    query = query.ilike('ruolo', '%regionale%');
-                }
-
-                const { data, error } = await query.order('nome_cognome', { ascending: true });
-                
-                if (error) throw error;
-                
-                console.log(`✅ Dirigenti caricati (${isProvincial ? 'Provinciali' : 'Regionali'}):`, data?.length || 0);
-                return data || [];
-                
-            } catch (error) {
-                console.error('❌ Errore caricamento dirigenti specifici:', error);
-                return [];
-            }
-        }
-
-        function addProvinceSelectionCard() {
-            const messagesContainer = document.getElementById('chatMessages');
-            const cardDiv = document.createElement('div');
-            cardDiv.className = 'flex justify-center mb-4 animate-fade-in';
-            
-            const provinces = ['Venezia', 'Padova', 'Verona', 'Vicenza', 'Treviso', 'Rovigo', 'Belluno'];
-            
-            cardDiv.innerHTML = `
-                <div class="message-system rounded-2xl p-4 max-w-sm w-full">
-                    <div class="flex items-center space-x-2 mb-3">
-                        <span class="text-xl">🗺️</span>
-                        <h3 class="font-semibold text-white">Seleziona la Provincia</h3>
-                    </div>
-                    <p class="text-white/90 text-sm mb-3">Scegli la provincia per trovare i contatti specifici:</p>
-                    <div class="grid grid-cols-2 gap-2">
-                        ${provinces.map(provincia => `
-                            <button onclick="handleProvinceSelection('${provincia}')" 
-                                    class="bg-white/20 hover:bg-white/30 text-white text-sm py-2 px-3 rounded-lg transition-colors province-btn">
-                                ${provincia}
-                            </button>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            
-            messagesContainer.appendChild(cardDiv);
-            
-            scrollToBottom();
-        }
-
-        function addDirigentiSpecificiCard(dirigenti, tipo, provincia = null) {
-            const messagesContainer = document.getElementById('chatMessages');
-            const cardDiv = document.createElement('div');
-            cardDiv.className = 'flex justify-center mb-4 animate-fade-in';
-            
-            let title = tipo === 'regionale' ? 'Dirigenti Regionali' : `Dirigenti Provinciali`;
-            if (provincia) title += ` - ${provincia}`;
-            
-            let dirigentiHtml = '';
-            if (dirigenti.length > 0) {
-                dirigentiHtml = dirigenti.map(dirigente => `
-                    <div class="dirigente-card rounded-xl p-3 mb-2 last:mb-0">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                                <span class="text-white font-bold">${dirigente.nome_cognome.charAt(0)}</span>
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-semibold text-white text-sm">${dirigente.nome_cognome}</h4>
-                                <p class="text-xs text-white/80">${dirigente.ruolo}</p>
-                            </div>
-                            ${dirigente.email ? `
-                                <a href="mailto:${dirigente.email}" class="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
-                                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
-                                    </svg>
-                                </a>
-                            ` : ''}
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                dirigentiHtml = `
-                    <div class="text-center text-white/80 py-2">
-                        <p class="text-sm">Nessun dirigente trovato per questa selezione</p>
-                    </div>
-                `;
-            }
-            
-            cardDiv.innerHTML = `
-                <div class="message-system rounded-2xl p-4 max-w-sm w-full">
-                    <div class="flex items-center space-x-2 mb-3">
-                        <span class="text-xl">👥</span>
-                        <h3 class="font-semibold text-white">${title}</h3>
-                    </div>
-                    <div class="space-y-2">
-                        ${dirigentiHtml}
-                    </div>
-                    <div class="mt-3 pt-3 border-t border-white/20">
-                        <button onclick="window.location.href='dirigenti.html'" class="w-full bg-white/20 hover:bg-white/30 text-white text-sm py-2 px-4 rounded-lg transition-colors">
-                            Vedi Tutti i Dirigenti
-                        </button>
-                    </div>
-                </div>
-            `;
-            
-            messagesContainer.appendChild(cardDiv);
-            
-            scrollToBottom();
-        }
-
-        // Funzione globale per gestire selezione provincia
-        window.handleProvinceSelection = async function(provincia) {
-            // Aggiungi messaggio utente
-            addMessage(`Contatti per provincia di ${provincia}`, 'user');
-            
-            // Mostra typing
-            showTyping();
-            
-            try {
-                // Carica dirigenti per quella provincia
-                const dirigentiProvinciali = await loadDirigentiByLocation(true, provincia);
-                
-                hideTyping();
-                
-                if (dirigentiProvinciali.length > 0) {
-                    addMessage(`Ecco i contatti dei dirigenti per la provincia di ${provincia}:`, 'bot');
-                    addDirigentiSpecificiCard(dirigentiProvinciali, 'provinciale', provincia);
-                } else {
-                    addMessage(`Non ho trovato dirigenti specifici per la provincia di ${provincia}. Ti mostro i contatti regionali generali:`, 'bot');
-                    const dirigentiRegionali = await loadDirigentiByLocation(false);
-                    addDirigentiSpecificiCard(dirigentiRegionali, 'regionale');
-                }
-                
-            } catch (error) {
-                console.error('❌ Errore caricamento dirigenti provincia:', error);
-                hideTyping();
-                addMessage('Mi dispiace, si è verificato un errore nel caricare i contatti. Riprova più tardi.', 'bot');
-            }
-        };
-
-        // 🔍 FUNZIONALITÀ RICERCA WEB
-        function needsWebSearch(message) {
-            const webSearchKeywords = [
-                'che tempo fa', 'meteo', 'previsioni', 'temperatura',
-                'notizie', 'ultime notizie', 'aggiornamenti',
-                'cerca', 'ricerca', 'trova informazioni',
-                'situazione attuale', 'oggi', 'ieri', 'domani',
-                'eventi recenti', 'novità'
-            ];
-            
-            const normalizedMessage = message.toLowerCase();
-            return webSearchKeywords.some(keyword => normalizedMessage.includes(keyword));
-        }
-
-        async function performWebSearch(query) {
-            try {
-                showTyping();
-                
-                // Simula ricerca web (in produzione sostituire con API reale)
-                await new Promise(r => setTimeout(r, 2000));
-                
-                hideTyping();
-                
-                if (query.toLowerCase().includes('tempo') || query.toLowerCase().includes('meteo')) {
-                    addMessage(`Mi dispiace, ma non posso fornire informazioni aggiornate sul meteo. Ti consiglio di controllare un'app o un sito web di previsioni meteorologiche per avere le informazioni più recenti sul tempo a Roma.
-                    
-                    Per le informazioni relative al sindacato e ai diritti dei Carabinieri, sono qui per aiutarti! 🤖`, 'bot');
-                } else if (query.toLowerCase().includes('notizie')) {
-                    addMessage(`Non ho accesso a notizie in tempo reale. Per le ultime notizie, ti consiglio di consultare siti di informazione aggiornati.
-                    
-                    Tuttavia, posso aiutarti con informazioni su:
-                    • Normative e procedure dei Carabinieri
-                    • Diritti sindacali e contrattuali  
-                    • Ferie, permessi e congedi
-                    • Contatti dei dirigenti sindacali
-                    
-                    Cosa ti serve sapere? 😊`, 'bot');
-                } else {
-                    addMessage(`Non ho accesso alla ricerca web in tempo reale. Le mie competenze sono specifiche per:
-                    
-                    🔹 **Questioni sindacali** e diritti dei Carabinieri
-                    🔹 **Normative** e procedure interne
-                    🔹 **Contratti** di lavoro e progressioni
-                    🔹 **Ferie, permessi** e aspetti amministrativi
-                    🔹 **Contatti dirigenti** regionali e provinciali
-                    
-                    Per informazioni aggiornate sul web, ti consiglio di utilizzare un motore di ricerca. Cosa posso aiutarti riguardo il sindacato? 💼`, 'bot');
-                }
-                
-            } catch (error) {
-                console.error('❌ Errore ricerca web:', error);
-                hideTyping();
-                addMessage('Mi dispiace, non riesco ad accedere alle informazioni web al momento. Posso comunque aiutarti con domande relative al sindacato e ai diritti dei Carabinieri! 🤖', 'bot');
-            }
-        }
-            const isLocationRequest = detectLocationRequest(message);
-            const specificProvince = extractProvince(message);
-            
-            showTyping();
-            
-            try {
-                if (specificProvince) {
-                    // L'utente ha già specificato una provincia
-                    const dirigentiProvinciali = await loadDirigentiByLocation(true, specificProvince);
-                    
-                    hideTyping();
-                    
-                    if (dirigentiProvinciali.length > 0) {
-                        addMessage(`Ecco i contatti dei dirigenti per la provincia di ${specificProvince}:`, 'bot');
-                        addDirigentiSpecificiCard(dirigentiProvinciali, 'provinciale', specificProvince);
-                    } else {
-                        addMessage(`Non ho trovato dirigenti specifici per ${specificProvince}. Ti mostro i contatti regionali:`, 'bot');
-                        const dirigentiRegionali = await loadDirigentiByLocation(false);
-                        addDirigentiSpecificiCard(dirigentiRegionali, 'regionale');
-                    }
-                    
-                } else if (isLocationRequest || message.toLowerCase().includes('provinciale')) {
-                    // L'utente chiede contatti provinciali ma non ha specificato quale
-                    hideTyping();
-                    addMessage('Ti serve un contatto provinciale. Seleziona la provincia di tuo interesse:', 'bot');
-                    addProvinceSelectionCard();
-                    
-                } else {
-                    // Richiesta generica di contatti - mostra regionali
-                    const dirigentiRegionali = await loadDirigentiByLocation(false);
-                    
-                    hideTyping();
-                    
-                    addMessage('Ecco i contatti dei dirigenti regionali del SIM Carabinieri:', 'bot');
-                    addDirigentiSpecificiCard(dirigentiRegionali, 'regionale');
-                    
-                    // Offri anche l'opzione provinciale
-                    setTimeout(() => {
-                        addMessage('Se hai bisogno di contatti provinciali specifici, seleziona la tua provincia:', 'bot');
-                        addProvinceSelectionCard();
-                    }, 1000);
-                }
-                
-            } catch (error) {
-                console.error('❌ Errore gestione richiesta contatti:', error);
-                hideTyping();
-                addMessage('Mi dispiace, si è verificato un errore nel recuperare i contatti. Riprova più tardi.', 'bot');
-            }
-        }
+        ];
 
         // --- FUNZIONI DI UTILITÀ ---
         
-        // Aggiungi scroll automatico migliorato
-        function scrollToBottom() {
-            const container = document.getElementById('chatMessages');
-            if (container) {
-                setTimeout(() => {
-                    container.scrollTo({
-                        top: container.scrollHeight,
-                        behavior: 'smooth'
-                    });
-                }, 150);
-            }
-        }
-
         function addMessage(content, type = 'bot', timestamp = new Date()) {
             const messagesContainer = document.getElementById('chatMessages');
-            
-            if (!messagesContainer) {
-                console.error('❌ Container messaggi non trovato!');
-                return;
-            }
-            
             const messageDiv = document.createElement('div');
             messageDiv.className = 'flex items-start space-x-3 animate-fade-in';
             
@@ -651,18 +378,109 @@
             }
             
             messagesContainer.appendChild(messageDiv);
-            console.log('💬 Messaggio aggiunto:', type, content.substring(0, 50) + '...');
             
-            // Scroll automatico migliorato
-            scrollToBottom();
+            // Scroll automatico con ritardo
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
         }
 
         function addQuickQuestionCard(question) {
-            // Funzione rimossa - non più utilizzata
+            const messagesContainer = document.getElementById('chatMessages');
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'flex justify-center mb-4 animate-fade-in';
+            
+            cardDiv.innerHTML = `
+                <div class="quick-question-card message-bot rounded-2xl p-4 max-w-sm w-full cursor-pointer" data-question="${question.question}">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <span class="text-2xl">${question.emoji}</span>
+                        <h3 class="font-semibold text-textDark">${question.title}</h3>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">${question.description}</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-primary font-medium">Clicca per chiedere</span>
+                        <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(cardDiv);
+            
+            // Event listener per il click
+            cardDiv.querySelector('.quick-question-card').addEventListener('click', () => {
+                const questionText = question.question;
+                document.getElementById('messageInput').value = questionText;
+                updateCharCount();
+                updateSendButton();
+                sendMessage();
+            });
+            
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
         }
 
         function addDirigentiCard() {
-            // Funzione rimossa - non più utilizzata
+            const messagesContainer = document.getElementById('chatMessages');
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'flex justify-center mb-4 animate-fade-in';
+            
+            let dirigentiHtml = '';
+            if (dirigenti.length > 0) {
+                dirigentiHtml = dirigenti.slice(0, 2).map(dirigente => `
+                    <div class="dirigente-card rounded-xl p-3 mb-2 last:mb-0">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                                <span class="text-white font-bold">${dirigente.nome_cognome.charAt(0)}</span>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-white text-sm">${dirigente.nome_cognome}</h4>
+                                <p class="text-xs text-white/80">${dirigente.ruolo}</p>
+                                ${dirigente.telefono ? `<p class="text-xs text-white/70">📞 ${dirigente.telefono}</p>` : ''}
+                            </div>
+                            ${dirigente.email ? `
+                                <a href="mailto:${dirigente.email}" class="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                                    </svg>
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                dirigentiHtml = `
+                    <div class="text-center text-white/80 py-2">
+                        <p class="text-sm">Caricamento contatti...</p>
+                    </div>
+                `;
+            }
+            
+            cardDiv.innerHTML = `
+                <div class="message-system rounded-2xl p-4 max-w-sm w-full">
+                    <div class="flex items-center space-x-2 mb-3">
+                        <span class="text-xl">👥</span>
+                        <h3 class="font-semibold text-white">Contatta i Dirigenti</h3>
+                    </div>
+                    <div class="space-y-2">
+                        ${dirigentiHtml}
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-white/20">
+                        <button onclick="window.location.href='dirigenti.html'" class="w-full bg-white/20 hover:bg-white/30 text-white text-sm py-2 px-4 rounded-lg transition-colors">
+                            Vedi Tutti i Dirigenti
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(cardDiv);
+            
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
         }
 
         async function loadDirigenti() {
@@ -693,7 +511,10 @@
 
         function showTyping() {
             document.getElementById('typingIndicator').classList.remove('hidden');
-            scrollToBottom();
+            const container = document.getElementById('chatMessages');
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 150);
         }
 
         function hideTyping() {
@@ -750,24 +571,40 @@
             return CHATBOT_CONFIG.apiEndpoint;
         }
 
-        // Inizializza la chat con messaggio di benvenuto
+        // Inizializza la chat con messaggio di benvenuto e domande frequenti
         function initializeChat() {
             const messagesContainer = document.getElementById('chatMessages');
             messagesContainer.innerHTML = '';
 
-            // Messaggio di benvenuto di Virgilio
-            addMessage(`Ciao! Sono <strong>Virgilio</strong> 🤖, il tuo assistente sindacale AI.
-            <br><br>
-            Sono qui per aiutarti con informazioni su:
-            <br>• Contratti e stipendi 📋
-            <br>• Ferie e permessi 🏖️  
-            <br>• Diritti sindacali ⚖️
-            <br>• Procedure e normative 📝
-            <br>• Contatti dirigenti 👥
-            <br><br>
-            <strong>Scrivi la tua domanda qui sotto!</strong>`, 'bot');
-            
-            console.log('✅ Chat inizializzata con messaggio di benvenuto');
+            // Messaggio di benvenuto
+            setTimeout(() => {
+                addMessage(`Ciao! Sono <strong>Virgilio</strong> 🤖, il tuo assistente sindacale AI.
+                <br><br>
+                Sono qui per aiutarti con informazioni su:
+                <br>• Contratti e stipendi 📋
+                <br>• Ferie e permessi 🏖️  
+                <br>• Diritti sindacali ⚖️
+                <br>• Procedure e normative 📝
+                <br><br>
+                <strong>Scegli una delle domande qui sotto o scrivi la tua!</strong>`, 'bot');
+            }, 500);
+
+            // Aggiungi domande frequenti una alla volta
+            frequentQuestions.forEach((question, index) => {
+                setTimeout(() => {
+                    addQuickQuestionCard(question);
+                }, 1000 + (index * 300));
+            });
+
+            // Aggiungi card contatti dirigenti
+            setTimeout(() => {
+                addMessage(`Se hai bisogno di assistenza personalizzata o di parlare con un responsabile, 
+                ecco i contatti dei nostri dirigenti:`, 'system');
+            }, 1000 + (frequentQuestions.length * 300) + 500);
+
+            setTimeout(() => {
+                addDirigentiCard();
+            }, 1000 + (frequentQuestions.length * 300) + 1000);
         }
 
         async function sendMessage() {
@@ -788,25 +625,7 @@
             updateCharCount();
             updateSendButton();
             
-            // 🎯 GESTIONE INTELLIGENTE RICHIESTE CONTATTI
-            if (detectContactRequest(message)) {
-                await handleContactRequest(message);
-                isProcessing = false;
-                updateSendButton();
-                input.focus();
-                return;
-            }
-
-            // 🔍 GESTIONE RICHIESTE RICERCA WEB
-            if (needsWebSearch(message)) {
-                await performWebSearch(message);
-                isProcessing = false;
-                updateSendButton();
-                input.focus();
-                return;
-            }
-            
-            // Mostra typing indicator per altre richieste
+            // Mostra typing indicator
             showTyping();
             
             try {
@@ -830,7 +649,7 @@
                         if (dirigente.telefono) systemContext += ` - Tel: ${dirigente.telefono}`;
                         systemContext += '\n';
                     });
-                    systemContext += `\nPer richieste di contatti specifici, il sistema gestisce automaticamente la ricerca per provincia.`;
+                    systemContext += `\nSe l'utente chiede contatti o vuole parlare con qualcuno, fornisci questi riferimenti.`;
                 }
 
                 // Prepara richiesta
@@ -983,22 +802,15 @@
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('🔄 Inizializzazione Virgilio...');
-            
             // Verifica autenticazione
             currentUser = await verificaAutenticazione();
             if (!currentUser) return;
 
-            console.log('👤 Utente autenticato, inizializzando chat...');
-
             // Carica dirigenti
             await loadDirigenti();
 
-            // Inizializza chat - FORZA il caricamento
-            setTimeout(() => {
-                initializeChat();
-                console.log('💬 Chat dovrebbe essere visibile ora');
-            }, 100);
+            // Inizializza chat
+            initializeChat();
 
             const input = document.getElementById('messageInput');
             const sendButton = document.getElementById('sendMessage');
@@ -1043,8 +855,6 @@
 
             // Test connessione API all'avvio
             testApiConnection();
-            
-            console.log('✅ Inizializzazione completata');
         });
 
         // Gestione errori globali
@@ -1068,7 +878,7 @@
         // Debug info
         console.log('🤖 Virgilio Chat Migliorata inizializzata');
         console.log('🔧 Configurazione:', CHATBOT_CONFIG);
-        console.log('🏛️ Gestione contatti intelligente attivata');
+        console.log('💡 Domande frequenti caricate:', frequentQuestions.length);
     </script>
 </body>
 </html>
