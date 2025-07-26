@@ -289,7 +289,7 @@
             retryAttempts: 3,
             retryDelay: 1000,
             enableWebSearch: true,
-            webSearchThreshold: 0.3 // Soglia per attivare ricerca web
+            webSearchThreshold: 0.3
         };
 
         // Variabili globali
@@ -357,8 +357,6 @@
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }, 100);
         }
-
-
 
         async function loadDirigenti() {
             try {
@@ -450,13 +448,14 @@
             return result;
         }
 
-        // Funzione per gestire logica dirigenti
+        // Funzione per gestire logica dirigenti - CORRETTA
         function handleDirigentiQuery(message) {
             const messageLower = message.toLowerCase();
             
-            // Reset context se cambia argomento
+            // Reset context se cambia argomento completamente
             if (!messageLower.includes('dirigent') && !messageLower.includes('regionale') && 
-                !messageLower.includes('provinciale') && !messageLower.includes('provincia')) {
+                !messageLower.includes('provinciale') && !conversationContext.askingForDirigenti && 
+                !conversationContext.waitingForLevel && !conversationContext.waitingForProvince) {
                 conversationContext = {
                     askingForDirigenti: false,
                     waitingForLevel: false,
@@ -467,7 +466,10 @@
             }
             
             // 1. Prima richiesta dirigenti
-            if (messageLower.includes('dirigent') && messageLower.includes('sindacali')) {
+            if ((messageLower.includes('dirigent') && messageLower.includes('sindacali')) || 
+                messageLower.includes('chi sono i dirigenti') || 
+                messageLower.includes('contatti dirigenti')) {
+                
                 conversationContext.askingForDirigenti = true;
                 conversationContext.waitingForLevel = true;
                 return {
@@ -490,6 +492,12 @@
                         type: 'ask_province',
                         message: `Di quale <strong>provincia</strong> hai bisogno?<br><br>Esempi: Verona, Padova, Venezia, Vicenza, Treviso, Belluno, Rovigo...`
                     };
+                } else {
+                    // Se non riconosce la risposta, ripeti la domanda
+                    return {
+                        type: 'ask_level',
+                        message: `Non ho capito. Vuoi i contatti dei dirigenti sindacali a livello <strong>Regionale</strong> o <strong>Provinciale</strong>?<br><br>Scrivi "regionale" o "provinciale".`
+                    };
                 }
             }
             
@@ -505,18 +513,25 @@
                         type: 'search_province',
                         province: foundProvince.charAt(0).toUpperCase() + foundProvince.slice(1)
                     };
+                } else {
+                    // Se non riconosce la provincia, ripeti la domanda
+                    return {
+                        type: 'ask_province',
+                        message: `Non ho trovato quella provincia. Di quale <strong>provincia del Veneto</strong> hai bisogno?<br><br>Esempi: Verona, Padova, Venezia, Vicenza, Treviso, Belluno, Rovigo...`
+                    };
                 }
             }
             
             return null;
         }
-            function showTyping() {
-    document.getElementById('typingIndicator').classList.remove('hidden');
-    const container = document.getElementById('chatMessages');
-    setTimeout(() => {
-        container.scrollTop = container.scrollHeight;
-    }, 150);
-}
+
+        function showTyping() {
+            document.getElementById('typingIndicator').classList.remove('hidden');
+            const container = document.getElementById('chatMessages');
+            setTimeout(() => {
+                container.scrollTop = container.scrollHeight;
+            }, 150);
+        }
 
         function hideTyping() {
             document.getElementById('typingIndicator').classList.add('hidden');
@@ -585,7 +600,7 @@
                 currentLevel: null
             };
 
-            // Messaggio di benvenuto senza SIM
+            // Messaggio di benvenuto con info sui dirigenti
             setTimeout(() => {
                 addMessage(`Ciao! Sono <strong>Virgilio</strong> 🤖, il tuo assistente sindacale AI.
                 <br><br>
@@ -594,9 +609,11 @@
                 <br>• Ferie e permessi 🏖️  
                 <br>• Diritti sindacali ⚖️
                 <br>• Procedure e normative 📝
-                <br>• Contatta un dirigente 👥
+                <br>• <strong>Contatti dirigenti sindacali</strong> 👥
                 <br><br>
-                <strong>Scrivi la tua domanda nell'area qui sotto!</strong>`, 'bot');
+                <strong>Scrivi la tua domanda nell'area qui sotto!</strong>
+                <br><br>
+                💡 <em>Prova a scrivere: "Chi sono i dirigenti sindacali?"</em>`, 'bot');
             }, 500);
         }
 
@@ -633,6 +650,59 @@
             updateCharCount();
             updateSendButton();
             
+            // **GESTIONE DIRIGENTI - QUI È LA PARTE PRINCIPALE CHE MANCAVA**
+            const dirigentiAction = handleDirigentiQuery(message);
+            
+            if (dirigentiAction) {
+                hideTyping();
+                
+                try {
+                    if (dirigentiAction.type === 'ask_level' || dirigentiAction.type === 'ask_province') {
+                        // Mostra domanda di follow-up
+                        setTimeout(() => {
+                            addMessage(dirigentiAction.message, 'bot');
+                            conversationHistory.push({ role: 'assistant', content: dirigentiAction.message });
+                        }, 800);
+                        
+                    } else if (dirigentiAction.type === 'search_regional') {
+                        // Cerca dirigenti regionali
+                        showTyping();
+                        const dirigentiRegionali = await searchDirigentiByLevel('regionale');
+                        hideTyping();
+                        
+                        const responseMessage = formatDirigentiList(dirigentiRegionali, '📋 Dirigenti Sindacali Regionali');
+                        setTimeout(() => {
+                            addMessage(responseMessage, 'bot');
+                            conversationHistory.push({ role: 'assistant', content: responseMessage });
+                        }, 800);
+                        
+                    } else if (dirigentiAction.type === 'search_province') {
+                        // Cerca dirigenti provinciali
+                        showTyping();
+                        const dirigentiProvinciali = await searchDirigentiByProvince(dirigentiAction.province);
+                        hideTyping();
+                        
+                        const responseMessage = formatDirigentiList(dirigentiProvinciali, `📋 Dirigenti Sindacali - ${dirigentiAction.province}`);
+                        setTimeout(() => {
+                            addMessage(responseMessage, 'bot');
+                            conversationHistory.push({ role: 'assistant', content: responseMessage });
+                        }, 800);
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Errore gestione dirigenti:', error);
+                    hideTyping();
+                    showError('Errore nel recupero dei contatti dirigenti');
+                }
+                
+                isProcessing = false;
+                updateSendButton();
+                input.focus();
+                return;
+            }
+            
+            // **GESTIONE NORMALE CHATBOT (se non è una query sui dirigenti)**
+            
             // Mostra typing indicator
             showTyping();
             
@@ -648,12 +718,13 @@
 
                 // Determina endpoint API
                 const apiEndpoint = getApiEndpoint();
-                                        console.log('📡 Richiesta inviata:', {
-                            enable_web_search: requiresWebSearch,
-                            web_search_query: requiresWebSearch ? message : null,
-                            model: CHATBOT_CONFIG.model,
-                            messages_count: conversationHistory.slice(-CHATBOT_CONFIG.maxHistory).length
-                        });
+                
+                console.log('📡 Richiesta inviata:', {
+                    enable_web_search: requiresWebSearch,
+                    web_search_query: requiresWebSearch ? message : null,
+                    model: CHATBOT_CONFIG.model,
+                    messages_count: conversationHistory.slice(-CHATBOT_CONFIG.maxHistory).length
+                });
                 
                 if (requiresWebSearch) {
                     console.log('🌐 Richiesta ricerca web abilitata per:', message);
@@ -906,9 +977,10 @@
         });
 
         // Debug info
-        console.log('🤖 Virgilio Chat Potenziata inizializzata');
+        console.log('🤖 Virgilio Chat con Dirigenti Sindacali inizializzata');
         console.log('🔧 Configurazione:', CHATBOT_CONFIG);
         console.log('🌐 Ricerca web abilitata:', CHATBOT_CONFIG.enableWebSearch);
+        console.log('👥 Gestione dirigenti abilitata');
     </script>
 </body>
 </html>
