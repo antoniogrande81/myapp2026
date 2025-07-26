@@ -516,8 +516,11 @@
                 }
 
                 // Controlla se l'utente ha ruoli di dirigente o admin
+                // ruoli è un array PostgreSQL di tipo app_role[]
                 const ruoli = profilo.ruoli || [];
                 const isDirigente = ruoli.includes('DIRIGENTE') || ruoli.includes('ADMIN');
+                
+                console.log('Ruoli utente:', ruoli, 'È dirigente:', isDirigente);
                 
                 if (!isDirigente) {
                     alert('Accesso negato. Solo i dirigenti possono accedere a questa area.');
@@ -526,9 +529,10 @@
                 }
 
                 // Crea nome completo
-                const nomeCompleto = `${profilo.nome || ''} ${profilo.cognome || ''}`.trim() || user.email.split('@')[0];
+                const nomeCompleto = `${profilo.nome || ''} ${profilo.cognome || ''}`.trim() || user.email?.split('@')[0] || 'Utente';
                 userData = { ...user, ...profilo, nome_completo: nomeCompleto };
                 
+                console.log('UserData caricato:', userData);
                 return true;
             } catch (error) {
                 console.error('Errore verifica autenticazione:', error);
