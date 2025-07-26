@@ -1,4 +1,45 @@
-<!DOCTYPE html>
+<!-- Header -->
+    <header class="w-full relative z-10">
+        <div class="header-grid">
+            <button onclick="history.back()" class="text-white hover:text-accent transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+            
+            <div class="header-nav">
+                <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
+                    <span class="text-white font-bold text-sm">🤖</span>
+                </div>
+                <h1 class="text-xl font-bold text-white drop-shadow-lg">Virgilio</h1>
+                <div id="connectionStatus" class="w-3 h-3 bg-green-500 rounded-full" title="Connesso"></div>
+            </div>
+            
+            <div class="header-actions">
+                <button id="clearChatBtn" class="bg-yellow-600 hover:bg-yellow-700 text-white text-xs px-3 py-2 rounded-full font-semibold shadow-lg transition-colors">🗑️</button>
+                <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-full font-semibold shadow-lg transition-colors">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Loading -->
+    <div id="loading" class="fixed inset-0 bg-primary bg-opacity-90 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p class="text-primary font-medium">Caricamento chat...</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="chat-main-grid">
+        <!-- Chat Messages Container -->
+        <div class="chat-messages-grid">
+            <div id="chatMessages" class="chat-container">
+                <!-- I messaggi verranno caricati qui dinamicamente -->
+            </div>
+
+            <!-- Typing Indicator -->
+            <div id="typingIndicator" class="message-grid message<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -27,8 +68,33 @@
             --accent: #00BFFF;
             --text-dark: #1C1C1E;
             --background-light: #F4F4F8;
+            
+            /* 📱 Responsive Breakpoints */
+            --mobile-max: 640px;
+            --tablet-max: 1024px;
+            --desktop-min: 1025px;
+            
+            /* 📐 Responsive Spacing */
+            --spacing-xs: clamp(0.5rem, 2vw, 1rem);
+            --spacing-sm: clamp(1rem, 3vw, 1.5rem);
+            --spacing-md: clamp(1.5rem, 4vw, 2rem);
+            --spacing-lg: clamp(2rem, 5vw, 3rem);
+            
+            /* 📏 Responsive Typography */
+            --text-xs: clamp(0.75rem, 2.5vw, 0.875rem);
+            --text-sm: clamp(0.875rem, 3vw, 1rem);
+            --text-base: clamp(1rem, 3.5vw, 1.125rem);
+            --text-lg: clamp(1.125rem, 4vw, 1.25rem);
+            --text-xl: clamp(1.25rem, 4.5vw, 1.5rem);
+            
+            /* 🎨 Container Widths */
+            --container-mobile: 100%;
+            --container-tablet: 90%;
+            --container-desktop: 85%;
+            --max-content-width: 1200px;
         }
         
+        /* 🎨 Color System */
         .bg-primary { background-color: var(--primary); }
         .bg-secondary { background-color: var(--secondary); }
         .bg-accent { background-color: var(--accent); }
@@ -41,40 +107,246 @@
         .hover\\:text-primary:hover { color: var(--primary); }
         .hover\\:text-accent:hover { color: var(--accent); }
         .hover\\:bg-opacity-90:hover { background-color: rgba(36, 0, 193, 0.9); }
+        
+        /* 🏗️ Base Layout & Grid System */
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
             background: linear-gradient(135deg, #2400C1, #8E008C);
             min-height: 100vh;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            font-size: var(--text-base);
+            line-height: 1.6;
         }
+        
+        /* 📱 Responsive Container Grid */
+        .responsive-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: auto 1fr auto;
+            min-height: 100vh;
+            max-width: var(--max-content-width);
+            margin: 0 auto;
+            padding: 0 var(--spacing-xs);
+        }
+        
+        /* 🔗 Header Responsive Grid */
+        .header-grid {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: var(--spacing-sm);
+            align-items: center;
+            padding: var(--spacing-sm) var(--spacing-md);
+            width: 100%;
+        }
+        
+        .header-nav {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            gap: var(--spacing-xs);
+            align-items: center;
+        }
+        
+        .header-actions {
+            display: grid;
+            grid-template-columns: auto auto;
+            gap: var(--spacing-xs);
+            align-items: center;
+        }
+        
+        /* 💬 Chat Layout Grid */
+        .chat-main-grid {
+            display: grid;
+            grid-template-rows: 1fr auto;
+            height: calc(100vh - 140px);
+            position: relative;
+            padding: 0 var(--spacing-sm);
+            gap: var(--spacing-md);
+        }
+        
+        .chat-messages-grid {
+            display: grid;
+            grid-template-rows: 1fr;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* 💭 Message Layout */
+        .message-grid {
+            display: grid;
+            gap: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+        
+        .message-user-grid {
+            grid-template-columns: 1fr auto auto;
+            justify-items: end;
+        }
+        
+        .message-bot-grid {
+            grid-template-columns: auto 1fr;
+            justify-items: start;
+        }
+        
+        .message-system-grid {
+            grid-template-columns: auto 1fr;
+            justify-items: center;
+        }
+        
+        /* 📝 Input Area Grid */
+        .input-area-grid {
+            display: grid;
+            grid-template-rows: auto auto;
+            gap: var(--spacing-xs);
+            background: linear-gradient(to top, 
+                rgba(36, 0, 193, 0.95) 0%, 
+                rgba(142, 0, 140, 0.9) 50%, 
+                transparent 100%);
+            padding: var(--spacing-md) var(--spacing-sm) var(--spacing-lg);
+            position: relative;
+        }
+        
+        .input-controls-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: var(--spacing-sm);
+            align-items: center;
+        }
+        
+        .input-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-sm);
+            justify-items: start;
+            padding: 0 var(--spacing-sm);
+        }
+        
+        /* 🧭 Navigation Grid */
+        .bottom-nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: var(--spacing-xs);
+            padding: var(--spacing-sm);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-item-grid {
+            display: grid;
+            grid-template-rows: auto auto;
+            justify-items: center;
+            gap: 2px;
+            padding: var(--spacing-xs);
+            transition: all 0.3s ease;
+            border-radius: 12px;
+        }
+        
+        .nav-item-grid:hover {
+            background: rgba(36, 0, 193, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        /* 🎨 Glass Effects */
         .glass-effect { 
             background: rgba(255, 255, 255, 0.95); 
-            backdrop-filter: blur(10px); 
+            backdrop-filter: blur(20px); 
             border: 1px solid rgba(255, 255, 255, 0.2); 
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
+        
         .glass-light { 
             background: rgba(255, 255, 255, 0.15); 
-            backdrop-filter: blur(10px); 
+            backdrop-filter: blur(15px); 
             border: 1px solid rgba(255, 255, 255, 0.3); 
         }
+        
+        /* 💬 Message Styles */
         .message-bot {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-radius: 20px 20px 20px 4px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            max-width: min(85vw, 480px);
+            word-wrap: break-word;
+            font-size: var(--text-sm);
+            line-height: 1.5;
         }
+        
         .message-user {
             background: linear-gradient(135deg, #2400C1, #8E008C);
             color: white;
-            box-shadow: 0 4px 15px rgba(36, 0, 193, 0.3);
+            box-shadow: 0 4px 20px rgba(36, 0, 193, 0.25);
+            border-radius: 20px 20px 4px 20px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            max-width: min(85vw, 480px);
+            word-wrap: break-word;
+            font-size: var(--text-sm);
+            line-height: 1.5;
         }
+        
         .message-system {
             background: linear-gradient(135deg, #00BFFF, #0099CC);
             color: white;
-            box-shadow: 0 4px 15px rgba(0, 191, 255, 0.3);
+            box-shadow: 0 4px 20px rgba(0, 191, 255, 0.25);
+            border-radius: 16px;
+            padding: var(--spacing-sm) var(--spacing-md);
+            max-width: min(90vw, 520px);
+            text-align: center;
+            font-size: var(--text-sm);
+            line-height: 1.5;
         }
-        .chat-input:focus {
+        
+        /* 📱 Chat Input */
+        .chat-input {
+            background: transparent;
+            border: 0;
+            color: var(--text-dark);
+            font-size: var(--text-base);
+            padding: var(--spacing-sm) var(--spacing-md);
+            border-radius: 16px;
+            width: 100%;
+            resize: none;
             outline: none;
-            box-shadow: 0 0 0 2px rgba(36, 0, 193, 0.3);
+            font-family: inherit;
         }
+        
+        .chat-input:focus {
+            box-shadow: 0 0 0 2px rgba(36, 0, 193, 0.4);
+        }
+        
+        .chat-input::placeholder {
+            color: rgba(108, 117, 125, 0.8);
+            font-size: var(--text-sm);
+        }
+        
+        /* 🔘 Send Button */
+        .send-button {
+            width: clamp(48px, 12vw, 56px);
+            height: clamp(48px, 12vw, 56px);
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(36, 0, 193, 0.3);
+        }
+        
+        .send-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(36, 0, 193, 0.4);
+        }
+        
+        .send-button:active {
+            transform: scale(0.95);
+        }
+        
+        /* ⚡ Animations */
         .typing-animation {
             width: 4px;
             height: 4px;
@@ -84,81 +356,352 @@
         }
         .typing-animation:nth-child(2) { animation-delay: 0.2s; }
         .typing-animation:nth-child(3) { animation-delay: 0.4s; }
+        
         @keyframes typing {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
+            0%, 80%, 100% { transform: scale(0); opacity: 0.3; }
+            40% { transform: scale(1); opacity: 1; }
         }
-        .error-message {
-            background: rgba(239, 68, 68, 0.9);
-            color: white;
-        }
-        .success-message {
-            background: rgba(34, 197, 94, 0.9);
-            color: white;
-        }
+        
         .animate-fade-in {
-            animation: fadeIn 0.4s ease-out;
+            animation: fadeIn 0.5s ease-out;
         }
+        
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { 
+                opacity: 0; 
+                transform: translateY(20px) scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
         }
+        
+        /* 🚨 Status Messages */
+        .error-message, .success-message {
+            border-radius: 16px;
+            padding: var(--spacing-md);
+            margin: var(--spacing-sm) 0;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .error-message {
+            background: rgba(239, 68, 68, 0.95);
+            color: white;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .success-message {
+            background: rgba(34, 197, 94, 0.95);
+            color: white;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        /* 📜 Scrollbar */
         .chat-container {
             scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+            scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
+            overflow-y: auto;
+            padding: var(--spacing-sm);
         }
+        
         .chat-container::-webkit-scrollbar {
-            width: 4px;
+            width: 6px;
         }
+        
         .chat-container::-webkit-scrollbar-track {
             background: transparent;
         }
+        
         .chat-container::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 3px;
         }
+        
         .chat-container::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.6);
         }
+        
+        /* 👥 Dirigenti Cards */
         .dirigente-card {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
             border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            padding: var(--spacing-md);
+            margin: var(--spacing-sm) 0;
             transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
+        
         .dirigente-card:hover {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
+        
+        /* 🌐 Web Search Indicator */
         .web-search-indicator {
             background: linear-gradient(135deg, #00BFFF, #0099CC);
             color: white;
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 10px;
+            font-size: var(--text-xs);
+            padding: 4px 12px;
+            border-radius: 12px;
             display: inline-block;
-            margin-bottom: 8px;
+            margin-bottom: var(--spacing-xs);
+            box-shadow: 0 2px 8px rgba(0, 191, 255, 0.3);
+        }
+        
+        /* 📱 RESPONSIVE BREAKPOINTS */
+        
+        /* 📱 Mobile (< 640px) */
+        @media (max-width: 640px) {
+            .responsive-container {
+                padding: 0 8px;
+            }
+            
+            .header-grid {
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+            
+            .header-actions {
+                gap: 0.5rem;
+            }
+            
+            .chat-main-grid {
+                height: calc(100vh - 120px);
+                padding: 0 0.5rem;
+            }
+            
+            .message-bot, .message-user {
+                max-width: 92vw;
+                font-size: 0.9rem;
+                padding: 0.75rem 1rem;
+            }
+            
+            .input-area-grid {
+                padding: 1rem 0.5rem 1.5rem;
+            }
+            
+            .chat-input {
+                font-size: 16px; /* Prevent zoom on iOS */
+                padding: 0.875rem 1rem;
+            }
+            
+            .send-button {
+                width: 44px;
+                height: 44px;
+            }
+            
+            .bottom-nav-grid {
+                padding: 0.5rem;
+                gap: 2px;
+            }
+            
+            .nav-item-grid {
+                padding: 0.5rem 0.25rem;
+            }
+        }
+        
+        /* 📱 Mobile Large (640px - 768px) */
+        @media (min-width: 641px) and (max-width: 768px) {
+            .header-grid {
+                padding: 1.25rem 1.5rem;
+            }
+            
+            .chat-main-grid {
+                height: calc(100vh - 135px);
+                padding: 0 1rem;
+            }
+            
+            .message-bot, .message-user {
+                max-width: 85vw;
+            }
+            
+            .input-area-grid {
+                padding: 1.25rem 1rem 1.75rem;
+            }
+        }
+        
+        /* 💻 Tablet (768px - 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .responsive-container {
+                max-width: 90%;
+                padding: 0 2rem;
+            }
+            
+            .header-grid {
+                padding: 1.5rem 2rem;
+            }
+            
+            .chat-main-grid {
+                height: calc(100vh - 145px);
+                padding: 0 1.5rem;
+            }
+            
+            .message-bot, .message-user {
+                max-width: 80vw;
+                font-size: 1rem;
+            }
+            
+            .input-area-grid {
+                padding: 1.5rem 1.5rem 2rem;
+            }
+            
+            .bottom-nav-grid {
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+        }
+        
+        /* 🖥️ Desktop (> 1024px) */
+        @media (min-width: 1025px) {
+            .responsive-container {
+                max-width: 85%;
+                padding: 0 3rem;
+            }
+            
+            .header-grid {
+                padding: 2rem;
+            }
+            
+            .chat-main-grid {
+                height: calc(100vh - 160px);
+                padding: 0 2rem;
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            
+            .message-bot, .message-user {
+                max-width: 70vw;
+                font-size: 1.1rem;
+            }
+            
+            .input-area-grid {
+                padding: 2rem;
+                max-width: 800px;
+                margin: 0 auto;
+            }
+            
+            .bottom-nav-grid {
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 1.25rem;
+            }
+            
+            .chat-container::-webkit-scrollbar {
+                width: 8px;
+            }
+        }
+        
+        /* 🖥️ Large Desktop (> 1440px) */
+        @media (min-width: 1441px) {
+            .responsive-container {
+                max-width: 1200px;
+            }
+            
+            .chat-main-grid {
+                max-width: 900px;
+            }
+            
+            .input-area-grid {
+                max-width: 900px;
+            }
+            
+            .message-bot, .message-user {
+                max-width: 600px;
+                font-size: 1.125rem;
+            }
+        }
+        
+        /* 🔄 Orientation & High DPI */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .chat-main-grid {
+                height: calc(100vh - 100px);
+            }
+            
+            .input-area-grid {
+                padding: 1rem;
+            }
+        }
+        
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .glass-effect, .glass-light {
+                backdrop-filter: blur(25px);
+            }
+        }
+        
+        /* ♿ Accessibility & Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* 🎨 Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            .glass-effect {
+                background: rgba(30, 30, 30, 0.95);
+                border-color: rgba(255, 255, 255, 0.1);
+            }
+            
+            .message-bot {
+                background: rgba(40, 40, 40, 0.98);
+                color: #e0e0e0;
+            }
+            
+            .chat-input {
+                color: #e0e0e0;
+            }
+            
+            .chat-input::placeholder {
+                color: rgba(255, 255, 255, 0.6);
+            }
+        }
+        
+        /* 🔧 Print Styles */
+        @media print {
+            .header-actions, .input-area-grid, .bottom-nav-grid {
+                display: none !important;
+            }
+            
+            .chat-main-grid {
+                height: auto;
+            }
+            
+            .message-bot, .message-user, .message-system {
+                box-shadow: none;
+                background: white;
+                color: black;
+                border: 1px solid #ccc;
+            }
         }
     </style>
 </head>
 <body>
     <!-- Header -->
-    <header class="w-full px-4 py-4 relative z-10">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <button onclick="history.back()" class="text-white hover:text-accent transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                </button>
-                <div class="flex items-center space-x-2">
-                    <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
-                        <span class="text-white font-bold text-sm">🤖</span>
-                    </div>
-                    <h1 class="text-xl font-bold text-white drop-shadow-lg">Virgilio</h1>
-                    <div id="connectionStatus" class="w-3 h-3 bg-green-500 rounded-full" title="Connesso"></div>
+    <header class="w-full relative z-10">
+        <div class="header-grid">
+            <button onclick="history.back()" class="text-white hover:text-accent transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+            
+            <div class="header-nav">
+                <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
+                    <span class="text-white font-bold text-sm">🤖</span>
                 </div>
+                <h1 class="text-xl font-bold text-white drop-shadow-lg">Virgilio</h1>
+                <div id="connectionStatus" class="w-3 h-3 bg-green-500 rounded-full" title="Connesso"></div>
             </div>
-            <div class="flex items-center space-x-2">
+            
+            <div class="header-actions">
                 <button id="clearChatBtn" class="bg-yellow-600 hover:bg-yellow-700 text-white text-xs px-3 py-2 rounded-full font-semibold shadow-lg transition-colors">🗑️</button>
                 <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-full font-semibold shadow-lg transition-colors">Logout</button>
             </div>
@@ -174,98 +717,98 @@
     </div>
 
     <!-- Main Content -->
-    <main class="max-w-lg mx-auto px-4 pb-6 relative">
-        <!-- Chat Messages -->
-        <div id="chatMessages" class="chat-container space-y-4 overflow-y-auto pb-6" style="height: calc(100vh - 200px); margin-bottom: 140px;">
-            <!-- I messaggi verranno caricati qui dinamicamente -->
-        </div>
-
-        <!-- Typing Indicator -->
-        <div id="typingIndicator" class="flex items-start space-x-3 hidden mt-4">
-            <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
-                <span class="text-white text-sm">🤖</span>
+    <main class="chat-main-grid">
+        <!-- Chat Messages Container -->
+        <div class="chat-messages-grid">
+            <div id="chatMessages" class="chat-container">
+                <!-- I messaggi verranno caricati qui dinamicamente -->
             </div>
-            <div class="message-bot rounded-2xl p-4 max-w-sm">
-                <div class="flex space-x-1">
-                    <div class="typing-animation"></div>
-                    <div class="typing-animation"></div>
-                    <div class="typing-animation"></div>
+
+            <!-- Typing Indicator -->
+            <div id="typingIndicator" class="message-grid message-bot-grid hidden">
+                <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm">🤖</span>
+                </div>
+                <div class="message-bot">
+                    <div class="flex space-x-1">
+                        <div class="typing-animation"></div>
+                        <div class="typing-animation"></div>
+                        <div class="typing-animation"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Error Message -->
-        <div id="errorMessage" class="error-message rounded-2xl p-4 mb-4 text-center hidden">
-            <p class="font-semibold">⚠️ Errore di Connessione</p>
-            <p class="text-sm mt-1">Verifica la connessione internet e riprova</p>
-        </div>
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message text-center hidden">
+                <p class="font-semibold">⚠️ Errore di Connessione</p>
+                <p class="text-sm mt-1">Verifica la connessione internet e riprova</p>
+            </div>
 
-        <!-- Success Message -->
-        <div id="successMessage" class="success-message rounded-2xl p-4 mb-4 text-center hidden">
-            <p class="font-semibold">✅ Operazione Completata</p>
+            <!-- Success Message -->
+            <div id="successMessage" class="success-message text-center hidden">
+                <p class="font-semibold">✅ Operazione Completata</p>
+            </div>
         </div>
     </main>
 
     <!-- Chat Input -->
-    <div class="fixed bottom-16 left-0 right-0 px-4 pb-4 z-20 bg-gradient-to-t from-purple-900 via-purple-900/95 to-transparent pt-6">
-        <div class="max-w-lg mx-auto">
-            <div class="glass-effect rounded-2xl p-4 shadow-2xl">
-                <div class="flex items-center space-x-3">
-                    <input type="text" id="messageInput" placeholder="Scrivi la tua domanda..." 
-                           class="chat-input flex-1 bg-transparent border-0 text-textDark placeholder-gray-500 text-base rounded-xl px-4 py-3" 
-                           maxlength="500" autocomplete="off">
-                    <button id="sendMessage" 
-                            class="bg-primary hover:bg-opacity-90 text-white w-12 h-12 rounded-full flex items-center justify-center disabled:opacity-50 transition-all shadow-lg" 
-                            disabled>
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                        </svg>
-                    </button>
+    <div class="input-area-grid">
+        <div class="glass-effect rounded-2xl shadow-2xl">
+            <div class="input-controls-grid">
+                <input type="text" id="messageInput" placeholder="Scrivi la tua domanda..." 
+                       class="chat-input" 
+                       maxlength="500" autocomplete="off">
+                <button id="sendMessage" 
+                        class="send-button bg-primary hover:bg-opacity-90 text-white disabled:opacity-50 transition-all" 
+                        disabled>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="input-stats-grid">
+                <div class="text-xs text-gray-500">
+                    <span id="charCount">0</span>/500
                 </div>
-                <div class="flex justify-between items-center mt-3 px-4">
-                    <div class="text-xs text-gray-500">
-                        <span id="charCount">0</span>/500
-                    </div>
-                    <div class="text-xs text-gray-500">
-                        Token: <span id="tokenCount">0</span>
-                    </div>
+                <div class="text-xs text-gray-500 justify-self-end">
+                    Token: <span id="tokenCount">0</span>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
-        <div class="flex justify-around items-center max-w-md mx-auto">
-            <a href="home.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-2 transition-colors">
-                <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 20 20">
+    <nav class="fixed bottom-0 left-0 right-0 z-30">
+        <div class="bottom-nav-grid">
+            <a href="home.html" class="nav-item-grid text-gray-600 hover:text-primary transition-colors">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
                 </svg>
-                Home
+                <span class="text-xs">Home</span>
             </a>
-            <a href="../convenzioni.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-2 transition-colors">
-                <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 20 20">
+            <a href="../convenzioni.html" class="nav-item-grid text-gray-600 hover:text-primary transition-colors">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"/>
                 </svg>
-                Convenzioni
+                <span class="text-xs">Convenzioni</span>
             </a>
-            <a href="tessera.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-2 transition-colors">
-                <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 20 20">
+            <a href="tessera.html" class="nav-item-grid text-gray-600 hover:text-primary transition-colors">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                 </svg>
-                Tessera
+                <span class="text-xs">Tessera</span>
             </a>
-            <a href="virgilio.html" class="flex flex-col items-center text-xs text-primary p-2">
-                <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 20 20">
+            <a href="virgilio.html" class="nav-item-grid text-primary">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"/>
                 </svg>
-                Virgilio
+                <span class="text-xs">Virgilio</span>
             </a>
-            <a href="profilo.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-2 transition-colors">
-                <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 20 20">
+            <a href="profilo.html" class="nav-item-grid text-gray-600 hover:text-primary transition-colors">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
                 </svg>
-                Profilo
+                <span class="text-xs">Profilo</span>
             </a>
         </div>
     </nav>
