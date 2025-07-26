@@ -705,12 +705,18 @@
 
         // Utility functions
         function showLoading() {
-            document.getElementById('loading').classList.remove('hidden');
+            const loadingEl = document.getElementById('loading');
+            if (loadingEl) {
+                loadingEl.classList.remove('hidden');
+            }
         }
 
         function hideLoading() {
             setTimeout(() => {
-                document.getElementById('loading').classList.add('hidden');
+                const loadingEl = document.getElementById('loading');
+                if (loadingEl) {
+                    loadingEl.classList.add('hidden');
+                }
             }, 500);
         }
 
@@ -756,13 +762,21 @@
         // Auth functions
         async function verificaAutenticazione() {
             try {
+                console.log('Verifica autenticazione...');
                 const { data: { user }, error } = await supabase.auth.getUser();
                 
-                if (error || !user) {
+                if (error) {
+                    console.error('Errore auth:', error);
+                    throw error;
+                }
+                
+                if (!user) {
+                    console.log('Nessun utente autenticato');
                     window.location.href = '../login.html';
                     return null;
                 }
                 
+                console.log('Utente autenticato:', user.email);
                 return user;
             } catch (error) {
                 console.error('Errore autenticazione:', error);
@@ -787,6 +801,7 @@
         // Enhanced data loading with animations
         async function caricaNotizie() {
             try {
+                console.log('Caricamento notizie...');
                 const { data: notizie, error } = await supabase
                     .from('notizie')
                     .select('id, titolo, contenuto, data_pubblicazione, icona, immagine_url')
@@ -795,8 +810,18 @@
                     .limit(3);
 
                 const container = document.getElementById('notizieContainer');
+                if (!container) {
+                    console.error('Container notizie non trovato');
+                    return;
+                }
                 
-                if (error || !notizie || notizie.length === 0) {
+                if (error) {
+                    console.error('Errore query notizie:', error);
+                    throw error;
+                }
+                
+                if (!notizie || notizie.length === 0) {
+                    console.log('Nessuna notizia trovata');
                     container.innerHTML = `
                         <div class="glass-effect rounded-xl p-6 text-center">
                             <div class="text-5xl mb-3 opacity-50">📰</div>
@@ -807,13 +832,15 @@
                     return;
                 }
 
+                console.log(`Trovate ${notizie.length} notizie`);
                 container.innerHTML = notizie.map((notizia, index) => `
                     <div class="glass-effect rounded-xl overflow-hidden card-hover group" style="animation-delay: ${index * 0.1}s">
                         <div class="flex">
                             ${notizia.immagine_url ? `
                                 <div class="w-24 h-24 flex-shrink-0">
                                     <img src="${notizia.immagine_url}" alt="${notizia.titolo}" 
-                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                         onerror="this.parentElement.innerHTML='<div class=\\'w-24 h-24 bg-gradient-to-br from-primary to-secondary flex items-center justify-center\\><span class=\\'text-3xl\\'>📄</span></div>'">
                                 </div>
                             ` : `
                                 <div class="w-24 h-24 flex-shrink-0 bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
@@ -855,18 +882,22 @@
 
             } catch (error) {
                 console.error('Errore caricamento notizie:', error);
-                document.getElementById('notizieContainer').innerHTML = `
-                    <div class="glass-effect rounded-xl p-6 text-center">
-                        <div class="text-5xl mb-3 opacity-50">⚠️</div>
-                        <p class="text-gray-600 font-semibold">Errore nel caricamento</p>
-                        <button onclick="caricaNotizie()" class="text-xs text-primary mt-2 hover:underline">Riprova</button>
-                    </div>
-                `;
+                const container = document.getElementById('notizieContainer');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="glass-effect rounded-xl p-6 text-center">
+                            <div class="text-5xl mb-3 opacity-50">⚠️</div>
+                            <p class="text-gray-600 font-semibold">Errore nel caricamento</p>
+                            <button onclick="caricaNotizie()" class="text-xs text-primary mt-2 hover:underline">Riprova</button>
+                        </div>
+                    `;
+                }
             }
         }
 
         async function caricaConvenzioni() {
             try {
+                console.log('Caricamento convenzioni...');
                 const oggi = new Date().toISOString();
                 
                 const { data: convenzioni, error } = await supabase
@@ -877,8 +908,18 @@
                     .limit(4);
 
                 const container = document.getElementById('convenzioniContainer');
+                if (!container) {
+                    console.error('Container convenzioni non trovato');
+                    return;
+                }
                 
-                if (error || !convenzioni || convenzioni.length === 0) {
+                if (error) {
+                    console.error('Errore query convenzioni:', error);
+                    throw error;
+                }
+                
+                if (!convenzioni || convenzioni.length === 0) {
+                    console.log('Nessuna convenzione trovata');
                     container.innerHTML = `
                         <div class="glass-effect rounded-xl p-6 text-center">
                             <div class="text-5xl mb-3 opacity-50">🏷️</div>
@@ -889,6 +930,7 @@
                     return;
                 }
 
+                console.log(`Trovate ${convenzioni.length} convenzioni`);
                 const categorie = {
                     'Shopping': { bg: 'from-pink-400 to-purple-500', icon: '🛍️' },
                     'Ristorazione': { bg: 'from-orange-400 to-red-500', icon: '🍽️' },
@@ -896,6 +938,88 @@
                     'Viaggi': { bg: 'from-blue-400 to-cyan-500', icon: '✈️' },
                     'Sport': { bg: 'from-yellow-400 to-orange-500', icon: '⚽' },
                     'Cultura': { bg: 'from-purple-400 to-pink-500', icon: '🎭' },
+                    'Servizi': { bg: 'from-indigo-400 to-blue-500', icon: '🛠️' },
+                    'Tecnologia': { bg: 'from-gray-400 to-gray-600', icon: '💻' }
+                };
+
+                container.innerHTML = convenzioni.map((conv, index) => {
+                    const cat = categorie[conv.categoria] || { bg: 'from-gray-400 to-gray-500', icon: '📦' };
+                    return `
+                        <div class="glass-effect rounded-xl p-5 card-hover group" style="animation-delay: ${index * 0.1}s">
+                            <div class="flex items-start space-x-4">
+                                <div class="relative flex-shrink-0">
+                                    ${conv.logo_url ? `
+                                        <div class="w-16 h-16 rounded-xl overflow-hidden shadow-lg group-hover:shadow-xl transition-shadow">
+                                            <img src="${conv.logo_url}" alt="${conv.nome_partner}" 
+                                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                                 onerror="this.parentElement.innerHTML='<div class=\\'w-16 h-16 bg-gradient-to-br ${cat.bg} rounded-xl flex items-center justify-center\\><span class=\\'text-2xl\\'>${cat.icon}</span></div>'">
+                                        </div>
+                                    ` : `
+                                        <div class="w-16 h-16 bg-gradient-to-br ${cat.bg} rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-all">
+                                            <span class="text-2xl">${cat.icon}</span>
+                                        </div>
+                                    `}
+                                    ${conv.sconto_percentuale ? `
+                                        <div class="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
+                                            -${conv.sconto_percentuale}%
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-textDark text-base mb-1 group-hover:text-primary transition-colors">
+                                        ${conv.nome_partner}
+                                    </h4>
+                                    <p class="text-xs text-gray-600 mb-3 line-clamp-2">${conv.descrizione}</p>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs bg-gradient-to-r ${cat.bg} text-white px-3 py-1 rounded-full font-medium shadow-sm">
+                                            ${conv.categoria}
+                                        </span>
+                                        ${conv.codice_sconto ? `
+                                            <span class="text-xs font-mono bg-gray-100 text-gray-700 px-2 py-1 rounded border border-gray-300">
+                                                ${conv.codice_sconto}
+                                            </span>
+                                        ` : ''}
+                                    </div>
+                                    ${conv.sito_web ? `
+                                        <a href="${conv.sito_web}" target="_blank" 
+                                           class="inline-flex items-center text-xs text-primary hover:text-secondary transition-colors mt-2 opacity-0 group-hover:opacity-100">
+                                            Visita sito
+                                            <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                            </svg>
+                                        </a>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Add entrance animation
+                container.querySelectorAll('.card-hover').forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateX(-20px)';
+                    setTimeout(() => {
+                        card.style.transition = 'all 0.5s ease';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateX(0)';
+                    }, index * 100);
+                });
+
+            } catch (error) {
+                console.error('Errore caricamento convenzioni:', error);
+                const container = document.getElementById('convenzioniContainer');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="glass-effect rounded-xl p-6 text-center">
+                            <div class="text-5xl mb-3 opacity-50">⚠️</div>
+                            <p class="text-gray-600 font-semibold">Errore nel caricamento</p>
+                            <button onclick="caricaConvenzioni()" class="text-xs text-primary mt-2 hover:underline">Riprova</button>
+                        </div>
+                    `;
+                }
+            }
+        }-purple-400 to-pink-500', icon: '🎭' },
                     'Servizi': { bg: 'from-indigo-400 to-blue-500', icon: '🛠️' },
                     'Tecnologia': { bg: 'from-gray-400 to-gray-600', icon: '💻' }
                 };
@@ -1029,61 +1153,93 @@
         // Load user data and personalize interface
         async function caricaDatiUtente() {
             try {
+                console.log('Inizio caricamento dati utente...');
                 showLoading();
                 
                 // Verifica autenticazione
                 const user = await verificaAutenticazione();
-                if (!user) return;
+                if (!user) {
+                    console.log('Utente non autenticato, redirect al login');
+                    return;
+                }
                 
                 isAuthenticated = true;
+                console.log('Utente autenticato con ID:', user.id);
 
                 // Carica profilo utente dalla tabella profiles
-                const { data: profileData, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('nome, cognome, email, telefono, ruoli')
-                    .eq('id', user.id)
-                    .single();
+                try {
+                    console.log('Caricamento profilo...');
+                    const { data: profileData, error: profileError } = await supabase
+                        .from('profiles')
+                        .select('nome, cognome, email, telefono, ruoli')
+                        .eq('id', user.id)
+                        .single();
 
-                if (profileError) {
-                    console.error('Errore caricamento profilo:', profileError);
-                    // Usa email come fallback
+                    if (profileError) {
+                        console.error('Errore caricamento profilo:', profileError);
+                        // Usa email come fallback
+                        userData = {
+                            id: user.id,
+                            email: user.email,
+                            nome: user.email.split('@')[0],
+                            cognome: '',
+                            telefono: '',
+                            ruoli: []
+                        };
+                    } else {
+                        console.log('Profilo caricato:', profileData);
+                        userData = {
+                            id: user.id,
+                            email: profileData.email || user.email,
+                            nome: profileData.nome || 'Utente',
+                            cognome: profileData.cognome || '',
+                            telefono: profileData.telefono || '',
+                            ruoli: profileData.ruoli || []
+                        };
+                    }
+                } catch (profileErr) {
+                    console.error('Errore nel recupero profilo:', profileErr);
+                    // Usa dati di default
                     userData = {
                         id: user.id,
                         email: user.email,
-                        nome: user.email.split('@')[0],
+                        nome: 'Utente',
                         cognome: '',
                         telefono: '',
                         ruoli: []
                     };
-                } else {
-                    userData = {
-                        id: user.id,
-                        email: profileData.email || user.email,
-                        nome: profileData.nome || 'Utente',
-                        cognome: profileData.cognome || '',
-                        telefono: profileData.telefono || '',
-                        ruoli: profileData.ruoli || []
-                    };
                 }
 
                 // Aggiorna interfaccia personalizzata con il nome reale
+                console.log('Aggiornamento interfaccia...');
                 aggiornaInterfacciaPersonalizzata();
                 
                 // Carica statistiche base (tessera e recuperi)
+                console.log('Caricamento statistiche...');
                 await caricaStatisticheBase();
                 
                 // Carica contenuti dinamici in parallelo
+                console.log('Caricamento notizie e convenzioni...');
                 await Promise.all([
-                    caricaNotizie(),
-                    caricaConvenzioni()
+                    caricaNotizie().catch(err => console.error('Errore caricamento notizie:', err)),
+                    caricaConvenzioni().catch(err => console.error('Errore caricamento convenzioni:', err))
                 ]);
                 
+                console.log('Caricamento completato!');
                 hideLoading();
 
             } catch (error) {
-                console.error('Errore caricamento dati:', error);
+                console.error('Errore critico nel caricamento dati:', error);
                 hideLoading();
-                window.location.href = '../login.html';
+                
+                // Mostra messaggio di errore invece di redirect immediato
+                setTimeout(() => {
+                    if (confirm('Si è verificato un errore. Vuoi provare a ricaricare la pagina?')) {
+                        window.location.reload();
+                    } else {
+                        window.location.href = '../login.html';
+                    }
+                }, 1000);
             }
         }
 
@@ -1231,6 +1387,84 @@
             });
         }
 
+        // Initialization
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 Caricamento dashboard MyApp...');
+            
+            // Verifica immediata che Supabase sia disponibile
+            if (typeof supabase === 'undefined') {
+                console.error('❌ Supabase non è stato caricato correttamente!');
+                alert('Errore di caricamento. Ricarica la pagina.');
+                return;
+            }
+            
+            console.log('✅ Supabase caricato correttamente');
+            
+            // Set theme color dynamically
+            const metaTheme = document.querySelector('meta[name="theme-color"]');
+            if (metaTheme) {
+                const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                metaTheme.content = isDark ? '#1a0066' : '#2400C1';
+            }
+            
+            try {
+                await caricaDatiUtente();
+                initAnimations();
+                
+                // Simula notifiche dopo 2 secondi
+                setTimeout(simulaNotifiche, 2000);
+
+                // Add touch feedback to all interactive elements
+                document.querySelectorAll('button, a, .card-hover').forEach(element => {
+                    element.addEventListener('touchstart', function() {
+                        this.style.opacity = '0.8';
+                    });
+                    element.addEventListener('touchend', function() {
+                        this.style.opacity = '1';
+                    });
+                });
+            } catch (error) {
+                console.error('❌ Errore durante inizializzazione:', error);
+                hideLoading();
+            }
+        });
+
+        // Handle auth state changes
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_OUT') {
+                window.location.href = '../login.html';
+            }
+        });
+
+        // Auto-refresh content
+        let refreshInterval;
+        
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible' && isAuthenticated) {
+                // Refresh content when app becomes visible
+                refreshInterval = setInterval(async () => {
+                    await Promise.all([
+                        caricaNotizie(),
+                        caricaConvenzioni()
+                    ]);
+                }, 300000); // 5 minuti
+            } else {
+                // Clear interval when app is hidden
+                clearInterval(refreshInterval);
+            }
+        });
+
+        // Service Worker registration with update handling
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('../service-worker.js')
+                .then((registration) => {
+                    console.log('📱 SW registered:', registration);
+                    
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
         // Initialization
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('🚀 Caricamento dashboard MyApp...');
