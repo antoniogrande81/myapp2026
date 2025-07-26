@@ -18,25 +18,29 @@
     <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png">
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 
-    <!-- Tailwind CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#2400C1',
-                        secondary: '#8E008C',
-                        accent: '#00BFFF',
-                        textDark: '#1C1C1E',
-                        backgroundLight: '#F4F4F8',
-                    }
-                }
-            }
-        }
-    </script>
-
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
+        :root {
+            --primary: #2400C1;
+            --secondary: #8E008C;
+            --accent: #00BFFF;
+            --text-dark: #1C1C1E;
+            --background-light: #F4F4F8;
+        }
+        
+        .bg-primary { background-color: var(--primary); }
+        .bg-secondary { background-color: var(--secondary); }
+        .bg-accent { background-color: var(--accent); }
+        .text-primary { color: var(--primary); }
+        .text-secondary { color: var(--secondary); }
+        .text-accent { color: var(--accent); }
+        .text-textDark { color: var(--text-dark); }
+        .bg-backgroundLight { background-color: var(--background-light); }
+        
+        .hover\\:text-primary:hover { color: var(--primary); }
+        .hover\\:text-accent:hover { color: var(--accent); }
+        .hover\\:bg-opacity-90:hover { background-color: rgba(36, 0, 193, 0.9); }
         body {
             background: linear-gradient(135deg, #2400C1, #8E008C);
             min-height: 100vh;
