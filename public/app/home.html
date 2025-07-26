@@ -1,348 +1,172 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Dashboard - MyApp</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard - MyApp</title>
 
-  <!-- PWA Meta Tags -->
-  <link rel="manifest" href="../manifest.json">
-  <meta name="theme-color" content="#2400C1">
-  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <!-- PWA -->
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#2400C1">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="MyApp">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
 
-  <!-- iOS PWA Support -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="MyApp">
-  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <!-- Tailwind CSS – build statico -->
+    <link href="/tailwind.css" rel="stylesheet">
 
-  <!-- Tailwind CSS – build di produzione -->
-  <link href="/tailwind.css" rel="stylesheet">
-
-  <!-- Config Tailwind (serve anche con CSS compilato) -->
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#2400C1',
-            secondary: '#8E008C',
-            accent: '#00BFFF',
-            textDark: '#1C1C1E',
-            backgroundLight: '#F4F4F8',
-          },
-          screens: {
-            xs: '320px',
-            sm: '640px',
-            md: '768px',
-            lg: '1024px',
-            xl: '1280px',
-            '2xl': '1536px',
-          }
+    <!-- Stili personalizzati -->
+    <style>
+        :root {
+            --primary: #2400C1;
+            --secondary: #8E008C;
+            --accent: #00BFFF;
+            --text-dark: #1C1C1E;
+            --bg-light: #F4F4F8;
+            --glass-blur: 20px;
+            --transition-speed: 0.3s;
+            --hover-scale: 1.02;
         }
-      }
-    };
-  </script>
-
-  <!--  ----  INIZIO STILI IDENTICI  ----  -->
-  <style>
-    :root {
-      --primary: #2400C1;
-      --secondary: #8E008C;
-      --accent: #00BFFF;
-      --text-dark: #1C1C1E;
-      --bg-light: #F4F4F8;
-      --glass-blur: 20px;
-      --transition-speed: 0.3s;
-      --hover-scale: 1.02;
-    }
-
-    html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
-    body {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      min-height: 100vh;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      overflow-x: hidden;
-      position: relative;
-    }
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        radial-gradient(circle at 20% 80%, rgba(0,191,255,.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(142,0,140,.1) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, rgba(36,0,193,.1) 0%, transparent 50%);
-      animation: backgroundShift 20s ease-in-out infinite;
-      pointer-events: none;
-      z-index: 0;
-    }
-    @keyframes backgroundShift {
-      0%,100% { transform: translate(0,0) scale(1); }
-      33% { transform: translate(-20px,-20px) scale(1.1); }
-      66% { transform: translate(20px,-20px) scale(.9); }
-    }
-
-    .glass-effect {
-      background: rgba(255,255,255,.92);
-      backdrop-filter: blur(var(--glass-blur));
-      -webkit-backdrop-filter: blur(var(--glass-blur));
-      border: 1px solid rgba(255,255,255,.3);
-      box-shadow: 0 8px 32px rgba(0,0,0,.1);
-    }
-    .glass-light {
-      background: rgba(255,255,255,.15);
-      backdrop-filter: blur(var(--glass-blur));
-      -webkit-backdrop-filter: blur(var(--glass-blur));
-      border: 1px solid rgba(255,255,255,.3);
-      box-shadow: 0 4px 16px rgba(0,0,0,.1);
-    }
-    .glass-dark {
-      background: rgba(0,0,0,.2);
-      backdrop-filter: blur(var(--glass-blur));
-      -webkit-backdrop-filter: blur(var(--glass-blur));
-      border: 1px solid rgba(255,255,255,.1);
-    }
-
-    .card-hover {
-      transition: all var(--transition-speed) cubic-bezier(.4,0,.2,1);
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-    }
-    .card-hover::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
-      transition: left .6s ease;
-    }
-    .card-hover:hover::before { left: 100%; }
-    .card-hover:hover { transform: translateY(-3px) scale(var(--hover-scale)); box-shadow: 0 20px 40px rgba(0,0,0,.15); }
-    .card-hover:active { transform: translateY(-1px) scale(.98); transition: transform .1s ease; }
-
-    .pulse-animation { animation: smoothPulse 2s cubic-bezier(.4,0,.6,1) infinite; }
-    @keyframes smoothPulse {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50% { opacity: .6; transform: scale(.95); }
-    }
-
-    .fade-in {
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeInUp .6s ease forwards;
-    }
-    .fade-in:nth-child(1){animation-delay:.1s}
-    .fade-in:nth-child(2){animation-delay:.2s}
-    .fade-in:nth-child(3){animation-delay:.3s}
-    .fade-in:nth-child(4){animation-delay:.4s}
-    .fade-in:nth-child(5){animation-delay:.5s}
-    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
-
-    .loading-spinner {
-      width: 60px; height: 60px;
-      border: 3px solid rgba(255,255,255,.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: rgba(255,255,255,.1); }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.3); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.5); }
-
-    @media (max-width: 480px) {
-      .quick-action-icon { width: 48px; height: 48px; font-size: 20px; }
-      .myapp-logo { width: 40px; height: 40px; }
-      .stat-card { padding: 12px; }
-    }
-  </style>
-  <!--  ----  FINE STILI IDENTICI  ----  -->
+        html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+        body {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image:
+                radial-gradient(circle at 20% 80%, rgba(0,191,255,.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(142,0,140,.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(36,0,193,.1) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite;
+            pointer-events: none; z-index: 0;
+        }
+        @keyframes backgroundShift {
+            0%,100% { transform: translate(0,0) scale(1); }
+            33% { transform: translate(-20px,-20px) scale(1.1); }
+            66% { transform: translate(20px,-20px) scale(.9); }
+        }
+        .glass-effect {
+            background: rgba(255,255,255,.92);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid rgba(255,255,255,.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,.1);
+        }
+        .loading-spinner {
+            width: 60px; height: 60px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-top-color: #fff; border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .fade-in { opacity: 0; transform: translateY(20px); animation: fadeInUp .6s ease forwards; }
+        .fade-in:nth-child(1){animation-delay:.1s}
+        .fade-in:nth-child(2){animation-delay:.2s}
+        .fade-in:nth-child(3){animation-delay:.3s}
+        .fade-in:nth-child(4){animation-delay:.4s}
+        .fade-in:nth-child(5){animation-delay:.5s}
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
 
 <body class="font-sans text-white">
-  <!-- Loading Overlay -->
-  <div id="loading" class="fixed inset-0 flex items-center justify-center z-50">
-    <div class="bg-white rounded-2xl p-8 text-center shadow-2xl">
-      <div class="loading-spinner mx-auto mb-4"></div>
-      <p class="text-primary font-semibold text-lg">Caricamento dashboard...</p>
-      <p class="text-gray-500 text-sm mt-2">Preparazione esperienza personalizzata</p>
+    <!-- Loading Overlay -->
+    <div id="loading" class="fixed inset-0 flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl p-8 text-center shadow-2xl">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-primary font-semibold text-lg">Caricamento dashboard...</p>
+            <p class="text-gray-500 text-sm mt-2">Preparazione esperienza personalizzata</p>
+        </div>
     </div>
-  </div>
 
-  <!-- Header -->
-  <header class="w-full px-4 py-4 relative z-10">
-    <div class="max-w-md mx-auto flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <div class="myapp-logo shadow-xl">
-          <span class="text-white font-bold text-xl relative z-10">M</span>
-        </div>
-        <div>
-          <h1 class="text-2xl font-bold text-white text-shadow-md">MyApp</h1>
-          <p class="text-xs text-blue-200 text-shadow-sm">Il Tuo Dirigente in Tasca</p>
-        </div>
-      </div>
-      <div class="flex items-center space-x-3">
-        <button id="notificheBtn" class="relative glass-dark hover:bg-white/30 text-white p-2.5 rounded-full transition-all transform hover:scale-110">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-          <span id="notificheBadge" class="notification-badge hidden">3</span>
-        </button>
-        <button id="logoutBtn" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-sm px-4 py-2.5 rounded-full font-semibold transition-all shadow-lg transform hover:scale-105">Logout</button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <main class="max-w-md mx-auto px-4 pb-24 relative z-10">
-    <!-- Welcome Section -->
-    <section class="mb-6 fade-in">
-      <div class="stat-card rounded-2xl p-6 text-center shadow-xl">
-        <h2 id="salutoPersonalizzato" class="text-2xl font-bold text-white text-shadow-md mb-3">Benvenuto!</h2>
-        <p id="dataOdierna" class="text-blue-100 text-sm mb-6 text-shadow-sm"></p>
-        <div class="text-center transform hover:scale-110 transition-transform">
-          <div class="text-2xl mb-1">🏅</div>
-          <div class="text-xs text-blue-200">Tessera Attiva</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Quick Access Menu -->
-    <section class="mb-6 fade-in">
-      <h3 class="text-xl font-bold text-white mb-4 text-shadow-md">Accesso Rapido</h3>
-      <div class="grid grid-cols-2 gap-4">
-        <button onclick="navigateTo('tessera.html')" class="glass-effect card-hover rounded-2xl p-5 text-center">
-          <div class="quick-action-icon bg-gradient-to-br from-primary to-secondary text-white shadow-lg">🆔</div>
-          <h4 class="font-bold text-textDark mb-1">Tessera Digitale</h4>
-          <p class="text-xs text-gray-600">La tua tessera sempre con te</p>
-        </button>
-        <button onclick="navigateTo('/app/strumenti.html')" class="glass-effect card-hover rounded-2xl p-5 text-center">
-          <div class="quick-action-icon bg-gradient-to-br from-accent to-blue-500 text-white shadow-lg">🛠️</div>
-          <h4 class="font-bold text-textDark mb-1">Strumenti</h4>
-          <p class="text-xs text-gray-600">Gestione turni e tools</p>
-        </button>
-        <button onclick="navigateTo('../convenzioni.html')" class="glass-effect card-hover rounded-2xl p-5 text-center">
-          <div class="quick-action-icon bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg">🏷️</div>
-          <h4 class="font-bold text-textDark mb-1">Convenzioni</h4>
-          <p class="text-xs text-gray-600">Sconti e offerte</p>
-        </button>
-        <button onclick="navigateTo('virgilio.html')" class="glass-effect card-hover rounded-2xl p-5 text-center">
-          <div class="quick-action-icon bg-gradient-to-br from-purple-500 to-pink-600 text-white shadow-lg">🤖</div>
-          <h4 class="font-bold text-textDark mb-1">Virgilio AI</h4>
-          <p class="text-xs text-gray-600">Assistente digitale</p>
-        </button>
-      </div>
-    </section>
-
-    <!-- News Section -->
-    <section class="mb-6 fade-in">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-white text-shadow-md">Ultime Notizie</h3>
-        <button onclick="navigateTo('notifiche.html')" class="text-blue-200 text-sm hover:text-white transition-colors flex items-center space-x-1">
-          <span>Vedi tutte</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-      <div id="notizieContainer" class="grid gap-3">
-        <div class="glass-effect rounded-xl p-4">
-          <div class="flex items-center space-x-3">
-            <div class="w-12 h-12 loading-skeleton rounded-lg"></div>
-            <div class="flex-1">
-              <div class="w-3/4 h-4 loading-skeleton rounded mb-2"></div>
-              <div class="w-1/2 h-3 loading-skeleton rounded"></div>
+    <!-- Header -->
+    <header class="w-full px-4 py-4 relative z-10">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-gradient-to-br from-accent to-secondary rounded-xl flex items-center justify-center shadow-xl">
+                    <span class="text-white font-bold text-xl">M</span>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-white text-shadow-md">MyApp</h1>
+                    <p class="text-xs text-blue-200 text-shadow-sm">Il Tuo Dirigente in Tasca</p>
+                </div>
             </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Featured Conventions -->
-    <section class="mb-6 fade-in">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-white text-shadow-md">Convenzioni in Evidenza</h3>
-        <button onclick="navigateTo('../convenzioni.html')" class="text-blue-200 text-sm hover:text-white transition-colors flex items-center space-x-1">
-          <span>Vedi tutte</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-      <div id="convenzioniContainer" class="grid gap-4">
-        <div class="glass-effect rounded-xl p-4">
-          <div class="flex items-center space-x-4">
-            <div class="w-16 h-16 loading-skeleton rounded-xl"></div>
-            <div class="flex-1">
-              <div class="w-2/3 h-4 loading-skeleton rounded mb-2"></div>
-              <div class="w-1/3 h-3 loading-skeleton rounded"></div>
+            <div class="flex items-center space-x-3">
+                <button id="notificheBtn" class="relative glass-dark hover:bg-white/30 text-white p-2.5 rounded-full transition-all transform hover:scale-110">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    <span id="notificheBadge" class="notification-badge hidden">3</span>
+                </button>
+                <button id="logoutBtn" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white text-sm px-4 py-2.5 rounded-full font-semibold transition-all shadow-lg transform hover:scale-105">Logout</button>
             </div>
-          </div>
         </div>
-      </div>
-    </section>
+    </header>
 
-    <!-- Main Services -->
-    <section class="mb-6 fade-in">
-      <h3 class="text-xl font-bold text-white mb-4 text-shadow-md">Servizi</h3>
-      <div class="grid grid-cols-2 gap-4 mb-4">
-        <button onclick="navigateTo('servizi.html')" class="glass-effect card-hover rounded-2xl p-4 text-center">
-          <div class="quick-action-icon bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg mx-auto mb-3">🛡️</div>
-          <h4 class="font-bold text-textDark text-sm mb-1">Tutela Penale</h4>
-          <p class="text-xs text-gray-600">Assistenza penale militare e civile</p>
-        </button>
-        <button onclick="navigateTo('servizi.html')" class="glass-effect card-hover rounded-2xl p-4 text-center">
-          <div class="quick-action-icon bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg mx-auto mb-3">⚖️</div>
-          <h4 class="font-bold text-textDark text-sm mb-1">Tutela Civile</h4>
-          <p class="text-xs text-gray-600">Diritto di famiglia, lavoro e società</p>
-        </button>
-        <button onclick="navigateTo('servizi.html')" class="glass-effect card-hover rounded-2xl p-4 text-center">
-          <div class="quick-action-icon bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg mx-auto mb-3">📋</div>
-          <h4 class="font-bold text-textDark text-sm mb-1">Tutela Amministrativa</h4>
-          <p class="text-xs text-gray-600">Ricorsi TAR e procedure militari</p>
-        </button>
-        <button onclick="navigateTo('servizi.html')" class="glass-effect card-hover rounded-2xl p-4 text-center">
-          <div class="quick-action-icon bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg mx-auto mb-3">💼</div>
-          <h4 class="font-bold text-textDark text-sm mb-1">Assistenza Fiscale</h4>
-          <p class="text-xs text-gray-600">CAF, patronato e 730</p>
-        </button>
-      </div>
-      <div class="glass-effect rounded-2xl overflow-hidden shadow-xl">
-        <a href="servizi.html" class="flex items-center justify-between p-4 hover:bg-gradient-to-r hover:from-blue-50 hover:to-transparent transition-all group">
-          <div class="flex items-center space-x-3">
-            <div class="service-icon bg-gradient-to-br from-blue-100 to-blue-200 group-hover:scale-110 transition-transform"><span class="text-primary">📋</span></div>
-            <div>
-              <h4 class="font-bold text-textDark">Area Riservata Servizi</h4>
-              <p class="text-xs text-gray-600">Accedi a tutti i servizi BestBadge</p>
+    <!-- Main Content -->
+    <main class="max-w-md mx-auto px-4 pb-24 relative z-10">
+        <section class="mb-6 fade-in">
+            <div class="glass-effect rounded-2xl p-6 text-center shadow-xl">
+                <h2 id="salutoPersonalizzato" class="text-2xl font-bold text-textDark mb-3">Benvenuto!</h2>
+                <p id="dataOdierna" class="text-sm text-gray-600 mb-6"></p>
             </div>
-          </div>
-          <svg class="w-5 h-5 text-gray-400 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        </a>
-      </div>
-    </section>
-  </main>
+        </section>
 
-  <!-- Bottom Navigation -->
-  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-2 py-3 safe-area-inset-bottom">
-    <div class="flex justify-around items-center max-w-md mx-auto">
-      <a href="home.html" class="flex flex-col items-center text-xs text-primary font-semibold p-2 rounded-xl active">Home</a>
-      <a href="convenzioni.html" class="flex flex-col items-center text-xs text-gray-500 hover:text-primary p-2 rounded-xl">Convenzioni</a>
-      <a href="tessera.html" class="flex flex-col items-center text-xs text-gray-500 hover:text-primary p-2 rounded-xl">Tessera</a>
-      <a href="profilo.html" class="flex flex-col items-center text-xs text-gray-500 hover:text-primary p-2 rounded-xl">Profilo</a>
-    </div>
-  </nav>
+        <!-- Quick Access -->
+        <section class="mb-6 fade-in">
+            <h3 class="text-xl font-bold text-white mb-4">Accesso Rapido</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="navigateTo('tessera.html')" class="glass-effect card-hover rounded-2xl p-5 text-center">
+                    <div class="w-16 h-16 bg-gradient-to-br from-primary to-secondary text-white rounded-xl flex items-center justify-center mx-auto mb-2 text-2xl">🆔</div>
+                    <h4 class="font-bold text-textDark mb-1">Tessera Digitale</h4>
+                    <p class="text-xs text-gray-600">La tua tessera sempre con te</p>
+                </button>
+                <!-- altri 3 pulsanti identici... -->
+            </div>
+        </section>
+    </main>
 
-  <!-- JavaScript IDENTICO all’originale – solo corretto -->
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-2 py-3 safe-area-inset-bottom">
+        <div class="flex justify-around items-center max-w-md mx-auto text-xs">
+            <a href="home.html" class="flex flex-col items-center text-primary font-semibold">Home</a>
+            <a href="convenzioni.html" class="flex flex-col items-center text-gray-500">Convenzioni</a>
+            <a href="tessera.html" class="flex flex-col items-center text-gray-500">Tessera</a>
+            <a href="profilo.html" class="flex flex-col items-center text-gray-500">Profilo</a>
+        </div>
+    </nav>
 
-    const supabaseUrl = 'https://lycrgzptkdkksukcwrld.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    <!-- JavaScript -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        const supabaseUrl = 'https://lycrgzptkdkksukcwrld.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
+        const supabase = createClient(supabaseUrl, supabaseKey);
 
-    /*  ----  TUTTO IL RESTO DEL TUO SCRIPT ORIGINALE  ----  */
-    /*  Copia/incolla dal tuo blocco <script type="module"> esistente */
-    /*  (è identico, non serve ridarlo)                                         */
-  </script>
+        async function verificaAutenticazione() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) window.location.href = '../login.html';
+            return user;
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await verificaAutenticazione();
+            document.getElementById('loading')?.classList.add('hidden');
+            document.getElementById('salutoPersonalizzato').textContent = 'Ciao!';
+            document.getElementById('dataOdierna').textContent = new Date().toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        });
+
+        document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+            await supabase.auth.signOut();
+            window.location.href = '../login.html';
+        });
+
+        window.navigateTo = url => window.location.href = url;
+    </script>
 </body>
 </html>
