@@ -277,6 +277,87 @@
             }
         }
         
+        async function getUserRole(userId) {
+            try {
+                showMessage('🔍 Controllo ruolo utente...', 'info');
+                
+                // Query per ottenere il profilo dell'utente con i ruoli (array JSON)
+                const { data: profile, error } = await supabaseClient
+                    .from('profiles')
+                    .select('ruoli, nome, cognome, email, telefono')
+                    .eq('id', userId)
+                    .single();
+                
+                if (error) {
+                    console.error('❌ Errore recupero profilo:', error);
+                    throw new Error(`Errore recupero profilo: ${error.message}`);
+                }
+                
+                if (!profile) {
+                    throw new Error('Profilo utente non trovato');
+                }
+                
+                console.log('👤 Profilo utente:', profile);
+                
+                // Gestione array di ruoli - controlla se contiene "DIRIGENTE"
+                const ruoli = profile.ruoli || ['USER'];
+                const isDirigente = ruoli.includes('DIRIGENTE');
+                const isAdmin = ruoli.includes('ADMIN');
+                
+                // Determina il ruolo principale per il redirect
+                let ruoloPrincipale = 'USER';
+                if (isAdmin) {
+                    ruoloPrincipale = 'ADMIN';
+                } else if (isDirigente) {
+                    ruoloPrincipale = 'DIRIGENTE';
+                }
+                
+                const ruoliStr = ruoli.join(', ');
+                showMessage(`✅ Profilo caricato: ${profile.nome || 'Utente'} - Ruoli: [${ruoliStr}]`, 'success');
+                
+                return {
+                    ...profile,
+                    ruolo: ruoloPrincipale, // Ruolo principale per il redirect
+                    ruoli: ruoli,           // Array completo dei ruoli
+                    isDirigente: isDirigente,
+                    isAdmin: isAdmin
+                };
+                
+            } catch (error) {
+                console.error('❌ Errore getUserRole:', error);
+                showMessage(`❌ Errore controllo ruolo: ${error.message}`, 'error');
+                
+                // In caso di errore, ritorna un ruolo di default
+                return { 
+                    ruolo: 'USER', 
+                    ruoli: ['USER'],
+                    nome: 'Utente', 
+                    email: '', 
+                    cognome: '',
+                    isDirigente: false,
+                    isAdmin: false
+                };
+            }
+        }
+        
+        function getRedirectUrl(userProfile) {
+            const ruoli = userProfile.ruoli || ['USER'];
+            const isDirigente = userProfile.isDirigente;
+            const isAdmin = userProfile.isAdmin;
+            
+            // Priorità: ADMIN > DIRIGENTE > USER
+            if (isAdmin) {
+                showMessage('🎯 Reindirizzamento a Dashboard Admin...', 'success');
+                return 'app/home_dirigenti.html'; // Gli admin vanno alla stessa dashboard dei dirigenti per ora
+            } else if (isDirigente) {
+                showMessage('🎯 Reindirizzamento a Dashboard Dirigenti...', 'success');
+                return 'app/home_dirigenti.html';
+            } else {
+                showMessage('🎯 Reindirizzamento a Dashboard Utente...', 'success');
+                return 'app/home.html';
+            }
+        }
+        
         async function handleLogin() {
             try {
                 setLoading(true);
@@ -290,7 +371,7 @@
                     throw new Error('Email e password obbligatorie');
                 }
                 
-                // Chiamata Supabase
+                // Chiamata Supabase per l'autenticazione
                 const { data, error } = await supabaseClient.auth.signInWithPassword({
                     email: email,
                     password: password
@@ -303,10 +384,19 @@
                 if (data && data.user) {
                     showMessage(`✅ Login riuscito! Benvenuto ${data.user.email}`, 'success');
                     
+                    // NUOVO: Controllo del ruolo utente
+                    const userProfile = await getUserRole(data.user.id);
+                    
+                    // Determina la pagina di destinazione in base ai ruoli
+                    const redirectUrl = getRedirectUrl(userProfile);
+                    
+                    const ruoliStr = userProfile.ruoli ? userProfile.ruoli.join(', ') : 'USER';
+                    showMessage(`👤 Ruoli: [${ruoliStr}] - Reindirizzamento in corso...`, 'info');
+                    
                     // Redirect dopo 2 secondi
                     setTimeout(() => {
-                        showMessage('🔄 Reindirizzamento alla dashboard...', 'info');
-                        window.location.href = 'app/home.html';
+                        console.log(`🔄 Redirect to: ${redirectUrl}`);
+                        window.location.href = redirectUrl;
                     }, 2000);
                     
                 } else {
@@ -322,6 +412,13 @@
                     showMessage('💡 Verifica email e password, o crea un account su Supabase', 'error');
                 } else if (error.message.includes('Email not confirmed')) {
                     showMessage('📧 Conferma la tua email prima di accedere', 'error');
+                } else if (error.message.includes('Errore recupero profilo')) {
+                    showMessage('⚠️ Login riuscito ma errore nel recupero del profilo. Reindirizzamento alla dashboard utente...', 'info');
+                    
+                    // In caso di errore nel recupero del profilo, reindirizza comunque alla dashboard utente
+                    setTimeout(() => {
+                        window.location.href = 'app/home.html';
+                    }, 3000);
                 }
                 
             } finally {
