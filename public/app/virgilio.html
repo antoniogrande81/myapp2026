@@ -510,12 +510,13 @@
             
             return null;
         }
-            document.getElementById('typingIndicator').classList.remove('hidden');
-            const container = document.getElementById('chatMessages');
-            setTimeout(() => {
-                container.scrollTop = container.scrollHeight;
-            }, 150);
-        }
+            function showTyping() {
+    document.getElementById('typingIndicator').classList.remove('hidden');
+    const container = document.getElementById('chatMessages');
+    setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+    }, 150);
+}
 
         function hideTyping() {
             document.getElementById('typingIndicator').classList.add('hidden');
