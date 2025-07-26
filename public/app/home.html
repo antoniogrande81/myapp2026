@@ -755,8 +755,10 @@
             }
         }
 
-        // Expose navigateTo globally
+        // Expose navigateTo and other functions globally
         window.navigateTo = navigateTo;
+        window.caricaConvenzioni = caricaConvenzioni;
+        window.caricaNotizie = caricaNotizie;
 
         // Auth functions
         async function verificaAutenticazione() {
@@ -929,61 +931,84 @@
                 }
 
                 console.log(`Trovate ${convenzioni.length} convenzioni`);
-                const categorie = {
-                    'Shopping': { bg: 'from-pink-400 to-purple-500', icon: '🛍️' },
-                    'Ristorazione': { bg: 'from-orange-400 to-red-500', icon: '🍽️' },
-                    'Salute': { bg: 'from-green-400 to-teal-500', icon: '🏥' },
-                    'Viaggi': { bg: 'from-blue-400 to-cyan-500', icon: '✈️' },
-                    'Sport': { bg: 'from-yellow-400 to-orange-500', icon: '⚽' },
-                    'Cultura': { bg: 'from-purple-400 to-pink-500', icon: '🎭' },
-                    'Servizi': { bg: 'from-indigo-400 to-blue-500', icon: '🛠️' },
-                    'Tecnologia': { bg: 'from-gray-400 to-gray-600', icon: '💻' },
-                    'casa': { bg: 'from-blue-500 to-indigo-600', icon: '🏠' }
-                };
-
-                container.innerHTML = convenzioni.map((conv, index) => {
-                    const cat = categorie[conv.categoria] || { bg: 'from-gray-400 to-gray-500', icon: conv.icona || '📦' };
-                    return `
-                        <div class="glass-effect rounded-xl p-5 card-hover group" style="animation-delay: ${index * 0.1}s" onclick="${conv.link_esterno ? `window.open('${conv.link_esterno}', '_blank')` : ''}">
-                            <div class="flex items-start space-x-4">
-                                <div class="relative flex-shrink-0">
-                                    ${conv.logo_url ? `
-                                        <div class="w-16 h-16 rounded-xl overflow-hidden shadow-lg group-hover:shadow-xl transition-shadow">
-                                            <img src="${conv.logo_url}" alt="${conv.nome_partner}" 
-                                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                                 onerror="this.parentElement.innerHTML='<div class=\\'w-16 h-16 bg-gradient-to-br ${cat.bg} rounded-xl flex items-center justify-center\\><span class=\\'text-2xl\\'>${cat.icon}</span></div>'">
-                                        </div>
-                                    ` : `
-                                        <div class="w-16 h-16 bg-gradient-to-br ${cat.bg} rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-all">
-                                            <span class="text-2xl">${cat.icon}</span>
-                                        </div>
-                                    `}
-                                    ${conv.sconto_percentuale ? `
-                                        <div class="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
-                                            -${conv.sconto_percentuale}%
-                                        </div>
-                                    ` : ''}
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-textDark text-base mb-1 group-hover:text-primary transition-colors">
-                                        ${conv.nome_partner}
-                                    </h4>
-                                    <p class="text-xs text-gray-600 mb-3 line-clamp-2">${conv.descrizione}</p>
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-xs bg-gradient-to-r ${cat.bg} text-white px-3 py-1 rounded-full font-medium shadow-sm">
-                                            ${conv.categoria}
-                                        </span>
-                                        ${conv.link_esterno ? `
-                                            <span class="text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                                                Scopri →
-                                            </span>
-                                        ` : ''}
+                
+                // Crea le card delle convenzioni
+                let html = '';
+                convenzioni.forEach((conv, index) => {
+                    const hasLogo = conv.logo_url && conv.logo_url.trim() !== '';
+                    const hasSconto = conv.sconto_percentuale && conv.sconto_percentuale > 0;
+                    const hasLink = conv.link_esterno && conv.link_esterno.trim() !== '';
+                    const icona = conv.icona || '📦';
+                    
+                    // Determina il colore della categoria
+                    let catColor = 'from-gray-400 to-gray-500';
+                    let catIcon = icona;
+                    
+                    switch(conv.categoria) {
+                        case 'Shopping': catColor = 'from-pink-400 to-purple-500'; catIcon = '🛍️'; break;
+                        case 'Ristorazione': catColor = 'from-orange-400 to-red-500'; catIcon = '🍽️'; break;
+                        case 'Salute': catColor = 'from-green-400 to-teal-500'; catIcon = '🏥'; break;
+                        case 'Viaggi': catColor = 'from-blue-400 to-cyan-500'; catIcon = '✈️'; break;
+                        case 'Sport': catColor = 'from-yellow-400 to-orange-500'; catIcon = '⚽'; break;
+                        case 'Cultura': catColor = 'from-purple-400 to-pink-500'; catIcon = '🎭'; break;
+                        case 'Servizi': catColor = 'from-indigo-400 to-blue-500'; catIcon = '🛠️'; break;
+                        case 'Tecnologia': catColor = 'from-gray-400 to-gray-600'; catIcon = '💻'; break;
+                        case 'casa': catColor = 'from-blue-500 to-indigo-600'; catIcon = '🏠'; break;
+                    }
+                    
+                    html += `<div class="glass-effect rounded-xl p-5 card-hover group" style="animation-delay: ${index * 0.1}s"`;
+                    if (hasLink) {
+                        html += ` onclick="window.open('${conv.link_esterno}', '_blank')"`;
+                    }
+                    html += `>
+                        <div class="flex items-start space-x-4">
+                            <div class="relative flex-shrink-0">`;
+                    
+                    if (hasLogo) {
+                        html += `<div class="w-16 h-16 rounded-xl overflow-hidden shadow-lg group-hover:shadow-xl transition-shadow">
+                                    <img src="${conv.logo_url}" alt="${conv.nome_partner}" 
+                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div class="w-16 h-16 bg-gradient-to-br ${catColor} rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-all" style="display:none;">
+                                        <span class="text-2xl">${catIcon}</span>
                                     </div>
-                                </div>
+                                </div>`;
+                    } else {
+                        html += `<div class="w-16 h-16 bg-gradient-to-br ${catColor} rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-all">
+                                    <span class="text-2xl">${catIcon}</span>
+                                </div>`;
+                    }
+                    
+                    if (hasSconto) {
+                        html += `<div class="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
+                                    -${conv.sconto_percentuale}%
+                                </div>`;
+                    }
+                    
+                    html += `</div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-textDark text-base mb-1 group-hover:text-primary transition-colors">
+                                    ${conv.nome_partner}
+                                </h4>
+                                <p class="text-xs text-gray-600 mb-3 line-clamp-2">${conv.descrizione}</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs bg-gradient-to-r ${catColor} text-white px-3 py-1 rounded-full font-medium shadow-sm">
+                                        ${conv.categoria}
+                                    </span>`;
+                    
+                    if (hasLink) {
+                        html += `<span class="text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Scopri →
+                                </span>`;
+                    }
+                    
+                    html += `</div>
                             </div>
                         </div>
-                    `;
-                }).join('');
+                    </div>`;
+                });
+                
+                container.innerHTML = html;
 
                 // Add entrance animation
                 container.querySelectorAll('.card-hover').forEach((card, index) => {
@@ -1004,7 +1029,7 @@
                         <div class="glass-effect rounded-xl p-6 text-center">
                             <div class="text-5xl mb-3 opacity-50">⚠️</div>
                             <p class="text-gray-600 font-semibold">Errore nel caricamento</p>
-                            <button onclick="caricaConvenzioni()" class="text-xs text-primary mt-2 hover:underline">Riprova</button>
+                            <button onclick="window.caricaConvenzioni()" class="text-xs text-primary mt-2 hover:underline">Riprova</button>
                         </div>
                     `;
                 }
