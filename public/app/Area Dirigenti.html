@@ -1,310 +1,625 @@
-<!DOCTYPE html>
-<html lang="it">
+<!DOCTYPE html><html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Area Dirigenti - MyApp</title>
-    
-    <!-- PWA Meta Tags -->
-    <link rel="manifest" href="../manifest.json">
-    <meta name="theme-color" content="#2400C1">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="../favicon.ico">
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#2400C1',
-                        secondary: '#8E008C',
-                        accent: '#00BFFF',
-                        textDark: '#1C1C1E',
-                        backgroundLight: '#F4F4F8',
-                    }
-                }
-            }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Area Dirigenti - MyApp</title>  <script src="https://cdn.tailwindcss.com"></script>  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2400C1',
+            secondary: '#8E008C',
+            accent: '#00BFFF'
+          }
         }
-    </script>
-    
-    <style>
-        body {
-            background: linear-gradient(135deg, #2400C1, #8E008C);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-        }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .gradient-border {
-            position: relative;
-            background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(255,255,255,0.95));
-            backdrop-filter: blur(10px);
-        }
-        .gradient-border::before {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            background: linear-gradient(135deg, #2400C1, #8E008C, #00BFFF);
-            border-radius: 16px;
-            z-index: -1;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .gradient-border:hover::before { opacity: 1; }
-        .action-icon {
-            width: 48px; height: 48px;
-            border-radius: 12px; display: flex; align-items: center; justify-content: center;
-            font-size: 20px; margin: 0 auto 12px; transition: all 0.3s ease;
-        }
-        .action-icon:hover { transform: scale(1.1); }
-        .form-input {
-            @apply w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20 transition-all;
-        }
-        .btn-primary {
-            @apply bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105;
-        }
-        .btn-secondary {
-            @apply bg-gradient-to-r from-accent to-blue-500 text-white px-6 py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 hover:scale-105;
-        }
-        .loading-overlay {
-            background: rgba(36, 0, 193, 0.9);
-        }
-        .success-message { @apply bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-4; }
-        .error-message   { @apply bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4; }
-        .fade-in {
-            animation: fadeIn 0.6s ease-in;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .bacheca-item {
-            @apply glass-effect rounded-lg p-4 mb-3 hover:shadow-lg transition-all duration-300;
-        }
-        .modal-overlay {
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(4px);
-        }
-    </style>
-</head>
-<body class="font-sans text-white">
-    
-    <!-- Loading Overlay -->
-    <div id="loading" class="fixed inset-0 loading-overlay flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg p-6 text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p class="text-primary font-medium">Caricamento...</p>
-        </div>
+      }
+    }
+  </script>  <style>
+    .form-input {
+      @apply w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500;
+    }
+    .btn-primary {
+      @apply bg-primary text-white px-4 py-2 rounded hover:bg-blue-800 transition;
+    }
+    .success-message {
+      @apply bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4;
+    }
+    .error-message {
+      @apply bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4;
+    }
+  </style></head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-3xl mx-auto p-4">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Area Dirigenti</h1>
+      <button id="logoutBtn" class="text-red-600 hover:underline">Logout</button>
+    </div><section class="mb-10">
+  <h2 class="text-xl font-bold mb-4">📢 Notizie</h2>
+  <form id="notizieForm" class="bg-white p-4 rounded shadow space-y-3 mb-6">
+    <input type="text" id="titoloNotizia" placeholder="Titolo" required class="form-input" />
+    <textarea id="contenutoNotizia" placeholder="Contenuto" rows="3" required class="form-input"></textarea>
+    <div class="grid grid-cols-2 gap-3">
+      <select id="prioritaNotizia" class="form-input">
+        <option value="normale">Normale</option>
+        <option value="alta">Alta</option>
+        <option value="urgente">Urgente</option>
+      </select>
+      <input type="text" id="iconaNotizia" class="form-input" value="📢" placeholder="Emoji/Icona" />
     </div>
+    <button type="submit" class="btn-primary w-full">Pubblica Notizia</button>
+  </form>
+  <div id="listaNotizie" class="space-y-3 text-sm">
+    <p class="text-center text-gray-500">Caricamento notizie...</p>
+  </div>
+</section>
 
-    <!-- Header -->
-    <header class="w-full px-4 py-4 relative z-10">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="myapp-logo shadow-lg">
-                    <span class="text-white font-bold text-sm relative z-10">M</span>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold text-white drop-shadow-lg">Area Dirigenti</h1>
-                    <p class="text-xs text-blue-200">Gestione e Amministrazione</p>
-                </div>
+<section class="mb-10">
+  <h2 class="text-xl font-bold mb-4">🌂 Convenzioni</h2>
+  <form id="convenzioniForm" class="bg-white p-4 rounded shadow space-y-3 mb-6">
+    <input type="text" id="nomePartner" placeholder="Nome Partner" required class="form-input" />
+    <textarea id="descrizioneConvenzione" placeholder="Descrizione" rows="3" required class="form-input"></textarea>
+    <input type="text" id="categoriaConvenzione" placeholder="Categoria" required class="form-input" />
+    <button type="submit" class="btn-primary w-full">Aggiungi Convenzione</button>
+  </form>
+  <div id="listaConvenzioni" class="space-y-3 text-sm">
+    <p class="text-center text-gray-500">Caricamento convenzioni...</p>
+  </div>
+</section>
+
+  </div>  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const supabase = createClient('https://lycrgzptkdkksukcwrld.supabase.co', 'INSERISCI_LA_TUA_CHIAVE_PUBLICA');
+
+    let userData = null;
+
+    async function verificaAutenticazione() {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) return location.href = '../login.html';
+
+      const { data: profilo, error: profErr } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      if (profErr) return location.href = '../login.html';
+
+      const ruoli = profilo.ruoli || [];
+      if (!ruoli.includes('DIRIGENTE') && !ruoli.includes('ADMIN')) return location.href = '../login.html';
+
+      userData = { ...user, ...profilo };
+    }
+
+    function showMessage(msg, type = 'success') {
+      const div = document.createElement('div');
+      div.className = type === 'success' ? 'success-message' : 'error-message';
+      div.textContent = msg;
+      document.body.prepend(div);
+      setTimeout(() => div.remove(), 5000);
+    }
+
+    async function pubblicaNotizia(e) {
+      e.preventDefault();
+      const titolo = document.getElementById('titoloNotizia').value;
+      const contenuto = document.getElementById('contenutoNotizia').value;
+      const priorita = document.getElementById('prioritaNotizia').value;
+      const icona = document.getElementById('iconaNotizia').value || '📢';
+
+      const { error } = await supabase.from('notizie').insert([{
+        titolo, contenuto, priorita, icona,
+        data_pubblicazione: new Date().toISOString(),
+        pubblicata: true, autore_id: userData.id
+      }]);
+      if (error) return showMessage("Errore pubblicazione", 'error');
+
+      e.target.reset();
+      document.getElementById('iconaNotizia').value = '📢';
+      showMessage("Notizia pubblicata!");
+      await caricaNotizie();
+    }
+
+    async function caricaNotizie() {
+      const { data, error } = await supabase.from('notizie').select('*').order('data_pubblicazione', { ascending: false });
+      const container = document.getElementById('listaNotizie');
+      if (error || !data) return container.innerHTML = '<p class="text-center text-gray-500">Errore caricamento.</p>';
+
+      container.innerHTML = data.map(n => {
+        const dataPub = new Date(n.data_pubblicazione).toLocaleDateString('it-IT');
+        const isAutore = userData.id === n.autore_id;
+        return `
+          <div class="bg-white p-3 rounded shadow flex justify-between items-start">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span>${n.icona}</span>
+                <strong>${n.titolo}</strong>
+              </div>
+              <p>${n.contenuto}</p>
+              <p class="text-xs text-blue-600 mt-1">${dataPub} – ${n.priorita}</p>
             </div>
-            <div class="flex items-center space-x-2">
-                <button onclick="navigateTo('Area Dirigenti.html')" class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-2 rounded-full font-semibold transition-colors shadow-lg">
-                    ← Dashboard
-                </button>
-                <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-2 rounded-full font-semibold transition-colors shadow-lg">
-                    Logout
-                </button>
+            ${isAutore ? `<button onclick="eliminaNotizia('${n.id}')" class="text-red-500">🗑️</button>` : ''}
+          </div>`;
+      }).join('');
+    }
+
+    async function eliminaNotizia(id) {
+      if (!confirm('Eliminare questa notizia?')) return;
+      const { error } = await supabase.from('notizie').delete().eq('id', id).eq('autore_id', userData.id);
+      if (error) return showMessage('Errore eliminazione', 'error');
+      showMessage('Notizia eliminata');
+      await caricaNotizie();
+    }
+    window.eliminaNotizia = eliminaNotizia;
+
+    async function aggiungiConvenzione(e) {
+      e.preventDefault();
+      const nome = document.getElementById('nomePartner').value;
+      const descrizione = document.getElementById('descrizioneConvenzione').value;
+      const categoria = document.getElementById('categoriaConvenzione').value;
+
+      const { error } = await supabase.from('convenzioni').insert([{
+        nome_partner: nome,
+        descrizione,
+        categoria,
+        data_creazione: new Date().toISOString(),
+        autore_id: userData.id
+      }]);
+      if (error) return showMessage('Errore inserimento convenzione', 'error');
+
+      e.target.reset();
+      showMessage('Convenzione aggiunta!');
+      await caricaConvenzioni();
+    }
+
+    async function caricaConvenzioni() {
+      const { data, error } = await supabase.from('convenzioni').select('*').order('data_creazione', { ascending: false });
+      const container = document.getElementById('listaConvenzioni');
+      if (error || !data) return container.innerHTML = '<p class="text-center text-gray-500">Errore caricamento.</p>';
+
+      container.innerHTML = data.map(c => {
+        const dataC = new Date(c.data_creazione).toLocaleDateString('it-IT');
+        const isAutore = userData.id === c.autore_id;
+        return `
+          <div class="bg-white p-3 rounded shadow flex justify-between items-start">
+            <div>
+              <strong>${c.nome_partner}</strong>
+              <p>${c.descrizione}</p>
+              <p class="text-xs text-blue-600 mt-1">${c.categoria} – ${dataC}</p>
             </div>
-        </div>
-    </header>
+            ${isAutore ? `<button onclick="eliminaConvenzione('${c.id}')" class="text-red-500">🗑️</button>` : ''}
+          </div>`;
+      }).join('');
+    }
 
-    <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 pb-8">
-        
-        <!-- Gestione Contenuti: Notizie -->
-        <section class="mb-8 fade-in">
-            <div class="gradient-border rounded-2xl p-6 mb-6">
-                <div class="flex items-center mb-4">
-                    <div class="action-icon bg-gradient-to-br from-blue-500 to-blue-600 text-white mr-4">📰</div>
-                    <h3 class="text-xl font-bold text-textDark">Gestione Notizie</h3>
-                </div>
-                <form id="notizieForm" class="space-y-4 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-textDark mb-2">Titolo</label>
-                        <input type="text" id="titoloNotizia" class="form-input" placeholder="Inserisci il titolo della notizia" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-textDark mb-2">Contenuto</label>
-                        <textarea id="contenutoNotizia" rows="4" class="form-input" placeholder="Inserisci il contenuto..." required></textarea>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-textDark mb-2">Priorità</label>
-                            <select id="prioritaNotizia" class="form-input">
-                                <option value="normale">Normale</option>
-                                <option value="alta">Alta</option>
-                                <option value="urgente">Urgente</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-textDark mb-2">Icona</label>
-                            <input type="text" id="iconaNotizia" class="form-input" placeholder="📢" value="📢">
-                        </div>
-                    </div>
-                    <button type="submit" class="btn-primary w-full">Pubblica Notizia</button>
-                </form>
+    async function eliminaConvenzione(id) {
+      if (!confirm('Eliminare questa convenzione?')) return;
+      const { error } = await supabase.from('convenzioni').delete().eq('id', id).eq('autore_id', userData.id);
+      if (error) return showMessage('Errore eliminazione', 'error');
+      showMessage('Convenzione eliminata');
+      await caricaConvenzioni();
+    }
+    window.eliminaConvenzione = eliminaConvenzione;
 
-                <div id="listaNotizie" class="space-y-4">
-                    <p class="text-sm text-gray-600 text-center">Caricamento notizie...</p>
-                </div>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await verificaAutenticazione();
+      document.getElementById('notizieForm').addEventListener('submit', pubblicaNotizia);
+      document.getElementById('convenzioniForm').addEventListener('submit', aggiungiConvenzione);
+      document.getElementById('logoutBtn').addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        location.href = '../login.html';
+      });
+      await caricaNotizie();
+      await caricaConvenzioni();
+    });
+  </script></body>
+</html><!DOCTYPE html><html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Area Dirigenti - MyApp</title>  <script src="https://cdn.tailwindcss.com"></script>  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2400C1',
+            secondary: '#8E008C',
+            accent: '#00BFFF'
+          }
+        }
+      }
+    }
+  </script>  <style>
+    .form-input {
+      @apply w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500;
+    }
+    .btn-primary {
+      @apply bg-primary text-white px-4 py-2 rounded hover:bg-blue-800 transition;
+    }
+    .success-message {
+      @apply bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4;
+    }
+    .error-message {
+      @apply bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4;
+    }
+  </style></head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-3xl mx-auto p-4">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Area Dirigenti</h1>
+      <button id="logoutBtn" class="text-red-600 hover:underline">Logout</button>
+    </div><section class="mb-10">
+  <h2 class="text-xl font-bold mb-4">📢 Notizie</h2>
+  <form id="notizieForm" class="bg-white p-4 rounded shadow space-y-3 mb-6">
+    <input type="text" id="titoloNotizia" placeholder="Titolo" required class="form-input" />
+    <textarea id="contenutoNotizia" placeholder="Contenuto" rows="3" required class="form-input"></textarea>
+    <div class="grid grid-cols-2 gap-3">
+      <select id="prioritaNotizia" class="form-input">
+        <option value="normale">Normale</option>
+        <option value="alta">Alta</option>
+        <option value="urgente">Urgente</option>
+      </select>
+      <input type="text" id="iconaNotizia" class="form-input" value="📢" placeholder="Emoji/Icona" />
+    </div>
+    <button type="submit" class="btn-primary w-full">Pubblica Notizia</button>
+  </form>
+  <div id="listaNotizie" class="space-y-3 text-sm">
+    <p class="text-center text-gray-500">Caricamento notizie...</p>
+  </div>
+</section>
+
+<section class="mb-10">
+  <h2 class="text-xl font-bold mb-4">🌂 Convenzioni</h2>
+  <form id="convenzioniForm" class="bg-white p-4 rounded shadow space-y-3 mb-6">
+    <input type="text" id="nomePartner" placeholder="Nome Partner" required class="form-input" />
+    <textarea id="descrizioneConvenzione" placeholder="Descrizione" rows="3" required class="form-input"></textarea>
+    <input type="text" id="categoriaConvenzione" placeholder="Categoria" required class="form-input" />
+    <button type="submit" class="btn-primary w-full">Aggiungi Convenzione</button>
+  </form>
+  <div id="listaConvenzioni" class="space-y-3 text-sm">
+    <p class="text-center text-gray-500">Caricamento convenzioni...</p>
+  </div>
+</section>
+
+  </div>  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const supabase = createClient('https://lycrgzptkdkksukcwrld.supabase.co', 'INSERISCI_LA_TUA_CHIAVE_PUBLICA');
+
+    let userData = null;
+
+    async function verificaAutenticazione() {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) return location.href = '../login.html';
+
+      const { data: profilo, error: profErr } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      if (profErr) return location.href = '../login.html';
+
+      const ruoli = profilo.ruoli || [];
+      if (!ruoli.includes('DIRIGENTE') && !ruoli.includes('ADMIN')) return location.href = '../login.html';
+
+      userData = { ...user, ...profilo };
+    }
+
+    function showMessage(msg, type = 'success') {
+      const div = document.createElement('div');
+      div.className = type === 'success' ? 'success-message' : 'error-message';
+      div.textContent = msg;
+      document.body.prepend(div);
+      setTimeout(() => div.remove(), 5000);
+    }
+
+    async function pubblicaNotizia(e) {
+      e.preventDefault();
+      const titolo = document.getElementById('titoloNotizia').value;
+      const contenuto = document.getElementById('contenutoNotizia').value;
+      const priorita = document.getElementById('prioritaNotizia').value;
+      const icona = document.getElementById('iconaNotizia').value || '📢';
+
+      const { error } = await supabase.from('notizie').insert([{
+        titolo, contenuto, priorita, icona,
+        data_pubblicazione: new Date().toISOString(),
+        pubblicata: true, autore_id: userData.id
+      }]);
+      if (error) return showMessage("Errore pubblicazione", 'error');
+
+      e.target.reset();
+      document.getElementById('iconaNotizia').value = '📢';
+      showMessage("Notizia pubblicata!");
+      await caricaNotizie();
+    }
+
+    async function caricaNotizie() {
+      const { data, error } = await supabase.from('notizie').select('*').order('data_pubblicazione', { ascending: false });
+      const container = document.getElementById('listaNotizie');
+      if (error || !data) return container.innerHTML = '<p class="text-center text-gray-500">Errore caricamento.</p>';
+
+      container.innerHTML = data.map(n => {
+        const dataPub = new Date(n.data_pubblicazione).toLocaleDateString('it-IT');
+        const isAutore = userData.id === n.autore_id;
+        return `
+          <div class="bg-white p-3 rounded shadow flex justify-between items-start">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span>${n.icona}</span>
+                <strong>${n.titolo}</strong>
+              </div>
+              <p>${n.contenuto}</p>
+              <p class="text-xs text-blue-600 mt-1">${dataPub} – ${n.priorita}</p>
             </div>
-        </section>
+            ${isAutore ? `<button onclick="eliminaNotizia('${n.id}')" class="text-red-500">🗑️</button>` : ''}
+          </div>`;
+      }).join('');
+    }
 
-        <!-- Gestione Convenzioni (rimane inalterata, puoi estenderla se desideri) -->
-        <section class="mb-8 fade-in">
-            <div class="gradient-border rounded-2xl p-6">
-                <div class="flex items-center mb-4">
-                    <div class="action-icon bg-gradient-to-br from-green-500 to-green-600 text-white mr-4">🏷️</div>
-                    <h3 class="text-xl font-bold text-textDark">Gestione Convenzioni</h3>
-                </div>
-                <form id="convenzioniForm" class="space-y-4">
-                    <!-- campi: nome partner, descrizione, categoria etc. -->
-                    <!-- come nel tuo codice originale -->
-                    <button type="submit" class="btn-primary w-full">Aggiungi Convenzione</button>
-                </form>
+    async function eliminaNotizia(id) {
+      if (!confirm('Eliminare questa notizia?')) return;
+      const { error } = await supabase.from('notizie').delete().eq('id', id).eq('autore_id', userData.id);
+      if (error) return showMessage('Errore eliminazione', 'error');
+      showMessage('Notizia eliminata');
+      await caricaNotizie();
+    }
+    window.eliminaNotizia = eliminaNotizia;
+
+    async function aggiungiConvenzione(e) {
+      e.preventDefault();
+      const nome = document.getElementById('nomePartner').value;
+      const descrizione = document.getElementById('descrizioneConvenzione').value;
+      const categoria = document.getElementById('categoriaConvenzione').value;
+
+      const { error } = await supabase.from('convenzioni').insert([{
+        nome_partner: nome,
+        descrizione,
+        categoria,
+        data_creazione: new Date().toISOString(),
+        autore_id: userData.id
+      }]);
+      if (error) return showMessage('Errore inserimento convenzione', 'error');
+
+      e.target.reset();
+      showMessage('Convenzione aggiunta!');
+      await caricaConvenzioni();
+    }
+
+    async function caricaConvenzioni() {
+      const { data, error } = await supabase.from('convenzioni').select('*').order('data_creazione', { ascending: false });
+      const container = document.getElementById('listaConvenzioni');
+      if (error || !data) return container.innerHTML = '<p class="text-center text-gray-500">Errore caricamento.</p>';
+
+      container.innerHTML = data.map(c => {
+        const dataC = new Date(c.data_creazione).toLocaleDateString('it-IT');
+        const isAutore = userData.id === c.autore_id;
+        return `
+          <div class="bg-white p-3 rounded shadow flex justify-between items-start">
+            <div>
+              <strong>${c.nome_partner}</strong>
+              <p>${c.descrizione}</p>
+              <p class="text-xs text-blue-600 mt-1">${c.categoria} – ${dataC}</p>
             </div>
-        </section>
+            ${isAutore ? `<button onclick="eliminaConvenzione('${c.id}')" class="text-red-500">🗑️</button>` : ''}
+          </div>`;
+      }).join('');
+    }
 
-    </main>
+    async function eliminaConvenzione(id) {
+      if (!confirm('Eliminare questa convenzione?')) return;
+      const { error } = await supabase.from('convenzioni').delete().eq('id', id).eq('autore_id', userData.id);
+      if (error) return showMessage('Errore eliminazione', 'error');
+      showMessage('Convenzione eliminata');
+      await caricaConvenzioni();
+    }
+    window.eliminaConvenzione = eliminaConvenzione;
 
-    <!-- Modal Bacheca etc. rimane come nel tuo layout -->
-    <!-- ... -->
-
-    <!-- JavaScript -->
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-        const supabaseUrl = 'https://lycrgzptkdkksukcwrld.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVc...'; // tua chiave
-        const supabase = createClient(supabaseUrl, supabaseKey);
-
-        let userData = null;
-        function showLoading(){document.getElementById('loading').classList.remove('hidden')}
-        function hideLoading(){document.getElementById('loading').classList.add('hidden')}
-        function showMessage(msg, type='success'){
-            const div = document.createElement('div');
-            div.className = type==='success' ? 'success-message' : 'error-message';
-            div.textContent = msg;
-            document.querySelector('main').prepend(div);
-            setTimeout(()=>div.remove(),5000);
+    document.addEventListener('DOMContentLoaded', async () => {
+      await verificaAutenticazione();
+      document.getElementById('notizieForm').addEventListener('submit', pubblicaNotizia);
+      document.getElementById('convenzioniForm').addEventListener('submit', aggiungiConvenzione);
+      document.getElementById('logoutBtn').addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        location.href = '../login.html';
+      });
+      await caricaNotizie();
+      await caricaConvenzioni();
+    });
+  </script></body>
+</html><!DOCTYPE html><html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Area Dirigenti - MyApp</title>  <script src="https://cdn.tailwindcss.com"></script>  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#2400C1',
+            secondary: '#8E008C',
+            accent: '#00BFFF'
+          }
         }
-        function navigateTo(url){window.location.href = url;}
-        window.navigateTo = navigateTo;
+      }
+    }
+  </script>  <style>
+    .form-input {
+      @apply w-full px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500;
+    }
+    .btn-primary {
+      @apply bg-primary text-white px-4 py-2 rounded hover:bg-blue-800 transition;
+    }
+    .success-message {
+      @apply bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4;
+    }
+    .error-message {
+      @apply bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4;
+    }
+  </style></head>
+<body class="bg-gray-100 text-gray-800">
+  <div class="max-w-3xl mx-auto p-4">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold">Area Dirigenti</h1>
+      <button id="logoutBtn" class="text-red-600 hover:underline">Logout</button>
+    </div><section class="mb-10">
+  <h2 class="text-xl font-bold mb-4">📢 Notizie</h2>
+  <form id="notizieForm" class="bg-white p-4 rounded shadow space-y-3 mb-6">
+    <input type="text" id="titoloNotizia" placeholder="Titolo" required class="form-input" />
+    <textarea id="contenutoNotizia" placeholder="Contenuto" rows="3" required class="form-input"></textarea>
+    <div class="grid grid-cols-2 gap-3">
+      <select id="prioritaNotizia" class="form-input">
+        <option value="normale">Normale</option>
+        <option value="alta">Alta</option>
+        <option value="urgente">Urgente</option>
+      </select>
+      <input type="text" id="iconaNotizia" class="form-input" value="📢" placeholder="Emoji/Icona" />
+    </div>
+    <button type="submit" class="btn-primary w-full">Pubblica Notizia</button>
+  </form>
+  <div id="listaNotizie" class="space-y-3 text-sm">
+    <p class="text-center text-gray-500">Caricamento notizie...</p>
+  </div>
+</section>
 
-        async function verificaAutenticazione(){
-            try {
-                const { data:{ user }, error } = await supabase.auth.getUser();
-                if(error||!user){window.location.href='../login.html'; return false;}
-                const { data: profilo, error: profErr } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-                if(profErr){alert('Errore profilo'); window.location.href='../login.html'; return false;}
-                const ruoli = profilo.ruoli||[];
-                const isDir = ruoli.includes('DIRIGENTE')||ruoli.includes('ADMIN');
-                if(!isDir){alert('Accesso negato'); window.location.href='Area Dirigenti.html'; return false;}
-                userData = { ...user, ...profilo, nome_completo: `${profilo.nome} ${profilo.cognome}`.trim() };
-                return true;
-            } catch(err){alert('Errore connessione'); window.location.href='../login.html'; return false;}
-        }
+<section class="mb-10">
+  <h2 class="text-xl font-bold mb-4">🌂 Convenzioni</h2>
+  <form id="convenzioniForm" class="bg-white p-4 rounded shadow space-y-3 mb-6">
+    <input type="text" id="nomePartner" placeholder="Nome Partner" required class="form-input" />
+    <textarea id="descrizioneConvenzione" placeholder="Descrizione" rows="3" required class="form-input"></textarea>
+    <input type="text" id="categoriaConvenzione" placeholder="Categoria" required class="form-input" />
+    <button type="submit" class="btn-primary w-full">Aggiungi Convenzione</button>
+  </form>
+  <div id="listaConvenzioni" class="space-y-3 text-sm">
+    <p class="text-center text-gray-500">Caricamento convenzioni...</p>
+  </div>
+</section>
 
-        async function pubblicaNotizia(e){ e.preventDefault(); showLoading();
-            const titolo = document.getElementById('titoloNotizia').value;
-            const contenuto = document.getElementById('contenutoNotizia').value;
-            const priorita = document.getElementById('prioritaNotizia').value;
-            const icona = document.getElementById('iconaNotizia').value;
-            try {
-                const { error } = await supabase.from('notizie').insert([{
-                    titolo, contenuto,
-                    data_pubblicazione: new Date().toISOString().split('T')[0],
-                    pubblicata: true, autore_id: userData.id, priorita, icona
-                }]);
-                if(error) throw error;
-                showMessage('Notizia pubblicata!');
-                document.getElementById('notizieForm').reset();
-                document.getElementById('iconaNotizia').value='📢';
-                await caricaNotizieDirigente();
-            } catch(err){
-                console.error(err); showMessage('Errore pubblicazione','error');
-            } finally { hideLoading(); }
-        }
+  </div>  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+    const supabase = createClient('https://lycrgzptkdkksukcwrld.supabase.co', 'INSERISCI_LA_TUA_CHIAVE_PUBLICA');
 
-        async function aggiungiConvenzione(e){
-            e.preventDefault(); showLoading();
-            // logica tua originale...
-            hideLoading();
-        }
+    let userData = null;
 
-        async function caricaNotizieDirigente(){
-            try {
-                const { data:notizie, error } = await supabase.from('notizie').select('*').order('data_pubblicazione', { ascending:false }).limit(10);
-                const c = document.getElementById('listaNotizie');
-                if(error || !notizie || notizie.length===0){
-                    c.innerHTML=`<p class="text-sm text-gray-600 text-center">Nessuna notizia pubblicata.</p>`;
-                    return;
-                }
-                c.innerHTML = notizie.map(n=>{
-                    const data = new Date(n.data_pubblicazione).toLocaleDateString('it-IT');
-                    const isAuth = userData && userData.id === n.autore_id;
-                    return `
-                        <div class="glass-effect p-4 rounded-lg shadow-md relative">
-                            <div class="flex justify-between items-start mb-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-lg">${n.icona||'📰'}</span>
-                                    <h4 class="font-semibold text-textDark">${n.titolo}</h4>
-                                </div>
-                                ${isAuth ? `<button onclick="eliminaNotizia('${n.id}')" title="Elimina" class="text-red-500 hover:text-red-700">🗑️</button>` : ''}
-                            </div>
-                            <p class="text-sm text-gray-600 mb-1">${n.contenuto}</p>
-                            <div class="text-xs text-blue-600 mt-2">Pubblicata il ${data} – Priorità: ${n.priorita}</div>
-                        </div>`;
-                }).join('');
-            } catch(err){
-                console.error(err);
-                document.getElementById('listaNotizie').innerHTML = `<p class="text-red-600 text-sm text-center">Errore caricamento.</p>`;
-            }
-        }
+    async function verificaAutenticazione() {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) return location.href = '../login.html';
 
-        async function eliminaNotizia(id){
-            if(!confirm('Vuoi eliminare questa notizia?')) return;
-            try {
-                showLoading();
-                const { error } = await supabase.from('notizie').delete().eq('id', id).eq('autore_id', userData.id);
-                if(error) throw error;
-                showMessage('Notizia eliminata!');
-                await caricaNotizieDirigente();
-            } catch(err){
-                console.error(err); showMessage('Errore eliminazione','error');
-            } finally { hideLoading(); }
-        }
-        window.eliminaNotizia = eliminaNotizia;
+      const { data: profilo, error: profErr } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      if (profErr) return location.href = '../login.html';
 
-        document.addEventListener('DOMContentLoaded', async ()=>{
-            const ok = await verificaAutenticazione();
-            if(!ok) return;
-            hideLoading();
-            document.getElementById('notizieForm').addEventListener('submit', pubblicaNotizia);
-            document.getElementById('convenzioniForm').addEventListener('submit', aggiungiConvenzione);
-            await caricaNotizieDirigente();
-        });
+      const ruoli = profilo.ruoli || [];
+      if (!ruoli.includes('DIRIGENTE') && !ruoli.includes('ADMIN')) return location.href = '../login.html';
 
-        document.getElementById('logoutBtn')?.addEventListener('click', async ()=>{
-            await supabase.auth.signOut();
-            window.location.href = '../login.html';
-        });
-    </script>
-</body>
+      userData = { ...user, ...profilo };
+    }
+
+    function showMessage(msg, type = 'success') {
+      const div = document.createElement('div');
+      div.className = type === 'success' ? 'success-message' : 'error-message';
+      div.textContent = msg;
+      document.body.prepend(div);
+      setTimeout(() => div.remove(), 5000);
+    }
+
+    async function pubblicaNotizia(e) {
+      e.preventDefault();
+      const titolo = document.getElementById('titoloNotizia').value;
+      const contenuto = document.getElementById('contenutoNotizia').value;
+      const priorita = document.getElementById('prioritaNotizia').value;
+      const icona = document.getElementById('iconaNotizia').value || '📢';
+
+      const { error } = await supabase.from('notizie').insert([{
+        titolo, contenuto, priorita, icona,
+        data_pubblicazione: new Date().toISOString(),
+        pubblicata: true, autore_id: userData.id
+      }]);
+      if (error) return showMessage("Errore pubblicazione", 'error');
+
+      e.target.reset();
+      document.getElementById('iconaNotizia').value = '📢';
+      showMessage("Notizia pubblicata!");
+      await caricaNotizie();
+    }
+
+    async function caricaNotizie() {
+      const { data, error } = await supabase.from('notizie').select('*').order('data_pubblicazione', { ascending: false });
+      const container = document.getElementById('listaNotizie');
+      if (error || !data) return container.innerHTML = '<p class="text-center text-gray-500">Errore caricamento.</p>';
+
+      container.innerHTML = data.map(n => {
+        const dataPub = new Date(n.data_pubblicazione).toLocaleDateString('it-IT');
+        const isAutore = userData.id === n.autore_id;
+        return `
+          <div class="bg-white p-3 rounded shadow flex justify-between items-start">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span>${n.icona}</span>
+                <strong>${n.titolo}</strong>
+              </div>
+              <p>${n.contenuto}</p>
+              <p class="text-xs text-blue-600 mt-1">${dataPub} – ${n.priorita}</p>
+            </div>
+            ${isAutore ? `<button onclick="eliminaNotizia('${n.id}')" class="text-red-500">🗑️</button>` : ''}
+          </div>`;
+      }).join('');
+    }
+
+    async function eliminaNotizia(id) {
+      if (!confirm('Eliminare questa notizia?')) return;
+      const { error } = await supabase.from('notizie').delete().eq('id', id).eq('autore_id', userData.id);
+      if (error) return showMessage('Errore eliminazione', 'error');
+      showMessage('Notizia eliminata');
+      await caricaNotizie();
+    }
+    window.eliminaNotizia = eliminaNotizia;
+
+    async function aggiungiConvenzione(e) {
+      e.preventDefault();
+      const nome = document.getElementById('nomePartner').value;
+      const descrizione = document.getElementById('descrizioneConvenzione').value;
+      const categoria = document.getElementById('categoriaConvenzione').value;
+
+      const { error } = await supabase.from('convenzioni').insert([{
+        nome_partner: nome,
+        descrizione,
+        categoria,
+        data_creazione: new Date().toISOString(),
+        autore_id: userData.id
+      }]);
+      if (error) return showMessage('Errore inserimento convenzione', 'error');
+
+      e.target.reset();
+      showMessage('Convenzione aggiunta!');
+      await caricaConvenzioni();
+    }
+
+    async function caricaConvenzioni() {
+      const { data, error } = await supabase.from('convenzioni').select('*').order('data_creazione', { ascending: false });
+      const container = document.getElementById('listaConvenzioni');
+      if (error || !data) return container.innerHTML = '<p class="text-center text-gray-500">Errore caricamento.</p>';
+
+      container.innerHTML = data.map(c => {
+        const dataC = new Date(c.data_creazione).toLocaleDateString('it-IT');
+        const isAutore = userData.id === c.autore_id;
+        return `
+          <div class="bg-white p-3 rounded shadow flex justify-between items-start">
+            <div>
+              <strong>${c.nome_partner}</strong>
+              <p>${c.descrizione}</p>
+              <p class="text-xs text-blue-600 mt-1">${c.categoria} – ${dataC}</p>
+            </div>
+            ${isAutore ? `<button onclick="eliminaConvenzione('${c.id}')" class="text-red-500">🗑️</button>` : ''}
+          </div>`;
+      }).join('');
+    }
+
+    async function eliminaConvenzione(id) {
+      if (!confirm('Eliminare questa convenzione?')) return;
+      const { error } = await supabase.from('convenzioni').delete().eq('id', id).eq('autore_id', userData.id);
+      if (error) return showMessage('Errore eliminazione', 'error');
+      showMessage('Convenzione eliminata');
+      await caricaConvenzioni();
+    }
+    window.eliminaConvenzione = eliminaConvenzione;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await verificaAutenticazione();
+      document.getElementById('notizieForm').addEventListener('submit', pubblicaNotizia);
+      document.getElementById('convenzioniForm').addEventListener('submit', aggiungiConvenzione);
+      document.getElementById('logoutBtn').addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        location.href = '../login.html';
+      });
+      await caricaNotizie();
+      await caricaConvenzioni();
+    });
+  </script></body>
 </html>
