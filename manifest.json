@@ -16,26 +16,11 @@
       "purpose": "any"
     }
   ],
-  "screenshots": [
-    {
-      "src": "/icons/screenshot-wide.png",
-      "sizes": "1280x720",
-      "type": "image/png",
-      "form_factor": "wide"
-    },
-    {
-      "src": "/icons/screenshot-narrow.png",
-      "sizes": "390x844",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
-  ],
   "theme_color": "#2400C1",
   "background_color": "#2400C1",
   "display": "standalone",
   "orientation": "portrait-primary",
   "start_url": "/protette/home.html",
   "scope": "/",
-  "lang": "it",
-  "dir": "ltr"
+  "lang": "it"
 }
