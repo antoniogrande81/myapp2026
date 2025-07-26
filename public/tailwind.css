@@ -1,0 +1,14 @@
+# 1. Entra nella root del progetto
+cd my-app          # la cartella che contiene index.html
+
+# 2. Installa Tailwind (una sola volta)
+npm install -D tailwindcss postcss autoprefixer
+
+# 3. Crea il file di ingresso (se non c’è)
+mkdir -p src
+echo '@tailwind base;
+@tailwind components;
+@tailwind utilities;' > src/input.css
+
+# 4. Compila
+npx tailwindcss -i ./src/input.css -o ./css/tailwind.css --minify
