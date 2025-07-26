@@ -294,6 +294,12 @@
         let isProcessing = false;
         let totalTokensUsed = 0;
         let dirigenti = [];
+        let conversationContext = {
+            askingForDirigenti: false,
+            waitingForLevel: false,
+            waitingForProvince: false,
+            currentLevel: null
+        };
 
         // --- FUNZIONI DI UTILITÀ ---
         
@@ -381,7 +387,125 @@
             }
         }
 
-        function showTyping() {
+        async function searchDirigentiByLevel(level) {
+            try {
+                let query = supabase.from('organico_dirigentisindacali').select('*');
+                
+                if (level === 'regionale') {
+                    query = query.ilike('ruolo', '%Regionale%');
+                } else if (level === 'provinciale') {
+                    query = query.ilike('ruolo', '%Provinciale%');
+                }
+                
+                const { data, error } = await query.order('id', { ascending: true });
+                
+                if (error) throw error;
+                return data || [];
+                
+            } catch (error) {
+                console.error('❌ Errore ricerca dirigenti per livello:', error);
+                return [];
+            }
+        }
+
+        async function searchDirigentiByProvince(province) {
+            try {
+                const { data, error } = await supabase
+                    .from('organico_dirigentisindacali')
+                    .select('*')
+                    .ilike('ruolo', `%${province}%`)
+                    .order('id', { ascending: true });
+                
+                if (error) throw error;
+                return data || [];
+                
+            } catch (error) {
+                console.error('❌ Errore ricerca dirigenti per provincia:', error);
+                return [];
+            }
+        }
+
+        function formatDirigentiList(dirigentiList, title) {
+            if (!dirigentiList || dirigentiList.length === 0) {
+                return `<strong>${title}</strong><br><br>❌ Nessun dirigente trovato per questa ricerca.`;
+            }
+
+            let result = `<strong>${title}</strong><br><br>`;
+            dirigentiList.forEach((dirigente, index) => {
+                result += `<strong>${index + 1}. ${dirigente.nome_cognome}</strong><br>`;
+                result += `📋 <em>${dirigente.ruolo}</em><br>`;
+                if (dirigente.email) {
+                    result += `📧 <a href="mailto:${dirigente.email}" class="text-primary underline">${dirigente.email}</a><br>`;
+                }
+                if (dirigente.telefono) {
+                    result += `📞 <a href="tel:${dirigente.telefono}" class="text-primary underline">${dirigente.telefono}</a><br>`;
+                }
+                result += '<br>';
+            });
+            
+            return result;
+        }
+
+        // Funzione per gestire logica dirigenti
+        function handleDirigentiQuery(message) {
+            const messageLower = message.toLowerCase();
+            
+            // Reset context se cambia argomento
+            if (!messageLower.includes('dirigent') && !messageLower.includes('regionale') && 
+                !messageLower.includes('provinciale') && !messageLower.includes('provincia')) {
+                conversationContext = {
+                    askingForDirigenti: false,
+                    waitingForLevel: false,
+                    waitingForProvince: false,
+                    currentLevel: null
+                };
+                return null;
+            }
+            
+            // 1. Prima richiesta dirigenti
+            if (messageLower.includes('dirigent') && messageLower.includes('sindacali')) {
+                conversationContext.askingForDirigenti = true;
+                conversationContext.waitingForLevel = true;
+                return {
+                    type: 'ask_level',
+                    message: `Vuoi i contatti dei dirigenti sindacali a livello <strong>Regionale</strong> o <strong>Provinciale</strong>?<br><br>Scrivi semplicemente "regionale" o "provinciale".`
+                };
+            }
+            
+            // 2. Risposta livello
+            if (conversationContext.waitingForLevel) {
+                if (messageLower.includes('regionale')) {
+                    conversationContext.waitingForLevel = false;
+                    conversationContext.currentLevel = 'regionale';
+                    return { type: 'search_regional' };
+                } else if (messageLower.includes('provinciale')) {
+                    conversationContext.waitingForLevel = false;
+                    conversationContext.waitingForProvince = true;
+                    conversationContext.currentLevel = 'provinciale';
+                    return {
+                        type: 'ask_province',
+                        message: `Di quale <strong>provincia</strong> hai bisogno?<br><br>Esempi: Verona, Padova, Venezia, Vicenza, Treviso, Belluno, Rovigo...`
+                    };
+                }
+            }
+            
+            // 3. Risposta provincia
+            if (conversationContext.waitingForProvince) {
+                const province = ['verona', 'padova', 'venezia', 'vicenza', 'treviso', 'belluno', 'rovigo', 'veneto'];
+                const foundProvince = province.find(p => messageLower.includes(p));
+                
+                if (foundProvince) {
+                    conversationContext.waitingForProvince = false;
+                    conversationContext.askingForDirigenti = false;
+                    return { 
+                        type: 'search_province',
+                        province: foundProvince.charAt(0).toUpperCase() + foundProvince.slice(1)
+                    };
+                }
+            }
+            
+            return null;
+        }
             document.getElementById('typingIndicator').classList.remove('hidden');
             const container = document.getElementById('chatMessages');
             setTimeout(() => {
@@ -448,7 +572,15 @@
             const messagesContainer = document.getElementById('chatMessages');
             messagesContainer.innerHTML = '';
 
-            // Messaggio di benvenuto semplificato e pulito
+            // Reset conversation context
+            conversationContext = {
+                askingForDirigenti: false,
+                waitingForLevel: false,
+                waitingForProvince: false,
+                currentLevel: null
+            };
+
+            // Messaggio di benvenuto senza SIM
             setTimeout(() => {
                 addMessage(`Ciao! Sono <strong>Virgilio</strong> 🤖, il tuo assistente sindacale AI.
                 <br><br>
@@ -511,7 +643,12 @@
 
                 // Determina endpoint API
                 const apiEndpoint = getApiEndpoint();
-                console.log('📡 Chiamando API:', apiEndpoint);
+                                        console.log('📡 Richiesta inviata:', {
+                            enable_web_search: requiresWebSearch,
+                            web_search_query: requiresWebSearch ? message : null,
+                            model: CHATBOT_CONFIG.model,
+                            messages_count: conversationHistory.slice(-CHATBOT_CONFIG.maxHistory).length
+                        });
                 
                 if (requiresWebSearch) {
                     console.log('🌐 Richiesta ricerca web abilitata per:', message);
@@ -581,6 +718,8 @@
                         // Log dettagli ricerca web
                         if (hasWebSearch) {
                             console.log('🌐 Ricerca web eseguita:', data.web_search_results || 'Risultati integrati');
+                        } else if (requiresWebSearch) {
+                            console.warn('⚠️ Ricerca web richiesta ma non eseguita dal server');
                         }
 
                         updateConnectionStatus(true);
