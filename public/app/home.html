@@ -328,6 +328,8 @@
             </div>
         </section>
 
+        <!-- Menu Rapido -->
+
         <!-- Notizie e Aggiornamenti - MAGGIOR RISALTO -->
         <section class="mb-6 fade-in">
             <div class="gradient-border rounded-2xl p-5">
@@ -613,7 +615,7 @@
             try {
                 const { data: convenzioni, error } = await supabase
                     .from('convenzioni')
-                    .select('nome_partner, descrizione, categoria, logo_url, sconto')
+                    .select('nome_partner, descrizione, categoria, logo_url, sconto_percentuale, icona')
                     .eq('attiva', true)
                     .limit(4);
 
@@ -632,14 +634,14 @@
                     <div class="bg-white rounded-lg p-4 card-hover shadow-sm border border-gray-100">
                         <div class="flex items-center space-x-3">
                             <div class="w-14 h-14 bg-gradient-to-br from-green-400 to-blue-500 rounded-xl flex items-center justify-center shadow-md">
-                                <span class="text-white font-bold text-lg">${conv.nome_partner.charAt(0)}</span>
+                                <span class="text-2xl">${conv.icona || conv.nome_partner.charAt(0)}</span>
                             </div>
                             <div class="flex-1">
                                 <h4 class="font-semibold text-textDark text-sm mb-1">${conv.nome_partner}</h4>
                                 <p class="text-xs text-gray-600 mb-2">${conv.descrizione.substring(0, 80)}...</p>
                                 <div class="flex items-center space-x-2">
                                     <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">${conv.categoria}</span>
-                                    ${conv.sconto ? `<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">-${conv.sconto}%</span>` : ''}
+                                    ${conv.sconto_percentuale ? `<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">-${conv.sconto_percentuale}%</span>` : ''}
                                 </div>
                             </div>
                         </div>
