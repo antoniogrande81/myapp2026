@@ -602,27 +602,18 @@
         // Gestione Bacheca
         async function caricaBacheca() {
             try {
-                // Per ora usiamo dati mock, poi implementeremo la tabella bacheca
-                const mockPosts = [
-                    {
-                        id: 1,
-                        messaggio: "Riunione dirigenti prevista per venerdì 2 agosto alle ore 15:00",
-                        autore: "Admin",
-                        data: "2025-07-26",
-                        ora: "10:30"
-                    },
-                    {
-                        id: 2,
-                        messaggio: "Aggiornamento procedure rimborsi disponibile nella sezione documenti",
-                        autore: "Segreteria",
-                        data: "2025-07-25",
-                        ora: "14:15"
-                    }
-                ];
+                const { data: posts, error } = await supabase
+                    .from('bacheca')
+                    .select('*')
+                    .eq('attivo', true)
+                    .order('data_pubblicazione', { ascending: false })
+                    .limit(10);
+
+                if (error) throw error;
 
                 const container = document.getElementById('bachecaContainer');
                 
-                if (mockPosts.length === 0) {
+                if (!posts || posts.length === 0) {
                     container.innerHTML = `
                         <div class="text-center py-8 text-gray-500">
                             <p>Nessun post disponibile. Aggiungi il primo messaggio!</p>
@@ -631,20 +622,36 @@
                     return;
                 }
 
-                container.innerHTML = mockPosts.map(post => `
-                    <div class="bacheca-item">
-                        <div class="flex justify-between items-start mb-2">
-                            <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-sm font-bold">
-                                    ${post.autore.charAt(0)}
+                container.innerHTML = posts.map(post => {
+                    const data = new Date(post.data_pubblicazione);
+                    const dataFormatted = data.toLocaleDateString('it-IT');
+                    const oraFormatted = data.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+                    const isAutore = userData && post.autore_id === userData.id;
+                    
+                    return `
+                        <div class="bacheca-item relative">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                        ${post.autore_nome.charAt(0).toUpperCase()}
+                                    </div>
+                                    <span class="font-semibold text-textDark">${post.autore_nome}</span>
                                 </div>
-                                <span class="font-semibold text-textDark">${post.autore}</span>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs text-gray-500">${dataFormatted} ${oraFormatted}</span>
+                                    ${isAutore ? `
+                                        <button onclick="eliminaPost('${post.id}')" class="text-red-500 hover:text-red-700 text-xs">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
+                                    ` : ''}
+                                </div>
                             </div>
-                            <span class="text-xs text-gray-500">${post.data} ${post.ora}</span>
+                            <p class="text-textDark">${post.messaggio}</p>
                         </div>
-                        <p class="text-textDark">${post.messaggio}</p>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
 
             } catch (error) {
                 console.error('Errore caricamento bacheca:', error);
@@ -664,7 +671,18 @@
             try {
                 const messaggio = document.getElementById('messaggioPost').value;
                 
-                // Per ora simuliamo l'aggiunta, poi implementeremo la tabella bacheca
+                const { data, error } = await supabase
+                    .from('bacheca')
+                    .insert([{
+                        messaggio: messaggio,
+                        autore_id: userData.id,
+                        autore_nome: userData.nome_completo || userData.email.split('@')[0],
+                        data_pubblicazione: new Date().toISOString(),
+                        attivo: true
+                    }]);
+
+                if (error) throw error;
+
                 showMessage('Post aggiunto alla bacheca con successo!');
                 document.getElementById('modalPost').classList.add('hidden');
                 document.getElementById('postForm').reset();
@@ -679,6 +697,36 @@
                 hideLoading();
             }
         }
+
+        async function eliminaPost(postId) {
+            if (!confirm('Sei sicuro di voler eliminare questo post?')) {
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const { error } = await supabase
+                    .from('bacheca')
+                    .delete()
+                    .eq('id', postId)
+                    .eq('autore_id', userData.id); // Sicurezza: solo l'autore può eliminare
+
+                if (error) throw error;
+
+                showMessage('Post eliminato con successo!');
+                await caricaBacheca(); // Ricarica la bacheca
+
+            } catch (error) {
+                console.error('Errore eliminazione post:', error);
+                showMessage('Errore nell\'eliminazione del post.', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Esponi la funzione eliminaPost globalmente
+        window.eliminaPost = eliminaPost;
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', async function() {
