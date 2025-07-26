@@ -15,7 +15,63 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="MyApp" />
   <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com">  async function loadConvenzioni() {
+    try {
+      const { data, error } = await supabase.from('convenzioni').select('*').eq('attiva', true).order('created_at', { ascending: false });
+      if (error) throw error;
+      const container = document.querySelector('.convenzioni-list');
+      if (!container) return;
+
+      container.innerHTML = '';
+      data.forEach((conv) => {
+        const el = document.createElement('article');
+        el.className = 'bg-white/10 p-3 rounded-lg flex space-x-3';
+        el.innerHTML = `
+          <img src="${conv.logo_url || '../icons/convenzione-default.jpg'}" alt="${conv.nome_partner}" class="w-16 h-16 rounded object-cover" />
+          <div>
+            <h4 class="font-semibold text-white">${conv.nome_partner}</h4>
+            <p class="text-xs text-blue-200">${conv.descrizione || ''}</p>
+            <span class="text-xs text-blue-400">${conv.categoria || 'Varie'}</span>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    } catch (err) {
+      console.error('Errore caricamento convenzioni:', err);
+    }
+  }
+
+  fetchUserName();
+  loadConvenzioni();
+  async function loadNotizie() {
+    try {
+      const { data, error } = await supabase.from('notizie').select('*').eq('attiva', true).order('data_pubblicazione', { ascending: false });
+      if (error) throw error;
+
+      const container = document.querySelector('.notizie-list');
+      if (!container) return;
+      container.innerHTML = '';
+
+      data.forEach((notizia) => {
+        const el = document.createElement('article');
+        el.className = 'bg-white/10 p-3 rounded-lg flex space-x-3';
+        el.innerHTML = `
+          <img src="${notizia.immagine_url || '../icons/news-default.jpg'}" alt="${notizia.titolo}" class="w-16 h-16 rounded object-cover" />
+          <div>
+            <h4 class="font-semibold text-white">${notizia.titolo}</h4>
+            <p class="text-xs text-blue-200">${notizia.descrizione || ''}</p>
+            ${notizia.link_completo ? `<a href="${notizia.link_completo}" target="_blank" class="text-xs text-blue-400 underline">Leggi tutto</a>` : ''}
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    } catch (err) {
+      console.error('Errore caricamento notizie:', err);
+    }
+  }
+
+  loadNotizie();
+</script>
   <script>
     tailwind.config = {
       theme: {
@@ -80,7 +136,7 @@
   <main class="max-w-4xl mx-auto px-4 space-y-8 pb-32 fade-in">
     <!-- Saluto -->
     <section class="bg-white/20 backdrop-blur-md p-6 rounded-2xl text-center shadow-md">
-      <h2 class="text-2xl font-bold mb-2">Buongiorno, Utente!</h2>
+      <h2 id="greeting" class="text-2xl font-bold mb-2">Buongiorno, Utente!</h2>
       <p class="text-blue-200 text-sm">Sabato 26 Luglio 2025</p>
     </section>
 
@@ -111,22 +167,13 @@
           <h3 class="text-lg font-bold"><a href="notizie.html" class="hover:underline">Ultime Notizie</a></h3>
           <button class="text-xs text-blue-300 hover:text-white">+ Nuova</button>
         </div>
-        <div class="space-y-4">
-          <article class="bg-white/10 p-3 rounded-lg flex space-x-3">
-            <img src="../icons/news-default.jpg" alt="news image" class="w-16 h-16 rounded object-cover" />
-            <div>
-              <h4 class="font-semibold text-white">Aggiornamento sistema</h4>
-              <p class="text-xs text-blue-200">Nuove funzionalità disponibili!</p>
-              <time class="text-xs text-blue-400">2 giorni fa</time>
-            </div>
-          </article>
-        </div>
+        <div class="space-y-4 notizie-list">
+  <article class="text-sm text-blue-100">Caricamento notizie...</article>
+</div>
       </div>
 
-      <!-- Convenzioni -->
-      <div class="bg-white/10 rounded-2xl p-4 shadow-lg">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold">Convenzioni Attive</h3>
+      $1
+            <a href="convenzioni.html" class="text-xs text-blue-300 hover:text-white underline">Visualizza tutto</a>
           <button class="text-xs text-blue-300 hover:text-white">+ Nuova</button>
         </div>
         <div class="space-y-4">
@@ -179,15 +226,21 @@
         container.innerHTML = '';
         const simplified = document.createElement('div');
         simplified.innerHTML = `
-          <div class="flex justify-between items-center">
+          <div class="flex justify-between items-center mb-2">
             <span class="font-semibold">Virgilio AI</span>
             <button onclick="document.getElementById('virgilioChat').classList.add('hidden')" class="text-sm">✖</button>
+          </div>
+          <div id="chatEmbedArea" class="space-y-4"></div>
+          <div class="pt-2">
+            <input id="virgilioInlineInput" type="text" placeholder="Scrivi qui..." class="w-full p-2 rounded bg-white/20 text-white placeholder:text-blue-100 outline-none">
           </div>
         `;
         const content = main.cloneNode(true);
         content.classList.remove('max-w-lg');
-        simplified.appendChild(content);
+        const chatArea = simplified.querySelector('#chatEmbedArea');
+        chatArea.appendChild(messages);
         container.appendChild(simplified);
+      }
       } else {
         container.innerHTML = '<p class="text-red-300 text-sm">⚠️ Virgilio non disponibile</p>';
       }
@@ -210,5 +263,32 @@
       <a href="profilo.html" class="flex flex-col items-center text-gray-600 hover:text-primary">Profilo</a>
     </div>
   </nav>
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+  const supabaseUrl = 'https://lycrgzptkdkksukcwrld.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
+  const supabase = createClient(supabaseUrl, supabaseKey);
+
+  async function fetchUserName() {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session || !session.user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles').select('nome, cognome, ruoli')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profile && profile.full_name) {
+        document.getElementById('greeting').innerHTML = `Buongiorno, <span class="font-semibold">${profile.nome} ${profile.cognome}</span> <span class="ml-2 inline-block text-xs bg-white/20 text-white px-2 py-1 rounded-full align-middle">👤 ${Array.isArray(profile.ruoli) ? profile.ruoli.join(', ') : 'USER'}</span>`;
+      }
+    } catch (error) {
+      console.warn('[MyApp] Errore recupero nome utente:', error);
+    }
+  }
+
+  fetchUserName();
+</script>
 </body>
 </html>
