@@ -353,10 +353,9 @@
         async function loadDirigenti() {
             try {
                 const { data, error } = await supabase
-                    .from('dirigenti')
+                    .from('organico_dirigentisindacali')
                     .select('*')
-                    .eq('attivo', true)
-                    .order('ordine', { ascending: true });
+                    .order('id', { ascending: true });
                 
                 if (error) throw error;
                 
@@ -367,10 +366,16 @@
                 console.error('❌ Errore caricamento dirigenti:', error);
                 dirigenti = [
                     {
-                        nome_cognome: 'Segretario Generale',
-                        ruolo: 'Responsabile Sindacato',
-                        email: 'segretario@sim.carabinieri.it',
-                        telefono: '+39 06 1234567'
+                        nome_cognome: 'Antonio Grande',
+                        ruolo: 'Segretario Generale Regionale - Veneto',
+                        email: 'veneto@carabinierinsic.it',
+                        telefono: '3351470886'
+                    },
+                    {
+                        nome_cognome: 'Andrea Modolo',
+                        ruolo: 'Segretario Generale Regionale Vicario - Veneto',
+                        email: 'veneto@carabinierinsic.it',
+                        telefono: '3770969168'
                     }
                 ];
             }
