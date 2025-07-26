@@ -501,23 +501,38 @@
                     return false;
                 }
 
-                // Verifica se l'utente è un dirigente
+                // Verifica se l'utente ha un profilo nella tabella profiles
                 const { data: profilo, error: profiloError } = await supabase
-                    .from('profili')
+                    .from('profiles')
                     .select('*')
                     .eq('id', user.id)
                     .single();
 
-                if (profiloError || !profilo || profilo.ruolo !== 'dirigente') {
+                if (profiloError) {
+                    console.error('Errore caricamento profilo:', profiloError);
+                    alert('Errore nell\'accesso al profilo. Contatta l\'amministratore.');
+                    window.location.href = '../login.html';
+                    return false;
+                }
+
+                // Controlla se l'utente ha ruoli di dirigente o admin
+                const ruoli = profilo.ruoli || [];
+                const isDirigente = ruoli.includes('DIRIGENTE') || ruoli.includes('ADMIN');
+                
+                if (!isDirigente) {
                     alert('Accesso negato. Solo i dirigenti possono accedere a questa area.');
                     window.location.href = 'home.html';
                     return false;
                 }
 
-                userData = { ...user, ...profilo };
+                // Crea nome completo
+                const nomeCompleto = `${profilo.nome || ''} ${profilo.cognome || ''}`.trim() || user.email.split('@')[0];
+                userData = { ...user, ...profilo, nome_completo: nomeCompleto };
+                
                 return true;
             } catch (error) {
                 console.error('Errore verifica autenticazione:', error);
+                alert('Errore di connessione. Riprova più tardi.');
                 window.location.href = '../login.html';
                 return false;
             }
@@ -676,7 +691,7 @@
                     .insert([{
                         messaggio: messaggio,
                         autore_id: userData.id,
-                        autore_nome: userData.nome_completo || userData.email.split('@')[0],
+                        autore_nome: userData.nome_completo,
                         data_pubblicazione: new Date().toISOString(),
                         attivo: true
                     }]);
