@@ -125,6 +125,15 @@
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
             transform: translateY(-1px);
         }
+        .web-search-indicator {
+            background: linear-gradient(135deg, #00BFFF, #0099CC);
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
@@ -224,7 +233,7 @@
     <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
         <div class="flex justify-around items-center max-w-md mx-auto">
-            <a href="../index.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-2 transition-colors">
+            <a href="home.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-2 transition-colors">
                 <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
                 </svg>
@@ -265,16 +274,18 @@
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
         const supabase = createClient(supabaseUrl, supabaseKey);
 
-        // 🔧 CONFIGURAZIONE CHATBOT
+        // 🔧 CONFIGURAZIONE CHATBOT POTENZIATA
         const CHATBOT_CONFIG = {
             apiEndpoint: 'https://myapp-chatbot-server.onrender.com/api/chat',
             apiEndpointLocal: 'http://localhost:3001/api/chat',
-            maxTokens: 500,
+            maxTokens: 400,
             temperature: 0.7,
             model: 'gpt-4o-mini',
             maxHistory: 8,
             retryAttempts: 3,
-            retryDelay: 1000
+            retryDelay: 1000,
+            enableWebSearch: true,
+            webSearchThreshold: 0.3 // Soglia per attivare ricerca web
         };
 
         // Variabili globali
@@ -286,10 +297,15 @@
 
         // --- FUNZIONI DI UTILITÀ ---
         
-        function addMessage(content, type = 'bot', timestamp = new Date()) {
+        function addMessage(content, type = 'bot', timestamp = new Date(), hasWebSearch = false) {
             const messagesContainer = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = 'flex items-start space-x-3 animate-fade-in';
+            
+            let webSearchBadge = '';
+            if (hasWebSearch && type === 'bot') {
+                webSearchBadge = '<div class="web-search-indicator">🌐 Ricerca Web</div>';
+            }
             
             if (type === 'user') {
                 messageDiv.innerHTML = `
@@ -317,6 +333,7 @@
                         <span class="text-white text-sm">🤖</span>
                     </div>
                     <div class="message-bot rounded-2xl p-4 max-w-xs">
+                        ${webSearchBadge}
                         <div class="text-textDark text-sm">${content}</div>
                         <div class="text-xs text-gray-500 mt-2">${timestamp.toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'})}</div>
                     </div>
@@ -480,12 +497,12 @@
             return CHATBOT_CONFIG.apiEndpoint;
         }
 
-        // Inizializza la chat con messaggio di benvenuto pulito
+        // Inizializza la chat con messaggio di benvenuto aggiornato
         function initializeChat() {
             const messagesContainer = document.getElementById('chatMessages');
             messagesContainer.innerHTML = '';
 
-            // Messaggio di benvenuto semplificato
+            // Messaggio di benvenuto aggiornato con contatto dirigenti integrato
             setTimeout(() => {
                 addMessage(`Ciao! Sono <strong>Virgilio</strong> 🤖, il tuo assistente sindacale AI.
                 <br><br>
@@ -494,19 +511,30 @@
                 <br>• Ferie e permessi 🏖️  
                 <br>• Diritti sindacali ⚖️
                 <br>• Procedure e normative 📝
+                <br>• Contatta un dirigente 👥
                 <br><br>
                 <strong>Scrivi la tua domanda nell'area qui sotto!</strong>`, 'bot');
             }, 500);
 
-            // Aggiungi card contatti dirigenti
-            setTimeout(() => {
-                addMessage(`Se hai bisogno di assistenza personalizzata o di parlare con un responsabile, 
-                ecco i contatti dei nostri dirigenti:`, 'system');
-            }, 1500);
-
+            // Aggiungi card contatti dirigenti senza messaggio introduttivo
             setTimeout(() => {
                 addDirigentiCard();
-            }, 2000);
+            }, 1500);
+        }
+
+        // Funzione per decidere se necessita ricerca web
+        function needsWebSearch(message) {
+            const webSearchKeywords = [
+                'ultime notizie', 'news', 'aggiornamenti', 'recenti', 'oggi', 
+                'attuale', 'corrente', 'nuovo', 'ultima', 'current',
+                'stipendio 2025', 'contratto 2025', 'aumenti', 'novità',
+                'legge', 'decreto', 'normativa', 'giurisprudenza',
+                'confronta', 'vs', 'statistiche', 'dati', 'cifre',
+                'cosa dice', 'secondo', 'fonte', 'verifica'
+            ];
+            
+            const messageLower = message.toLowerCase();
+            return webSearchKeywords.some(keyword => messageLower.includes(keyword));
         }
 
         async function sendMessage() {
@@ -530,6 +558,9 @@
             // Mostra typing indicator
             showTyping();
             
+            // Determina se serve ricerca web
+            const requiresWebSearch = needsWebSearch(message);
+            
             try {
                 // Ottieni token di autenticazione
                 const { data: { session } } = await supabase.auth.getSession();
@@ -540,27 +571,33 @@
                 // Determina endpoint API
                 const apiEndpoint = getApiEndpoint();
                 console.log('📡 Chiamando API:', apiEndpoint);
-
-                // Crea prompt potenziato con info sui dirigenti
-                let systemContext = '';
-                if (dirigenti.length > 0) {
-                    systemContext = `\n\nCONTATTI DIRIGENTI SINDACATO DISPONIBILI:\n`;
-                    dirigenti.forEach(dirigente => {
-                        systemContext += `- ${dirigente.nome_cognome} (${dirigente.ruolo})`;
-                        if (dirigente.email) systemContext += ` - Email: ${dirigente.email}`;
-                        if (dirigente.telefono) systemContext += ` - Tel: ${dirigente.telefono}`;
-                        systemContext += '\n';
-                    });
-                    systemContext += `\nSe l'utente chiede contatti o vuole parlare con qualcuno, fornisci questi riferimenti.`;
+                
+                if (requiresWebSearch) {
+                    console.log('🌐 Richiesta ricerca web abilitata per:', message);
                 }
 
-                // Prepara richiesta
+                // Crea prompt potenziato con info sui dirigenti
+                let systemContext = `Sei Virgilio, assistente AI del Sindacato Carabinieri. Rispondi in modo conciso e utile.`;
+                
+                if (dirigenti.length > 0) {
+                    systemContext += `\n\nCONTATTI DIRIGENTI SINDACATO:\n`;
+                    dirigenti.forEach(dirigente => {
+                        systemContext += `- ${dirigente.nome_cognome} (${dirigente.ruolo})`;
+                        if (dirigente.email) systemContext += ` - ${dirigente.email}`;
+                        if (dirigente.telefono) systemContext += ` - ${dirigente.telefono}`;
+                        systemContext += '\n';
+                    });
+                }
+
+                // Prepara richiesta con supporto ricerca web
                 const requestBody = {
                     messages: conversationHistory.slice(-CHATBOT_CONFIG.maxHistory),
                     model: CHATBOT_CONFIG.model,
                     max_tokens: CHATBOT_CONFIG.maxTokens,
                     temperature: CHATBOT_CONFIG.temperature,
-                    system_context: systemContext
+                    system_context: systemContext,
+                    enable_web_search: requiresWebSearch,
+                    web_search_query: requiresWebSearch ? message : null
                 };
 
                 // Chiamata API con retry
@@ -588,15 +625,21 @@
                         }
 
                         const botResponse = data.choices[0].message.content;
+                        const hasWebSearch = data.web_search_performed || false;
                         
-                        // Aggiungi risposta del bot
-                        addMessage(botResponse);
+                        // Aggiungi risposta del bot con indicatore ricerca web
+                        addMessage(botResponse, 'bot', new Date(), hasWebSearch);
                         conversationHistory.push({ role: 'assistant', content: botResponse });
                         
                         // Aggiorna contatori
                         if (data.usage) {
                             totalTokensUsed += data.usage.total_tokens || 0;
                             document.getElementById('tokenCount').textContent = totalTokensUsed;
+                        }
+
+                        // Log dettagli ricerca web
+                        if (hasWebSearch) {
+                            console.log('🌐 Ricerca web eseguita:', data.web_search_results || 'Risultati integrati');
                         }
 
                         updateConnectionStatus(true);
@@ -778,8 +821,9 @@
         });
 
         // Debug info
-        console.log('🤖 Virgilio Chat Semplificata inizializzata');
+        console.log('🤖 Virgilio Chat Potenziata inizializzata');
         console.log('🔧 Configurazione:', CHATBOT_CONFIG);
+        console.log('🌐 Ricerca web abilitata:', CHATBOT_CONFIG.enableWebSearch);
     </script>
 </body>
 </html>
