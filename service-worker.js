@@ -1,207 +1,197 @@
-// MyApp Service Worker – Versione Aggiornata v1.3.1
-const CACHE_NAME = 'myapp-simple-v1.3.1';
-
-// Risorse statiche essenziali (AGGIORNATO con strumenti.html)
+// MyApp Service Worker – Versione PWA v1.5
+const CACHE_NAME = 'myapp-cache-v1.5';
 const STATIC_CACHE_URLS = [
   '/',
-  '/public/index.html',
-  '/public/strumenti.html',
+  '/index.html',
+  '/login.html',
+  '/app/home.html',
+  '/app/home_dirigenti.html',
+  '/app/tessera.html',
+  '/app/profilo.html',
+  '/app/strumenti.html',
+  '/app/virgilio.html',
+  '/app/notifiche.html',
+  '/app/servizi.html',
+  '/convenzioni.html',
+  '/dirigenti.html',
+  '/contatti.html',
+  '/area-riservata.html',
+  '/manifest.json',
+  '/icons/icon-192x192.png',
+  '/icons/icon-512x512.png',
+  '/icons/apple-touch-icon.png',
+  '/icons/favicon-16x16.png',
+  '/icons/favicon-32x32.png',
+  '/favicon.ico',
   '/offline.html'
 ];
 
-// URLs da NON cachare MAI
-const NEVER_CACHE_PATTERNS = [
-  /\/public\/login\.html/,
-  /\/app\//,
-  /\/api\/auth/,
-  /supabase\.co/,
-  /\.auth\./,
-  /auth/,
-  /login/,
-  /logout/,
-  /session/,
-  /token/
+const NEVER_CACHE = [
+  /\/login/i,
+  /\/logout/i,
+  /\/session/i,
+  /\/token/i,
+  /supabase/,
+  /\/app\/virgilio\.html/,
+  /\/api\//,
+  /cdn\.tailwindcss\.com/,
+  /cdn\.jsdelivr\.net/,
+  /cdnjs\.cloudflare\.com/
 ];
 
-/* ------------------------------------------------------------------ */
-/* 1. INSTALL                                                           */
-/* ------------------------------------------------------------------ */
+// INSTALL
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing v1.3.1');
-
+  console.log('[SW] Install v1.5');
   event.waitUntil(
-    (async () => {
-      try {
-        const cache = await caches.open(CACHE_NAME);
-        await cache.addAll(STATIC_CACHE_URLS.filter(Boolean));
-        console.log('[SW] Cache populated');
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        // Carica solo i file che esistono davvero
+        return Promise.allSettled(
+          STATIC_CACHE_URLS.map(url => 
+            fetch(url)
+              .then(response => {
+                if (response.ok) {
+                  return cache.put(url, response);
+                } else {
+                  console.warn(`[SW] File non trovato: ${url} (${response.status})`);
+                  return Promise.resolve();
+                }
+              })
+              .catch(error => {
+                console.warn(`[SW] Errore caricamento: ${url}`, error);
+                return Promise.resolve();
+              })
+          )
+        );
+      })
+      .then(() => {
+        console.log('[SW] Cache popolata con successo');
         self.skipWaiting();
-      } catch (error) {
-        console.warn('[SW] Install failed:', error);
-        // NON chiamiamo skipWaiting() in caso di errore
-      }
-    })()
+      })
+      .catch(error => {
+        console.error('[SW] Errore durante install:', error);
+      })
   );
 });
 
-/* ------------------------------------------------------------------ */
-/* 2. ACTIVATE                                                         */
-/* ------------------------------------------------------------------ */
+// ACTIVATE
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating v1.3.1');
-
+  console.log('[SW] Activate v1.5');
   event.waitUntil(
-    (async () => {
-      const cacheNames = await caches.keys();
-      const oldCaches = cacheNames.filter(
-        (name) => name.startsWith('myapp-') && name !== CACHE_NAME
-      );
-
-      await Promise.all(
-        oldCaches.map((cacheName) => {
-          console.log('[SW] Deleting old cache:', cacheName);
-          return caches.delete(cacheName);
+    caches.keys().then((keys) =>
+      Promise.all(
+        keys.filter((key) => key !== CACHE_NAME).map((key) => {
+          console.log('[SW] Eliminazione cache obsoleta:', key);
+          return caches.delete(key);
         })
-      );
-
-      await self.clients.claim();
-      console.log('[SW] Activated');
-    })()
+      )
+    ).then(() => {
+      console.log('[SW] Cache obsolete eliminate');
+      return self.clients.claim();
+    })
   );
 });
 
-/* ------------------------------------------------------------------ */
-/* 3. FETCH                                                            */
-/* ------------------------------------------------------------------ */
+// FETCH
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
-
-  // Salta tutto ciò che non è GET
-  if (request.method !== 'GET') return;
-
-  // Salta protocolli non-HTTP
-  if (!url.protocol.startsWith('http')) return;
-
-  // Salta URL critici
-  const shouldSkip = NEVER_CACHE_PATTERNS.some(
-    (pattern) =>
-      pattern.test(url.href) ||
-      pattern.test(url.pathname) ||
-      pattern.test(request.url)
-  );
-
-  if (shouldSkip) {
-    console.log('[SW] Skipping cache for:', url.pathname);
-    return; // Lascia passare la richiesta senza intercettarla
+  
+  // Skip caching per richieste non GET o URL esclusi
+  if (request.method !== 'GET' || NEVER_CACHE.some((p) => p.test(url.pathname))) {
+    return;
   }
 
-  // Network-first per tutto il resto
-  event.respondWith(handleRequest(request));
+  // Skip caching per richieste esterne (CDN, API, etc.)
+  if (!request.url.startsWith(location.origin)) {
+    return;
+  }
+
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        // Cache solo risposte OK
+        if (response.ok) {
+          const cloned = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, cloned);
+          });
+        }
+        return response;
+      })
+      .catch(() =>
+        caches.match(request).then((res) => res || offlineFallback(request))
+      )
+  );
 });
 
-/* ------------------------------------------------------------------ */
-/* 4. GESTIONE RICHIESTE                                               */
-/* ------------------------------------------------------------------ */
-async function handleRequest(request) {
+// Fallback per contenuti offline
+async function offlineFallback(request) {
   const url = new URL(request.url);
-
-  try {
-    const response = await fetch(request);
-
-    // Cache solo HTML pubblici che non contengono “login”
-    if (
-      response.ok &&
-      request.headers.get('accept')?.includes('text/html') &&
-      url.pathname.startsWith('/public/') &&
-      !url.pathname.includes('login')
-    ) {
-      try {
-        const cache = await caches.open(CACHE_NAME);
-        cache.put(request, response.clone());
-      } catch (cacheError) {
-        console.warn('[SW] Cache put failed:', cacheError);
-      }
+  
+  // Per pagine HTML, mostra la pagina offline
+  if (request.headers.get('accept')?.includes('text/html')) {
+    const offlinePage = await caches.match('/offline.html');
+    if (offlinePage) {
+      return offlinePage;
     }
-
-    return response;
-  } catch (networkError) {
-    console.log('[SW] Network failed for:', url.pathname);
-
-    // Solo per HTML prova la cache
-    if (request.headers.get('accept')?.includes('text/html')) {
-      const cache = await caches.open(CACHE_NAME);
-      const cached = await cache.match(request);
-
-      if (cached) return cached;
-
-      // Fallback solo per la homepage
-      if (url.pathname === '/' || url.pathname === '/public/index.html') {
-        const offline = await cache.match('/offline.html');
-        if (offline) return offline;
-      }
-
-      // HTML di fallback inline
-      return new Response(
-        `
-        <!DOCTYPE html>
-        <html lang="it">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Offline – MyApp</title>
-          <style>
-            body{
-              font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#2400C1,#8E008C);
-              color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;
-            }
-            .box{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);padding:40px;border-radius:15px;text-align:center}
-            button{background:#fff;color:#2400C1;border:none;padding:12px 24px;border-radius:8px;font-weight:bold;margin-top:20px;cursor:pointer}
-          </style>
-        </head>
-        <body>
-          <div class="box">
-            <h1>🔌 Connessione Assente</h1>
-            <p>Non è possibile caricare la pagina senza connessione internet.</p>
-            <button onclick="location.reload()">🔄 Riprova</button>
-            <button onclick="location.href='/public/index.html'">🏠 Home</button>
-          </div>
-        </body>
-        </html>
-        `,
-        {
-          status: 503,
-          headers: { 'Content-Type': 'text/html' }
-        }
-      );
-    }
-
-    // Per richieste non-HTML fallisce
-    throw networkError;
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/* 5. MESSAGGI & DEBUG                                                */
-/* ------------------------------------------------------------------ */
-self.addEventListener('message', (event) => {
-  console.log('[SW] Message:', event.data);
-
-  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
-  if (event.data?.type === 'CLEAR_CACHE') {
-    caches.delete(CACHE_NAME).then(() => {
-      console.log('[SW] Cache cleared');
-      event.ports[0]?.postMessage({ success: true });
+    
+    // Fallback HTML minimo se offline.html non è disponibile
+    return new Response(`
+      <!DOCTYPE html>
+      <html lang="it">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Offline - MyApp</title>
+        <style>
+          body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            padding: 50px; 
+            background: linear-gradient(135deg, #2400C1, #8E008C);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+          }
+          .container { 
+            background: white; 
+            color: #333; 
+            padding: 2rem; 
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>🔌 Offline</h1>
+          <p>MyApp non è disponibile offline.</p>
+          <p>Controlla la connessione internet e riprova.</p>
+          <button onclick="window.location.reload()">🔄 Riprova</button>
+        </div>
+      </body>
+      </html>
+    `, {
+      headers: { 'Content-Type': 'text/html' }
     });
   }
+  
+  // Per altri tipi di richieste
+  return new Response('', { 
+    status: 503, 
+    statusText: 'Service Unavailable - Offline' 
+  });
+}
+
+// Gestione messaggi dal client
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
 
-// Debug utility
-self.debugServiceWorker = () => {
-  console.log('🔍 Service Worker Debug Info:');
-  console.log('- Version:', CACHE_NAME);
-  console.log('- Registration:', self.registration);
-  caches.keys().then((names) => console.log('- Active caches:', names));
-};
-
-console.log('✅ Service Worker v1.3.1 pronto');
+console.log('[SW] Service Worker v1.5 caricato');
