@@ -567,11 +567,11 @@
                     </svg>
                 </button>
             </div>
-            <div id="notizieContainer" class="space-y-3">
+            <div id="notizieContainer" class="grid gap-3">
                 <!-- Loading skeleton -->
                 <div class="glass-effect rounded-xl p-4">
                     <div class="flex items-center space-x-3">
-                        <div class="w-3 h-3 loading-skeleton rounded-full"></div>
+                        <div class="w-12 h-12 loading-skeleton rounded-lg"></div>
                         <div class="flex-1">
                             <div class="w-3/4 h-4 loading-skeleton rounded mb-2"></div>
                             <div class="w-1/2 h-3 loading-skeleton rounded"></div>
@@ -592,11 +592,11 @@
                     </svg>
                 </button>
             </div>
-            <div id="convenzioniContainer" class="space-y-3">
+            <div id="convenzioniContainer" class="grid gap-4">
                 <!-- Loading skeleton -->
                 <div class="glass-effect rounded-xl p-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-14 h-14 loading-skeleton rounded-xl"></div>
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 loading-skeleton rounded-xl"></div>
                         <div class="flex-1">
                             <div class="w-2/3 h-4 loading-skeleton rounded mb-2"></div>
                             <div class="w-1/3 h-3 loading-skeleton rounded"></div>
@@ -789,7 +789,7 @@
             try {
                 const { data: notizie, error } = await supabase
                     .from('notizie')
-                    .select('titolo, contenuto, data_pubblicazione, urgente')
+                    .select('id, titolo, contenuto, data_pubblicazione, icona, immagine_url')
                     .eq('pubblicata', true)
                     .order('data_pubblicazione', { ascending: false })
                     .limit(3);
@@ -798,9 +798,9 @@
                 
                 if (error || !notizie || notizie.length === 0) {
                     container.innerHTML = `
-                        <div class="glass-effect rounded-xl p-5 text-center">
-                            <div class="text-4xl mb-3 opacity-50">📰</div>
-                            <p class="text-gray-600 text-sm">Nessuna notizia al momento</p>
+                        <div class="glass-effect rounded-xl p-6 text-center">
+                            <div class="text-5xl mb-3 opacity-50">📰</div>
+                            <p class="text-gray-600 font-semibold">Nessuna notizia al momento</p>
                             <p class="text-gray-400 text-xs mt-1">Torna più tardi per aggiornamenti</p>
                         </div>
                     `;
@@ -808,18 +808,34 @@
                 }
 
                 container.innerHTML = notizie.map((notizia, index) => `
-                    <div class="glass-effect rounded-xl p-4 card-hover" style="animation-delay: ${index * 0.1}s">
-                        <div class="flex items-start space-x-3">
-                            <div class="relative">
-                                <div class="w-3 h-3 ${notizia.urgente ? 'bg-red-500 pulse-animation' : 'bg-green-500'} rounded-full mt-2"></div>
-                                ${notizia.urgente ? '<div class="absolute inset-0 bg-red-400 rounded-full animate-ping"></div>' : ''}
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-bold text-textDark text-sm mb-1 line-clamp-2">${notizia.titolo}</h4>
+                    <div class="glass-effect rounded-xl overflow-hidden card-hover group" style="animation-delay: ${index * 0.1}s">
+                        <div class="flex">
+                            ${notizia.immagine_url ? `
+                                <div class="w-24 h-24 flex-shrink-0">
+                                    <img src="${notizia.immagine_url}" alt="${notizia.titolo}" 
+                                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                </div>
+                            ` : `
+                                <div class="w-24 h-24 flex-shrink-0 bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                                    <span class="text-3xl">${notizia.icona || '📄'}</span>
+                                </div>
+                            `}
+                            <div class="flex-1 p-4">
+                                <h4 class="font-bold text-textDark text-sm mb-1 line-clamp-1 group-hover:text-primary transition-colors">
+                                    ${notizia.titolo}
+                                </h4>
                                 <p class="text-xs text-gray-600 mb-2 line-clamp-2">${notizia.contenuto}</p>
                                 <div class="flex items-center justify-between">
-                                    <span class="text-xs text-blue-600 font-medium">${formatDataRelativa(notizia.data_pubblicazione)}</span>
-                                    <button class="text-xs text-primary hover:text-secondary transition-colors">Leggi →</button>
+                                    <span class="text-xs text-blue-600 font-medium flex items-center">
+                                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                                        </svg>
+                                        ${formatDataRelativa(notizia.data_pubblicazione)}
+                                    </span>
+                                    <button onclick="navigateTo('notizia.html?id=${notizia.id}')" 
+                                            class="text-xs text-primary hover:text-secondary transition-colors font-medium">
+                                        Leggi →
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -840,9 +856,9 @@
             } catch (error) {
                 console.error('Errore caricamento notizie:', error);
                 document.getElementById('notizieContainer').innerHTML = `
-                    <div class="glass-effect rounded-xl p-5 text-center">
-                        <div class="text-4xl mb-3 opacity-50">⚠️</div>
-                        <p class="text-gray-600 text-sm">Errore nel caricamento</p>
+                    <div class="glass-effect rounded-xl p-6 text-center">
+                        <div class="text-5xl mb-3 opacity-50">⚠️</div>
+                        <p class="text-gray-600 font-semibold">Errore nel caricamento</p>
                         <button onclick="caricaNotizie()" class="text-xs text-primary mt-2 hover:underline">Riprova</button>
                     </div>
                 `;
@@ -851,19 +867,22 @@
 
         async function caricaConvenzioni() {
             try {
+                const oggi = new Date().toISOString();
+                
                 const { data: convenzioni, error } = await supabase
                     .from('convenzioni')
-                    .select('nome_partner, descrizione, categoria, logo_url, sconto')
-                    .eq('attiva', true)
-                    .limit(3);
+                    .select('id, nome_partner, descrizione, categoria, sconto_percentuale, codice_sconto, logo_url, sito_web')
+                    .or(`data_fine.is.null,data_fine.gte.${oggi}`)
+                    .gte('data_inizio', oggi)
+                    .limit(4);
 
                 const container = document.getElementById('convenzioniContainer');
                 
                 if (error || !convenzioni || convenzioni.length === 0) {
                     container.innerHTML = `
-                        <div class="glass-effect rounded-xl p-5 text-center">
-                            <div class="text-4xl mb-3 opacity-50">🏷️</div>
-                            <p class="text-gray-600 text-sm">Nessuna convenzione al momento</p>
+                        <div class="glass-effect rounded-xl p-6 text-center">
+                            <div class="text-5xl mb-3 opacity-50">🏷️</div>
+                            <p class="text-gray-600 font-semibold">Nessuna convenzione attiva</p>
                             <p class="text-gray-400 text-xs mt-1">Nuove offerte in arrivo!</p>
                         </div>
                     `;
@@ -876,36 +895,62 @@
                     'Salute': { bg: 'from-green-400 to-teal-500', icon: '🏥' },
                     'Viaggi': { bg: 'from-blue-400 to-cyan-500', icon: '✈️' },
                     'Sport': { bg: 'from-yellow-400 to-orange-500', icon: '⚽' },
-                    'Cultura': { bg: 'from-purple-400 to-pink-500', icon: '🎭' }
+                    'Cultura': { bg: 'from-purple-400 to-pink-500', icon: '🎭' },
+                    'Servizi': { bg: 'from-indigo-400 to-blue-500', icon: '🛠️' },
+                    'Tecnologia': { bg: 'from-gray-400 to-gray-600', icon: '💻' }
                 };
 
                 container.innerHTML = convenzioni.map((conv, index) => {
                     const cat = categorie[conv.categoria] || { bg: 'from-gray-400 to-gray-500', icon: '📦' };
                     return `
-                        <div class="glass-effect rounded-xl p-4 card-hover group" style="animation-delay: ${index * 0.1}s">
-                            <div class="flex items-center space-x-4">
-                                <div class="relative">
-                                    <div class="w-14 h-14 bg-gradient-to-br ${cat.bg} rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform">
-                                        <span class="text-2xl">${cat.icon}</span>
-                                    </div>
-                                    ${conv.sconto ? `<div class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">-${conv.sconto}%</div>` : ''}
+                        <div class="glass-effect rounded-xl p-5 card-hover group" style="animation-delay: ${index * 0.1}s">
+                            <div class="flex items-start space-x-4">
+                                <div class="relative flex-shrink-0">
+                                    ${conv.logo_url ? `
+                                        <div class="w-16 h-16 rounded-xl overflow-hidden shadow-lg group-hover:shadow-xl transition-shadow">
+                                            <img src="${conv.logo_url}" alt="${conv.nome_partner}" 
+                                                 class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                                        </div>
+                                    ` : `
+                                        <div class="w-16 h-16 bg-gradient-to-br ${cat.bg} rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-all">
+                                            <span class="text-2xl">${cat.icon}</span>
+                                        </div>
+                                    `}
+                                    ${conv.sconto_percentuale ? `
+                                        <div class="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md">
+                                            -${conv.sconto_percentuale}%
+                                        </div>
+                                    ` : ''}
                                 </div>
                                 <div class="flex-1">
-                                    <h4 class="font-bold text-textDark text-sm mb-1 group-hover:text-primary transition-colors">${conv.nome_partner}</h4>
-                                    <p class="text-xs text-gray-600 mb-2 line-clamp-2">${conv.descrizione}</p>
+                                    <h4 class="font-bold text-textDark text-base mb-1 group-hover:text-primary transition-colors">
+                                        ${conv.nome_partner}
+                                    </h4>
+                                    <p class="text-xs text-gray-600 mb-3 line-clamp-2">${conv.descrizione}</p>
                                     <div class="flex items-center justify-between">
-                                        <span class="text-xs bg-gradient-to-r ${cat.bg} text-white px-3 py-1 rounded-full font-medium">${conv.categoria}</span>
-                                        <button class="text-xs text-primary hover:text-secondary transition-colors opacity-0 group-hover:opacity-100">Dettagli →</button>
+                                        <span class="text-xs bg-gradient-to-r ${cat.bg} text-white px-3 py-1 rounded-full font-medium shadow-sm">
+                                            ${conv.categoria}
+                                        </span>
+                                        ${conv.codice_sconto ? `
+                                            <span class="text-xs font-mono bg-gray-100 text-gray-700 px-2 py-1 rounded border border-gray-300">
+                                                ${conv.codice_sconto}
+                                            </span>
+                                        ` : ''}
                                     </div>
+                                    ${conv.sito_web ? `
+                                        <a href="${conv.sito_web}" target="_blank" 
+                                           class="inline-flex items-center text-xs text-primary hover:text-secondary transition-colors mt-2 opacity-0 group-hover:opacity-100">
+                                            Visita sito
+                                            <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                            </svg>
+                                        </a>
+                                    ` : ''}
                                 </div>
                             </div>
                         </div>
                     `;
                 }).join('');
-
-                // Update counter with animation
-                const counter = document.getElementById('convenzioniCount');
-                animateValue(counter, 0, convenzioni.length, 1000);
 
                 // Add entrance animation
                 container.querySelectorAll('.card-hover').forEach((card, index) => {
@@ -921,9 +966,20 @@
             } catch (error) {
                 console.error('Errore caricamento convenzioni:', error);
                 document.getElementById('convenzioniContainer').innerHTML = `
-                    <div class="glass-effect rounded-xl p-5 text-center">
-                        <div class="text-4xl mb-3 opacity-50">⚠️</div>
-                        <p class="text-gray-600 text-sm">Errore nel caricamento</p>
+                    <div class="glass-effect rounded-xl p-6 text-center">
+                        <div class="text-5xl mb-3 opacity-50">⚠️</div>
+                        <p class="text-gray-600 font-semibold">Errore nel caricamento</p>
+                        <button onclick="caricaConvenzioni()" class="text-xs text-primary mt-2 hover:underline">Riprova</button>
+                    </div>
+                `;
+            }
+        }</p>
+            } catch (error) {
+                console.error('Errore caricamento convenzioni:', error);
+                document.getElementById('convenzioniContainer').innerHTML = `
+                    <div class="glass-effect rounded-xl p-6 text-center">
+                        <div class="text-5xl mb-3 opacity-50">⚠️</div>
+                        <p class="text-gray-600 font-semibold">Errore nel caricamento</p>
                         <button onclick="caricaConvenzioni()" class="text-xs text-primary mt-2 hover:underline">Riprova</button>
                     </div>
                 `;
@@ -932,6 +988,8 @@
 
         // Animate counter
         function animateValue(element, start, end, duration) {
+            if (!element) return;
+            
             const range = end - start;
             const startTime = performance.now();
             
@@ -979,33 +1037,40 @@
                 
                 isAuthenticated = true;
 
-                // Carica profilo utente
-                let profile = null;
-                try {
-                    const { data: profileData, error: profileError } = await supabase
-                        .from('profiles')
-                        .select('nome, cognome, email, avatar_url')
-                        .eq('id', user.id)
-                        .single();
+                // Carica profilo utente dalla tabella profiles
+                const { data: profileData, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('nome, cognome, email, telefono, ruoli')
+                    .eq('id', user.id)
+                    .single();
 
-                    if (!profileError && profileData) {
-                        profile = profileData;
-                    }
-                } catch (err) {
-                    console.log('Nessun profilo trovato');
+                if (profileError) {
+                    console.error('Errore caricamento profilo:', profileError);
+                    // Usa email come fallback
+                    userData = {
+                        id: user.id,
+                        email: user.email,
+                        nome: user.email.split('@')[0],
+                        cognome: '',
+                        telefono: '',
+                        ruoli: []
+                    };
+                } else {
+                    userData = {
+                        id: user.id,
+                        email: profileData.email || user.email,
+                        nome: profileData.nome || 'Utente',
+                        cognome: profileData.cognome || '',
+                        telefono: profileData.telefono || '',
+                        ruoli: profileData.ruoli || []
+                    };
                 }
 
-                userData = {
-                    id: user.id,
-                    email: user.email,
-                    nome: profile?.nome || 'Utente',
-                    cognome: profile?.cognome || '',
-                    avatar: profile?.avatar_url || null
-                };
-
-                // Aggiorna interfaccia personalizzata
+                // Aggiorna interfaccia personalizzata con il nome reale
                 aggiornaInterfacciaPersonalizzata();
-                await caricaStatistiche();
+                
+                // Carica statistiche base (tessera e recuperi)
+                await caricaStatisticheBase();
                 
                 // Carica contenuti dinamici in parallelo
                 await Promise.all([
@@ -1028,8 +1093,9 @@
             const saluto = document.getElementById('salutoPersonalizzato');
             const data = document.getElementById('dataOdierna');
             
-            const nomeCompleto = `${userData.nome} ${userData.cognome}`.trim();
-            saluto.innerHTML = `${getSalutoPersonalizzato()}, <span class="bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">${userData.nome}</span>! 👋`;
+            // Usa il nome reale dall'utente autenticato
+            const nomeUtente = userData.nome.charAt(0).toUpperCase() + userData.nome.slice(1);
+            saluto.innerHTML = `${getSalutoPersonalizzato()}, <span class="bg-gradient-to-r from-yellow-300 to-orange-400 bg-clip-text text-transparent">${nomeUtente}</span>! 👋`;
             data.textContent = getDataOdierna();
 
             // Add welcome animation
@@ -1042,7 +1108,7 @@
             }, 100);
         }
 
-        async function caricaStatistiche() {
+        async function caricaStatisticheBase() {
             if (!userData) return;
 
             try {
@@ -1058,39 +1124,30 @@
                     const oggi = new Date();
                     const giorni = Math.floor((oggi - dataInizio) / (1000 * 60 * 60 * 24));
                     animateValue(document.getElementById('giorniServizio'), 0, giorni > 0 ? giorni : 1, 1500);
+                } else {
+                    // Se non ha tessera, mostra 0
+                    document.getElementById('giorniServizio').textContent = '0';
                 }
 
                 // Carica recuperi maturati
-                try {
-                    const { data: recuperi } = await supabase
-                        .from('recuperi')
-                        .select('id')
-                        .eq('user_id', userData.id)
-                        .eq('usato', false);
+                const { data: recuperi } = await supabase
+                    .from('recuperi')
+                    .select('ore')
+                    .eq('user_id', userData.id)
+                    .eq('usato', false);
 
-                    if (recuperi) {
-                        animateValue(document.getElementById('recuperiMaturati'), 0, recuperi.length, 1200);
-                    }
-                } catch (err) {
-                    const randomRecuperi = Math.floor(Math.random() * 10);
-                    animateValue(document.getElementById('recuperiMaturati'), 0, randomRecuperi, 1200);
+                if (recuperi && recuperi.length > 0) {
+                    const totaleRecuperi = recuperi.reduce((sum, r) => sum + (r.ore || 0), 0);
+                    animateValue(document.getElementById('recuperiMaturati'), 0, totaleRecuperi, 1200);
+                } else {
+                    document.getElementById('recuperiMaturati').textContent = '0';
                 }
-
-                // Simulated stats with animations
-                const oreLavorate = Math.floor(Math.random() * 50 + 120);
-                const straordinari = Math.floor(Math.random() * 20 + 5);
-                const ferie = Math.floor(Math.random() * 15 + 20);
-
-                animateValue(document.getElementById('oreLavorate'), 0, oreLavorate, 1800);
-                animateValue(document.getElementById('straordinari'), 0, straordinari, 1600);
-                animateValue(document.getElementById('ferie'), 0, ferie, 1400);
 
             } catch (error) {
                 console.error('Errore caricamento statistiche:', error);
-                // Valori di fallback con animazioni
-                animateValue(document.getElementById('oreLavorate'), 0, 156, 1800);
-                animateValue(document.getElementById('straordinari'), 0, 12, 1600);
-                animateValue(document.getElementById('ferie'), 0, 25, 1400);
+                // Valori di fallback
+                document.getElementById('giorniServizio').textContent = '0';
+                document.getElementById('recuperiMaturati').textContent = '0';
             }
         }
 
