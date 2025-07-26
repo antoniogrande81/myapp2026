@@ -167,7 +167,7 @@
     container.innerHTML = '<div class="text-sm text-blue-100">Caricamento assistente...</div>';
 
     try {
-      const response = await fetch('virgilio.html');
+      const response = await fetch('/virgilio.html');
       const html = await response.text();
       const temp = document.createElement('div');
       temp.innerHTML = html;
