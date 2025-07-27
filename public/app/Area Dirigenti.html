@@ -1,9 +1,9 @@
-ù<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Dirigenti - MyApp</title>
+    <title>Dashboard - MyApp</title>
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="../manifest.json">
@@ -36,8 +36,6 @@
                         accent: '#00BFFF',
                         textDark: '#1C1C1E',
                         backgroundLight: '#F4F4F8',
-                        admin: '#dc2626',
-                        dirigente: '#7c3aed',
                     },
                     screens: {
                         'xs': '320px',
@@ -75,12 +73,6 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .glass-admin {
-            background: linear-gradient(135deg, rgba(220, 38, 38, 0.15), rgba(124, 58, 237, 0.15));
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(220, 38, 38, 0.3);
-        }
-
         .card-hover {
             transition: all 0.3s ease;
         }
@@ -90,22 +82,19 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
 
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
         .stat-card {
             background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1));
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.3);
-        }
-
-        .admin-badge {
-            background: linear-gradient(135deg, #dc2626, #7c3aed);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
         }
 
         .myapp-logo {
@@ -257,7 +246,7 @@
     <div id="loading" class="fixed inset-0 bg-primary bg-opacity-90 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 text-center">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p class="text-primary font-medium">Caricamento dashboard dirigenti...</p>
+            <p class="text-primary font-medium">Caricamento dashboard...</p>
         </div>
     </div>
 
@@ -269,11 +258,8 @@
                     <span class="text-white font-bold text-sm relative z-10">M</span>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold text-white drop-shadow-lg flex items-center gap-2">
-                        MyApp
-                        <span class="admin-badge">👑 DIRIGENTE</span>
-                    </h1>
-                    <p class="text-xs text-blue-200">Dashboard Dirigenti</p>
+                    <h1 class="text-xl font-bold text-white drop-shadow-lg">MyApp</h1>
+                    <p class="text-xs text-blue-200">Il Tuo Dirigente in Tasca</p>
                 </div>
             </div>
             <div class="flex items-center space-x-2">
@@ -281,7 +267,7 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4 4h7a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z"></path>
                     </svg>
-                    <span id="notificheBadge" class="notification-badge hidden">5</span>
+                    <span id="notificheBadge" class="notification-badge hidden">3</span>
                 </button>
                 <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-2 rounded-full font-semibold transition-colors shadow-lg border border-red-500">
                     Logout
@@ -293,64 +279,40 @@
     <!-- Main Content -->
     <main class="max-w-md mx-auto px-4 pb-24 md:max-w-2xl lg:max-w-4xl">
         
-        <!-- 1. Saluto personalizzato Dirigente -->
+        <!-- 1. Saluto personalizzato -->
         <section class="mb-6 fade-in">
-            <div class="glass-admin rounded-2xl p-4 text-center border-2 border-red-400">
-                <h2 id="salutoPersonalizzato" class="text-xl font-bold text-white drop-shadow-lg mb-2">Benvenuto Dirigente!</h2>
+            <div class="stat-card rounded-2xl p-4 text-center">
+                <h2 id="salutoPersonalizzato" class="text-xl font-bold text-white drop-shadow-lg mb-2">Benvenuto!</h2>
                 <p id="dataOdierna" class="text-blue-100 text-sm">Caricamento...</p>
-                <div id="ruoliUtente" class="mt-2 text-xs text-yellow-200"></div>
             </div>
         </section>
 
-        <!-- 2. Statistiche Dirigenti -->
+        <!-- 2. Accesso Rapido -->
         <section class="mb-6 fade-in">
-            <h3 class="text-lg font-bold text-white mb-4 drop-shadow-lg">📊 Panoramica Sistema</h3>
-            <div class="grid grid-cols-2 gap-4 md:grid-cols-4">
-                <div class="glass-effect rounded-xl p-4 text-center">
-                    <div class="text-2xl font-bold text-primary" id="totaleUtenti">---</div>
-                    <div class="text-xs text-gray-600">Utenti Totali</div>
-                </div>
-                <div class="glass-effect rounded-xl p-4 text-center">
-                    <div class="text-2xl font-bold text-green-600" id="utentiAttivi">---</div>
-                    <div class="text-xs text-gray-600">Attivi Oggi</div>
-                </div>
-                <div class="glass-effect rounded-xl p-4 text-center">
-                    <div class="text-2xl font-bold text-orange-600" id="notifichePendenti">---</div>
-                    <div class="text-xs text-gray-600">Notifiche</div>
-                </div>
-                <div class="glass-effect rounded-xl p-4 text-center">
-                    <div class="text-2xl font-bold text-purple-600" id="convenzioniAttive">---</div>
-                    <div class="text-xs text-gray-600">Convenzioni</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 3. Accesso Rapido Dirigenti -->
-        <section class="mb-6 fade-in">
-            <h3 class="text-lg font-bold text-white mb-4 drop-shadow-lg">⚡ Accesso Rapido Dirigenti</h3>
+            <h3 class="text-lg font-bold text-white mb-4 drop-shadow-lg">Accesso Rapido</h3>
             <div class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:gap-4">
-                <button onclick="navigateTo('../area-riservata.html')" class="glass-effect card-hover rounded-2xl p-4 text-center border-2 border-red-200">
-                    <div class="quick-action-icon bg-gradient-to-br from-red-500 to-red-700 text-white shadow-lg">
-                        🔒
-                    </div>
-                    <h4 class="font-semibold text-textDark mb-1 text-sm">Area Riservata</h4>
-                    <p class="text-xs text-gray-600">Gestione avanzata</p>
-                </button>
-                
-                <button onclick="navigateTo('gestione-utenti.html')" class="glass-effect card-hover rounded-2xl p-4 text-center">
-                    <div class="quick-action-icon bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-lg">
-                        👥
-                    </div>
-                    <h4 class="font-semibold text-textDark mb-1 text-sm">Gestione Utenti</h4>
-                    <p class="text-xs text-gray-600">Amministra profili</p>
-                </button>
-                
                 <button onclick="navigateTo('tessera.html')" class="glass-effect card-hover rounded-2xl p-4 text-center">
                     <div class="quick-action-icon bg-gradient-to-br from-primary to-secondary text-white shadow-lg">
                         🆔
                     </div>
                     <h4 class="font-semibold text-textDark mb-1 text-sm">Tessera Digitale</h4>
-                    <p class="text-xs text-gray-600">La tua tessera</p>
+                    <p class="text-xs text-gray-600">La tua tessera sempre con te</p>
+                </button>
+                
+                <button onclick="navigateTo('strumenti.html')" class="glass-effect card-hover rounded-2xl p-4 text-center">
+                    <div class="quick-action-icon bg-gradient-to-br from-accent to-blue-500 text-white shadow-lg">
+                        🛠️
+                    </div>
+                    <h4 class="font-semibold text-textDark mb-1 text-sm">Strumenti</h4>
+                    <p class="text-xs text-gray-600">Gestione turni e tools</p>
+                </button>
+                
+                <button onclick="navigateTo('virgilio.html')" class="glass-effect card-hover rounded-2xl p-4 text-center">
+                    <div class="quick-action-icon bg-gradient-to-br from-purple-500 to-pink-600 text-white shadow-lg">
+                        🤖
+                    </div>
+                    <h4 class="font-semibold text-textDark mb-1 text-sm">Virgilio AI</h4>
+                    <p class="text-xs text-gray-600">Assistente digitale</p>
                 </button>
                 
                 <button onclick="navigateTo('profilo.html')" class="glass-effect card-hover rounded-2xl p-4 text-center">
@@ -358,49 +320,12 @@
                         👤
                     </div>
                     <h4 class="font-semibold text-textDark mb-1 text-sm">Profilo</h4>
-                    <p class="text-xs text-gray-600">I tuoi dati</p>
+                    <p class="text-xs text-gray-600">I tuoi dati personali</p>
                 </button>
             </div>
         </section>
 
-        <!-- 4. Gestione Contenuti -->
-        <section class="mb-6 fade-in">
-            <div class="gradient-border rounded-2xl p-5">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold text-textDark">📝 Gestione Contenuti</h3>
-                    <button onclick="navigateTo('admin-panel.html')" class="text-primary text-sm hover:text-secondary transition-colors font-medium">
-                        Pannello Admin →
-                    </button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <button onclick="navigateTo('gestione-notizie.html')" class="glass-effect rounded-lg p-4 text-left hover:bg-blue-50 transition-colors">
-                        <div class="flex items-center space-x-3">
-                            <div class="service-icon bg-blue-100">
-                                <span class="text-blue-600">📰</span>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-textDark text-sm">Gestione Notizie</h4>
-                                <p class="text-xs text-gray-600">Pubblica e modifica notizie</p>
-                            </div>
-                        </div>
-                    </button>
-                    
-                    <button onclick="navigateTo('gestione-convenzioni.html')" class="glass-effect rounded-lg p-4 text-left hover:bg-green-50 transition-colors">
-                        <div class="flex items-center space-x-3">
-                            <div class="service-icon bg-green-100">
-                                <span class="text-green-600">🏷️</span>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-textDark text-sm">Gestione Convenzioni</h4>
-                                <p class="text-xs text-gray-600">Amministra partnership</p>
-                            </div>
-                        </div>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- 5. Notizie e Aggiornamenti -->
+        <!-- 3. Notizie e Aggiornamenti -->
         <section class="mb-6 fade-in">
             <div class="gradient-border rounded-2xl p-5">
                 <div class="flex justify-between items-center mb-4">
@@ -424,7 +349,31 @@
             </div>
         </section>
 
-        <!-- 6. Servizi BestBadge -->
+        <!-- 4. Convenzioni in Evidenza -->
+        <section class="mb-6 fade-in">
+            <div class="gradient-border rounded-2xl p-5">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-textDark">🏷️ Convenzioni Attive</h3>
+                    <button onclick="navigateTo('../convenzioni.html')" class="text-primary text-sm hover:text-secondary transition-colors font-medium">
+                        Scopri tutte →
+                    </button>
+                </div>
+                <div id="convenzioniContainer" class="space-y-3">
+                    <!-- Loading skeleton -->
+                    <div class="glass-effect rounded-lg p-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 loading-skeleton rounded-lg"></div>
+                            <div class="flex-1">
+                                <div class="w-2/3 h-4 loading-skeleton rounded mb-2"></div>
+                                <div class="w-1/3 h-3 loading-skeleton rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Servizi BestBadge in Evidenza -->
         <section class="mb-6 fade-in">
             <h3 class="text-lg font-bold text-white mb-4 drop-shadow-lg">🛡️ Servizi di Tutela BestBadge</h3>
             <div class="grid grid-cols-2 gap-3 md:grid-cols-4 lg:gap-4">
@@ -434,6 +383,7 @@
                     </div>
                     <h4 class="font-bold text-textDark mb-1 text-sm">Tutela Penale</h4>
                     <p class="text-xs text-gray-600">Penale Militare e Civile</p>
+                    <div class="mt-2 text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full inline-block">Specializzato</div>
                 </button>
                 
                 <button onclick="navigateTo('servizi.html')" class="service-highlight-card rounded-2xl p-4 text-center" style="--hover-color: #00BFFF;">
@@ -442,6 +392,7 @@
                     </div>
                     <h4 class="font-bold text-textDark mb-1 text-sm">Tutela Civile</h4>
                     <p class="text-xs text-gray-600">Famiglia, Lavoro, Proprietà</p>
+                    <div class="mt-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full inline-block">Completo</div>
                 </button>
                 
                 <button onclick="navigateTo('servizi.html')" class="service-highlight-card rounded-2xl p-4 text-center" style="--hover-color: #8E008C;">
@@ -450,6 +401,7 @@
                     </div>
                     <h4 class="font-bold text-textDark mb-1 text-sm">Amministrativi</h4>
                     <p class="text-xs text-gray-600">Ricorsi TAR e procedure</p>
+                    <div class="mt-2 text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full inline-block">Militare</div>
                 </button>
                 
                 <button onclick="navigateTo('servizi.html')" class="service-highlight-card rounded-2xl p-4 text-center" style="--hover-color: #059669;">
@@ -458,106 +410,48 @@
                     </div>
                     <h4 class="font-bold text-textDark mb-1 text-sm">Servizi Fiscali</h4>
                     <p class="text-xs text-gray-600">CAF e Patronato F.I.TE.S.C.</p>
+                    <div class="mt-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full inline-block">CAF</div>
                 </button>
+            </div>
+            
+            <!-- Info Plafond -->
+            <div class="mt-4 glass-light rounded-xl p-3 text-center">
+                <p class="text-sm text-white mb-1">💎 Plafond Tutela Legale</p>
+                <p class="text-xl font-bold text-white">€ 30.000</p>
+                <p class="text-xs text-blue-200">+ copertura nucleo familiare</p>
             </div>
         </section>
 
-        <!-- 7. Altri Servizi -->
+        <!-- 6. Altri Servizi -->
         <section class="mb-6 fade-in">
             <h3 class="text-lg font-bold text-white mb-4 drop-shadow-lg">Altri Servizi</h3>
             <div class="glass-effect rounded-2xl p-4 space-y-3">
-                <a href="../area-riservata.html" class="flex items-center justify-between p-4 hover:bg-red-50 rounded-lg transition-colors border-2 border-red-200 bg-gradient-to-r from-red-50 to-purple-50">
+                <a href="../area-riservata.html" class="flex items-center justify-between p-3 hover:bg-red-50 rounded-lg transition-colors border border-red-100">
                     <div class="flex items-center space-x-3">
-                        <div class="service-icon bg-red-100 border-2 border-red-300">
-                            <span class="text-red-600 text-xl">🔒</span>
+                        <div class="service-icon bg-red-100">
+                            <span class="text-red-600">🔒</span>
                         </div>
                         <div>
-                            <h4 class="font-bold text-red-700 text-base">Area Riservata Dirigenti</h4>
-                            <p class="text-xs text-red-600 font-medium">Accesso esclusivo e privilegiato</p>
-                            <div class="mt-1">
-                                <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full font-bold">PRIORITARIO</span>
-                            </div>
+                            <h4 class="font-semibold text-textDark text-sm">Area Dirigenti</h4>
+                            <p class="text-xs text-gray-600">Accesso riservato ai dirigenti</p>
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-red-600 font-bold">⭐</span>
-                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </div>
-                </a>
-                
-                <a href="gestione-utenti.html" class="flex items-center justify-between p-3 hover:bg-blue-50 rounded-lg transition-colors">
-                    <div class="flex items-center space-x-3">
-                        <div class="service-icon bg-blue-100">
-                            <span class="text-blue-600">👥</span>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-textDark text-sm">Gestione Utenti</h4>
-                            <p class="text-xs text-gray-600">Amministra profili e permessi</p>
-                        </div>
-                    </div>
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </a>
                 
-                <a href="gestione-notizie.html" class="flex items-center justify-between p-3 hover:bg-green-50 rounded-lg transition-colors">
-                    <div class="flex items-center space-x-3">
-                        <div class="service-icon bg-green-100">
-                            <span class="text-green-600">📰</span>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-textDark text-sm">Gestione Notizie</h4>
-                            <p class="text-xs text-gray-600">Pubblica e modifica contenuti</p>
-                        </div>
-                    </div>
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </a>
-                
-                <a href="gestione-convenzioni.html" class="flex items-center justify-between p-3 hover:bg-yellow-50 rounded-lg transition-colors">
-                    <div class="flex items-center space-x-3">
-                        <div class="service-icon bg-yellow-100">
-                            <span class="text-yellow-600">🏷️</span>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-textDark text-sm">Gestione Convenzioni</h4>
-                            <p class="text-xs text-gray-600">Amministra partnership</p>
-                        </div>
-                    </div>
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </a>
-                
-                <a href="strumenti.html" class="flex items-center justify-between p-3 hover:bg-purple-50 rounded-lg transition-colors">
-                    <div class="flex items-center space-x-3">
-                        <div class="service-icon bg-purple-100">
-                            <span class="text-purple-600">🛠️</span>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-textDark text-sm">Strumenti Avanzati</h4>
-                            <p class="text-xs text-gray-600">Tools di gestione sistema</p>
-                        </div>
-                    </div>
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </a>
-                
-                <a href="../dirigenti.html" class="flex items-center justify-between p-3 hover:bg-orange-50 rounded-lg transition-colors">
+                <a href="../dirigenti.html" class="flex items-center justify-between p-3 hover:bg-orange-50 rounded-lg transition-colors border border-orange-100">
                     <div class="flex items-center space-x-3">
                         <div class="service-icon bg-orange-100">
-                            <span class="text-orange-600">🎯</span>
+                            <span class="text-orange-600">👥</span>
                         </div>
                         <div>
-                            <h4 class="font-semibold text-textDark text-sm">Rete Dirigenti</h4>
-                            <p class="text-xs text-gray-600">Contatti organizzazione</p>
+                            <h4 class="font-semibold text-textDark text-sm">Dirigenti</h4>
+                            <p class="text-xs text-gray-600">Contatti e organizzazione</p>
                         </div>
                     </div>
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </a>
@@ -566,7 +460,7 @@
 
     </main>
 
-    <!-- Bottom Navigation - DIRIGENTI -->
+    <!-- Bottom Navigation - SMART HOME LINK -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
         <div class="flex justify-around items-center max-w-md mx-auto">
             <a href="#" onclick="smartHomeRedirect()" class="flex flex-col items-center text-xs text-primary font-semibold transition-colors p-2">
@@ -650,9 +544,9 @@
         // Smart Home Redirect - Reindirizza alla home giusta in base al ruolo
         function smartHomeRedirect() {
             if (userRoles.includes('DIRIGENTE') || userRoles.includes('ADMIN')) {
-                window.location.href = 'home_dirigenti.html'; // Dirigenti restano qui
+                window.location.href = 'home_dirigenti.html'; // Dirigenti alla dashboard dirigenti
             } else {
-                window.location.href = 'home.html'; // Utenti normali
+                window.location.href = 'home.html'; // Utenti normali restano qui
             }
         }
 
@@ -739,39 +633,50 @@
             }
         }
 
-        // Carica statistiche per dirigenti
-        async function caricaStatistiche() {
+        async function caricaConvenzioni() {
             try {
-                // Conta utenti totali
-                const { count: totaleUtenti } = await supabase
-                    .from('profiles')
-                    .select('*', { count: 'exact', head: true });
-
-                // Conta convenzioni attive
-                const { count: convenzioniAttive } = await supabase
+                const { data: convenzioni, error } = await supabase
                     .from('convenzioni')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('attiva', true);
+                    .select('nome_partner, descrizione, categoria, logo_url, sconto_percentuale, icona')
+                    .eq('attiva', true)
+                    .limit(4);
 
-                // Conta notizie non lette
-                const { count: notifichePendenti } = await supabase
-                    .from('notizie')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('pubblicata', true);
+                const container = document.getElementById('convenzioniContainer');
+                
+                if (error || !convenzioni || convenzioni.length === 0) {
+                    container.innerHTML = `
+                        <div class="bg-gray-50 rounded-lg p-4 text-center">
+                            <p class="text-gray-600 text-sm">Nessuna convenzione al momento</p>
+                        </div>
+                    `;
+                    return;
+                }
 
-                // Aggiorna interfaccia
-                document.getElementById('totaleUtenti').textContent = totaleUtenti || '0';
-                document.getElementById('utentiAttivi').textContent = Math.floor((totaleUtenti || 0) * 0.3); // Simula 30% attivi
-                document.getElementById('notifichePendenti').textContent = notifichePendenti || '0';
-                document.getElementById('convenzioniAttive').textContent = convenzioniAttive || '0';
+                container.innerHTML = convenzioni.map(conv => `
+                    <div class="bg-white rounded-lg p-4 card-hover shadow-sm border border-gray-100">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-14 h-14 bg-gradient-to-br from-green-400 to-blue-500 rounded-xl flex items-center justify-center shadow-md">
+                                <span class="text-2xl">${conv.icona || conv.nome_partner.charAt(0)}</span>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-textDark text-sm mb-1">${conv.nome_partner}</h4>
+                                <p class="text-xs text-gray-600 mb-2">${conv.descrizione.substring(0, 80)}...</p>
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium">${conv.categoria}</span>
+                                    ${conv.sconto_percentuale ? `<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">-${conv.sconto_percentuale}%</span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
 
             } catch (error) {
-                console.error('Errore caricamento statistiche:', error);
-                // Valori di fallback
-                document.getElementById('totaleUtenti').textContent = '---';
-                document.getElementById('utentiAttivi').textContent = '---';
-                document.getElementById('notifichePendenti').textContent = '---';
-                document.getElementById('convenzioniAttive').textContent = '---';
+                console.error('Errore caricamento convenzioni:', error);
+                document.getElementById('convenzioniContainer').innerHTML = `
+                    <div class="bg-gray-50 rounded-lg p-4 text-center">
+                        <p class="text-gray-600 text-sm">Errore nel caricamento delle convenzioni</p>
+                    </div>
+                `;
             }
         }
 
@@ -819,17 +724,10 @@
                     userRoles = ['USER'];
                 }
 
-                // Verifica se l'utente ha realmente accesso a questa dashboard
-                if (!userRoles.includes('DIRIGENTE') && !userRoles.includes('ADMIN')) {
-                    console.log('Utente non autorizzato per dashboard dirigenti, redirect a home normale');
-                    window.location.href = 'home.html';
-                    return;
-                }
-
                 userData = {
                     id: user.id,
                     email: user.email,
-                    nome: profile?.nome || 'Dirigente',
+                    nome: profile?.nome || 'Utente',
                     cognome: profile?.cognome || '',
                     ruoli: userRoles
                 };
@@ -839,7 +737,7 @@
                 
                 // Carica contenuti dinamici
                 await caricaNotizie();
-                await caricaStatistiche();
+                await caricaConvenzioni();
                 
                 hideLoading();
 
@@ -855,20 +753,16 @@
 
             const saluto = document.getElementById('salutoPersonalizzato');
             const data = document.getElementById('dataOdierna');
-            const ruoliDiv = document.getElementById('ruoliUtente');
             
+            const nomeCompleto = `${userData.nome} ${userData.cognome}`.trim();
             saluto.textContent = `${getSalutoPersonalizzato()}, ${userData.nome}!`;
             data.textContent = getDataOdierna();
-            
-            // Mostra i ruoli
-            const ruoliStr = userData.ruoli.join(', ');
-            ruoliDiv.textContent = `Ruoli: ${ruoliStr}`;
         }
 
-        // Notifiche simulation con più notifiche per dirigenti
+        // Notifiche simulation
         function simulaNotifiche() {
             const badge = document.getElementById('notificheBadge');
-            const numeroNotifiche = Math.floor(Math.random() * 8) + 3; // 3-10 notifiche per dirigenti
+            const numeroNotifiche = Math.floor(Math.random() * 5);
             
             if (numeroNotifiche > 0 && isAuthenticated) {
                 badge.textContent = numeroNotifiche;
@@ -910,7 +804,7 @@
 
         // Initialization
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('Caricamento dashboard dirigenti MyApp...');
+            console.log('Caricamento dashboard MyApp...');
             await caricaDatiUtente();
             initAnimations();
             
@@ -929,7 +823,7 @@
         setInterval(async () => {
             if (document.visibilityState === 'visible' && isAuthenticated) {
                 await caricaNotizie();
-                await caricaStatistiche();
+                await caricaConvenzioni();
             }
         }, 300000); // 5 minuti
 
