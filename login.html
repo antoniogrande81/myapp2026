@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - MyApp</title>
+    
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#2400C1">
-    <meta name="background-color" content="#2400C1">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="background-color" content="#1a1a2e">
 
     <!-- Icone Standard -->
     <link rel="icon" type="image/png" sizes="16x16" href="/public/icons/favicon-16x16.png">
@@ -25,156 +26,565 @@
     <!-- Android Support -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="MyApp">
-    <meta name="msapplication-TileColor" content="#2400C1">
+    <meta name="msapplication-TileColor" content="#1a1a2e">
     
     <!-- Preconnect per performance -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://lycrgzptkdkksukcwrld.supabase.co">
 
-
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Aurora Boreale 2025 Palette
+                        primary: '#1a1a2e',      // Blu notte profondo
+                        secondary: '#16213e',     // Blu oceano
+                        accent: '#0f3460',        // Blu acciaio
+                        aurora: '#e94560',        // Rosa aurora
+                        cyan: '#00d4ff',          // Cyan elettrico
+                        magenta: '#ff006e',       // Magenta vibrante
+                        gold: '#ffd700',          // Oro elegante
+                        teal: '#03dac6',          // Teal premium
+                        dark: '#0a0a23',          // Nero cyber
+                        light: '#f8fafc',         // Bianco ghiaccio
+                        textDark: '#1C1C1E',
+                        backgroundLight: '#F4F4F8',
+                    },
+                    screens: {
+                        'xs': '320px',
+                        'sm': '640px',
+                        'md': '768px',
+                        'lg': '1024px',
+                        'xl': '1280px',
+                        '2xl': '1536px',
+                        '3xl': '1920px',
+                        '4xl': '2560px',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
+        :root {
+            --gradient-aurora: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #e94560 75%, #00d4ff 100%);
+            --gradient-cyber: linear-gradient(135deg, #0a0a23 0%, #1a1a2e 50%, #00d4ff 100%);
+            --gradient-magic: linear-gradient(135deg, #ff006e 0%, #e94560 50%, #03dac6 100%);
+            --gradient-card: linear-gradient(135deg, #ffffff 0%, #f8f9ff 25%, #ffffff 50%, #f0f4ff 75%, #ffffff 100%);
+            --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            background: linear-gradient(135deg, #2400C1, #8E008C);
-            font-family: 'Segoe UI', Arial, sans-serif;
+            background: var(--gradient-aurora);
+            background-size: 400% 400%;
+            animation: aurora 20s ease infinite;
             min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 1rem;
         }
-        
-        .container {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+
+        @keyframes aurora {
+            0%, 100% { background-position: 0% 50%; }
+            25% { background-position: 100% 50%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-8px) rotate(0.5deg); }
+            66% { transform: translateY(-4px) rotate(-0.5deg); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 30px rgba(233, 69, 96, 0.6); }
+            50% { box-shadow: 0 0 50px rgba(0, 212, 255, 0.8); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes pulse-card {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            }
+            50% { 
+                transform: scale(1.02);
+                box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            }
+        }
+
+        @keyframes input-glow {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(233, 69, 96, 0.3), 0 8px 25px rgba(0,0,0,0.1);
+            }
+            50% { 
+                box-shadow: 0 0 35px rgba(0, 212, 255, 0.5), 0 12px 35px rgba(0,0,0,0.15);
+            }
+        }
+
+        /* Container principale */
+        .login-container {
+            background: var(--gradient-card);
+            background-size: 400% 400%;
+            animation: pulse-card 4s ease-in-out infinite;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 24px;
+            padding: 3rem 2rem;
             width: 100%;
-            max-width: 400px;
-            margin: 1rem;
+            max-width: 450px;
+            box-shadow: 
+                0 25px 50px rgba(0,0,0,0.2),
+                0 0 0 1px rgba(255,255,255,0.1),
+                inset 0 1px 0 rgba(255,255,255,0.9);
+            position: relative;
+            overflow: hidden;
         }
-        
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.8s;
+        }
+
+        .login-container:hover::before {
+            left: 100%;
+        }
+
+        /* Header con logo */
         .header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 1;
         }
-        
+
+        .logo-icon {
+            width: 90px;
+            height: 90px;
+            background: var(--gradient-magic);
+            border-radius: 20px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            animation: glow 3s ease-in-out infinite;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.4s ease;
+        }
+
+        .logo-icon:hover {
+            transform: scale(1.1) rotate(5deg);
+            animation: glow 1s ease-in-out infinite;
+        }
+
         .header h1 {
-            color: #2400C1;
+            color: #1a1a2e;
+            font-size: 2.2rem;
+            font-weight: 900;
             margin-bottom: 0.5rem;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        
+
         .header p {
-            color: #666;
-            font-size: 0.9rem;
+            color: #6b7280;
+            font-size: 1.1rem;
+            font-weight: 600;
         }
-        
+
+        /* Form styling ULTRA VISIBILE */
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 2.5rem;
+            position: relative;
+            z-index: 1;
         }
-        
+
         label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #333;
+            margin-bottom: 1rem;
+            font-weight: 800;
+            color: #1a1a2e;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        
+
+        .input-container {
+            position: relative;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #1a1a2e;
+            z-index: 3;
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+
+        /* INPUT FIELDS ULTRA VISIBILI */
         input {
             width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
+            padding: 1.5rem 1.5rem 1.5rem 4rem;
+            border: 3px solid #e94560;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: #ffffff;
+            color: #1a1a2e;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 8px 25px rgba(233, 69, 96, 0.2),
+                inset 0 1px 0 rgba(255,255,255,0.8);
+            position: relative;
+            z-index: 2;
         }
-        
+
+        input::placeholder {
+            color: #6b7280;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
         input:focus {
             outline: none;
-            border-color: #2400C1;
+            border-color: #00d4ff;
+            background: #ffffff;
+            transform: translateY(-4px) scale(1.02);
+            animation: input-glow 2s ease-in-out infinite;
+            font-size: 1.25rem;
         }
-        
-        .btn {
-            width: 100%;
-            padding: 0.75rem;
-            background: #2400C1;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
+
+        input:hover {
+            border-color: #ff006e;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(233, 69, 96, 0.3);
         }
-        
-        .btn:hover {
-            background: #1a0099;
+
+        /* Indicatori di stato input */
+        .input-status {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            z-index: 3;
+            opacity: 0;
+            transition: all 0.3s ease;
         }
-        
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
+
+        .input-valid .input-status {
+            opacity: 1;
+            color: #10b981;
         }
-        
-        .message {
-            padding: 0.75rem;
-            margin: 1rem 0;
-            border-radius: 6px;
-            text-align: center;
+
+        .input-invalid .input-status {
+            opacity: 1;
+            color: #ef4444;
+        }
+
+        /* Helper text per i campi */
+        .input-helper {
             font-size: 0.9rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
         }
-        
-        .error {
-            background: #ffebee;
-            color: #c62828;
-            border: 1px solid #e57373;
+
+        .form-group:hover .input-helper,
+        .form-group:focus-within .input-helper {
+            opacity: 1;
+            transform: translateY(0);
         }
-        
-        .success {
-            background: #e8f5e8;
-            color: #2e7d32;
-            border: 1px solid #81c784;
+
+        /* Button styling ULTRA VISIBILE */
+        .btn-login {
+            width: 100%;
+            padding: 1.5rem 2rem;
+            background: var(--gradient-magic);
+            color: white;
+            border: 3px solid rgba(233, 69, 96, 0.5);
+            border-radius: 20px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: 0 12px 30px rgba(233, 69, 96, 0.3);
         }
-        
-        .info {
-            background: #e3f2fd;
-            color: #1565c0;
-            border: 1px solid #64b5f6;
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.3s;
         }
-        
+
+        .btn-login:hover::before {
+            left: 100%;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 25px 50px rgba(233, 69, 96, 0.5);
+            border-color: rgba(233, 69, 96, 0.8);
+            animation: glow 1s ease-in-out infinite;
+        }
+
+        .btn-login:active {
+            transform: translateY(-2px) scale(1.01);
+        }
+
+        .btn-login:disabled {
+            background: linear-gradient(135deg, #9ca3af, #6b7280);
+            border-color: rgba(156, 163, 175, 0.3);
+            cursor: not-allowed;
+            transform: none;
+            animation: none;
+        }
+
+        .btn-login:disabled:hover {
+            transform: none;
+            box-shadow: none;
+            animation: none;
+        }
+
+        /* Message styling */
+        .message {
+            padding: 1.2rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 16px;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 700;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+
+        .message-error {
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border-color: rgba(239, 68, 68, 0.5);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .message-success {
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+            border-color: rgba(16, 185, 129, 0.5);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        .message-info {
+            background: rgba(59, 130, 246, 0.9);
+            color: white;
+            border-color: rgba(59, 130, 246, 0.5);
+        }
+
+        /* Back link */
         .back-link {
             text-align: center;
-            margin-top: 1rem;
+            position: relative;
+            z-index: 1;
         }
-        
+
         .back-link a {
-            color: #2400C1;
+            color: #1a1a2e;
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 2px solid transparent;
         }
-        
+
+        .back-link a:hover {
+            background: rgba(26, 26, 46, 0.1);
+            transform: translateX(-3px);
+            border-color: rgba(26, 26, 46, 0.2);
+        }
+
+        /* Debug info */
         .debug-info {
-            background: #fff3e0;
-            color: #ef6c00;
-            border: 1px solid #ffb74d;
-            padding: 0.5rem;
-            margin-top: 1rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
+            background: rgba(245, 158, 11, 0.9);
+            color: white;
+            border: 2px solid rgba(245, 158, 11, 0.5);
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-radius: 16px;
+            font-size: 0.85rem;
+            backdrop-filter: blur(10px);
             display: none;
+            position: relative;
+            z-index: 1;
+            font-weight: 600;
+        }
+
+        /* Loading animation */
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            display: inline-block;
+            margin-right: 0.75rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Text effects */
+        .text-gradient {
+            background: var(--gradient-magic);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Floating element */
+        .floating-element {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Password visibility toggle */
+        .password-toggle {
+            position: absolute;
+            right: 4.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 1.2rem;
+            z-index: 3;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #1a1a2e;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        /* Caps Lock warning */
+        .caps-warning {
+            background: rgba(245, 158, 11, 0.9);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            display: none;
+            border: 1px solid rgba(245, 158, 11, 0.5);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 2rem 1.5rem;
+                margin: 0.5rem;
+                max-width: 95%;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .logo-icon {
+                width: 80px;
+                height: 80px;
+                font-size: 2.5rem;
+            }
+
+            input {
+                font-size: 1.1rem;
+                padding: 1.25rem 1.25rem 1.25rem 3.5rem;
+            }
+
+            input:focus {
+                font-size: 1.15rem;
+            }
+
+            .btn-login {
+                font-size: 1.1rem;
+                padding: 1.25rem 1.5rem;
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Focus visible per accessibilità */
+        *:focus-visible {
+            outline: 3px solid #00d4ff;
+            outline-offset: 2px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="login-container floating-element">
         <div class="header">
-            <h1>🔐 Login MyApp</h1>
-            <p>Accedi al tuo account</p>
+            <div class="logo-icon">
+                🔐
+            </div>
+            <h1 class="text-gradient">MyApp Login</h1>
+            <p>Accedi al tuo account digitale</p>
         </div>
         
         <div id="messages"></div>
@@ -182,262 +592,540 @@
         <div id="loginContainer">
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" value="test@test.com" required>
+                    <label for="email">📧 Email</label>
+                    <div class="input-container">
+                        <div class="input-icon">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+                            </svg>
+                        </div>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            value="test@test.com" 
+                            required 
+                            placeholder="Inserisci la tua email"
+                            autocomplete="email"
+                            aria-describedby="email-helper"
+                        >
+                        <div class="input-status" id="email-status">✓</div>
+                    </div>
+                    <div class="input-helper" id="email-helper">
+                        Inserisci un indirizzo email valido
+                    </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" value="test123456" required>
+                    <label for="password">🔒 Password</label>
+                    <div class="input-container">
+                        <div class="input-icon">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                        </div>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            value="test123456" 
+                            required 
+                            placeholder="Inserisci la tua password"
+                            autocomplete="current-password"
+                            aria-describedby="password-helper"
+                        >
+                        <button type="button" class="password-toggle" id="togglePassword">
+                            👁️
+                        </button>
+                        <div class="input-status" id="password-status">✓</div>
+                    </div>
+                    <div class="input-helper" id="password-helper">
+                        Minimo 6 caratteri richiesti
+                    </div>
+                    <div class="caps-warning" id="capsWarning">
+                        ⚠️ CAPS LOCK è attivo
+                    </div>
                 </div>
                 
-                <button type="submit" class="btn" id="loginBtn">
-                    Accedi
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <span id="loginBtnText">🚀 Accedi</span>
                 </button>
             </form>
         </div>
         
         <div class="back-link">
-            <a href="index.html">← Torna alla home</a>
+            <a href="index.html">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Torna alla home
+            </a>
         </div>
         
         <div class="debug-info" id="debugInfo">
-            <strong>Debug Info:</strong><br>
+            <strong>🔧 Debug Info:</strong><br>
             <span id="debugText"></span>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Evita che il form si ricarichi
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Page loaded');
-            showMessage('Pagina caricata correttamente', 'info');
+        // Configurazione app
+        const APP_CONFIG = {
+            name: 'MyApp',
+            version: '1.0.0',
+            supabaseUrl: 'https://lycrgzptkdkksukcwrld.supabase.co',
+            supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk'
+        };
+
+        // Configurazione Supabase
+        const { createClient } = supabase;
+        const supabaseClient = createClient(APP_CONFIG.supabaseUrl, APP_CONFIG.supabaseKey);
+
+        // Utility functions
+        const Utils = {
+            // Mostra messaggio con stile Aurora
+            showMessage: (text, type = 'info') => {
+                const messagesDiv = document.getElementById('messages');
+                messagesDiv.innerHTML = `<div class="message message-${type}">${text}</div>`;
+                console.log(`[${type.toUpperCase()}] ${text}`);
+                
+                // Debug info
+                const debugInfo = document.getElementById('debugInfo');
+                const debugText = document.getElementById('debugText');
+                debugText.innerHTML = `${new Date().toLocaleTimeString()}: ${text}`;
+                debugInfo.style.display = 'block';
+            },
+
+            // Gestione stato loading del pulsante
+            setLoading: (loading) => {
+                const loginBtn = document.getElementById('loginBtn');
+                const loginBtnText = document.getElementById('loginBtnText');
+                
+                loginBtn.disabled = loading;
+                
+                if (loading) {
+                    loginBtnText.innerHTML = '<span class="loading-spinner"></span>🔄 Accesso in corso...';
+                } else {
+                    loginBtnText.textContent = '🚀 Accedi';
+                }
+            },
+
+            // Validazione email
+            isValidEmail: (email) => {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            },
+
+            // Validazione password
+            isValidPassword: (password) => {
+                return password && password.length >= 6;
+            },
+
+            // Gestione validazione visuale
+            updateInputStatus: (inputId, isValid) => {
+                const container = document.querySelector(`#${inputId}`).closest('.input-container');
+                const status = container.querySelector('.input-status');
+                
+                if (isValid) {
+                    container.classList.add('input-valid');
+                    container.classList.remove('input-invalid');
+                    status.textContent = '✓';
+                } else {
+                    container.classList.add('input-invalid');
+                    container.classList.remove('input-valid');
+                    status.textContent = '✗';
+                }
+            }
+        };
+
+        // Gestione autenticazione Supabase
+        const AuthManager = {
+            // Test connessione Supabase
+            testConnection: async () => {
+                try {
+                    Utils.showMessage('🔧 Test connessione Supabase...', 'info');
+                    
+                    const { data, error } = await supabaseClient.auth.getSession();
+                    
+                    if (error) {
+                        throw error;
+                    }
+                    
+                    Utils.showMessage('✅ Supabase connesso correttamente!', 'success');
+                    return true;
+                } catch (error) {
+                    Utils.showMessage(`❌ Errore Supabase: ${error.message}`, 'error');
+                    return false;
+                }
+            },
+
+            // Recupera ruolo utente
+            getUserRole: async (userId) => {
+                try {
+                    Utils.showMessage('🔍 Controllo ruolo utente...', 'info');
+                    
+                    const { data: profile, error } = await supabaseClient
+                        .from('profiles')
+                        .select('ruoli, nome, cognome, email, telefono')
+                        .eq('id', userId)
+                        .single();
+                    
+                    if (error) {
+                        console.error('❌ Errore recupero profilo:', error);
+                        throw new Error(`Errore recupero profilo: ${error.message}`);
+                    }
+                    
+                    if (!profile) {
+                        throw new Error('Profilo utente non trovato');
+                    }
+                    
+                    console.log('👤 Profilo utente:', profile);
+                    
+                    // Gestione array di ruoli
+                    const ruoli = profile.ruoli || ['USER'];
+                    const isDirigente = ruoli.includes('DIRIGENTE');
+                    const isAdmin = ruoli.includes('ADMIN');
+                    
+                    // Determina il ruolo principale per il redirect
+                    let ruoloPrincipale = 'USER';
+                    if (isAdmin) {
+                        ruoloPrincipale = 'ADMIN';
+                    } else if (isDirigente) {
+                        ruoloPrincipale = 'DIRIGENTE';
+                    }
+                    
+                    const ruoliStr = ruoli.join(', ');
+                    Utils.showMessage(`✅ Profilo caricato: ${profile.nome || 'Utente'} - Ruoli: [${ruoliStr}]`, 'success');
+                    
+                    return {
+                        ...profile,
+                        ruolo: ruoloPrincipale,
+                        ruoli: ruoli,
+                        isDirigente: isDirigente,
+                        isAdmin: isAdmin
+                    };
+                    
+                } catch (error) {
+                    console.error('❌ Errore getUserRole:', error);
+                    Utils.showMessage(`❌ Errore controllo ruolo: ${error.message}`, 'error');
+                    
+                    // In caso di errore, ritorna un ruolo di default
+                    return { 
+                        ruolo: 'USER', 
+                        ruoli: ['USER'],
+                        nome: 'Utente', 
+                        email: '', 
+                        cognome: '',
+                        isDirigente: false,
+                        isAdmin: false
+                    };
+                }
+            },
+
+            // Determina URL di redirect
+            getRedirectUrl: (userProfile) => {
+                const ruoli = userProfile.ruoli || ['USER'];
+                const isDirigente = userProfile.isDirigente;
+                const isAdmin = userProfile.isAdmin;
+                
+                // Priorità: ADMIN > DIRIGENTE > USER
+                if (isAdmin) {
+                    Utils.showMessage('🎯 Reindirizzamento a Dashboard Admin...', 'success');
+                    return 'app/home_dirigenti.html';
+                } else if (isDirigente) {
+                    Utils.showMessage('🎯 Reindirizzamento a Dashboard Dirigenti...', 'success');
+                    return 'app/home_dirigenti.html';
+                } else {
+                    Utils.showMessage('🎯 Reindirizzamento a Dashboard Utente...', 'success');
+                    return 'app/home.html';
+                }
+            },
+
+            // Gestione login principale
+            handleLogin: async () => {
+                try {
+                    Utils.setLoading(true);
+                    
+                    const email = document.getElementById('email').value.trim();
+                    const password = document.getElementById('password').value;
+                    
+                    // Validazioni
+                    if (!email || !password) {
+                        throw new Error('Email e password sono obbligatorie');
+                    }
+                    
+                    if (!Utils.isValidEmail(email)) {
+                        throw new Error('Formato email non valido');
+                    }
+                    
+                    if (!Utils.isValidPassword(password)) {
+                        throw new Error('La password deve essere di almeno 6 caratteri');
+                    }
+                    
+                    Utils.showMessage(`🔑 Tentativo login con ${email}...`, 'info');
+                    
+                    // Chiamata Supabase per l'autenticazione
+                    const { data, error } = await supabaseClient.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+                    
+                    if (error) {
+                        throw error;
+                    }
+                    
+                    if (data && data.user) {
+                        Utils.showMessage(`✅ Login riuscito! Benvenuto ${data.user.email}`, 'success');
+                        
+                        // Controllo del ruolo utente
+                        const userProfile = await AuthManager.getUserRole(data.user.id);
+                        
+                        // Determina la pagina di destinazione
+                        const redirectUrl = AuthManager.getRedirectUrl(userProfile);
+                        
+                        const ruoliStr = userProfile.ruoli ? userProfile.ruoli.join(', ') : 'USER';
+                        Utils.showMessage(`👤 Ruoli: [${ruoliStr}] - Reindirizzamento in corso...`, 'info');
+                        
+                        // Redirect dopo 2 secondi
+                        setTimeout(() => {
+                            console.log(`🔄 Redirect to: ${redirectUrl}`);
+                            window.location.href = redirectUrl;
+                        }, 2000);
+                        
+                    } else {
+                        throw new Error('Nessun dato utente ricevuto');
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Login error:', error);
+                    Utils.showMessage(`❌ Errore: ${error.message}`, 'error');
+                    
+                    // Suggerimenti specifici per tipo di errore
+                    if (error.message.includes('Invalid login credentials')) {
+                        Utils.showMessage('💡 Verifica email e password, o crea un account su Supabase', 'error');
+                    } else if (error.message.includes('Email not confirmed')) {
+                        Utils.showMessage('📧 Conferma la tua email prima di accedere', 'error');
+                    } else if (error.message.includes('Errore recupero profilo')) {
+                        Utils.showMessage('⚠️ Login riuscito ma errore nel recupero del profilo. Reindirizzamento alla dashboard utente...', 'info');
+                        
+                        setTimeout(() => {
+                            window.location.href = 'app/home.html';
+                        }, 3000);
+                    }
+                    
+                } finally {
+                    Utils.setLoading(false);
+                }
+            }
+        };
+
+        // Gestione interfaccia avanzata
+        const UIManager = {
+            // Setup validazione real-time
+            setupValidation: () => {
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+                
+                // Validazione email in tempo reale
+                emailInput.addEventListener('input', () => {
+                    const email = emailInput.value.trim();
+                    const isValid = email.length === 0 || Utils.isValidEmail(email);
+                    Utils.updateInputStatus('email', isValid);
+                });
+                
+                emailInput.addEventListener('blur', () => {
+                    const email = emailInput.value.trim();
+                    if (email && !Utils.isValidEmail(email)) {
+                        Utils.showMessage('⚠️ Formato email non valido', 'error');
+                    }
+                });
+                
+                // Validazione password in tempo reale
+                passwordInput.addEventListener('input', () => {
+                    const password = passwordInput.value;
+                    const isValid = password.length === 0 || Utils.isValidPassword(password);
+                    Utils.updateInputStatus('password', isValid);
+                });
+                
+                passwordInput.addEventListener('blur', () => {
+                    const password = passwordInput.value;
+                    if (password && !Utils.isValidPassword(password)) {
+                        Utils.showMessage('⚠️ Password troppo corta (minimo 6 caratteri)', 'error');
+                    }
+                });
+            },
+
+            // Setup password visibility toggle
+            setupPasswordToggle: () => {
+                const toggleButton = document.getElementById('togglePassword');
+                const passwordInput = document.getElementById('password');
+                
+                toggleButton.addEventListener('click', () => {
+                    const isPassword = passwordInput.type === 'password';
+                    passwordInput.type = isPassword ? 'text' : 'password';
+                    toggleButton.textContent = isPassword ? '🙈' : '👁️';
+                });
+            },
+
+            // Setup caps lock detection
+            setupCapsLockDetection: () => {
+                const passwordInput = document.getElementById('password');
+                const capsWarning = document.getElementById('capsWarning');
+                
+                passwordInput.addEventListener('keydown', (e) => {
+                    const capsLock = e.getModifierState('CapsLock');
+                    capsWarning.style.display = capsLock ? 'block' : 'none';
+                });
+                
+                passwordInput.addEventListener('keyup', (e) => {
+                    const capsLock = e.getModifierState('CapsLock');
+                    capsWarning.style.display = capsLock ? 'block' : 'none';
+                });
+            },
+
+            // Setup keyboard navigation
+            setupKeyboardNavigation: () => {
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+                const loginForm = document.getElementById('loginForm');
+                
+                emailInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        passwordInput.focus();
+                    }
+                });
+                
+                passwordInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        loginForm.dispatchEvent(new Event('submit'));
+                    }
+                });
+            },
+
+            // Auto-hide messages
+            setupAutoHideMessages: () => {
+                let messageTimeout;
+                const originalShowMessage = Utils.showMessage;
+                
+                Utils.showMessage = (text, type = 'info') => {
+                    originalShowMessage(text, type);
+                    
+                    clearTimeout(messageTimeout);
+                    if (type !== 'error') {
+                        messageTimeout = setTimeout(() => {
+                            const messagesDiv = document.getElementById('messages');
+                            if (messagesDiv.innerHTML) {
+                                messagesDiv.style.opacity = '0.5';
+                                setTimeout(() => {
+                                    messagesDiv.innerHTML = '';
+                                    messagesDiv.style.opacity = '1';
+                                }, 1000);
+                            }
+                        }, 5000);
+                    }
+                };
+            }
+        };
+
+        // Event Listeners e inizializzazione
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 MyApp Login Ultra-Visible v' + APP_CONFIG.version);
+            Utils.showMessage('🎨 Interfaccia Ultra-Visibile caricata!', 'success');
             
             // Setup form handler
             const form = document.getElementById('loginForm');
-            const loginBtn = document.getElementById('loginBtn');
             
-            form.addEventListener('submit', function(event) {
-                event.preventDefault(); // CRITICO: Previene reload
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
                 event.stopPropagation();
                 
                 console.log('📝 Form submitted - no reload');
-                showMessage('Form inviato! Tentativo login...', 'info');
+                Utils.showMessage('🚀 Form inviato! Tentativo login...', 'info');
                 
-                handleLogin();
+                AuthManager.handleLogin();
                 
-                return false; // Extra protezione
+                return false;
             });
             
-            // Test Supabase connection
-            testSupabaseConnection();
+            // Setup UI features
+            UIManager.setupValidation();
+            UIManager.setupPasswordToggle();
+            UIManager.setupCapsLockDetection();
+            UIManager.setupKeyboardNavigation();
+            UIManager.setupAutoHideMessages();
+            
+            // Test connessione Supabase
+            AuthManager.testConnection();
+            
+            // Focus automatico sul primo campo
+            setTimeout(() => {
+                document.getElementById('email').focus();
+            }, 500);
+            
+            // Validazione iniziale
+            setTimeout(() => {
+                Utils.updateInputStatus('email', true);
+                Utils.updateInputStatus('password', true);
+            }, 1000);
         });
-        
-        // Configurazione Supabase
-        const { createClient } = supabase;
-        const supabaseClient = createClient(
-            'https://lycrgzptkdkksukcwrld.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk'
-        );
-        
-        function showMessage(text, type = 'info') {
-            const messagesDiv = document.getElementById('messages');
-            messagesDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
-            console.log(`[${type.toUpperCase()}] ${text}`);
-            
-            // Debug info
-            const debugInfo = document.getElementById('debugInfo');
-            const debugText = document.getElementById('debugText');
-            debugText.innerHTML = `${new Date().toLocaleTimeString()}: ${text}`;
-            debugInfo.style.display = 'block';
-        }
-        
-        function setLoading(loading) {
-            const loginBtn = document.getElementById('loginBtn');
-            loginBtn.disabled = loading;
-            loginBtn.textContent = loading ? '⏳ Accesso in corso...' : 'Accedi';
-        }
-        
-        async function testSupabaseConnection() {
+
+        // Controllo sessione esistente al caricamento
+        window.addEventListener('load', async () => {
             try {
-                showMessage('🔧 Test connessione Supabase...', 'info');
-                
-                const { data, error } = await supabaseClient.auth.getSession();
-                
-                if (error) {
-                    throw error;
-                }
-                
-                showMessage('✅ Supabase connesso correttamente!', 'success');
-                return true;
-            } catch (error) {
-                showMessage(`❌ Errore Supabase: ${error.message}`, 'error');
-                return false;
-            }
-        }
-        
-        async function getUserRole(userId) {
-            try {
-                showMessage('🔍 Controllo ruolo utente...', 'info');
-                
-                // Query per ottenere il profilo dell'utente con i ruoli (array JSON)
-                const { data: profile, error } = await supabaseClient
-                    .from('profiles')
-                    .select('ruoli, nome, cognome, email, telefono')
-                    .eq('id', userId)
-                    .single();
-                
-                if (error) {
-                    console.error('❌ Errore recupero profilo:', error);
-                    throw new Error(`Errore recupero profilo: ${error.message}`);
-                }
-                
-                if (!profile) {
-                    throw new Error('Profilo utente non trovato');
-                }
-                
-                console.log('👤 Profilo utente:', profile);
-                
-                // Gestione array di ruoli - controlla se contiene "DIRIGENTE"
-                const ruoli = profile.ruoli || ['USER'];
-                const isDirigente = ruoli.includes('DIRIGENTE');
-                const isAdmin = ruoli.includes('ADMIN');
-                
-                // Determina il ruolo principale per il redirect
-                let ruoloPrincipale = 'USER';
-                if (isAdmin) {
-                    ruoloPrincipale = 'ADMIN';
-                } else if (isDirigente) {
-                    ruoloPrincipale = 'DIRIGENTE';
-                }
-                
-                const ruoliStr = ruoli.join(', ');
-                showMessage(`✅ Profilo caricato: ${profile.nome || 'Utente'} - Ruoli: [${ruoliStr}]`, 'success');
-                
-                return {
-                    ...profile,
-                    ruolo: ruoloPrincipale, // Ruolo principale per il redirect
-                    ruoli: ruoli,           // Array completo dei ruoli
-                    isDirigente: isDirigente,
-                    isAdmin: isAdmin
-                };
-                
-            } catch (error) {
-                console.error('❌ Errore getUserRole:', error);
-                showMessage(`❌ Errore controllo ruolo: ${error.message}`, 'error');
-                
-                // In caso di errore, ritorna un ruolo di default
-                return { 
-                    ruolo: 'USER', 
-                    ruoli: ['USER'],
-                    nome: 'Utente', 
-                    email: '', 
-                    cognome: '',
-                    isDirigente: false,
-                    isAdmin: false
-                };
-            }
-        }
-        
-        function getRedirectUrl(userProfile) {
-            const ruoli = userProfile.ruoli || ['USER'];
-            const isDirigente = userProfile.isDirigente;
-            const isAdmin = userProfile.isAdmin;
-            
-            // Priorità: ADMIN > DIRIGENTE > USER
-            if (isAdmin) {
-                showMessage('🎯 Reindirizzamento a Dashboard Admin...', 'success');
-                return 'app/home_dirigenti.html'; // Gli admin vanno alla stessa dashboard dei dirigenti per ora
-            } else if (isDirigente) {
-                showMessage('🎯 Reindirizzamento a Dashboard Dirigenti...', 'success');
-                return 'app/home_dirigenti.html';
-            } else {
-                showMessage('🎯 Reindirizzamento a Dashboard Utente...', 'success');
-                return 'app/home.html';
-            }
-        }
-        
-        async function handleLogin() {
-            try {
-                setLoading(true);
-                
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                
-                showMessage(`🔑 Tentativo login con ${email}...`, 'info');
-                
-                if (!email || !password) {
-                    throw new Error('Email e password obbligatorie');
-                }
-                
-                // Chiamata Supabase per l'autenticazione
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
-                
-                if (error) {
-                    throw error;
-                }
-                
-                if (data && data.user) {
-                    showMessage(`✅ Login riuscito! Benvenuto ${data.user.email}`, 'success');
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session && session.user) {
+                    Utils.showMessage('✅ Sessione attiva trovata, reindirizzamento...', 'success');
                     
-                    // NUOVO: Controllo del ruolo utente
-                    const userProfile = await getUserRole(data.user.id);
+                    const userProfile = await AuthManager.getUserRole(session.user.id);
+                    const redirectUrl = AuthManager.getRedirectUrl(userProfile);
                     
-                    // Determina la pagina di destinazione in base ai ruoli
-                    const redirectUrl = getRedirectUrl(userProfile);
-                    
-                    const ruoliStr = userProfile.ruoli ? userProfile.ruoli.join(', ') : 'USER';
-                    showMessage(`👤 Ruoli: [${ruoliStr}] - Reindirizzamento in corso...`, 'info');
-                    
-                    // Redirect dopo 2 secondi
                     setTimeout(() => {
-                        console.log(`🔄 Redirect to: ${redirectUrl}`);
                         window.location.href = redirectUrl;
-                    }, 2000);
-                    
-                } else {
-                    throw new Error('Nessun dato utente ricevuto');
+                    }, 1500);
                 }
-                
             } catch (error) {
-                console.error('❌ Login error:', error);
-                showMessage(`❌ Errore: ${error.message}`, 'error');
-                
-                // Suggerimenti in base all'errore
-                if (error.message.includes('Invalid login credentials')) {
-                    showMessage('💡 Verifica email e password, o crea un account su Supabase', 'error');
-                } else if (error.message.includes('Email not confirmed')) {
-                    showMessage('📧 Conferma la tua email prima di accedere', 'error');
-                } else if (error.message.includes('Errore recupero profilo')) {
-                    showMessage('⚠️ Login riuscito ma errore nel recupero del profilo. Reindirizzamento alla dashboard utente...', 'info');
-                    
-                    // In caso di errore nel recupero del profilo, reindirizza comunque alla dashboard utente
-                    setTimeout(() => {
-                        window.location.href = 'app/home.html';
-                    }, 3000);
-                }
-                
-            } finally {
-                setLoading(false);
+                console.log('Nessuna sessione attiva:', error.message);
             }
+        });
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
         }
-        
-        // Debug extra - log tutti gli eventi
-        window.addEventListener('error', function(e) {
-            console.error('💥 JavaScript Error:', e.error);
-            showMessage(`💥 Errore JS: ${e.error.message}`, 'error');
+
+        // Gestione stati di connessione
+        window.addEventListener('online', () => {
+            Utils.showMessage('🌐 Connessione ripristinata', 'success');
         });
-        
-        window.addEventListener('unhandledrejection', function(e) {
-            console.error('💥 Unhandled Promise:', e.reason);
-            showMessage(`💥 Promise Error: ${e.reason}`, 'error');
+
+        window.addEventListener('offline', () => {
+            Utils.showMessage('📡 Modalità offline attiva', 'info');
         });
-        
+
+        // Gestione errori globali
+        window.addEventListener('error', (event) => {
+            console.error('💥 JavaScript Error:', event.error);
+            Utils.showMessage(`💥 Errore JS: ${event.error.message}`, 'error');
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('💥 Unhandled Promise:', event.reason);
+            Utils.showMessage(`💥 Promise Error: ${event.reason}`, 'error');
+        });
+
+        // Debug info per sviluppo
+        console.log('🎨 Aurora Borealis Ultra-Visible Theme Active');
+        console.log('🔐 Login System Ready');
+        console.log('📱 PWA Features Enabled');
+        console.log('♿ Accessibility Features Active');
     </script>
 </body>
 </html>
-
