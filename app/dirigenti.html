@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dirigenti - MyApp </title>
+<<<<<<< HEAD
+    <title>Dirigenti - MyApp Sindacato Carabinieri</title>
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#2400C1">
@@ -33,6 +34,9 @@
     <link rel="preconnect" href="https://lycrgzptkdkksukcwrld.supabase.co">
 
 
+=======
+    <title>Dirigenti - MyApp </title>
+>>>>>>> dca6c55fc659bd2de813bbbb8966edd617c4bdf3
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -528,6 +532,50 @@
         // Initialize
         document.addEventListener('DOMContentLoaded', caricaDatiPagina);
     </script>
+
+    <!-- Smart Navigation System -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+        
+        const supabase = createClient(
+            'https://lycrgzptkdkksukcwrld.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk'
+        );
+
+        // Smart Home Redirect
+        async function smartHomeRedirect() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
+                    window.location.href = './login.html';
+                    return;
+                }
+
+                // Ottieni ruoli utente
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('ruoli')
+                    .eq('id', user.id)
+                    .single();
+
+                const userRoles = profile?.ruoli || ['USER'];
+                
+                // Determina la home corretta
+                if (userRoles.includes('DIRIGENTE') || userRoles.includes('ADMIN')) {
+                    window.location.href = './app/home_dirigenti.html';
+                } else {
+                    window.location.href = './app/home.html';
+                }
+            } catch (error) {
+                console.error('Errore smart navigation:', error);
+                window.location.href = './app/home.html';
+            }
+        }
+
+        // Esponi globalmente
+        window.smartHomeRedirect = smartHomeRedirect;
+    </script>
 </body>
 </html>tabs {
             display: flex;
@@ -554,3 +602,5 @@
         }
 
         .filter-
+
+
