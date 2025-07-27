@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profilo - MyApp Sindacato Carabinieri</title>
+    
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#2400C1">
-    <meta name="background-color" content="#2400C1">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="background-color" content="#1a1a2e">
 
     <!-- Icone Standard -->
     <link rel="icon" type="image/png" sizes="16x16" href="/public/icons/favicon-16x16.png">
@@ -25,54 +26,159 @@
     <!-- Android Support -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="MyApp">
-    <meta name="msapplication-TileColor" content="#2400C1">
+    <meta name="msapplication-TileColor" content="#1a1a2e">
     
     <!-- Preconnect per performance -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="preconnect" href="https://lycrgzptkdkksukcwrld.supabase.co">
 
-
-=======
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#2400C1',
-                        secondary: '#8E008C', 
-                        accent: '#00BFFF',
+                        // Aurora Boreale 2025 Palette
+                        primary: '#1a1a2e',      // Blu notte profondo
+                        secondary: '#16213e',     // Blu oceano
+                        accent: '#0f3460',        // Blu acciaio
+                        aurora: '#e94560',        // Rosa aurora
+                        cyan: '#00d4ff',          // Cyan elettrico
+                        magenta: '#ff006e',       // Magenta vibrante
+                        gold: '#ffd700',          // Oro elegante
+                        teal: '#03dac6',          // Teal premium
+                        dark: '#0a0a23',          // Nero cyber
+                        light: '#f8fafc',         // Bianco ghiaccio
                         textDark: '#1C1C1E',
                         backgroundLight: '#F4F4F8',
+                    },
+                    screens: {
+                        'xs': '320px',
+                        'sm': '640px',
+                        'md': '768px',
+                        'lg': '1024px',
+                        'xl': '1280px',
+                        '2xl': '1536px',
+                        '3xl': '1920px',
+                        '4xl': '2560px',
                     }
                 }
             }
         }
     </script>
     <style>
+        :root {
+            --gradient-aurora: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #e94560 75%, #00d4ff 100%);
+            --gradient-cyber: linear-gradient(135deg, #0a0a23 0%, #1a1a2e 50%, #00d4ff 100%);
+            --gradient-magic: linear-gradient(135deg, #ff006e 0%, #e94560 50%, #03dac6 100%);
+        }
+
         body {
-            background: linear-gradient(to bottom, #2400C1, #8E008C);
+            background: var(--gradient-aurora);
+            background-size: 400% 400%;
+            animation: aurora 20s ease infinite;
             min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        @keyframes aurora {
+            0%, 100% { background-position: 0% 50%; }
+            25% { background-position: 100% 50%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(0.5deg); }
+            66% { transform: translateY(-5px) rotate(-0.5deg); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 30px rgba(233, 69, 96, 0.6); }
+            50% { box-shadow: 0 0 60px rgba(0, 212, 255, 0.8); }
+        }
+
+        @keyframes pulse-aurora {
+            0%, 100% { 
+                opacity: 1; 
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(233, 69, 96, 0.4);
+            }
+            50% { 
+                opacity: 0.8; 
+                transform: scale(1.05);
+                box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+            }
+        }
+
+        /* Typography Ultra-Visibile */
+        .text-ultra-visible {
+            color: #ffffff;
+            text-shadow: 0 8px 25px rgba(0, 0, 0, 0.9), 0 4px 12px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 1);
+            font-weight: 800;
         }
 
         .text-white {
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 8px 25px rgba(0, 0, 0, 0.9), 0 4px 12px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 1);
+        }
+
+        /* Glassmorphism Avanzato */
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .glass-effect {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-effect::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .glass-effect:hover::before {
+            left: 100%;
         }
 
         .card-hover {
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
         }
 
         .floating-help {
@@ -80,59 +186,269 @@
             bottom: 80px;
             right: 20px;
             z-index: 1000;
+            animation: float 3s ease-in-out infinite;
         }
 
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .form-input {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
+            padding: 16px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
         }
 
         .form-input:focus {
             outline: none;
-            border-color: #2400C1;
-            box-shadow: 0 0 0 3px rgba(36, 0, 193, 0.1);
+            border-color: #e94560;
+            box-shadow: 0 0 0 4px rgba(233, 69, 96, 0.2);
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.98);
+        }
+
+        .form-input:disabled {
+            background: rgba(200, 200, 200, 0.3);
+            border-color: rgba(200, 200, 200, 0.4);
+            cursor: not-allowed;
         }
 
         .form-label {
             display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
+            margin-bottom: 8px;
+            font-weight: 700;
             color: #1C1C1E;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .save-success {
-            background: #10b981;
+            background: linear-gradient(135deg, #10b981, #047857);
             color: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 16px;
+            padding: 16px 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
             text-align: center;
             display: none;
+            font-weight: 700;
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            animation: glow 2s ease-in-out infinite;
         }
 
         .validation-error {
             color: #dc2626;
             font-size: 14px;
-            margin-top: 4px;
+            font-weight: 600;
+            margin-top: 6px;
+            padding: 4px 8px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
         .error-message {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
+            background: linear-gradient(135deg, #fef2f2, #fecaca);
+            border: 2px solid #fecaca;
             color: #991b1b;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 16px;
+            padding: 16px 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
             text-align: center;
             display: none;
+            font-weight: 700;
+        }
+
+        /* Profile Avatar */
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: var(--gradient-magic);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            animation: pulse-aurora 3s infinite;
+            transition: all 0.4s ease;
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.1) rotate(5deg);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        /* Buttons Aurora */
+        .btn-aurora {
+            background: var(--gradient-magic);
+            color: white;
+            border: 2px solid rgba(233, 69, 96, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 700;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-aurora::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.3s;
+        }
+
+        .btn-aurora:hover::before {
+            left: 100%;
+        }
+
+        .btn-aurora:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(233, 69, 96, 0.4);
+            border-color: rgba(233, 69, 96, 0.8);
+        }
+
+        .btn-cyber {
+            background: var(--gradient-cyber);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            color: white;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-cyber:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.4);
+            border-color: rgba(0, 212, 255, 0.8);
+        }
+
+        .btn-neutral {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            border: 2px solid rgba(107, 114, 128, 0.3);
+            color: white;
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-neutral:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(107, 114, 128, 0.4);
+            border-color: rgba(107, 114, 128, 0.8);
+        }
+
+        /* Settings icons */
+        .setting-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .setting-icon:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Header glassmorphism */
+        header {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Bottom navigation glassmorphism */
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Logout button style */
+        #logoutBtn {
+            background: var(--gradient-magic) !important;
+            border: 2px solid rgba(233, 69, 96, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 700;
+        }
+
+        #logoutBtn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(233, 69, 96, 0.4);
+            border-color: rgba(233, 69, 96, 0.8);
+        }
+
+        /* Responsive text scaling */
+        .hero-title {
+            font-size: clamp(1.5rem, 6vw, 2rem);
+            font-weight: 900;
+        }
+
+        .section-title {
+            font-size: clamp(1.1rem, 5vw, 1.3rem);
+            font-weight: 900;
+        }
+
+        .card-title {
+            font-size: clamp(0.9rem, 4vw, 1.1rem);
+            font-weight: 800;
+        }
+
+        /* Floating animation for main elements */
+        .floating-element {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Role badge styling */
+        .role-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 2px solid;
+        }
+
+        .role-admin {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .role-dirigente {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .role-user {
+            background: linear-gradient(135deg, #10b981, #047857);
+            color: white;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
     </style>
 </head>
@@ -140,24 +456,24 @@
 
     <!-- Loading Spinner -->
     <div id="loading" class="fixed inset-0 bg-primary bg-opacity-90 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg p-6 text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p class="text-primary font-medium">Caricamento profilo...</p>
+        <div class="glass-strong rounded-3xl p-8 text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-aurora mx-auto mb-6"></div>
+            <p class="text-ultra-visible font-bold text-lg">Caricamento profilo...</p>
         </div>
     </div>
 
     <!-- Header -->
-    <header class="w-full px-4 py-4 relative z-10">
+    <header class="w-full px-4 py-6 relative z-10">
         <div class="max-w-md mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <button onclick="history.back()" class="text-white hover:text-accent transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            <div class="flex items-center space-x-4">
+                <button onclick="history.back()" class="text-ultra-visible hover:text-cyan transition-all duration-300 hover:scale-110">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path>
                     </svg>
                 </button>
-                <h1 class="text-xl font-bold text-white drop-shadow-lg">Il Mio Profilo</h1>
+                <h1 class="text-2xl font-black text-ultra-visible drop-shadow-lg">Il Mio Profilo</h1>
             </div>
-            <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-full font-semibold transition-colors shadow-lg border border-red-500" style="background-color: #dc2626 !important;">
+            <button id="logoutBtn" class="text-white text-sm px-6 py-3 rounded-full font-bold transition-all shadow-lg">
                 Logout
             </button>
         </div>
@@ -165,7 +481,7 @@
 
     <!-- Main Content -->
     <main class="flex-1 px-4 pb-20">
-        <div class="max-w-md mx-auto space-y-6">
+        <div class="max-w-md mx-auto space-y-8">
 
             <!-- Success Message -->
             <div id="successMessage" class="save-success">
@@ -178,18 +494,18 @@
             </div>
 
             <!-- Profile Header Card -->
-            <div class="glass-effect rounded-2xl p-6 card-hover text-center">
-                <div class="w-24 h-24 bg-gradient-to-br from-primary to-secondary rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <span class="text-white text-2xl font-bold" id="initialsDisplay">--</span>
+            <div class="glass-effect rounded-3xl p-8 card-hover text-center floating-element">
+                <div class="profile-avatar">
+                    <span class="text-white text-3xl font-black" id="initialsDisplay">--</span>
                 </div>
-                <h2 class="text-xl font-bold text-textDark mb-2" id="fullNameDisplay">Caricamento...</h2>
-                <p class="text-gray-600 text-sm" id="roleDisplay">Ruolo</p>
-                <p class="text-gray-500 text-xs mt-1" id="matricolaDisplay">Telefono: ---</p>
+                <h2 class="hero-title text-textDark mb-3" id="fullNameDisplay">Caricamento...</h2>
+                <div class="role-badge role-user mb-3" id="roleDisplay">Utente</div>
+                <p class="text-gray-600 text-base font-semibold" id="matricolaDisplay">Telefono: ---</p>
             </div>
 
             <!-- Profile Form -->
-            <form id="profileForm" class="glass-effect rounded-2xl p-6 card-hover">
-                <h3 class="font-bold text-textDark mb-6 text-lg">Modifica Dati Personali</h3>
+            <form id="profileForm" class="glass-effect rounded-3xl p-8 card-hover">
+                <h3 class="section-title text-textDark mb-8">Modifica Dati Personali</h3>
                 
                 <!-- Nome -->
                 <div class="form-group">
@@ -208,8 +524,8 @@
                 <!-- Email (readonly) -->
                 <div class="form-group">
                     <label class="form-label" for="email">Email</label>
-                    <input type="email" id="email" name="email" class="form-input bg-gray-100" readonly>
-                    <small class="text-gray-500 text-xs">L'email non può essere modificata</small>
+                    <input type="email" id="email" name="email" class="form-input" readonly>
+                    <small class="text-gray-600 text-sm font-semibold">L'email non può essere modificata</small>
                 </div>
 
                 <!-- Telefono -->
@@ -230,49 +546,49 @@
                 </div>
 
                 <!-- Submit Buttons -->
-                <div class="flex space-x-3 mt-8">
-                    <button type="button" onclick="resetForm()" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
+                <div class="flex space-x-4 mt-10">
+                    <button type="button" onclick="resetForm()" class="flex-1 btn-neutral py-4 px-8 rounded-2xl transition-all font-bold">
                         Annulla
                     </button>
-                    <button type="submit" class="flex-1 bg-primary hover:bg-opacity-90 text-white font-semibold py-3 px-6 rounded-xl transition-colors">
+                    <button type="submit" class="flex-1 btn-aurora py-4 px-8 rounded-2xl transition-all font-bold">
                         Salva Modifiche
                     </button>
                 </div>
             </form>
 
             <!-- Account Settings -->
-            <div class="glass-effect rounded-2xl p-6 card-hover">
-                <h3 class="font-bold text-textDark mb-4 text-lg">Impostazioni Account</h3>
+            <div class="glass-effect rounded-3xl p-8 card-hover">
+                <h3 class="section-title text-textDark mb-6">Impostazioni Account</h3>
                 
-                <div class="space-y-3">
+                <div class="space-y-4">
                     <!-- Change Password -->
-                    <button onclick="changePassword()" class="w-full flex items-center justify-between p-3 hover:bg-blue-50 rounded-lg transition-colors">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <span class="text-primary">🔐</span>
+                    <button onclick="changePassword()" class="w-full flex items-center justify-between p-4 hover:bg-blue-50 rounded-2xl transition-all card-hover">
+                        <div class="flex items-center space-x-4">
+                            <div class="setting-icon bg-gradient-to-br from-primary to-secondary text-white shadow-lg">
+                                <span class="text-xl">🔐</span>
                             </div>
                             <div class="text-left">
-                                <h4 class="font-semibold text-textDark text-sm">Cambia Password</h4>
-                                <p class="text-xs text-gray-600">Modifica la password di accesso</p>
+                                <h4 class="card-title text-textDark">Cambia Password</h4>
+                                <p class="text-sm text-gray-600 font-semibold">Modifica la password di accesso</p>
                             </div>
                         </div>
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                         </svg>
                     </button>
 
                     <!-- Privacy -->
-                    <button onclick="window.open('/privacy.html', '_blank')" class="w-full flex items-center justify-between p-3 hover:bg-blue-50 rounded-lg transition-colors">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <span class="text-primary">🛡️</span>
+                    <button onclick="window.open('/privacy.html', '_blank')" class="w-full flex items-center justify-between p-4 hover:bg-blue-50 rounded-2xl transition-all card-hover">
+                        <div class="flex items-center space-x-4">
+                            <div class="setting-icon bg-gradient-to-br from-teal to-cyan text-white shadow-lg">
+                                <span class="text-xl">🛡️</span>
                             </div>
                             <div class="text-left">
-                                <h4 class="font-semibold text-textDark text-sm">Privacy & Sicurezza</h4>
-                                <p class="text-xs text-gray-600">Informazioni su privacy e dati</p>
+                                <h4 class="card-title text-textDark">Privacy & Sicurezza</h4>
+                                <p class="text-sm text-gray-600 font-semibold">Informazioni su privacy e dati</p>
                             </div>
                         </div>
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                         </svg>
                     </button>
@@ -283,33 +599,33 @@
     </main>
 
     <!-- Floating Help Button -->
-    <button class="floating-help bg-secondary hover:bg-opacity-90 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110">
-        <span class="text-xl">🆘</span>
+    <button class="floating-help btn-aurora w-16 h-16 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110">
+        <span class="text-2xl">🆘</span>
     </button>
 
     <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+    <nav class="fixed bottom-0 left-0 right-0 px-4 py-3">
         <div class="flex justify-around items-center max-w-md mx-auto">
-            <a href="/index.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-2">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="/index.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-3">
+                <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m3 12 2-2m0 0 7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m10-11 2 2m-2-2v10a1 1 0 0 1-1 1h-3m-6 0a1 1 0 0 0 1-1v-4a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1m-6 0h6"></path>
                 </svg>
                 Home
             </a>
-            <a href="/convenzioni.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-2">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="/convenzioni.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-3">
+                <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
                 Convenzioni
             </a>
-            <a href="/app/tessera.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-2">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="/app/tessera.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-3">
+                <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M4 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H4zm0 2h16v12H4V6zm2 2v8h12V8H6zm2 2h8v4H8v-4z"></path>
                 </svg>
                 Tessera
             </a>
-            <a href="/app/profilo.html" class="flex flex-col items-center text-xs text-primary font-semibold transition-colors p-2">
-                <svg class="w-6 h-6 mb-1" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="/app/profilo.html" class="flex flex-col items-center text-xs text-primary font-bold transition-colors p-3">
+                <svg class="w-7 h-7 mb-1" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
                 Profilo
@@ -319,438 +635,4 @@
 
     <!-- JavaScript -->
     <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-
-        const supabaseUrl = 'https://lycrgzptkdkksukcwrld.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
-
-        const supabase = createClient(supabaseUrl, supabaseKey);
-
-        // Variabili globali
-        let userData = null;
-        let originalData = null;
-
-        // Loading functions
-        function showLoading() {
-            document.getElementById('loading').classList.remove('hidden');
-        }
-
-        function hideLoading() {
-            document.getElementById('loading').classList.add('hidden');
-        }
-
-        function showError(message) {
-            hideLoading();
-            console.error('Errore:', message);
-            
-            const errorMsg = document.getElementById('errorMessage');
-            const errorText = document.getElementById('errorText');
-            errorText.textContent = message;
-            errorMsg.style.display = 'block';
-            
-            // Nascondi dopo 5 secondi
-            setTimeout(() => {
-                errorMsg.style.display = 'none';
-            }, 5000);
-        }
-
-        function showSuccess() {
-            const successMsg = document.getElementById('successMessage');
-            successMsg.style.display = 'block';
-            setTimeout(() => {
-                successMsg.style.display = 'none';
-            }, 3000);
-        }
-
-        // Auth check
-        async function verificaAutenticazione() {
-            try {
-                const { data: { user }, error } = await supabase.auth.getUser();
-                
-                if (error) {
-                    console.error('Errore auth:', error);
-                    throw error;
-                }
-                
-                if (!user) {
-                    console.log('Utente non autenticato');
-                    window.location.href = '/login.html';
-                    return null;
-                }
-                
-                console.log('Utente autenticato:', user.email);
-                return user;
-            } catch (error) {
-                console.error('Errore autenticazione:', error);
-                window.location.href = '/login.html';
-                return null;
-            }
-        }
-
-        // Load user profile - METODO MIGLIORATO
-        async function caricaDatiPagina() {
-            showLoading();
-            try {
-                const user = await verificaAutenticazione();
-                if (!user) return;
-
-                console.log('Cerco profilo per ID:', user.id);
-
-                // Prova a caricare il profilo esistente
-                let { data: profile, error } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .maybeSingle(); // Usa maybeSingle invece di single per evitare errori
-
-                if (error) {
-                    console.error('Errore query profilo:', error);
-                    showError('Errore nel caricamento: ' + error.message);
-                    return;
-                }
-
-                // Se il profilo non esiste, crealo
-                if (!profile) {
-                    console.log('Profilo non trovato, creo nuovo profilo per:', user.email);
-                    
-                    const nuovoProfilo = {
-                        id: user.id,
-                        email: user.email,
-                        nome: '',
-                        cognome: '',
-                        telefono: null,
-                        ruoli: ['USER'], // Cambiato da 'ruolo' a 'ruoli'
-                        created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    };
-
-                    const { data: profiloCreato, error: erroreCreazione } = await supabase
-                        .from('profiles')
-                        .insert([nuovoProfilo])
-                        .select()
-                        .single();
-
-                    if (erroreCreazione) {
-                        console.error('Errore creazione profilo:', erroreCreazione);
-                        showError('Impossibile creare il profilo: ' + erroreCreazione.message);
-                        return;
-                    }
-
-                    profile = profiloCreato;
-                    console.log('Nuovo profilo creato con successo:', profile);
-                }
-
-                console.log('Profilo caricato:', profile);
-                userData = profile;
-                originalData = { ...profile };
-                
-                popolaForm(profile);
-                aggiornaDisplay(profile);
-
-            } catch (error) {
-                console.error('Errore generale:', error);
-                showError('Errore nel caricamento dei dati: ' + error.message);
-            } finally {
-                hideLoading();
-            }
-        }
-
-        // Crea nuovo profilo se non esiste
-        async function creaNuovoProfilo(user) {
-            try {
-                console.log('Creazione nuovo profilo per:', user.email);
-                
-                const nuovoProfilo = {
-                    id: user.id,
-                    email: user.email,
-                    nome: '',
-                    cognome: '',
-                    telefono: null,
-                    ruolo: ['USER'], // Array come richiesto da Supabase
-                    created_at: new Date().toISOString(),
-                    updated_at: new Date().toISOString()
-                };
-
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .insert([nuovoProfilo])
-                    .select()
-                    .single();
-
-                if (error) {
-                    console.error('Errore creazione profilo:', error);
-                    showError('Impossibile creare il profilo: ' + error.message);
-                    return;
-                }
-
-                console.log('Profilo creato:', data);
-                userData = data;
-                originalData = { ...data };
-                
-                popolaForm(data);
-                aggiornaDisplay(data);
-
-            } catch (error) {
-                console.error('Errore creazione profilo:', error);
-                showError('Errore nella creazione del profilo: ' + error.message);
-            }
-        }
-
-        // Popola il form con i dati
-        function popolaForm(data) {
-            document.getElementById('nome').value = data.nome || '';
-            document.getElementById('cognome').value = data.cognome || '';
-            document.getElementById('email').value = data.email || '';
-            document.getElementById('telefono').value = data.telefono || '';
-            
-            // Gestione corretta del campo ruoli (array) - CAMPO CORRETTO: ruoli
-            let ruoloValore = 'USER'; // Default
-            if (data.ruoli && Array.isArray(data.ruoli)) {
-                // Se è un array, prendi il primo valore o il più alto privilegio
-                if (data.ruoli.includes('ADMIN')) {
-                    ruoloValore = 'ADMIN';
-                } else if (data.ruoli.includes('DIRIGENTE')) {
-                    ruoloValore = 'DIRIGENTE';
-                } else if (data.ruoli.includes('USER')) {
-                    ruoloValore = 'USER';
-                }
-            } else if (typeof data.ruoli === 'string') {
-                // Se è una stringa (retrocompatibilità)
-                ruoloValore = data.ruoli;
-            }
-            
-            document.getElementById('ruolo').value = ruoloValore;
-            
-            // Disabilita il ruolo se non è admin
-            if (!data.ruoli || !data.ruoli.includes('ADMIN')) {
-                document.getElementById('ruolo').disabled = true;
-                document.getElementById('ruolo').classList.add('bg-gray-100');
-            }
-        }
-
-        // Aggiorna il display header
-        function aggiornaDisplay(data) {
-            const fullName = `${data.nome || ''} ${data.cognome || ''}`.trim() || 'Nome Utente';
-            const initials = fullName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) || 'NU';
-            
-            document.getElementById('fullNameDisplay').textContent = fullName;
-            document.getElementById('initialsDisplay').textContent = initials;
-            document.getElementById('roleDisplay').textContent = getRoleDisplay(data.ruoli);
-            document.getElementById('matricolaDisplay').textContent = `Telefono: ${data.telefono || 'Non specificato'}`;
-        }
-
-        function getRoleDisplay(ruoli) {
-            if (Array.isArray(ruoli)) {
-                if (ruoli.includes('ADMIN')) return 'Amministratore';
-                if (ruoli.includes('DIRIGENTE')) return 'Dirigente';
-                return 'Utente';
-            } else if (typeof ruoli === 'string') {
-                switch(ruoli) {
-                    case 'ADMIN': return 'Amministratore';
-                    case 'DIRIGENTE': return 'Dirigente';
-                    default: return 'Utente';
-                }
-            }
-            return 'Utente';
-        }
-
-        // Validation
-        function validateForm() {
-            let isValid = true;
-            
-            // Clear previous errors
-            document.querySelectorAll('.validation-error').forEach(el => el.textContent = '');
-            
-            const nome = document.getElementById('nome').value.trim();
-            const cognome = document.getElementById('cognome').value.trim();
-            const telefono = document.getElementById('telefono').value.trim();
-            
-            if (!nome) {
-                document.getElementById('nomeError').textContent = 'Il nome è obbligatorio';
-                isValid = false;
-            }
-            
-            if (!cognome) {
-                document.getElementById('cognomeError').textContent = 'Il cognome è obbligatorio';
-                isValid = false;
-            }
-            
-            if (telefono && !/^[0-9]{10,11}$/.test(telefono)) {
-                document.getElementById('telefonoError').textContent = 'Inserisci un numero valido (10-11 cifre)';
-                isValid = false;
-            }
-            
-            return isValid;
-        }
-
-        // Save profile - VERSIONE MIGLIORATA
-        async function salvaProfiloNelDB() {
-            if (!validateForm()) return;
-            
-            showLoading();
-            try {
-                const formData = new FormData(document.getElementById('profileForm'));
-                const ruoloSelezionato = formData.get('ruolo');
-                
-                const updatedData = {
-                    nome: formData.get('nome').trim(),
-                    cognome: formData.get('cognome').trim(),
-                    telefono: formData.get('telefono').trim() || null,
-                    updated_at: new Date().toISOString()
-                };
-
-                // Gestione corretta del ruoli come array
-                if (userData && userData.ruoli && Array.isArray(userData.ruoli) && userData.ruoli.includes('ADMIN')) {
-                    // Solo admin può modificare i ruoli
-                    updatedData.ruoli = [ruoloSelezionato];
-                }
-
-                console.log('Aggiornamento profilo ID:', userData.id);
-                console.log('Dati da salvare:', updatedData);
-
-                // Usa upsert per gestire sia aggiornamenti che inserimenti
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .upsert(
-                        { 
-                            id: userData.id, 
-                            email: userData.email,
-                            ...updatedData 
-                        },
-                        { 
-                            onConflict: 'id',
-                            ignoreDuplicates: false 
-                        }
-                    )
-                    .select()
-                    .single();
-
-                if (error) {
-                    console.error('Errore salvataggio:', error);
-                    showError('Impossibile salvare il profilo: ' + error.message);
-                    return;
-                }
-
-                console.log('Profilo salvato:', data);
-                userData = data;
-                originalData = { ...data };
-                aggiornaDisplay(data);
-                showSuccess();
-
-            } catch (error) {
-                console.error('Errore salvataggio:', error);
-                showError('Errore nel salvataggio: ' + error.message);
-            } finally {
-                hideLoading();
-            }
-        }
-
-        // Reset form
-        window.resetForm = function() {
-            if (originalData) {
-                popolaForm(originalData);
-                document.querySelectorAll('.validation-error').forEach(el => el.textContent = '');
-            }
-        };
-
-        // Change password
-        window.changePassword = async function() {
-            const newPassword = prompt('Inserisci la nuova password (minimo 6 caratteri):');
-            if (!newPassword) return;
-            
-            if (newPassword.length < 6) {
-                alert('La password deve essere di almeno 6 caratteri');
-                return;
-            }
-            
-            showLoading();
-            try {
-                const { error } = await supabase.auth.updateUser({
-                    password: newPassword
-                });
-                
-                if (error) {
-                    showError('Impossibile aggiornare la password: ' + error.message);
-                    return;
-                }
-                
-                alert('Password aggiornata con successo!');
-            } catch (error) {
-                console.error('Errore cambio password:', error);
-                showError('Errore nell\'aggiornamento della password: ' + error.message);
-            } finally {
-                hideLoading();
-            }
-        };
-
-        // Logout
-        async function logout() {
-            if (confirm('Sei sicuro di voler uscire?')) {
-                try {
-                    await supabase.auth.signOut();
-                    window.location.href = '/login.html';
-                } catch (error) {
-                    console.error('Errore durante il logout:', error);
-                    window.location.href = '/login.html';
-                }
-            }
-        }
-
-        // Event listeners
-        document.getElementById('logoutBtn').addEventListener('click', logout);
-        document.getElementById('profileForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            salvaProfiloNelDB();
-        });
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', caricaDatiPagina);
-    </script>
-
-    <!-- Smart Navigation System -->
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-        
-        const supabase = createClient(
-            'https://lycrgzptkdkksukcwrld.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk'
-        );
-
-        // Smart Home Redirect
-        async function smartHomeRedirect() {
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                
-                if (!user) {
-                    window.location.href = '../login.html';
-                    return;
-                }
-
-                // Ottieni ruoli utente
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('ruoli')
-                    .eq('id', user.id)
-                    .single();
-
-                const userRoles = profile?.ruoli || ['USER'];
-                
-                // Determina la home corretta
-                if (userRoles.includes('DIRIGENTE') || userRoles.includes('ADMIN')) {
-                    window.location.href = '../app/home_dirigenti.html';
-                } else {
-                    window.location.href = '../app/home.html';
-                }
-            } catch (error) {
-                console.error('Errore smart navigation:', error);
-                window.location.href = '../app/home.html';
-            }
-        }
-
-        // Esponi globalmente
-        window.smartHomeRedirect = smartHomeRedirect;
-    </script>
-</body>
-</html>
-
-
+        import { createClient } from 'https://cdn.jsdeliv
