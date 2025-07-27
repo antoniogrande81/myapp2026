@@ -70,7 +70,7 @@
         body {
             background: var(--gradient-aurora);
             background-size: 400% 400%;
-            animation: aurora 20s ease infinite;
+            animation: aurora 25s ease infinite;
             min-height: 100vh;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
@@ -83,9 +83,8 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-8px) rotate(0.5deg); }
-            66% { transform: translateY(-3px) rotate(-0.5deg); }
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
         }
 
         @keyframes shimmer {
@@ -94,60 +93,121 @@
         }
 
         @keyframes glow {
-            0%, 100% { box-shadow: 0 0 25px rgba(233, 69, 96, 0.6); }
-            50% { box-shadow: 0 0 50px rgba(0, 212, 255, 0.8); }
+            0%, 100% { box-shadow: 0 0 30px rgba(233, 69, 96, 0.6); }
+            50% { box-shadow: 0 0 60px rgba(0, 212, 255, 0.8); }
         }
 
         @keyframes pulse-aurora {
             0%, 100% { 
                 opacity: 1; 
                 transform: scale(1);
-                box-shadow: 0 0 20px rgba(233, 69, 96, 0.4);
+                box-shadow: 0 0 25px rgba(233, 69, 96, 0.5);
             }
             50% { 
-                opacity: 0.8; 
-                transform: scale(1.05);
-                box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+                opacity: 0.9; 
+                transform: scale(1.03);
+                box-shadow: 0 0 45px rgba(0, 212, 255, 0.7);
             }
         }
 
-        /* Typography Ultra-Visibile */
+        @keyframes slideInUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Typography Ultra-Visibile con contrasti migliorati */
         .text-ultra-visible {
-            color: #ffffff;
-            text-shadow: 0 8px 25px rgba(0, 0, 0, 0.9), 0 4px 12px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 1);
-            font-weight: 800;
+            color: #ffffff !important;
+            text-shadow: 
+                0 0 10px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(0, 0, 0, 0.6),
+                0 2px 4px rgba(0, 0, 0, 0.9),
+                0 4px 8px rgba(0, 0, 0, 0.8),
+                0 8px 16px rgba(0, 0, 0, 0.6);
+            font-weight: 900;
+            letter-spacing: 0.5px;
         }
 
         .text-white {
-            text-shadow: 0 8px 25px rgba(0, 0, 0, 0.9), 0 4px 12px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 1);
+            text-shadow: 
+                0 0 8px rgba(0, 0, 0, 0.8),
+                0 2px 4px rgba(0, 0, 0, 0.9),
+                0 4px 8px rgba(0, 0, 0, 0.7);
         }
 
-        /* Glassmorphism Avanzato */
+        .text-enhanced {
+            color: #1C1C1E;
+            text-shadow: 
+                0 1px 2px rgba(255, 255, 255, 0.8),
+                0 0 10px rgba(255, 255, 255, 0.6);
+            font-weight: 800;
+        }
+
+        /* Glassmorphism Migliorato */
         .glass-morphism {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(16px) saturate(180%);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 
+                0 12px 40px 0 rgba(31, 38, 135, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .glass-strong {
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(25px) saturate(200%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 16px 50px 0 rgba(31, 38, 135, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(30px) saturate(200%);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(25px) saturate(180%);
+            border: 2px solid rgba(255, 255, 255, 0.35);
             position: relative;
             overflow: hidden;
+            box-shadow: 
+                0 15px 45px rgba(0, 0, 0, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
 
         .glass-effect::before {
@@ -157,8 +217,8 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.6s ease;
         }
 
         .glass-effect:hover::before {
@@ -166,149 +226,185 @@
         }
 
         .glass-light {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(20px) saturate(150%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 12px 35px rgba(0, 0, 0, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
+        /* Animazioni più fluide */
         .card-hover {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform-origin: center;
         }
 
         .card-hover:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            transform: translateY(-12px) scale(1.03);
+            box-shadow: 
+                0 30px 80px rgba(0,0,0,0.2),
+                0 15px 40px rgba(0,0,0,0.15);
         }
 
         .pulse-animation {
-            animation: pulse-aurora 3s infinite;
+            animation: pulse-aurora 4s infinite ease-in-out;
         }
 
         .stat-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: all 0.3s ease;
+            background: linear-gradient(145deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08));
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 2px solid rgba(255,255,255,0.25);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 
+                0 12px 35px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .stat-card:hover {
-            transform: translateY(-3px) scale(1.05);
-            background: linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.15));
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            transform: translateY(-8px) scale(1.02);
+            background: linear-gradient(145deg, rgba(255,255,255,0.25), rgba(255,255,255,0.15));
+            box-shadow: 
+                0 25px 60px rgba(0,0,0,0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
 
+        /* Logo migliorato */
         .myapp-logo {
-            width: 48px;
-            height: 48px;
+            width: 52px;
+            height: 52px;
             background: var(--gradient-magic);
-            border-radius: 16px;
+            border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             overflow: hidden;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            animation: glow 3s ease-in-out infinite;
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            animation: glow 4s ease-in-out infinite;
+            box-shadow: 
+                0 8px 25px rgba(233, 69, 96, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .myapp-logo::before {
             content: '';
             position: absolute;
-            width: 24px;
-            height: 24px;
+            width: 26px;
+            height: 26px;
             background: linear-gradient(45deg, #00d4ff, #03dac6);
             border-radius: 50%;
-            top: 6px;
-            left: 6px;
-            opacity: 0.8;
+            top: 7px;
+            left: 7px;
+            opacity: 0.9;
         }
 
         .myapp-logo::after {
             content: '';
             position: absolute;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             background: linear-gradient(45deg, #ff006e, #e94560);
             border-radius: 50%;
-            bottom: 6px;
-            right: 6px;
-            opacity: 0.7;
+            bottom: 7px;
+            right: 7px;
+            opacity: 0.8;
         }
 
+        /* Quick action icons migliorati */
         .quick-action-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 16px;
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            margin: 0 auto 16px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            font-size: 28px;
+            margin: 0 auto 20px;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border: 3px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .quick-action-icon:hover {
-            transform: scale(1.15) rotate(5deg);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            transform: scale(1.2) rotate(8deg);
+            box-shadow: 
+                0 20px 50px rgba(0,0,0,0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .notification-badge {
             position: absolute;
-            top: -2px;
-            right: -2px;
+            top: -3px;
+            right: -3px;
             background: var(--gradient-magic);
             color: white;
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 900;
-            border: 2px solid white;
-            animation: pulse-aurora 2s infinite;
+            border: 3px solid white;
+            animation: pulse-aurora 2.5s infinite;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.5);
         }
 
+        /* Animazioni di ingresso più fluide */
         .fade-in {
-            animation: fadeIn 0.8s ease-in;
+            animation: slideInUp 0.8s ease-out;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+        .fade-in-left {
+            animation: slideInLeft 0.8s ease-out;
+        }
+
+        .fade-in-right {
+            animation: slideInRight 0.8s ease-out;
         }
 
         .service-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            transition: all 0.3s ease;
+            font-size: 20px;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .service-icon:hover {
-            transform: scale(1.1) rotate(5deg);
+            transform: scale(1.15) rotate(8deg);
+            box-shadow: 
+                0 12px 30px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .loading-skeleton {
             background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
             background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 12px;
+            animation: shimmer 1.8s infinite;
+            border-radius: 14px;
         }
 
         .service-highlight-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(25px) saturate(180%);
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             position: relative;
             overflow: hidden;
+            box-shadow: 
+                0 15px 45px rgba(0, 0, 0, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
 
         .service-highlight-card::before {
@@ -318,8 +414,8 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.7s ease;
         }
 
         .service-highlight-card:hover::before {
@@ -327,101 +423,139 @@
         }
 
         .service-highlight-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+            transform: translateY(-15px) scale(1.05);
+            box-shadow: 
+                0 35px 100px rgba(0,0,0,0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
             border-color: var(--hover-color);
         }
 
-        .gradient-border {
-            position: relative;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+        /* Header e navigation migliorati */
+        header {
+            background: linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.08));
+            backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 2px solid rgba(255,255,255,0.15);
+            box-shadow: 
+                0 8px 25px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
-        .gradient-border::before {
+        nav {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(25px) saturate(200%);
+            border-top: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 
+                0 -8px 25px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+
+        /* Bottoni migliorati */
+        #logoutBtn {
+            background: var(--gradient-magic) !important;
+            border: 3px solid rgba(233, 69, 96, 0.4);
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-weight: 800;
+            box-shadow: 
+                0 8px 25px rgba(233, 69, 96, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        #logoutBtn:hover {
+            transform: translateY(-4px) scale(1.08);
+            box-shadow: 
+                0 20px 50px rgba(233, 69, 96, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border-color: rgba(233, 69, 96, 0.8);
+        }
+
+        #notificheBtn {
+            background: rgba(255, 255, 255, 0.18) !important;
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 
+                0 6px 20px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+
+        #notificheBtn:hover {
+            background: rgba(255, 255, 255, 0.3) !important;
+            transform: scale(1.15);
+            box-shadow: 
+                0 12px 30px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* Responsive text migliorato */
+        .hero-title {
+            font-size: clamp(1.4rem, 6vw, 1.8rem);
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .section-title {
+            font-size: clamp(1.2rem, 5vw, 1.4rem);
+            font-weight: 900;
+            line-height: 1.3;
+        }
+
+        .card-title {
+            font-size: clamp(1rem, 4vw, 1.1rem);
+            font-weight: 800;
+            line-height: 1.4;
+        }
+
+        /* Effetti speciali per plafond card */
+        .plafond-card {
+            background: linear-gradient(145deg, rgba(255, 215, 0, 0.25), rgba(233, 69, 96, 0.25));
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 3px solid rgba(255, 215, 0, 0.4);
+            animation: glow 4s ease-in-out infinite;
+            box-shadow: 
+                0 20px 60px rgba(255, 215, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* Floating animation più sottile */
+        .floating-element {
+            animation: float 8s ease-in-out infinite;
+        }
+
+        /* Sezioni con separatori visivi */
+        .section-separator {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            height: 2px;
+            margin: 2rem 0;
+            border-radius: 1px;
+        }
+
+        /* Navigation buttons con effetti migliori */
+        .nav-button {
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            border-radius: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-button::before {
             content: '';
             position: absolute;
-            inset: -3px;
-            background: var(--gradient-aurora);
-            border-radius: 20px;
-            z-index: -1;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(233, 69, 96, 0.1), rgba(0, 212, 255, 0.1));
             opacity: 0;
             transition: opacity 0.4s ease;
         }
 
-        .gradient-border:hover::before {
+        .nav-button:hover::before {
             opacity: 1;
         }
 
-        /* Header glassmorphism */
-        header {
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        /* Bottom navigation glassmorphism */
-        nav {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        /* Logout button style */
-        #logoutBtn {
-            background: var(--gradient-magic) !important;
-            border: 2px solid rgba(233, 69, 96, 0.3);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 700;
-        }
-
-        #logoutBtn:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 15px 30px rgba(233, 69, 96, 0.4);
-            border-color: rgba(233, 69, 96, 0.8);
-        }
-
-        /* Notifications button */
-        #notificheBtn {
-            background: rgba(255, 255, 255, 0.15) !important;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        #notificheBtn:hover {
-            background: rgba(255, 255, 255, 0.25) !important;
-            transform: scale(1.1);
-        }
-
-        /* Responsive text scaling */
-        .hero-title {
-            font-size: clamp(1.25rem, 6vw, 1.5rem);
-            font-weight: 900;
-        }
-
-        .section-title {
-            font-size: clamp(1.1rem, 5vw, 1.25rem);
-            font-weight: 900;
-        }
-
-        .card-title {
-            font-size: clamp(0.9rem, 4vw, 1rem);
-            font-weight: 800;
-        }
-
-        /* Special effects for plafond card */
-        .plafond-card {
-            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(233, 69, 96, 0.2));
-            backdrop-filter: blur(15px);
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            animation: glow 3s ease-in-out infinite;
-        }
-
-        /* Floating animation for main elements */
-        .floating-element {
-            animation: float 6s ease-in-out infinite;
+        .nav-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
         }
 
         /* Reduced motion support */
@@ -433,50 +567,93 @@
             }
         }
 
-        /* Responsive adjustments */
+        /* Responsive migliorato */
         @media (max-width: 480px) {
             .quick-action-icon { 
-                width: 48px; 
-                height: 48px; 
-                font-size: 20px; 
+                width: 56px; 
+                height: 56px; 
+                font-size: 24px; 
             }
             .myapp-logo {
-                width: 40px;
-                height: 40px;
+                width: 44px;
+                height: 44px;
+            }
+            .hero-title {
+                font-size: 1.3rem;
+            }
+            .section-title {
+                font-size: 1.1rem;
             }
         }
+
+        @media (max-width: 360px) {
+            .quick-action-icon { 
+                width: 50px; 
+                height: 50px; 
+                font-size: 20px; 
+            }
+            .service-icon {
+                width: 38px;
+                height: 38px;
+                font-size: 16px;
+            }
+        }
+
+        /* Loading overlay migliorato */
+        #loading {
+            backdrop-filter: blur(15px);
+            background: rgba(26, 26, 46, 0.95);
+        }
+
+        .loading-content {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* Staggered animations */
+        .stagger-1 { animation-delay: 0.1s; }
+        .stagger-2 { animation-delay: 0.2s; }
+        .stagger-3 { animation-delay: 0.3s; }
+        .stagger-4 { animation-delay: 0.4s; }
+        .stagger-5 { animation-delay: 0.5s; }
+        .stagger-6 { animation-delay: 0.6s; }
     </style>
 </head>
 <body class="font-sans text-white">
     
-    <!-- Loading Overlay -->
-    <div id="loading" class="fixed inset-0 bg-primary bg-opacity-90 flex items-center justify-center z-50">
-        <div class="glass-strong rounded-2xl p-8 text-center">
-            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-aurora mx-auto mb-6"></div>
-            <p class="text-ultra-visible font-bold text-lg">Caricamento dashboard...</p>
+    <!-- Loading Overlay Migliorato -->
+    <div id="loading" class="fixed inset-0 flex items-center justify-center z-50">
+        <div class="loading-content rounded-3xl p-10 text-center">
+            <div class="animate-spin rounded-full h-20 w-20 border-b-4 border-aurora mx-auto mb-8"></div>
+            <p class="text-ultra-visible font-bold text-xl">Caricamento dashboard...</p>
+            <p class="text-cyan font-semibold text-sm mt-2">Preparando l'esperienza personalizzata</p>
         </div>
     </div>
 
-    <!-- Header -->
-    <header class="w-full px-4 py-6 relative z-10">
+    <!-- Header Migliorato -->
+    <header class="w-full px-6 py-8 relative z-10">
         <div class="max-w-md mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <div class="myapp-logo shadow-lg">
-                    <span class="text-white font-black text-lg relative z-10">M</span>
+            <div class="flex items-center space-x-5 fade-in-left">
+                <div class="myapp-logo shadow-xl">
+                    <span class="text-white font-black text-xl relative z-10">M</span>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-black text-ultra-visible drop-shadow-lg">MyApp</h1>
-                    <p class="text-sm text-cyan font-bold">Il Tuo Dirigente in Tasca</p>
+                    <h1 class="text-3xl font-black text-ultra-visible drop-shadow-lg">MyApp</h1>
+                    <p class="text-base text-cyan font-bold">Il Tuo Dirigente in Tasca</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-3">
-                <button id="notificheBtn" class="relative text-white p-3 rounded-full transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center space-x-4 fade-in-right">
+                <button id="notificheBtn" class="relative text-white p-4 rounded-full">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4 4h7a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2z"></path>
                     </svg>
                     <span id="notificheBadge" class="notification-badge hidden">3</span>
                 </button>
-                <button id="logoutBtn" class="text-white text-sm px-4 py-3 rounded-full font-bold transition-all shadow-lg">
+                <button id="logoutBtn" class="text-white text-base px-6 py-4 rounded-full font-bold shadow-xl">
                     Logout
                 </button>
             </div>
@@ -484,71 +661,78 @@
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-md mx-auto px-4 pb-24 md:max-w-2xl lg:max-w-4xl">
+    <main class="max-w-md mx-auto px-6 pb-28 md:max-w-2xl lg:max-w-4xl">
         
         <!-- 1. Saluto personalizzato -->
-        <section class="mb-8 fade-in">
-            <div class="stat-card rounded-3xl p-6 text-center">
-                <h2 id="salutoPersonalizzato" class="hero-title text-ultra-visible drop-shadow-lg mb-3">Benvenuto!</h2>
-                <p id="dataOdierna" class="text-cyan text-base font-bold">Caricamento...</p>
+        <section class="mb-10 fade-in stagger-1">
+            <div class="stat-card rounded-3xl p-8 text-center">
+                <h2 id="salutoPersonalizzato" class="hero-title text-ultra-visible drop-shadow-lg mb-4">Benvenuto!</h2>
+                <p id="dataOdierna" class="text-cyan text-lg font-bold">Caricamento...</p>
             </div>
         </section>
+
+        <div class="section-separator stagger-2"></div>
 
         <!-- 2. Accesso Rapido -->
-        <section class="mb-8 fade-in floating-element">
-            <h3 class="section-title text-ultra-visible mb-6 drop-shadow-lg">Accesso Rapido</h3>
-            <div class="grid grid-cols-2 gap-6 md:grid-cols-4 lg:gap-6">
-                <button onclick="navigateTo('tessera.html')" class="glass-effect card-hover rounded-3xl p-6 text-center">
-                    <div class="quick-action-icon bg-gradient-to-br from-primary to-secondary text-white shadow-lg">
+        <section class="mb-12 fade-in floating-element stagger-3">
+            <h3 class="section-title text-ultra-visible mb-8 drop-shadow-lg text-center">🚀 Accesso Rapido</h3>
+            <div class="grid grid-cols-2 gap-8 md:grid-cols-4 lg:gap-8">
+                <button onclick="navigateTo('tessera.html')" class="glass-effect card-hover rounded-3xl p-8 text-center">
+                    <div class="quick-action-icon bg-gradient-to-br from-primary to-secondary text-white shadow-xl">
                         🆔
                     </div>
-                    <h4 class="card-title text-textDark mb-2">Tessera Digitale</h4>
-                    <p class="text-sm text-gray-600 font-semibold">La tua tessera sempre con te</p>
+                    <h4 class="card-title text-enhanced mb-3">Tessera Digitale</h4>
+                    <p class="text-sm text-gray-700 font-semibold">La tua tessera sempre con te</p>
                 </button>
                 
-                <button onclick="navigateTo('strumenti.html')" class="glass-effect card-hover rounded-3xl p-6 text-center">
-                    <div class="quick-action-icon bg-gradient-to-br from-cyan to-blue-500 text-white shadow-lg">
+                <button onclick="navigateTo('strumenti.html')" class="glass-effect card-hover rounded-3xl p-8 text-center">
+                    <div class="quick-action-icon bg-gradient-to-br from-cyan to-blue-500 text-white shadow-xl">
                         🛠️
                     </div>
-                    <h4 class="card-title text-textDark mb-2">Strumenti</h4>
-                    <p class="text-sm text-gray-600 font-semibold">Gestione turni e tools</p>
+                    <h4 class="card-title text-enhanced mb-3">Strumenti</h4>
+                    <p class="text-sm text-gray-700 font-semibold">Gestione turni e tools</p>
                 </button>
                 
-                <button onclick="navigateTo('virgilio.html')" class="glass-effect card-hover rounded-3xl p-6 text-center">
-                    <div class="quick-action-icon bg-gradient-to-br from-magenta to-aurora text-white shadow-lg">
+                <button onclick="navigateTo('virgilio.html')" class="glass-effect card-hover rounded-3xl p-8 text-center">
+                    <div class="quick-action-icon bg-gradient-to-br from-magenta to-aurora text-white shadow-xl">
                         🤖
                     </div>
-                    <h4 class="card-title text-textDark mb-2">Virgilio AI</h4>
-                    <p class="text-sm text-gray-600 font-semibold">Assistente digitale</p>
+                    <h4 class="card-title text-enhanced mb-3">Virgilio AI</h4>
+                    <p class="text-sm text-gray-700 font-semibold">Assistente digitale</p>
                 </button>
                 
-                <button onclick="navigateTo('profilo.html')" class="glass-effect card-hover rounded-3xl p-6 text-center">
-                    <div class="quick-action-icon bg-gradient-to-br from-gray-600 to-gray-800 text-white shadow-lg">
+                <button onclick="navigateTo('profilo.html')" class="glass-effect card-hover rounded-3xl p-8 text-center">
+                    <div class="quick-action-icon bg-gradient-to-br from-gray-600 to-gray-800 text-white shadow-xl">
                         👤
                     </div>
-                    <h4 class="card-title text-textDark mb-2">Profilo</h4>
-                    <p class="text-sm text-gray-600 font-semibold">I tuoi dati personali</p>
+                    <h4 class="card-title text-enhanced mb-3">Profilo</h4>
+                    <p class="text-sm text-gray-700 font-semibold">I tuoi dati personali</p>
                 </button>
             </div>
         </section>
 
+        <div class="section-separator stagger-4"></div>
+
         <!-- 3. Notizie e Aggiornamenti -->
-        <section class="mb-8 fade-in">
-            <div class="gradient-border rounded-3xl p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="section-title text-textDark">📰 Ultime Notizie</h3>
-                    <button onclick="navigateTo('notifiche.html')" class="text-aurora text-sm hover:text-magenta transition-colors font-bold">
+        <section class="mb-12 fade-in stagger-5">
+            <div class="glass-strong rounded-3xl p-8 shadow-2xl">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="section-title text-enhanced flex items-center">
+                        <span class="text-3xl mr-3">📰</span>
+                        Ultime Notizie
+                    </h3>
+                    <button onclick="navigateTo('notifiche.html')" class="nav-button text-aurora text-base hover:text-magenta font-bold px-4 py-2">
                         Vedi tutte →
                     </button>
                 </div>
-                <div id="notizieContainer" class="space-y-4">
-                    <!-- Loading skeleton -->
-                    <div class="glass-effect rounded-2xl p-5">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-3 h-3 loading-skeleton rounded-full"></div>
+                <div id="notizieContainer" class="space-y-6">
+                    <!-- Loading skeleton migliorato -->
+                    <div class="glass-effect rounded-3xl p-6">
+                        <div class="flex items-center space-x-5">
+                            <div class="w-4 h-4 loading-skeleton rounded-full"></div>
                             <div class="flex-1">
-                                <div class="w-3/4 h-5 loading-skeleton rounded mb-3"></div>
-                                <div class="w-1/2 h-4 loading-skeleton rounded"></div>
+                                <div class="w-3/4 h-6 loading-skeleton rounded mb-4"></div>
+                                <div class="w-1/2 h-5 loading-skeleton rounded"></div>
                             </div>
                         </div>
                     </div>
@@ -556,23 +740,28 @@
             </div>
         </section>
 
+        <div class="section-separator stagger-6"></div>
+
         <!-- 4. Convenzioni in Evidenza -->
-        <section class="mb-8 fade-in">
-            <div class="gradient-border rounded-3xl p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="section-title text-textDark">🏷️ Convenzioni Attive</h3>
-                    <button onclick="navigateTo('../convenzioni.html')" class="text-aurora text-sm hover:text-magenta transition-colors font-bold">
+        <section class="mb-12 fade-in stagger-1">
+            <div class="glass-strong rounded-3xl p-8 shadow-2xl">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="section-title text-enhanced flex items-center">
+                        <span class="text-3xl mr-3">🏷️</span>
+                        Convenzioni Attive
+                    </h3>
+                    <button onclick="navigateTo('../convenzioni.html')" class="nav-button text-aurora text-base hover:text-magenta font-bold px-4 py-2">
                         Scopri tutte →
                     </button>
                 </div>
-                <div id="convenzioniContainer" class="space-y-4">
-                    <!-- Loading skeleton -->
-                    <div class="glass-effect rounded-2xl p-5">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-16 h-16 loading-skeleton rounded-2xl"></div>
+                <div id="convenzioniContainer" class="space-y-6">
+                    <!-- Loading skeleton migliorato -->
+                    <div class="glass-effect rounded-3xl p-6">
+                        <div class="flex items-center space-x-5">
+                            <div class="w-20 h-20 loading-skeleton rounded-3xl"></div>
                             <div class="flex-1">
-                                <div class="w-2/3 h-5 loading-skeleton rounded mb-3"></div>
-                                <div class="w-1/3 h-4 loading-skeleton rounded"></div>
+                                <div class="w-2/3 h-6 loading-skeleton rounded mb-4"></div>
+                                <div class="w-1/3 h-5 loading-skeleton rounded"></div>
                             </div>
                         </div>
                     </div>
@@ -580,85 +769,95 @@
             </div>
         </section>
 
+        <div class="section-separator stagger-2"></div>
+
         <!-- 5. Servizi BestBadge in Evidenza -->
-        <section class="mb-8 fade-in floating-element">
-            <h3 class="section-title text-ultra-visible mb-6 drop-shadow-lg">🛡️ Servizi di Tutela BestBadge</h3>
-            <div class="grid grid-cols-2 gap-4 md:grid-cols-4 lg:gap-6">
-                <button onclick="navigateTo('servizi.html')" class="service-highlight-card rounded-3xl p-6 text-center" style="--hover-color: #e94560;">
-                    <div class="quick-action-icon bg-gradient-to-br from-primary to-secondary text-white shadow-lg">
+        <section class="mb-12 fade-in floating-element stagger-3">
+            <h3 class="section-title text-ultra-visible mb-8 drop-shadow-lg text-center flex items-center justify-center">
+                <span class="text-3xl mr-3">🛡️</span>
+                Servizi di Tutela BestBadge
+            </h3>
+            <div class="grid grid-cols-2 gap-6 md:grid-cols-4 lg:gap-8">
+                <button onclick="navigateTo('servizi.html')" class="service-highlight-card rounded-3xl p-8 text-center" style="--hover-color: #e94560;">
+                    <div class="quick-action-icon bg-gradient-to-br from-primary to-secondary text-white shadow-xl">
                         ⚖️
                     </div>
-                    <h4 class="card-title text-textDark mb-2">Tutela Penale</h4>
-                    <p class="text-sm text-gray-600 font-semibold mb-3">Penale Militare e Civile</p>
-                    <div class="text-xs bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1 rounded-full inline-block font-bold">Specializzato</div>
+                    <h4 class="card-title text-enhanced mb-3">Tutela Penale</h4>
+                    <p class="text-sm text-gray-700 font-semibold mb-4">Penale Militare e Civile</p>
+                    <div class="text-xs bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-full inline-block font-bold shadow-lg">Specializzato</div>
                 </button>
                 
-                <button onclick="navigateTo('servizi.html')" class="service-highlight-card rounded-3xl p-6 text-center" style="--hover-color: #00d4ff;">
-                    <div class="quick-action-icon bg-gradient-to-br from-cyan to-blue-500 text-white shadow-lg">
+                <button onclick="navigateTo('servizi.html')" class="service-highlight-card rounded-3xl p-8 text-center" style="--hover-color: #00d4ff;">
+                    <div class="quick-action-icon bg-gradient-to-br from-cyan to-blue-500 text-white shadow-xl">
                         📋
                     </div>
-                    <h4 class="card-title text-textDark mb-2">Tutela Civile</h4>
-                    <p class="text-sm text-gray-600 font-semibold mb-3">Famiglia, Lavoro, Proprietà</p>
-                    <div class="text-xs bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-full inline-block font-bold">Completo</div>
+                    <h4 class="card-title text-enhanced mb-3">Tutela Civile</h4>
+                    <p class="text-sm text-gray-700 font-semibold mb-4">Famiglia, Lavoro, Proprietà</p>
+                    <div class="text-xs bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-full inline-block font-bold shadow-lg">Completo</div>
                 </button>
                 
-                <button onclick="navigateTo('servizi.html')" class="service-highlight-card rounded-3xl p-6 text-center" style="--hover-color: #ff006e;">
-                    <div class="quick-action-icon bg-gradient-to-br from-magenta to-purple-600 text-white shadow-lg">
+                <button onclick="navigateTo('servizi.html')" class="service-highlight-card rounded-3xl p-8 text-center" style="--hover-color: #ff006e;">
+                    <div class="quick-action-icon bg-gradient-to-br from-magenta to-purple-600 text-white shadow-xl">
                         🏛️
                     </div>
-                    <h4 class="card-title text-textDark mb-2">Amministrativi</h4>
-                    <p class="text-sm text-gray-600 font-semibold mb-3">Ricorsi TAR e procedure</p>
-                    <div class="text-xs bg-gradient-to-r from-purple-500 to-purple-600 text-white px-3 py-1 rounded-full inline-block font-bold">Militare</div>
+                    <h4 class="card-title text-enhanced mb-3">Amministrativi</h4>
+                    <p class="text-sm text-gray-700 font-semibold mb-4">Ricorsi TAR e procedure</p>
+                    <div class="text-xs bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-full inline-block font-bold shadow-lg">Militare</div>
                 </button>
                 
-                <button onclick="navigateTo('servizi.html')" class="service-highlight-card rounded-3xl p-6 text-center" style="--hover-color: #03dac6;">
-                    <div class="quick-action-icon bg-gradient-to-br from-teal to-emerald-600 text-white shadow-lg">
+                <button onclick="navigateTo('servizi.html')" class="service-highlight-card rounded-3xl p-8 text-center" style="--hover-color: #03dac6;">
+                    <div class="quick-action-icon bg-gradient-to-br from-teal to-emerald-600 text-white shadow-xl">
                         📊
                     </div>
-                    <h4 class="card-title text-textDark mb-2">Servizi Fiscali</h4>
-                    <p class="text-sm text-gray-600 font-semibold mb-3">CAF e Patronato F.I.TE.S.C.</p>
-                    <div class="text-xs bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-3 py-1 rounded-full inline-block font-bold">CAF</div>
+                    <h4 class="card-title text-enhanced mb-3">Servizi Fiscali</h4>
+                    <p class="text-sm text-gray-700 font-semibold mb-4">CAF e Patronato F.I.TE.S.C.</p>
+                    <div class="text-xs bg-gradient-to-r from-yellow-500 to-yellow-600 text-white px-4 py-2 rounded-full inline-block font-bold shadow-lg">CAF</div>
                 </button>
             </div>
             
-            <!-- Info Plafond -->
-            <div class="mt-6 plafond-card rounded-2xl p-5 text-center">
-                <p class="text-lg text-ultra-visible mb-2 font-bold">💎 Plafond Tutela Legale</p>
-                <p class="text-3xl font-black text-ultra-visible">€ 30.000</p>
-                <p class="text-base text-cyan font-bold">+ copertura nucleo familiare</p>
+            <!-- Info Plafond Migliorato -->
+            <div class="mt-8 plafond-card rounded-3xl p-8 text-center">
+                <p class="text-xl text-ultra-visible mb-3 font-bold flex items-center justify-center">
+                    <span class="text-3xl mr-3">💎</span>
+                    Plafond Tutela Legale
+                </p>
+                <p class="text-4xl font-black text-ultra-visible mb-2">€ 30.000</p>
+                <p class="text-lg text-cyan font-bold">+ copertura nucleo familiare</p>
             </div>
         </section>
 
+        <div class="section-separator stagger-4"></div>
+
         <!-- 6. Altri Servizi -->
-        <section class="mb-8 fade-in">
-            <h3 class="section-title text-ultra-visible mb-6 drop-shadow-lg">Altri Servizi</h3>
-            <div class="glass-effect rounded-3xl p-6 space-y-4">
-                <a href="../dirigenti.html" class="flex items-center justify-between p-4 hover:bg-blue-50 rounded-2xl transition-all card-hover">
-                    <div class="flex items-center space-x-4">
-                        <div class="service-icon bg-gradient-to-br from-gold to-yellow-500 text-white shadow-lg">
+        <section class="mb-12 fade-in stagger-5">
+            <h3 class="section-title text-ultra-visible mb-8 drop-shadow-lg text-center">Altri Servizi</h3>
+            <div class="glass-strong rounded-3xl p-8 space-y-6 shadow-2xl">
+                <a href="../dirigenti.html" class="nav-button flex items-center justify-between p-6 hover:bg-blue-50 rounded-3xl">
+                    <div class="flex items-center space-x-5">
+                        <div class="service-icon bg-gradient-to-br from-gold to-yellow-500 text-white shadow-xl">
                             <span class="font-bold">👥</span>
                         </div>
                         <div>
-                            <h4 class="card-title text-textDark">Dirigenti</h4>
-                            <p class="text-sm text-gray-600 font-semibold">Contatti e organizzazione</p>
+                            <h4 class="card-title text-enhanced">Dirigenti</h4>
+                            <p class="text-sm text-gray-700 font-semibold">Contatti e organizzazione</p>
                         </div>
                     </div>
-                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-7 h-7 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </a>
                 
-                <a href="../contatti.html" class="flex items-center justify-between p-4 hover:bg-blue-50 rounded-2xl transition-all card-hover">
-                    <div class="flex items-center space-x-4">
-                        <div class="service-icon bg-gradient-to-br from-teal to-green-500 text-white shadow-lg">
+                <a href="../contatti.html" class="nav-button flex items-center justify-between p-6 hover:bg-blue-50 rounded-3xl">
+                    <div class="flex items-center space-x-5">
+                        <div class="service-icon bg-gradient-to-br from-teal to-green-500 text-white shadow-xl">
                             <span class="font-bold">📞</span>
                         </div>
                         <div>
-                            <h4 class="card-title text-textDark">Contatti</h4>
-                            <p class="text-sm text-gray-600 font-semibold">Come raggiungerci</p>
+                            <h4 class="card-title text-enhanced">Contatti</h4>
+                            <p class="text-sm text-gray-700 font-semibold">Come raggiungerci</p>
                         </div>
                     </div>
-                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-7 h-7 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </a>
@@ -667,29 +866,29 @@
 
     </main>
 
-    <!-- Bottom Navigation - STANDARD PROTETTE -->
-    <nav class="fixed bottom-0 left-0 right-0 px-4 py-3">
+    <!-- Bottom Navigation Migliorata -->
+    <nav class="fixed bottom-0 left-0 right-0 px-6 py-4">
         <div class="flex justify-around items-center max-w-md mx-auto">
-            <a href="home.html" class="flex flex-col items-center text-xs text-primary font-bold transition-colors p-3">
-                <svg class="w-7 h-7 mb-1" fill="currentColor" viewBox="0 0 24 24">
+            <a href="home.html" class="nav-button flex flex-col items-center text-xs text-primary font-bold p-4">
+                <svg class="w-8 h-8 mb-2" fill="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m3 12 2-2m0 0 7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m10-11 2 2m-2-2v10a1 1 0 0 1-1 1h-3m-6 0a1 1 0 0 0 1-1v-4a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1m-6 0h6"></path>
                 </svg>
                 Home
             </a>
-            <a href="../convenzioni.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-3">
-                <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="../convenzioni.html" class="nav-button flex flex-col items-center text-xs text-gray-600 hover:text-primary p-4">
+                <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
                 Convenzioni
             </a>
-            <a href="tessera.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-3">
-                <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="tessera.html" class="nav-button flex flex-col items-center text-xs text-gray-600 hover:text-primary p-4">
+                <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M4 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H4zm0 2h16v12H4V6zm2 2v8h12V8H6zm2 2h8v4H8v-4z"></path>
                 </svg>
                 Tessera
             </a>
-            <a href="profilo.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-3">
-                <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="profilo.html" class="nav-button flex flex-col items-center text-xs text-gray-600 hover:text-primary p-4">
+                <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                 </svg>
                 Profilo
@@ -717,7 +916,14 @@
         }
 
         function hideLoading() {
-            document.getElementById('loading').classList.add('hidden');
+            setTimeout(() => {
+                document.getElementById('loading').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('loading').style.opacity = '1';
+                    initStaggeredAnimations();
+                }, 300);
+            }, 800);
         }
 
         function getSalutoPersonalizzato() {
@@ -738,10 +944,15 @@
             return oggi.toLocaleDateString('it-IT', opzioni);
         }
 
-        // Navigation function
+        // Navigation function con animazione
         function navigateTo(url) {
             if (isAuthenticated) {
-                window.location.href = url;
+                // Aggiungi effetto di transizione
+                document.body.style.opacity = '0.8';
+                document.body.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    window.location.href = url;
+                }, 200);
             } else {
                 window.location.href = '../login.html';
             }
@@ -771,8 +982,14 @@
         async function logout() {
             if (confirm('Sei sicuro di voler uscire?')) {
                 try {
+                    // Animazione di uscita
+                    document.body.style.opacity = '0';
+                    document.body.style.transform = 'scale(0.95)';
+                    
                     await supabase.auth.signOut();
-                    window.location.href = '../login.html';
+                    setTimeout(() => {
+                        window.location.href = '../login.html';
+                    }, 300);
                 } catch (error) {
                     console.error('Errore durante il logout:', error);
                     window.location.href = '../login.html';
@@ -794,25 +1011,26 @@
                 
                 if (error || !notizie || notizie.length === 0) {
                     container.innerHTML = `
-                        <div class="glass-effect rounded-2xl p-5 text-center">
-                            <p class="text-gray-600 font-semibold">Nessuna notizia al momento</p>
+                        <div class="glass-effect rounded-3xl p-8 text-center">
+                            <p class="text-gray-600 font-semibold text-lg">Nessuna notizia al momento</p>
+                            <p class="text-gray-500 text-sm mt-2">Controlla più tardi per aggiornamenti</p>
                         </div>
                     `;
                     return;
                 }
 
-                container.innerHTML = notizie.map(notizia => `
-                    <div class="glass-effect rounded-2xl p-5 card-hover shadow-sm border border-gray-100">
-                        <div class="flex items-start space-x-4">
-                            <div class="w-10 h-10 flex items-center justify-center rounded-2xl ${notizia.priorita === 'alta' ? 'bg-gradient-to-br from-red-500 to-red-600 text-white' : notizia.priorita === 'media' ? 'bg-gradient-to-br from-yellow-500 to-yellow-600 text-white' : 'bg-gradient-to-br from-green-500 to-green-600 text-white'} shadow-lg">
-                                <span class="text-lg font-bold">${notizia.icona || '📰'}</span>
+                container.innerHTML = notizie.map((notizia, index) => `
+                    <div class="glass-effect rounded-3xl p-6 card-hover shadow-lg border border-gray-100" style="animation-delay: ${index * 0.1}s">
+                        <div class="flex items-start space-x-5">
+                            <div class="w-12 h-12 flex items-center justify-center rounded-3xl ${notizia.priorita === 'alta' ? 'bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg' : notizia.priorita === 'media' ? 'bg-gradient-to-br from-yellow-500 to-yellow-600 text-white shadow-lg' : 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg'}">
+                                <span class="text-xl font-bold">${notizia.icona || '📰'}</span>
                             </div>
                             <div class="flex-1">
-                                <h4 class="card-title text-textDark mb-2">${notizia.titolo}</h4>
-                                <p class="text-sm text-gray-600 mb-3 font-semibold">${notizia.contenuto.substring(0, 100)}...</p>
+                                <h4 class="card-title text-enhanced mb-3">${notizia.titolo}</h4>
+                                <p class="text-sm text-gray-700 mb-4 font-semibold leading-relaxed">${notizia.contenuto.substring(0, 120)}...</p>
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm text-aurora font-bold">${formatDataRelativa(notizia.data_pubblicazione)}</span>
-                                    ${notizia.priorita === 'alta' ? '<span class="text-xs bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1 rounded-full font-bold">Urgente</span>' : ''}
+                                    ${notizia.priorita === 'alta' ? '<span class="text-xs bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-full font-bold shadow-lg">Urgente</span>' : ''}
                                 </div>
                             </div>
                         </div>
@@ -822,8 +1040,9 @@
             } catch (error) {
                 console.error('Errore caricamento notizie:', error);
                 document.getElementById('notizieContainer').innerHTML = `
-                    <div class="glass-effect rounded-2xl p-5 text-center">
-                        <p class="text-gray-600 font-semibold">Errore nel caricamento delle notizie</p>
+                    <div class="glass-effect rounded-3xl p-8 text-center">
+                        <p class="text-red-600 font-semibold text-lg">Errore nel caricamento delle notizie</p>
+                        <p class="text-gray-500 text-sm mt-2">Riprova tra qualche momento</p>
                     </div>
                 `;
             }
@@ -841,25 +1060,26 @@
                 
                 if (error || !convenzioni || convenzioni.length === 0) {
                     container.innerHTML = `
-                        <div class="glass-effect rounded-2xl p-5 text-center">
-                            <p class="text-gray-600 font-semibold">Nessuna convenzione al momento</p>
+                        <div class="glass-effect rounded-3xl p-8 text-center">
+                            <p class="text-gray-600 font-semibold text-lg">Nessuna convenzione al momento</p>
+                            <p class="text-gray-500 text-sm mt-2">Nuove convenzioni in arrivo</p>
                         </div>
                     `;
                     return;
                 }
 
-                container.innerHTML = convenzioni.map(conv => `
-                    <div class="glass-effect rounded-2xl p-5 card-hover shadow-sm border border-gray-100">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-16 h-16 bg-gradient-to-br from-teal to-blue-500 rounded-2xl flex items-center justify-center shadow-lg border-2 border-white">
+                container.innerHTML = convenzioni.map((conv, index) => `
+                    <div class="glass-effect rounded-3xl p-6 card-hover shadow-lg border border-gray-100" style="animation-delay: ${index * 0.1}s">
+                        <div class="flex items-center space-x-5">
+                            <div class="w-20 h-20 bg-gradient-to-br from-teal to-blue-500 rounded-3xl flex items-center justify-center shadow-xl border-3 border-white">
                                 <span class="text-2xl font-bold">${conv.icona || conv.nome_partner.charAt(0)}</span>
                             </div>
                             <div class="flex-1">
-                                <h4 class="card-title text-textDark mb-2">${conv.nome_partner}</h4>
-                                <p class="text-sm text-gray-600 mb-3 font-semibold">${conv.descrizione.substring(0, 80)}...</p>
-                                <div class="flex items-center space-x-2 flex-wrap">
-                                    <span class="text-xs bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 rounded-full font-bold">${conv.categoria}</span>
-                                    ${conv.sconto_percentuale ? `<span class="text-xs bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1 rounded-full font-bold">-${conv.sconto_percentuale}%</span>` : ''}
+                                <h4 class="card-title text-enhanced mb-3">${conv.nome_partner}</h4>
+                                <p class="text-sm text-gray-700 mb-4 font-semibold leading-relaxed">${conv.descrizione.substring(0, 100)}...</p>
+                                <div class="flex items-center space-x-3 flex-wrap">
+                                    <span class="text-xs bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-full font-bold shadow-lg">${conv.categoria}</span>
+                                    ${conv.sconto_percentuale ? `<span class="text-xs bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-full font-bold shadow-lg">-${conv.sconto_percentuale}%</span>` : ''}
                                 </div>
                             </div>
                         </div>
@@ -869,8 +1089,9 @@
             } catch (error) {
                 console.error('Errore caricamento convenzioni:', error);
                 document.getElementById('convenzioniContainer').innerHTML = `
-                    <div class="glass-effect rounded-2xl p-5 text-center">
-                        <p class="text-gray-600 font-semibold">Errore nel caricamento delle convenzioni</p>
+                    <div class="glass-effect rounded-3xl p-8 text-center">
+                        <p class="text-red-600 font-semibold text-lg">Errore nel caricamento delle convenzioni</p>
+                        <p class="text-gray-500 text-sm mt-2">Riprova tra qualche momento</p>
                     </div>
                 `;
             }
@@ -929,8 +1150,10 @@
                 aggiornaInterfacciaPersonalizzata();
                 
                 // Carica contenuti dinamici
-                await caricaNotizie();
-                await caricaConvenzioni();
+                await Promise.all([
+                    caricaNotizie(),
+                    caricaConvenzioni()
+                ]);
                 
                 hideLoading();
 
@@ -960,6 +1183,14 @@
             if (numeroNotifiche > 0 && isAuthenticated) {
                 badge.textContent = numeroNotifiche;
                 badge.classList.remove('hidden');
+                
+                // Animazione di comparsa
+                setTimeout(() => {
+                    badge.style.transform = 'scale(1.2)';
+                    setTimeout(() => {
+                        badge.style.transform = 'scale(1)';
+                    }, 200);
+                }, 100);
             }
         }
 
@@ -969,6 +1200,22 @@
         document.getElementById('notificheBtn')?.addEventListener('click', () => {
             navigateTo('notifiche.html');
         });
+
+        // Initialize staggered animations
+        function initStaggeredAnimations() {
+            const elements = document.querySelectorAll('.stagger-1, .stagger-2, .stagger-3, .stagger-4, .stagger-5, .stagger-6');
+            
+            elements.forEach((element, index) => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    element.style.transition = 'all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+        }
 
         // Initialize animations
         function initAnimations() {
@@ -990,55 +1237,398 @@
             document.querySelectorAll('.fade-in').forEach(element => {
                 element.style.opacity = '0';
                 element.style.transform = 'translateY(30px)';
+                element.style.transition = 'opacity 1s ease, transform 1s ease';
+                observer.observe(element);
+            });
+
+            // Observe fade-in-left elements
+            document.querySelectorAll('.fade-in-left').forEach(element => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateX(-30px)';
+                element.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                observer.observe(element);
+            });
+
+            // Observe fade-in-right elements
+            document.querySelectorAll('.fade-in-right').forEach(element => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateX(30px)';
                 element.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
                 observer.observe(element);
             });
         }
 
+        // Smooth scroll per i link interni
+        function initSmoothScroll() {
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        }
+
+        // Parallax leggero per gli elementi floating
+        function initParallax() {
+            window.addEventListener('scroll', () => {
+                if (window.innerWidth > 768) {
+                    const scrolled = window.pageYOffset;
+                    const parallaxElements = document.querySelectorAll('.floating-element');
+                    
+                    parallaxElements.forEach(element => {
+                        const speed = 0.1;
+                        element.style.transform = `translateY(${scrolled * speed}px)`;
+                    });
+                }
+            });
+        }
+
+        // Intersection Observer per le animazioni al scroll
+        function initScrollAnimations() {
+            const animationObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-in');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -100px 0px'
+            });
+
+            // Osserva tutti gli elementi con animazioni
+            document.querySelectorAll('.card-hover, .service-highlight-card').forEach(el => {
+                animationObserver.observe(el);
+            });
+        }
+
+        // Performance optimization
+        function optimizePerformance() {
+            // Lazy loading per le immagini
+            if ('loading' in HTMLImageElement.prototype) {
+                const images = document.querySelectorAll('img[data-src]');
+                images.forEach(img => {
+                    img.src = img.dataset.src;
+                });
+            }
+
+            // Preload dei font critici
+            const fontLink = document.createElement('link');
+            fontLink.rel = 'preload';
+            fontLink.href = '/fonts/segoe-ui.woff2';
+            fontLink.as = 'font';
+            fontLink.type = 'font/woff2';
+            fontLink.crossOrigin = 'anonymous';
+            document.head.appendChild(fontLink);
+        }
+
+        // Enhanced loading experience
+        function enhanceLoadingExperience() {
+            // Aggiungi un progressBar al loading
+            const loadingDiv = document.getElementById('loading');
+            const progressBar = document.createElement('div');
+            progressBar.innerHTML = `
+                <div class="w-full bg-gray-200 rounded-full h-2 mt-6">
+                    <div id="progress" class="bg-gradient-to-r from-aurora to-cyan h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            `;
+            loadingDiv.querySelector('.loading-content').appendChild(progressBar);
+
+            // Simula progresso
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 30;
+                if (progress > 100) progress = 100;
+                
+                const progressElement = document.getElementById('progress');
+                if (progressElement) {
+                    progressElement.style.width = progress + '%';
+                }
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                }
+            }, 200);
+        }
+
+        // Gesture support per mobile
+        function initGestureSupport() {
+            let startX, startY, distX, distY;
+            const threshold = 150;
+            const restraint = 100;
+            const allowedTime = 300;
+            let startTime;
+
+            document.addEventListener('touchstart', e => {
+                const touchObj = e.changedTouches[0];
+                startX = touchObj.pageX;
+                startY = touchObj.pageY;
+                startTime = new Date().getTime();
+            });
+
+            document.addEventListener('touchend', e => {
+                const touchObj = e.changedTouches[0];
+                distX = touchObj.pageX - startX;
+                distY = touchObj.pageY - startY;
+                const elapsedTime = new Date().getTime() - startTime;
+
+                if (elapsedTime <= allowedTime) {
+                    if (Math.abs(distX) >= threshold && Math.abs(distY) <= restraint) {
+                        // Swipe rilevato
+                        if (distX > 0) {
+                            // Swipe right - torna indietro
+                            if (window.history.length > 1) {
+                                window.history.back();
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Pull to refresh
+        function initPullToRefresh() {
+            let startY = 0;
+            let currentY = 0;
+            let isPulling = false;
+
+            document.addEventListener('touchstart', e => {
+                startY = e.touches[0].clientY;
+            });
+
+            document.addEventListener('touchmove', e => {
+                currentY = e.touches[0].clientY;
+                const pullDistance = currentY - startY;
+
+                if (pullDistance > 0 && window.scrollY === 0) {
+                    isPulling = true;
+                    e.preventDefault();
+                    
+                    if (pullDistance > 100) {
+                        // Mostra indicatore di refresh
+                        document.body.style.transform = `translateY(${Math.min(pullDistance * 0.5, 50)}px)`;
+                    }
+                }
+            });
+
+            document.addEventListener('touchend', async () => {
+                if (isPulling && currentY - startY > 100) {
+                    // Esegui refresh
+                    document.body.style.transform = 'translateY(0)';
+                    await refreshData();
+                }
+                isPulling = false;
+                document.body.style.transform = 'translateY(0)';
+            });
+        }
+
+        // Refresh data function
+        async function refreshData() {
+            try {
+                const refreshIndicator = document.createElement('div');
+                refreshIndicator.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-full text-sm font-bold z-50';
+                refreshIndicator.textContent = 'Aggiornamento in corso...';
+                document.body.appendChild(refreshIndicator);
+
+                await Promise.all([
+                    caricaNotizie(),
+                    caricaConvenzioni()
+                ]);
+
+                refreshIndicator.textContent = 'Aggiornato!';
+                refreshIndicator.className = refreshIndicator.className.replace('bg-green-500', 'bg-blue-500');
+                
+                setTimeout(() => {
+                    document.body.removeChild(refreshIndicator);
+                }, 2000);
+
+            } catch (error) {
+                console.error('Errore durante il refresh:', error);
+            }
+        }
+
         // Initialization
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('Caricamento dashboard MyApp...');
-            await caricaDatiUtente();
-            initAnimations();
+            console.log('Caricamento dashboard MyApp migliorata...');
             
-            // Simula notifiche dopo 2 secondi
-            setTimeout(simulaNotifiche, 2000);
+            // Initialize performance optimizations
+            optimizePerformance();
+            
+            // Enhance loading experience
+            enhanceLoadingExperience();
+            
+            // Load user data
+            await caricaDatiUtente();
+            
+            // Initialize animations and interactions
+            initAnimations();
+            initSmoothScroll();
+            initParallax();
+            initScrollAnimations();
+            initGestureSupport();
+            initPullToRefresh();
+            
+            // Simula notifiche dopo 3 secondi
+            setTimeout(simulaNotifiche, 3000);
+
+            // Add CSS classes for better animations
+            const style = document.createElement('style');
+            style.textContent = `
+                .animate-in {
+                    animation: slideInUp 0.6s ease-out forwards;
+                }
+                
+                @keyframes slideInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(30px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                /* Smooth transitions */
+                * {
+                    -webkit-tap-highlight-color: transparent;
+                }
+                
+                body {
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                    transition: opacity 0.3s ease, transform 0.3s ease;
+                }
+                
+                /* Loading states */
+                .loading-shimmer {
+                    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+                    background-size: 200% 100%;
+                    animation: shimmer 1.5s infinite;
+                }
+                
+                /* Custom scrollbar */
+                ::-webkit-scrollbar {
+                    width: 8px;
+                }
+                
+                ::-webkit-scrollbar-track {
+                    background: rgba(255, 255, 255, 0.1);
+                }
+                
+                ::-webkit-scrollbar-thumb {
+                    background: rgba(233, 69, 96, 0.5);
+                    border-radius: 4px;
+                }
+                
+                ::-webkit-scrollbar-thumb:hover {
+                    background: rgba(233, 69, 96, 0.7);
+                }
+            `;
+            document.head.appendChild(style);
         });
 
         // Handle auth state changes
         supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_OUT') {
-                window.location.href = '../login.html';
+                document.body.style.opacity = '0';
+                setTimeout(() => {
+                    window.location.href = '../login.html';
+                }, 300);
             }
         });
 
-        // Refresh automatico ogni 5 minuti
+        // Auto refresh ogni 10 minuti
         setInterval(async () => {
             if (document.visibilityState === 'visible' && isAuthenticated) {
-                await caricaNotizie();
-                await caricaConvenzioni();
+                await refreshData();
             }
-        }, 300000); // 5 minuti
+        }, 600000); // 10 minuti
 
-        // Service Worker registration
+        // Service Worker registration con miglioramenti
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('../service-worker.js')
                 .then((registration) => {
                     console.log('SW registered: ', registration);
+                    
+                    // Check for updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Nuova versione disponibile
+                                showUpdateAvailable();
+                            }
+                        });
+                    });
                 })
                 .catch((registrationError) => {
                     console.log('SW registration failed: ', registrationError);
                 });
         }
 
-        // Responsive handling
+        function showUpdateAvailable() {
+            const updateBanner = document.createElement('div');
+            updateBanner.className = 'fixed bottom-20 left-4 right-4 bg-blue-500 text-white p-4 rounded-2xl shadow-xl z-50';
+            updateBanner.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="font-semibold">Nuova versione disponibile!</span>
+                    <button onclick="window.location.reload()" class="bg-white text-blue-500 px-4 py-2 rounded-full text-sm font-bold">
+                        Aggiorna
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(updateBanner);
+        }
+
+        // Responsive handling migliorato
         function handleResize() {
             const vh = window.innerHeight * 0.01;
             document.documentElement.style.setProperty('--vh', `${vh}px`);
+            
+            // Adjust UI based on orientation
+            if (window.innerHeight > window.innerWidth) {
+                document.body.classList.add('portrait');
+                document.body.classList.remove('landscape');
+            } else {
+                document.body.classList.add('landscape');
+                document.body.classList.remove('portrait');
+            }
         }
 
         window.addEventListener('resize', handleResize);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(handleResize, 100);
+        });
         handleResize();
+
+        // Keyboard navigation support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                document.body.classList.add('keyboard-navigation');
+            }
+        });
+
+        document.addEventListener('mousedown', () => {
+            document.body.classList.remove('keyboard-navigation');
+        });
+
+        // Error handling globale
+        window.addEventListener('error', (e) => {
+            console.error('Errore globale:', e.error);
+            // Log errore per debugging in produzione
+        });
+
+        window.addEventListener('unhandledrejection', (e) => {
+            console.error('Promise rejection:', e.reason);
+            // Handle unhandled promise rejections
+        });
 
     </script>
 </body>
