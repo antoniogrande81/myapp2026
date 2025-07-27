@@ -437,7 +437,7 @@
     <!-- Bottom Navigation -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
         <div class="flex justify-around items-center max-w-md mx-auto">
-            <a href="home.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-2 transition-colors">
+            <a href="#" onclick="smartHomeRedirect()" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-2 transition-colors">
                 <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
                 </svg>
@@ -1822,6 +1822,51 @@ Il sistema è operativo e pronto ad assisterti.`;
         console.log('👥 Gestione dirigenti abilitata');
 >>>>>>> d1411ea201200f1b013f73c51a7ac06efbd69d16
     </script>
+
+    <!-- Smart Navigation System -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+        
+        const supabase = createClient(
+            'https://lycrgzptkdkksukcwrld.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk'
+        );
+
+        // Smart Home Redirect
+        async function smartHomeRedirect() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
+                    window.location.href = '../login.html';
+                    return;
+                }
+
+                // Ottieni ruoli utente
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('ruoli')
+                    .eq('id', user.id)
+                    .single();
+
+                const userRoles = profile?.ruoli || ['USER'];
+                
+                // Determina la home corretta
+                if (userRoles.includes('DIRIGENTE') || userRoles.includes('ADMIN')) {
+                    window.location.href = '../app/home_dirigenti.html';
+                } else {
+                    window.location.href = '../app/home.html';
+                }
+            } catch (error) {
+                console.error('Errore smart navigation:', error);
+                window.location.href = '../app/home.html';
+            }
+        }
+
+        // Esponi globalmente
+        window.smartHomeRedirect = smartHomeRedirect;
+    </script>
 </body>
 </html>
+
 

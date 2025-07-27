@@ -1681,6 +1681,51 @@
         
         console.log('🌐 Funzioni globali esportate');
     </script>
+
+    <!-- Smart Navigation System -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+        
+        const supabase = createClient(
+            'https://lycrgzptkdkksukcwrld.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk'
+        );
+
+        // Smart Home Redirect
+        async function smartHomeRedirect() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                if (!user) {
+                    window.location.href = '../login.html';
+                    return;
+                }
+
+                // Ottieni ruoli utente
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('ruoli')
+                    .eq('id', user.id)
+                    .single();
+
+                const userRoles = profile?.ruoli || ['USER'];
+                
+                // Determina la home corretta
+                if (userRoles.includes('DIRIGENTE') || userRoles.includes('ADMIN')) {
+                    window.location.href = '../app/home_dirigenti.html';
+                } else {
+                    window.location.href = '../app/home.html';
+                }
+            } catch (error) {
+                console.error('Errore smart navigation:', error);
+                window.location.href = '../app/home.html';
+            }
+        }
+
+        // Esponi globalmente
+        window.smartHomeRedirect = smartHomeRedirect;
+    </script>
 </body>
 </html>
+
 
