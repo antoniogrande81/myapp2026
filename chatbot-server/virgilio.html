@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virgilio - MyApp</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2400C1">
+    <meta name="background-color" content="#2400C1">
+
+    <!-- Icone -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512x512.png">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+
+    <!-- Tailwind CDN (per sviluppo rapido) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2400C1',
+                        secondary: '#8E008C',
+                        accent: '#00BFFF',
+                        textDark: '#1C1C1E',
+                        backgroundLight: '#F4F4F8',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #2400C1, #8E008C);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+        .glass-effect { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .glass-light { background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        /* … altri stili … */
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="w-full px-4 py-4 relative z-10">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <button onclick="history.back()" class="text-white hover:text-accent transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">🤖</span>
+                    </div>
+                    <h1 class="text-xl font-bold text-white drop-shadow-lg">Virgilio</h1>
+                    <div id="connectionStatus" class="w-3 h-3 bg-green-500 rounded-full" title="Connesso"></div>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button id="clearChatBtn" class="bg-yellow-600 hover:bg-yellow-700 text-white text-xs px-3 py-2 rounded-full font-semibold shadow-lg">🗑️</button>
+                <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white text-sm px-4 py-2 rounded-full font-semibold shadow-lg">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Loading -->
+    <div id="loading" class="fixed inset-0 bg-primary bg-opacity-90 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p class="text-primary font-medium">Caricamento chat...</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-md mx-auto px-4 pb-24">
+        <!-- Chat Header Info -->
+        <div class="glass-light rounded-2xl p-4 mb-4 text-white text-center">
+            <h2 class="text-lg font-bold mb-2">Il tuo Assistente Sindacale AI</h2>
+            <p class="text-sm opacity-90">Chiedi informazioni su contratti, diritti, procedure e molto altro!</p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mb-4">
+            <h3 class="text-white font-semibold mb-3 text-sm">💡 Domande Frequenti</h3>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl" data-message="Dimmi tutto sul contratto di lavoro dei Carabinieri">📋 Contratto</button>
+                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl" data-message="Come funzionano i permessi per malattia?">🏥 Permessi</button>
+                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl" data-message="Quali sono i miei diritti per ferie e permessi?">🏖️ Ferie</button>
+                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl" data-message="Informazioni su stipendio e progressioni di carriera">💰 Stipendio</button>
+                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl" data-message="Diritti sindacali e rappresentanza">⚖️ Diritti</button>
+                <button class="quick-reply glass-light text-white text-xs p-3 rounded-xl" data-message="Procedure disciplinari e ricorsi">📝 Legalità</button>
+            </div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div id="chatMessages" class="chat-container mb-4 space-y-4">
+            <div class="flex items-start space-x-3" id="welcomeMessage">
+                <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center"><span class="text-white text-sm">🤖</span></div>
+                <div class="message-bot rounded-2xl p-4 max-w-xs"><div class="text-textDark text-sm">Ciao! Sono <strong>Virgilio</strong>, il tuo assistente sindacale AI. Come posso aiutarti oggi?</div></div>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div id="typingIndicator" class="flex items-start space-x-3 hidden">
+            <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center"><span class="text-white text-sm">🤖</span></div>
+            <div class="message-bot rounded-2xl p-4 max-w-xs"><div class="flex space-x-1"><div class="typing-animation"></div><div class="typing-animation"></div><div class="typing-animation"></div></div></div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message rounded-2xl p-4 mb-4 text-center hidden"><p class="font-semibold">⚠️ Errore di Connessione</p></div>
+
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message rounded-2xl p-4 mb-4 text-center hidden"><p class="font-semibold">✅ Operazione Completata</p></div>
+    </main>
+
+    <!-- Chat Input -->
+    <div class="fixed bottom-16 left-0 right-0 px-4 pb-4">
+        <div class="max-w-md mx-auto">
+            <div class="glass-effect rounded-2xl p-3">
+                <div class="flex items-center space-x-3">
+                    <input type="text" id="messageInput" placeholder="Scrivi la tua domanda..." class="chat-input flex-1 bg-transparent border-0 text-textDark placeholder-gray-500 text-sm rounded-xl px-4 py-3" maxlength="500" autocomplete="off">
+                    <button id="sendMessage" class="bg-primary hover:bg-opacity-90 text-white w-10 h-10 rounded-full flex items-center justify-center disabled:opacity-50" disabled>➤</button>
+                </div>
+                <div class="flex justify-between items-center mt-2 px-4">
+                    <div class="text-xs text-gray-500"><span id="charCount">0</span>/500</div>
+                    <div class="text-xs text-gray-500">Token: <span id="tokenCount">0</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+        <div class="flex justify-around items-center max-w-md mx-auto">
+            <a href="../index.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-2">Home</a>
+            <a href="../convenzioni.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-2">Convenzioni</a>
+            <a href="tessera.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-2">Tessera</a>
+            <a href="virgilio.html" class="flex flex-col items-center text-xs text-primary p-2">Virgilio</a>
+            <a href="profilo.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-2">Profilo</a>
+        </div>
+    </nav>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        const supabaseUrl = 'https://lycrgzptkdkksukcwrld.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // --- CONFIGURAZIONE CHATBOT ---
+        const CHATBOT_CONFIG = {
+            apiEndpoint: 'http://localhost:3001/api/chat',   // <- URL corretto
+            maxTokens: 500,
+            temperature: 0.7,
+            model: 'gpt-4o-mini',
+            maxHistory: 8,
+            retryAttempts: 3,
+            retryDelay: 1000
+        };
+
+        let currentUser = null;
+        let conversationHistory = [];
+        let isProcessing = false;
+        let totalTokensUsed = 0;
+
+        // --- funzioni di utilità (snippets) ---
+        function addMessage(msg, isUser = false) { /* … */ }
+        function showTyping() { /* … */ }
+        function hideTyping() { /* … */ }
+        function updateSendButton() { /* … */ }
+        function updateCharCount() { /* … */ }
+        async function sendMessage() { /* … */ }
+        async function verificaAutenticazione() { /* … */ }
+
+        // --- inizializzazione ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            currentUser = await verificaAutenticazione();
+            if (currentUser) {
+                document.getElementById('messageInput').focus();
+            }
+        });
+    </script>
+</body>
+</html>
