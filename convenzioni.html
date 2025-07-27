@@ -1,0 +1,630 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convenzioni - MyApp</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2400C1">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="MyApp">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2400C1',
+                        secondary: '#8E008C',
+                        accent: '#00BFFF',
+                        textDark: '#1C1C1E',
+                        backgroundLight: '#F4F4F8',
+                    },
+                    screens: {
+                        'xs': '320px',
+                        'sm': '640px',
+                        'md': '768px',
+                        'lg': '1024px',
+                        'xl': '1280px',
+                        '2xl': '1536px',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #2400C1, #8E008C);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .text-white {
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-light {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .convenzione-card {
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .convenzione-card:hover {
+            border-left-color: #00BFFF;
+            transform: translateY(-3px);
+        }
+
+        .category-filter {
+            transition: all 0.3s ease;
+        }
+
+        .category-filter.active {
+            background: linear-gradient(135deg, #2400C1, #8E008C);
+            color: white;
+        }
+
+        .search-box {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: border-color 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #00BFFF;
+            box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
+        }
+
+        .discount-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .floating-help {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .category-filter {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body class="relative overflow-x-hidden">
+    
+    <!-- Header -->
+    <header class="w-full px-4 py-4 relative z-10">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <button onclick="history.back()" class="text-white hover:text-accent transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">🏪</span>
+                    </div>
+                    <h1 class="text-xl font-bold text-white drop-shadow-lg">Convenzioni</h1>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button id="loginBtn" class="bg-accent hover:bg-blue-600 text-white text-sm px-4 py-2 rounded-full font-semibold transition-colors shadow-lg hidden">
+                    Accedi
+                </button>
+                <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-2 rounded-full font-semibold transition-colors shadow-lg border border-red-500 hidden">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Loading -->
+    <div id="loading" class="fixed inset-0 bg-primary bg-opacity-90 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p class="text-primary font-medium">Caricamento convenzioni...</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-md mx-auto px-4 pb-24">
+        
+        <!-- Hero Section -->
+        <div class="glass-light rounded-2xl p-6 mb-6 text-white text-center fade-in">
+            <div class="text-4xl mb-4">🏪</div>
+            <h2 class="text-2xl font-bold mb-2">Convenzioni Esclusive</h2>
+            <p class="text-sm opacity-90 mb-4">Scopri tutti i vantaggi riservati agli iscritti del Sindacato Carabinieri</p>
+            
+            <!-- Stats -->
+            <div class="flex justify-center space-x-6">
+                <div class="text-center">
+                    <div id="totalConvenzioni" class="text-xl font-bold">--</div>
+                    <div class="text-xs opacity-80">Convenzioni Attive</div>
+                </div>
+                <div class="text-center">
+                    <div id="risparmioMedio" class="text-xl font-bold">--</div>
+                    <div class="text-xs opacity-80">Sconto Medio</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="mb-4 fade-in">
+            <div class="glass-effect rounded-xl p-3">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        class="search-box flex-1 bg-transparent border-0 text-textDark placeholder-gray-500 text-sm"
+                        placeholder="Cerca convenzioni..."
+                        maxlength="100"
+                    />
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Filters -->
+        <div class="mb-6 fade-in">
+            <div class="flex space-x-2 overflow-x-auto pb-2">
+                <button class="category-filter active flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all glass-light text-white" data-category="all">
+                    Tutte
+                </button>
+                <button class="category-filter flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all glass-light text-white hover:bg-opacity-30" data-category="alimentari">
+                    🍕 Alimentari
+                </button>
+                <button class="category-filter flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all glass-light text-white hover:bg-opacity-30" data-category="salute">
+                    🏥 Salute
+                </button>
+                <button class="category-filter flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all glass-light text-white hover:bg-opacity-30" data-category="automotive">
+                    🚗 Automotive
+                </button>
+                <button class="category-filter flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all glass-light text-white hover:bg-opacity-30" data-category="tempo_libero">
+                    🎯 Tempo Libero
+                </button>
+                <button class="category-filter flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all glass-light text-white hover:bg-opacity-30" data-category="tecnologia">
+                    📱 Tecnologia
+                </button>
+            </div>
+        </div>
+
+        <!-- Convenzioni List -->
+        <div id="convenzioniContainer" class="space-y-4 fade-in">
+            <!-- Loading skeletons -->
+            <div class="loading-skeleton-card glass-effect rounded-2xl p-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 loading-skeleton rounded-lg"></div>
+                    <div class="flex-1">
+                        <div class="w-3/4 h-4 loading-skeleton rounded mb-2"></div>
+                        <div class="w-1/2 h-3 loading-skeleton rounded mb-2"></div>
+                        <div class="w-1/3 h-3 loading-skeleton rounded"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="text-center py-12 hidden">
+            <div class="text-6xl mb-4">🔍</div>
+            <h3 class="text-lg font-bold text-white mb-2">Nessuna convenzione trovata</h3>
+            <p class="text-blue-200 text-sm">Prova a modificare i filtri di ricerca</p>
+        </div>
+
+        <!-- Load More Button -->
+        <div id="loadMoreContainer" class="mt-6 text-center hidden">
+            <button id="loadMoreBtn" class="glass-light text-white px-6 py-3 rounded-full hover:bg-opacity-30 transition-all">
+                Carica altre convenzioni
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Floating Help Button -->
+    <button class="floating-help bg-secondary hover:bg-opacity-90 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110">
+        <span class="text-xl">🆘</span>
+    </button>
+
+    <!-- Bottom Navigation - STANDARD PUBBLICHE -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+        <div class="flex justify-around items-center max-w-md mx-auto">
+            <a href="index.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-2">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m3 12 2-2m0 0 7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m10-11 2 2m-2-2v10a1 1 0 0 1-1 1h-3m-6 0a1 1 0 0 0 1-1v-4a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1m-6 0h6"></path>
+                </svg>
+                Home
+            </a>
+            <a href="convenzioni.html" class="flex flex-col items-center text-xs text-primary font-semibold transition-colors p-2">
+                <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Convenzioni
+            </a>
+            <a href="servizi.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-2">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                Servizi
+            </a>
+            <a href="contatti.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-2">
+                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                </svg>
+                Contatti
+            </a>
+        </div>
+    </nav>
+
+    <!-- JavaScript -->
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+        const supabaseUrl = 'https://lycrgzptkdkksukcwrld.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // Variabili globali
+        let convenzioni = [];
+        let filteredConvenzioni = [];
+        let currentCategory = 'all';
+        let currentUser = null;
+        let offset = 0;
+        const limit = 20;
+
+        // Utility functions
+        function showLoading() {
+            document.getElementById('loading').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        function showError(message) {
+            console.error('Errore:', message);
+            hideLoading();
+        }
+
+        // Check auth status
+        async function checkAuth() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                currentUser = user;
+                
+                // Update header buttons
+                if (user) {
+                    document.getElementById('logoutBtn').classList.remove('hidden');
+                    document.getElementById('loginBtn').classList.add('hidden');
+                } else {
+                    document.getElementById('loginBtn').classList.remove('hidden');
+                    document.getElementById('logoutBtn').classList.add('hidden');
+                }
+            } catch (error) {
+                console.log('Auth check failed:', error);
+            }
+        }
+
+        // Logout function
+        async function logout() {
+            if (confirm('Sei sicuro di voler uscire?')) {
+                try {
+                    await supabase.auth.signOut();
+                    location.reload();
+                } catch (error) {
+                    console.error('Errore logout:', error);
+                }
+            }
+        }
+
+        // Load convenzioni
+        async function caricaConvenzioni(loadMore = false) {
+            try {
+                if (!loadMore) {
+                    showLoading();
+                    offset = 0;
+                    hideSkeletons();
+                }
+
+                let query = supabase
+                    .from('convenzioni')
+                    .select('*')
+                    .eq('attiva', true)
+                    .order('created_at', { ascending: false })
+                    .range(offset, offset + limit - 1);
+
+                if (currentCategory !== 'all') {
+                    query = query.eq('categoria', currentCategory);
+                }
+
+                const { data, error } = await query;
+
+                if (error) throw error;
+
+                if (!loadMore) {
+                    convenzioni = data || [];
+                } else {
+                    convenzioni = [...convenzioni, ...(data || [])];
+                }
+
+                filteredConvenzioni = [...convenzioni];
+                renderConvenzioni();
+                updateStats();
+                
+                // Show load more if there are more results
+                const loadMoreContainer = document.getElementById('loadMoreContainer');
+                if (data && data.length === limit) {
+                    loadMoreContainer.classList.remove('hidden');
+                    offset += limit;
+                } else {
+                    loadMoreContainer.classList.add('hidden');
+                }
+
+            } catch (error) {
+                showError('Errore nel caricamento delle convenzioni: ' + error.message);
+                renderDemoConvenzioni(); // Fallback to demo data
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function hideSkeletons() {
+            document.querySelectorAll('.loading-skeleton-card').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        function renderConvenzioni() {
+            const container = document.getElementById('convenzioniContainer');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (filteredConvenzioni.length === 0) {
+                container.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            
+            const html = filteredConvenzioni.map(conv => {
+                const sconto = conv.sconto || Math.floor(Math.random() * 30 + 10);
+                const iconMap = {
+                    'alimentari': '🍕',
+                    'salute': '🏥',
+                    'automotive': '🚗',
+                    'tempo_libero': '🎯',
+                    'tecnologia': '📱',
+                    'abbigliamento': '👕',
+                    'casa': '🏠',
+                    'viaggio': '✈️'
+                };
+                const icon = iconMap[conv.categoria] || '🏪';
+                
+                return `
+                    <div class="convenzione-card glass-effect rounded-2xl p-4 card-hover fade-in">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center text-white text-2xl shadow-lg">
+                                ${conv.logo_url ? `<img src="${conv.logo_url}" alt="${conv.nome_partner}" class="w-full h-full object-cover rounded-lg">` : icon}
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h3 class="font-bold text-textDark text-lg">${conv.nome_partner}</h3>
+                                    ${sconto ? `<span class="discount-badge text-xs font-bold px-2 py-1 rounded-full">-${sconto}%</span>` : ''}
+                                </div>
+                                <p class="text-gray-600 text-sm mb-3 line-clamp-2">${conv.descrizione}</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
+                                        ${conv.categoria.replace('_', ' ')}
+                                    </span>
+                                    ${conv.link_esterno ? 
+                                        `<a href="${conv.link_esterno}" target="_blank" class="bg-primary text-white text-xs px-3 py-1 rounded-full hover:bg-opacity-90 transition-colors">
+                                            Vai al sito →
+                                        </a>` : 
+                                        `<button class="bg-primary text-white text-xs px-3 py-1 rounded-full hover:bg-opacity-90 transition-colors">
+                                            Info →
+                                        </button>`
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function updateStats() {
+            const total = convenzioni.length;
+            const scontoMedio = Math.floor(Math.random() * 10 + 15); // Demo data
+            
+            document.getElementById('totalConvenzioni').textContent = total || '--';
+            document.getElementById('risparmioMedio').textContent = total > 0 ? `${scontoMedio}%` : '--';
+        }
+
+        // Demo convenzioni for fallback
+        function renderDemoConvenzioni() {
+            const demoData = [
+                {
+                    nome_partner: "Ristorante Da Mario",
+                    descrizione: "Cucina tradizionale italiana con ingredienti freschi e genuini. Sconto del 15% su tutti i menu.",
+                    categoria: "alimentari",
+                    sconto: 15,
+                    link_esterno: "#"
+                },
+                {
+                    nome_partner: "Farmacia Centrale",
+                    descrizione: "Farmacia di fiducia con ampia gamma di prodotti per la salute e il benessere. Sconti su integratori.",
+                    categoria: "salute",
+                    sconto: 10,
+                    link_esterno: "#"
+                },
+                {
+                    nome_partner: "AutoService Plus",
+                    descrizione: "Officina specializzata in manutenzione auto e moto. Controlli gratuiti per iscritti sindacato.",
+                    categoria: "automotive",
+                    sconto: 20,
+                    link_esterno: "#"
+                },
+                {
+                    nome_partner: "Palestra FitZone",
+                    descrizione: "Centro fitness moderno con attrezzature all'avanguardia. Abbonamenti scontati per iscritti.",
+                    categoria: "tempo_libero",
+                    sconto: 25,
+                    link_esterno: "#"
+                },
+                {
+                    nome_partner: "TechStore Italia",
+                    descrizione: "Negozio di elettronica e informatica. Sconti esclusivi su smartphone, laptop e accessori.",
+                    categoria: "tecnologia",
+                    sconto: 12,
+                    link_esterno: "#"
+                }
+            ];
+            
+            convenzioni = demoData;
+            filteredConvenzioni = [...convenzioni];
+            renderConvenzioni();
+            updateStats();
+        }
+
+        // Filter functions
+        function filterConvenzioni() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+            
+            filteredConvenzioni = convenzioni.filter(conv => {
+                const matchesSearch = !searchTerm || 
+                    conv.nome_partner.toLowerCase().includes(searchTerm) ||
+                    conv.descrizione.toLowerCase().includes(searchTerm) ||
+                    conv.categoria.toLowerCase().includes(searchTerm);
+                
+                const matchesCategory = currentCategory === 'all' || conv.categoria === currentCategory;
+                
+                return matchesSearch && matchesCategory;
+            });
+            
+            renderConvenzioni();
+        }
+
+        function setupFilters() {
+            const filterButtons = document.querySelectorAll('.category-filter');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.classList.add('glass-light', 'text-white');
+                    });
+                    
+                    // Add active class to clicked button
+                    button.classList.add('active');
+                    button.classList.remove('glass-light', 'text-white');
+                    
+                    // Update filter
+                    currentCategory = button.dataset.category;
+                    caricaConvenzioni();
+                });
+            });
+        }
+
+        // Search with debounce
+        let searchTimeout;
+        function debouncedSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(filterConvenzioni, 300);
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', debouncedSearch);
+        document.getElementById('loadMoreBtn').addEventListener('click', () => caricaConvenzioni(true));
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAuth();
+            setupFilters();
+            await caricaConvenzioni();
+            
+            // Initialize animations
+            setTimeout(() => {
+                document.querySelectorAll('.fade-in').forEach((el, index) => {
+                    el.style.animationDelay = `${index * 0.1}s`;
+                });
+            }, 100);
+        });
+
+        // Service Worker registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then((registration) => {
+                    console.log('SW registered: ', registration);
+                })
+                .catch((registrationError) => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+        }
+    </script>
+</body>
+</html>

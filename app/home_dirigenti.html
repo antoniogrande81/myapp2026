@@ -426,32 +426,32 @@
         <section class="mb-6 fade-in">
             <h3 class="text-lg font-bold text-white mb-4 drop-shadow-lg">Altri Servizi</h3>
             <div class="glass-effect rounded-2xl p-4 space-y-3">
-                <a href="../dirigenti.html" class="flex items-center justify-between p-3 hover:bg-blue-50 rounded-lg transition-colors">
+                <a href="../area-riservata.html" class="flex items-center justify-between p-3 hover:bg-red-50 rounded-lg transition-colors border border-red-100">
                     <div class="flex items-center space-x-3">
-                        <div class="service-icon bg-yellow-100">
-                            <span class="text-yellow-600">👥</span>
+                        <div class="service-icon bg-red-100">
+                            <span class="text-red-600">🔒</span>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-textDark text-sm">Area Dirigenti</h4>
+                            <p class="text-xs text-gray-600">Accesso riservato ai dirigenti</p>
+                        </div>
+                    </div>
+                    <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </a>
+                
+                <a href="../dirigenti.html" class="flex items-center justify-between p-3 hover:bg-orange-50 rounded-lg transition-colors border border-orange-100">
+                    <div class="flex items-center space-x-3">
+                        <div class="service-icon bg-orange-100">
+                            <span class="text-orange-600">👥</span>
                         </div>
                         <div>
                             <h4 class="font-semibold text-textDark text-sm">Dirigenti</h4>
                             <p class="text-xs text-gray-600">Contatti e organizzazione</p>
                         </div>
                     </div>
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </a>
-                
-                <a href="../contatti.html" class="flex items-center justify-between p-3 hover:bg-blue-50 rounded-lg transition-colors">
-                    <div class="flex items-center space-x-3">
-                        <div class="service-icon bg-green-100">
-                            <span class="text-green-600">📞</span>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold text-textDark text-sm">Contatti</h4>
-                            <p class="text-xs text-gray-600">Come raggiungerci</p>
-                        </div>
-                    </div>
-                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
                 </a>
@@ -460,10 +460,10 @@
 
     </main>
 
-    <!-- Bottom Navigation - STANDARD PROTETTE -->
+    <!-- Bottom Navigation - SMART HOME LINK -->
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
         <div class="flex justify-around items-center max-w-md mx-auto">
-            <a href="home.html" class="flex flex-col items-center text-xs text-primary font-semibold transition-colors p-2">
+            <a href="#" onclick="smartHomeRedirect()" class="flex flex-col items-center text-xs text-primary font-semibold transition-colors p-2">
                 <svg class="w-6 h-6 mb-1" fill="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m3 12 2-2m0 0 7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m10-11 2 2m-2-2v10a1 1 0 0 1-1 1h-3m-6 0a1 1 0 0 0 1-1v-4a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1m-6 0h6"></path>
                 </svg>
@@ -503,6 +503,7 @@
         // Variabili globali
         let userData = null;
         let isAuthenticated = false;
+        let userRoles = [];
 
         // Utility functions
         function showLoading() {
@@ -531,7 +532,7 @@
             return oggi.toLocaleDateString('it-IT', opzioni);
         }
 
-        // Navigation function
+        // Smart Navigation - CHIAVE DELLA SOLUZIONE
         function navigateTo(url) {
             if (isAuthenticated) {
                 window.location.href = url;
@@ -540,8 +541,18 @@
             }
         }
 
-        // Expose navigateTo globally
+        // Smart Home Redirect - Reindirizza alla home giusta in base al ruolo
+        function smartHomeRedirect() {
+            if (userRoles.includes('DIRIGENTE') || userRoles.includes('ADMIN')) {
+                window.location.href = 'home_dirigenti.html'; // Dirigenti alla dashboard dirigenti
+            } else {
+                window.location.href = 'home.html'; // Utenti normali restano qui
+            }
+        }
+
+        // Expose functions globally
         window.navigateTo = navigateTo;
+        window.smartHomeRedirect = smartHomeRedirect;
 
         // Auth functions
         async function verificaAutenticazione() {
@@ -695,27 +706,30 @@
                 
                 isAuthenticated = true;
 
-                // Carica profilo utente
+                // Carica profilo utente con ruoli
                 let profile = null;
                 try {
                     const { data: profileData, error: profileError } = await supabase
                         .from('profiles')
-                        .select('nome, cognome, email')
+                        .select('nome, cognome, email, ruoli')
                         .eq('id', user.id)
                         .single();
 
                     if (!profileError && profileData) {
                         profile = profileData;
+                        userRoles = profile.ruoli || ['USER'];
                     }
                 } catch (err) {
                     console.log('Nessun profilo trovato');
+                    userRoles = ['USER'];
                 }
 
                 userData = {
                     id: user.id,
                     email: user.email,
                     nome: profile?.nome || 'Utente',
-                    cognome: profile?.cognome || ''
+                    cognome: profile?.cognome || '',
+                    ruoli: userRoles
                 };
 
                 // Aggiorna interfaccia personalizzata
