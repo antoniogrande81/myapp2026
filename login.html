@@ -53,16 +53,6 @@
                         light: '#f8fafc',         // Bianco ghiaccio
                         textDark: '#1C1C1E',
                         backgroundLight: '#F4F4F8',
-                    },
-                    screens: {
-                        'xs': '320px',
-                        'sm': '640px',
-                        'md': '768px',
-                        'lg': '1024px',
-                        'xl': '1280px',
-                        '2xl': '1536px',
-                        '3xl': '1920px',
-                        '4xl': '2560px',
                     }
                 }
             }
@@ -73,8 +63,8 @@
             --gradient-aurora: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #e94560 75%, #00d4ff 100%);
             --gradient-cyber: linear-gradient(135deg, #0a0a23 0%, #1a1a2e 50%, #00d4ff 100%);
             --gradient-magic: linear-gradient(135deg, #ff006e 0%, #e94560 50%, #03dac6 100%);
-            --gradient-card: linear-gradient(135deg, #ffffff 0%, #f8f9ff 25%, #ffffff 50%, #f0f4ff 75%, #ffffff 100%);
-            --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            --shadow-primary: 0 8px 32px rgba(26, 26, 46, 0.3);
+            --shadow-elevated: 0 16px 64px rgba(26, 26, 46, 0.25);
         }
 
         * {
@@ -86,7 +76,7 @@
         body {
             background: var(--gradient-aurora);
             background-size: 400% 400%;
-            animation: aurora 20s ease infinite;
+            animation: aurora 30s ease infinite;
             min-height: 100vh;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             display: flex;
@@ -102,134 +92,73 @@
             75% { background-position: 0% 100%; }
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-8px) rotate(0.5deg); }
-            66% { transform: translateY(-4px) rotate(-0.5deg); }
-        }
-
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 30px rgba(233, 69, 96, 0.6); }
-            50% { box-shadow: 0 0 50px rgba(0, 212, 255, 0.8); }
-        }
-
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
-        @keyframes pulse-card {
-            0%, 100% { 
-                transform: scale(1);
-                box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            }
-            50% { 
-                transform: scale(1.02);
-                box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-            }
-        }
-
-        @keyframes input-glow {
-            0%, 100% { 
-                box-shadow: 0 0 20px rgba(233, 69, 96, 0.3), 0 8px 25px rgba(0,0,0,0.1);
-            }
-            50% { 
-                box-shadow: 0 0 35px rgba(0, 212, 255, 0.5), 0 12px 35px rgba(0,0,0,0.15);
-            }
-        }
-
-        /* Container principale */
+        /* CONTAINER PRINCIPALE - STILE ULTRA LEGGIBILE */
         .login-container {
-            background: var(--gradient-card);
-            background-size: 400% 400%;
-            animation: pulse-card 4s ease-in-out infinite;
-            backdrop-filter: blur(20px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 24px;
-            padding: 3rem 2rem;
+            background: rgba(255, 255, 255, 0.98);
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            border-radius: 28px;
+            padding: 3rem 2.5rem;
             width: 100%;
-            max-width: 450px;
+            max-width: 480px;
             box-shadow: 
-                0 25px 50px rgba(0,0,0,0.2),
-                0 0 0 1px rgba(255,255,255,0.1),
-                inset 0 1px 0 rgba(255,255,255,0.9);
+                var(--shadow-elevated),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
             position: relative;
-            overflow: hidden;
         }
 
-        .login-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.8s;
-        }
-
-        .login-container:hover::before {
-            left: 100%;
-        }
-
-        /* Header con logo */
+        /* HEADER CON LOGO */
         .header {
             text-align: center;
             margin-bottom: 3rem;
-            position: relative;
-            z-index: 1;
         }
 
         .logo-icon {
-            width: 90px;
-            height: 90px;
+            width: 100px;
+            height: 100px;
             background: var(--gradient-magic);
-            border-radius: 20px;
+            border-radius: 24px;
             margin: 0 auto 1.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 3rem;
-            animation: glow 3s ease-in-out infinite;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.4s ease;
+            font-size: 3.5rem;
+            border: 4px solid rgba(255, 255, 255, 0.8);
+            box-shadow: var(--shadow-primary);
+            transition: all 0.3s ease;
         }
 
         .logo-icon:hover {
-            transform: scale(1.1) rotate(5deg);
-            animation: glow 1s ease-in-out infinite;
+            transform: scale(1.05);
+            box-shadow: var(--shadow-elevated);
         }
 
         .header h1 {
             color: #1a1a2e;
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             font-weight: 900;
             margin-bottom: 0.5rem;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-shadow: none;
         }
 
         .header p {
-            color: #6b7280;
-            font-size: 1.1rem;
+            color: #374151;
+            font-size: 1.2rem;
             font-weight: 600;
         }
 
-        /* Form styling ULTRA VISIBILE */
+        /* FORM STYLING ULTRA LEGGIBILE */
         .form-group {
-            margin-bottom: 2.5rem;
-            position: relative;
-            z-index: 1;
+            margin-bottom: 2rem;
         }
 
         label {
             display: block;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             font-weight: 800;
             color: #1a1a2e;
             font-size: 1.1rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .input-container {
@@ -237,33 +166,18 @@
             margin-bottom: 0.5rem;
         }
 
-        .input-icon {
-            position: absolute;
-            left: 1.5rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #1a1a2e;
-            z-index: 3;
-            font-size: 1.2rem;
-            opacity: 0.8;
-        }
-
-        /* INPUT FIELDS ULTRA VISIBILI */
+        /* INPUT FIELDS ULTRA LEGGIBILI - SENZA ICONE */
         input {
             width: 100%;
-            padding: 1.5rem 1.5rem 1.5rem 4rem;
+            padding: 1.5rem 1.5rem;
             border: 3px solid #e94560;
             border-radius: 20px;
             font-size: 1.2rem;
             font-weight: 600;
             background: #ffffff;
             color: #1a1a2e;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 
-                0 8px 25px rgba(233, 69, 96, 0.2),
-                inset 0 1px 0 rgba(255,255,255,0.8);
-            position: relative;
-            z-index: 2;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-primary);
         }
 
         input::placeholder {
@@ -276,25 +190,25 @@
             outline: none;
             border-color: #00d4ff;
             background: #ffffff;
-            transform: translateY(-4px) scale(1.02);
-            animation: input-glow 2s ease-in-out infinite;
-            font-size: 1.25rem;
+            box-shadow: 
+                0 12px 32px rgba(0, 212, 255, 0.3),
+                var(--shadow-primary);
         }
 
         input:hover {
             border-color: #ff006e;
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(233, 69, 96, 0.3);
+            box-shadow: 
+                0 10px 28px rgba(233, 69, 96, 0.25),
+                var(--shadow-primary);
         }
 
-        /* Indicatori di stato input */
+        /* INDICATORI DI STATO */
         .input-status {
             position: absolute;
             right: 1.5rem;
             top: 50%;
             transform: translateY(-50%);
             font-size: 1.5rem;
-            z-index: 3;
             opacity: 0;
             transition: all 0.3s ease;
         }
@@ -309,14 +223,14 @@
             color: #ef4444;
         }
 
-        /* Helper text per i campi */
+        /* HELPER TEXT */
         .input-helper {
             font-size: 0.9rem;
             color: #6b7280;
             margin-top: 0.5rem;
             font-weight: 500;
             opacity: 0;
-            transform: translateY(-10px);
+            transform: translateY(-5px);
             transition: all 0.3s ease;
         }
 
@@ -326,7 +240,7 @@
             transform: translateY(0);
         }
 
-        /* Button styling ULTRA VISIBILE */
+        /* BUTTON STYLING ULTRA LEGGIBILE */
         .btn-login {
             width: 100%;
             padding: 1.5rem 2rem;
@@ -339,37 +253,24 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s ease;
             margin-bottom: 2rem;
-            box-shadow: 0 12px 30px rgba(233, 69, 96, 0.3);
-        }
-
-        .btn-login::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.3s;
-        }
-
-        .btn-login:hover::before {
-            left: 100%;
+            box-shadow: var(--shadow-primary);
+            text-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.5),
+                0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
         .btn-login:hover {
-            transform: translateY(-5px) scale(1.03);
-            box-shadow: 0 25px 50px rgba(233, 69, 96, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 20px 40px rgba(233, 69, 96, 0.4),
+                var(--shadow-elevated);
             border-color: rgba(233, 69, 96, 0.8);
-            animation: glow 1s ease-in-out infinite;
         }
 
         .btn-login:active {
-            transform: translateY(-2px) scale(1.01);
+            transform: translateY(-1px);
         }
 
         .btn-login:disabled {
@@ -377,55 +278,47 @@
             border-color: rgba(156, 163, 175, 0.3);
             cursor: not-allowed;
             transform: none;
-            animation: none;
+            box-shadow: var(--shadow-primary);
         }
 
         .btn-login:disabled:hover {
             transform: none;
-            box-shadow: none;
-            animation: none;
+            box-shadow: var(--shadow-primary);
         }
 
-        /* Message styling */
+        /* MESSAGE STYLING */
         .message {
             padding: 1.2rem 1.5rem;
             margin: 1.5rem 0;
-            border-radius: 16px;
+            border-radius: 20px;
             text-align: center;
             font-size: 1rem;
             font-weight: 700;
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            position: relative;
-            z-index: 1;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--shadow-primary);
         }
 
         .message-error {
-            background: rgba(239, 68, 68, 0.9);
+            background: rgba(239, 68, 68, 0.95);
             color: white;
-            border-color: rgba(239, 68, 68, 0.5);
-            animation: glow 2s ease-in-out infinite;
+            border-color: rgba(239, 68, 68, 0.8);
         }
 
         .message-success {
-            background: rgba(16, 185, 129, 0.9);
+            background: rgba(16, 185, 129, 0.95);
             color: white;
-            border-color: rgba(16, 185, 129, 0.5);
-            animation: glow 2s ease-in-out infinite;
+            border-color: rgba(16, 185, 129, 0.8);
         }
 
         .message-info {
-            background: rgba(59, 130, 246, 0.9);
+            background: rgba(59, 130, 246, 0.95);
             color: white;
-            border-color: rgba(59, 130, 246, 0.5);
+            border-color: rgba(59, 130, 246, 0.8);
         }
 
-        /* Back link */
+        /* BACK LINK */
         .back-link {
             text-align: center;
-            position: relative;
-            z-index: 1;
         }
 
         .back-link a {
@@ -434,7 +327,7 @@
             font-size: 1rem;
             font-weight: 700;
             padding: 0.75rem 1.5rem;
-            border-radius: 12px;
+            border-radius: 16px;
             transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
@@ -448,23 +341,20 @@
             border-color: rgba(26, 26, 46, 0.2);
         }
 
-        /* Debug info */
+        /* DEBUG INFO */
         .debug-info {
-            background: rgba(245, 158, 11, 0.9);
+            background: rgba(245, 158, 11, 0.95);
             color: white;
-            border: 2px solid rgba(245, 158, 11, 0.5);
+            border: 3px solid rgba(245, 158, 11, 0.8);
             padding: 1rem;
             margin-top: 1.5rem;
-            border-radius: 16px;
+            border-radius: 20px;
             font-size: 0.85rem;
-            backdrop-filter: blur(10px);
             display: none;
-            position: relative;
-            z-index: 1;
             font-weight: 600;
         }
 
-        /* Loading animation */
+        /* LOADING ANIMATION */
         .loading-spinner {
             width: 24px;
             height: 24px;
@@ -480,23 +370,10 @@
             to { transform: rotate(360deg); }
         }
 
-        /* Text effects */
-        .text-gradient {
-            background: var(--gradient-magic);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Floating element */
-        .floating-element {
-            animation: float 6s ease-in-out infinite;
-        }
-
-        /* Password visibility toggle */
+        /* PASSWORD VISIBILITY TOGGLE */
         .password-toggle {
             position: absolute;
-            right: 4.5rem;
+            right: 1.5rem;
             top: 50%;
             transform: translateY(-50%);
             background: none;
@@ -504,7 +381,6 @@
             color: #6b7280;
             cursor: pointer;
             font-size: 1.2rem;
-            z-index: 3;
             padding: 0.5rem;
             border-radius: 8px;
             transition: all 0.3s ease;
@@ -515,20 +391,20 @@
             background: rgba(0, 0, 0, 0.05);
         }
 
-        /* Caps Lock warning */
+        /* CAPS LOCK WARNING */
         .caps-warning {
-            background: rgba(245, 158, 11, 0.9);
+            background: rgba(245, 158, 11, 0.95);
             color: white;
             padding: 0.5rem 1rem;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 0.85rem;
             font-weight: 600;
             margin-top: 0.5rem;
             display: none;
-            border: 1px solid rgba(245, 158, 11, 0.5);
+            border: 2px solid rgba(245, 158, 11, 0.8);
         }
 
-        /* Responsive */
+        /* RESPONSIVE */
         @media (max-width: 480px) {
             .login-container {
                 padding: 2rem 1.5rem;
@@ -537,22 +413,18 @@
             }
             
             .header h1 {
-                font-size: 1.8rem;
+                font-size: 2rem;
             }
             
             .logo-icon {
                 width: 80px;
                 height: 80px;
-                font-size: 2.5rem;
+                font-size: 3rem;
             }
 
             input {
                 font-size: 1.1rem;
-                padding: 1.25rem 1.25rem 1.25rem 3.5rem;
-            }
-
-            input:focus {
-                font-size: 1.15rem;
+                padding: 1.25rem;
             }
 
             .btn-login {
@@ -561,7 +433,23 @@
             }
         }
 
-        /* Reduced motion support */
+        @media (max-width: 360px) {
+            .login-container {
+                padding: 1.5rem 1rem;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .logo-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 2.5rem;
+            }
+        }
+
+        /* REDUCED MOTION */
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.01ms !important;
@@ -570,7 +458,7 @@
             }
         }
 
-        /* Focus visible per accessibilità */
+        /* FOCUS VISIBLE PER ACCESSIBILITÀ */
         *:focus-visible {
             outline: 3px solid #00d4ff;
             outline-offset: 2px;
@@ -578,12 +466,12 @@
     </style>
 </head>
 <body>
-    <div class="login-container floating-element">
+    <div class="login-container">
         <div class="header">
             <div class="logo-icon">
                 🔐
             </div>
-            <h1 class="text-gradient">MyApp Login</h1>
+            <h1>MyApp Login</h1>
             <p>Accedi al tuo account digitale</p>
         </div>
         
@@ -592,17 +480,12 @@
         <div id="loginContainer">
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="email">📧 Email</label>
+                    <label for="email">Email</label>
                     <div class="input-container">
-                        <div class="input-icon">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
-                            </svg>
-                        </div>
                         <input 
                             type="email" 
                             id="email" 
-                            value="test@test.com" 
+                            value="" 
                             required 
                             placeholder="Inserisci la tua email"
                             autocomplete="email"
@@ -616,17 +499,12 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="password">🔒 Password</label>
+                    <label for="password">Password</label>
                     <div class="input-container">
-                        <div class="input-icon">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                            </svg>
-                        </div>
                         <input 
                             type="password" 
                             id="password" 
-                            value="test123456" 
+                            value="" 
                             required 
                             placeholder="Inserisci la tua password"
                             autocomplete="current-password"
@@ -648,6 +526,13 @@
                 <button type="submit" class="btn-login" id="loginBtn">
                     <span id="loginBtnText">🚀 Accedi</span>
                 </button>
+                
+                <!-- Forgot Password Link -->
+                <div class="text-center mb-4">
+                    <a href="recupero-password.html" class="text-primary hover:text-aurora transition-colors font-bold text-sm">
+                        🔑 Password dimenticata?
+                    </a>
+                </div>
             </form>
         </div>
         
@@ -672,75 +557,155 @@
             name: 'MyApp',
             version: '1.0.0',
             supabaseUrl: 'https://lycrgzptkdkksukcwrld.supabase.co',
-            supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk'
+            supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk',
+            fallbackRedirect: 'index.html'
         };
 
-        // Configurazione Supabase
-        const { createClient } = supabase;
-        const supabaseClient = createClient(APP_CONFIG.supabaseUrl, APP_CONFIG.supabaseKey);
+        // Inizializzazione Supabase sicura
+        let supabaseClient = null;
+        
+        try {
+            if (typeof supabase !== 'undefined' && supabase.createClient) {
+                const { createClient } = supabase;
+                supabaseClient = createClient(APP_CONFIG.supabaseUrl, APP_CONFIG.supabaseKey);
+                console.log('✅ Supabase client inizializzato');
+            } else {
+                throw new Error('Supabase library non caricata');
+            }
+        } catch (error) {
+            console.error('❌ Errore inizializzazione Supabase:', error);
+        }
 
-        // Utility functions
+        // Utility functions con error handling migliorato
         const Utils = {
-            // Mostra messaggio con stile Aurora
-            showMessage: (text, type = 'info') => {
-                const messagesDiv = document.getElementById('messages');
-                messagesDiv.innerHTML = `<div class="message message-${type}">${text}</div>`;
-                console.log(`[${type.toUpperCase()}] ${text}`);
-                
-                // Debug info
-                const debugInfo = document.getElementById('debugInfo');
-                const debugText = document.getElementById('debugText');
-                debugText.innerHTML = `${new Date().toLocaleTimeString()}: ${text}`;
-                debugInfo.style.display = 'block';
+            // Mostra messaggio con auto-clear
+            showMessage: (text, type = 'info', autoClear = true) => {
+                try {
+                    const messagesDiv = document.getElementById('messages');
+                    if (!messagesDiv) {
+                        console.error('❌ Elemento messages non trovato');
+                        return;
+                    }
+                    
+                    messagesDiv.innerHTML = `<div class="message message-${type}">${text}</div>`;
+                    console.log(`[${type.toUpperCase()}] ${text}`);
+                    
+                    // Debug info
+                    const debugInfo = document.getElementById('debugInfo');
+                    const debugText = document.getElementById('debugText');
+                    if (debugInfo && debugText) {
+                        debugText.innerHTML = `${new Date().toLocaleTimeString()}: ${text}`;
+                        debugInfo.style.display = type === 'error' ? 'block' : 'none';
+                    }
+                    
+                    // Auto-clear per messaggi di successo/info
+                    if (autoClear && type !== 'error') {
+                        setTimeout(() => {
+                            if (messagesDiv.innerHTML.includes(text)) {
+                                messagesDiv.innerHTML = '';
+                            }
+                        }, 5000);
+                    }
+                } catch (error) {
+                    console.error('❌ Errore showMessage:', error);
+                }
             },
 
             // Gestione stato loading del pulsante
             setLoading: (loading) => {
-                const loginBtn = document.getElementById('loginBtn');
-                const loginBtnText = document.getElementById('loginBtnText');
-                
-                loginBtn.disabled = loading;
-                
-                if (loading) {
-                    loginBtnText.innerHTML = '<span class="loading-spinner"></span>🔄 Accesso in corso...';
-                } else {
-                    loginBtnText.textContent = '🚀 Accedi';
+                try {
+                    const loginBtn = document.getElementById('loginBtn');
+                    const loginBtnText = document.getElementById('loginBtnText');
+                    
+                    if (!loginBtn || !loginBtnText) {
+                        console.error('❌ Elementi button non trovati');
+                        return;
+                    }
+                    
+                    loginBtn.disabled = loading;
+                    
+                    if (loading) {
+                        loginBtnText.innerHTML = '<span class="loading-spinner"></span>🔄 Accesso in corso...';
+                    } else {
+                        loginBtnText.textContent = '🚀 Accedi';
+                    }
+                } catch (error) {
+                    console.error('❌ Errore setLoading:', error);
                 }
             },
 
-            // Validazione email
+            // Validazione email migliorata
             isValidEmail: (email) => {
+                if (!email || typeof email !== 'string') return false;
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                return emailRegex.test(email);
+                return emailRegex.test(email.trim());
             },
 
-            // Validazione password
+            // Validazione password migliorata
             isValidPassword: (password) => {
-                return password && password.length >= 6;
+                if (!password || typeof password !== 'string') return false;
+                return password.length >= 6;
             },
 
-            // Gestione validazione visuale
+            // Gestione validazione visuale migliorata
             updateInputStatus: (inputId, isValid) => {
-                const container = document.querySelector(`#${inputId}`).closest('.input-container');
-                const status = container.querySelector('.input-status');
-                
-                if (isValid) {
-                    container.classList.add('input-valid');
-                    container.classList.remove('input-invalid');
-                    status.textContent = '✓';
-                } else {
-                    container.classList.add('input-invalid');
-                    container.classList.remove('input-valid');
-                    status.textContent = '✗';
+                try {
+                    const input = document.getElementById(inputId);
+                    if (!input) {
+                        console.error(`❌ Input ${inputId} non trovato`);
+                        return;
+                    }
+                    
+                    const container = input.closest('.input-container');
+                    const status = container ? container.querySelector('.input-status') : null;
+                    
+                    if (!container || !status) {
+                        console.error(`❌ Container o status per ${inputId} non trovato`);
+                        return;
+                    }
+                    
+                    if (isValid) {
+                        container.classList.add('input-valid');
+                        container.classList.remove('input-invalid');
+                        status.textContent = '✓';
+                    } else {
+                        container.classList.add('input-invalid');
+                        container.classList.remove('input-valid');
+                        status.textContent = '✗';
+                    }
+                } catch (error) {
+                    console.error(`❌ Errore updateInputStatus per ${inputId}:`, error);
+                }
+            },
+
+            // Safe redirect
+            safeRedirect: (url, delay = 1500) => {
+                try {
+                    console.log(`🔄 Redirect programmato a: ${url} tra ${delay}ms`);
+                    setTimeout(() => {
+                        try {
+                            window.location.href = url;
+                        } catch (error) {
+                            console.error('❌ Errore redirect:', error);
+                            // Fallback redirect
+                            window.location.href = APP_CONFIG.fallbackRedirect;
+                        }
+                    }, delay);
+                } catch (error) {
+                    console.error('❌ Errore safeRedirect:', error);
                 }
             }
         };
 
-        // Gestione autenticazione Supabase
+        // Gestione autenticazione Supabase migliorata
         const AuthManager = {
             // Test connessione Supabase
             testConnection: async () => {
                 try {
+                    if (!supabaseClient) {
+                        throw new Error('Client Supabase non inizializzato');
+                    }
+                    
                     Utils.showMessage('🔧 Test connessione Supabase...', 'info');
                     
                     const { data, error } = await supabaseClient.auth.getSession();
@@ -752,14 +717,19 @@
                     Utils.showMessage('✅ Supabase connesso correttamente!', 'success');
                     return true;
                 } catch (error) {
-                    Utils.showMessage(`❌ Errore Supabase: ${error.message}`, 'error');
+                    console.error('❌ Test connessione fallito:', error);
+                    Utils.showMessage(`❌ Errore connessione: ${error.message}`, 'error');
                     return false;
                 }
             },
 
-            // Recupera ruolo utente
+            // Recupera ruolo utente con fallback
             getUserRole: async (userId) => {
                 try {
+                    if (!supabaseClient || !userId) {
+                        throw new Error('Client Supabase o userId mancante');
+                    }
+                    
                     Utils.showMessage('🔍 Controllo ruolo utente...', 'info');
                     
                     const { data: profile, error } = await supabaseClient
@@ -769,8 +739,18 @@
                         .single();
                     
                     if (error) {
-                        console.error('❌ Errore recupero profilo:', error);
-                        throw new Error(`Errore recupero profilo: ${error.message}`);
+                        console.warn('⚠️ Tabella profiles non trovata o errore:', error);
+                        // Fallback a utente base
+                        return {
+                            ruolo: 'USER',
+                            ruoli: ['USER'],
+                            nome: 'Utente',
+                            cognome: '',
+                            email: '',
+                            telefono: '',
+                            isDirigente: false,
+                            isAdmin: false
+                        };
                     }
                     
                     if (!profile) {
@@ -779,8 +759,8 @@
                     
                     console.log('👤 Profilo utente:', profile);
                     
-                    // Gestione array di ruoli
-                    const ruoli = profile.ruoli || ['USER'];
+                    // Gestione array di ruoli con fallback
+                    const ruoli = Array.isArray(profile.ruoli) ? profile.ruoli : ['USER'];
                     const isDirigente = ruoli.includes('DIRIGENTE');
                     const isAdmin = ruoli.includes('ADMIN');
                     
@@ -805,47 +785,63 @@
                     
                 } catch (error) {
                     console.error('❌ Errore getUserRole:', error);
-                    Utils.showMessage(`❌ Errore controllo ruolo: ${error.message}`, 'error');
+                    Utils.showMessage(`⚠️ Impossibile recuperare ruolo, usando default: ${error.message}`, 'info');
                     
-                    // In caso di errore, ritorna un ruolo di default
+                    // Fallback robusto
                     return { 
                         ruolo: 'USER', 
                         ruoli: ['USER'],
                         nome: 'Utente', 
                         email: '', 
                         cognome: '',
+                        telefono: '',
                         isDirigente: false,
                         isAdmin: false
                     };
                 }
             },
 
-            // Determina URL di redirect
+            // Determina URL di redirect con fallback
             getRedirectUrl: (userProfile) => {
-                const ruoli = userProfile.ruoli || ['USER'];
-                const isDirigente = userProfile.isDirigente;
-                const isAdmin = userProfile.isAdmin;
-                
-                // Priorità: ADMIN > DIRIGENTE > USER
-                if (isAdmin) {
-                    Utils.showMessage('🎯 Reindirizzamento a Dashboard Admin...', 'success');
-                    return 'app/home_dirigenti.html';
-                } else if (isDirigente) {
-                    Utils.showMessage('🎯 Reindirizzamento a Dashboard Dirigenti...', 'success');
-                    return 'app/home_dirigenti.html';
-                } else {
-                    Utils.showMessage('🎯 Reindirizzamento a Dashboard Utente...', 'success');
-                    return 'app/home.html';
+                try {
+                    const ruoli = userProfile.ruoli || ['USER'];
+                    const isDirigente = userProfile.isDirigente;
+                    const isAdmin = userProfile.isAdmin;
+                    
+                    // Tutti gli utenti vengono reindirizzati alla pagina principale
+                    if (isAdmin) {
+                        Utils.showMessage('🎯 Reindirizzamento a pagina principale (Admin)...', 'success');
+                    } else if (isDirigente) {
+                        Utils.showMessage('🎯 Reindirizzamento a pagina principale (Dirigente)...', 'success');
+                    } else {
+                        Utils.showMessage('🎯 Reindirizzamento a pagina principale...', 'success');
+                    }
+                    
+                    return 'index.html';
+                } catch (error) {
+                    console.error('❌ Errore getRedirectUrl:', error);
+                    return APP_CONFIG.fallbackRedirect;
                 }
             },
 
-            // Gestione login principale
+            // Gestione login principale con migliore error handling
             handleLogin: async () => {
                 try {
+                    if (!supabaseClient) {
+                        throw new Error('Supabase non disponibile');
+                    }
+                    
                     Utils.setLoading(true);
                     
-                    const email = document.getElementById('email').value.trim();
-                    const password = document.getElementById('password').value;
+                    const emailInput = document.getElementById('email');
+                    const passwordInput = document.getElementById('password');
+                    
+                    if (!emailInput || !passwordInput) {
+                        throw new Error('Campi di input non trovati');
+                    }
+                    
+                    const email = emailInput.value.trim();
+                    const password = passwordInput.value;
                     
                     // Validazioni
                     if (!email || !password) {
@@ -884,11 +880,8 @@
                         const ruoliStr = userProfile.ruoli ? userProfile.ruoli.join(', ') : 'USER';
                         Utils.showMessage(`👤 Ruoli: [${ruoliStr}] - Reindirizzamento in corso...`, 'info');
                         
-                        // Redirect dopo 2 secondi
-                        setTimeout(() => {
-                            console.log(`🔄 Redirect to: ${redirectUrl}`);
-                            window.location.href = redirectUrl;
-                        }, 2000);
+                        // Redirect sicuro
+                        Utils.safeRedirect(redirectUrl, 2000);
                         
                     } else {
                         throw new Error('Nessun dato utente ricevuto');
@@ -896,20 +889,19 @@
                     
                 } catch (error) {
                     console.error('❌ Login error:', error);
-                    Utils.showMessage(`❌ Errore: ${error.message}`, 'error');
                     
-                    // Suggerimenti specifici per tipo di errore
+                    // Messaggi di errore specifici
+                    let errorMessage = `❌ Errore: ${error.message}`;
+                    
                     if (error.message.includes('Invalid login credentials')) {
-                        Utils.showMessage('💡 Verifica email e password, o crea un account su Supabase', 'error');
+                        errorMessage = '❌ Email o password non corretti';
                     } else if (error.message.includes('Email not confirmed')) {
-                        Utils.showMessage('📧 Conferma la tua email prima di accedere', 'error');
-                    } else if (error.message.includes('Errore recupero profilo')) {
-                        Utils.showMessage('⚠️ Login riuscito ma errore nel recupero del profilo. Reindirizzamento alla dashboard utente...', 'info');
-                        
-                        setTimeout(() => {
-                            window.location.href = 'app/home.html';
-                        }, 3000);
+                        errorMessage = '📧 Conferma la tua email prima di accedere';
+                    } else if (error.message.includes('Too many requests')) {
+                        errorMessage = '⏰ Troppi tentativi. Riprova tra qualche minuto';
                     }
+                    
+                    Utils.showMessage(errorMessage, 'error', false);
                     
                 } finally {
                     Utils.setLoading(false);
@@ -917,186 +909,236 @@
             }
         };
 
-        // Gestione interfaccia avanzata
+        // Gestione interfaccia migliorata
         const UIManager = {
             // Setup validazione real-time
             setupValidation: () => {
-                const emailInput = document.getElementById('email');
-                const passwordInput = document.getElementById('password');
-                
-                // Validazione email in tempo reale
-                emailInput.addEventListener('input', () => {
-                    const email = emailInput.value.trim();
-                    const isValid = email.length === 0 || Utils.isValidEmail(email);
-                    Utils.updateInputStatus('email', isValid);
-                });
-                
-                emailInput.addEventListener('blur', () => {
-                    const email = emailInput.value.trim();
-                    if (email && !Utils.isValidEmail(email)) {
-                        Utils.showMessage('⚠️ Formato email non valido', 'error');
+                try {
+                    const emailInput = document.getElementById('email');
+                    const passwordInput = document.getElementById('password');
+                    
+                    if (!emailInput || !passwordInput) {
+                        console.error('❌ Input fields non trovati');
+                        return;
                     }
-                });
-                
-                // Validazione password in tempo reale
-                passwordInput.addEventListener('input', () => {
-                    const password = passwordInput.value;
-                    const isValid = password.length === 0 || Utils.isValidPassword(password);
-                    Utils.updateInputStatus('password', isValid);
-                });
-                
-                passwordInput.addEventListener('blur', () => {
-                    const password = passwordInput.value;
-                    if (password && !Utils.isValidPassword(password)) {
-                        Utils.showMessage('⚠️ Password troppo corta (minimo 6 caratteri)', 'error');
-                    }
-                });
+                    
+                    // Validazione email in tempo reale
+                    emailInput.addEventListener('input', () => {
+                        const email = emailInput.value.trim();
+                        const isEmpty = email.length === 0;
+                        const isValid = isEmpty || Utils.isValidEmail(email);
+                        Utils.updateInputStatus('email', isValid && !isEmpty);
+                    });
+                    
+                    emailInput.addEventListener('blur', () => {
+                        const email = emailInput.value.trim();
+                        if (email && !Utils.isValidEmail(email)) {
+                            Utils.showMessage('⚠️ Formato email non valido', 'error');
+                        }
+                    });
+                    
+                    // Validazione password in tempo reale
+                    passwordInput.addEventListener('input', () => {
+                        const password = passwordInput.value;
+                        const isEmpty = password.length === 0;
+                        const isValid = isEmpty || Utils.isValidPassword(password);
+                        Utils.updateInputStatus('password', isValid && !isEmpty);
+                    });
+                    
+                    passwordInput.addEventListener('blur', () => {
+                        const password = passwordInput.value;
+                        if (password && !Utils.isValidPassword(password)) {
+                            Utils.showMessage('⚠️ Password troppo corta (minimo 6 caratteri)', 'error');
+                        }
+                    });
+                    
+                    console.log('✅ Validazione real-time configurata');
+                } catch (error) {
+                    console.error('❌ Errore setupValidation:', error);
+                }
             },
 
             // Setup password visibility toggle
             setupPasswordToggle: () => {
-                const toggleButton = document.getElementById('togglePassword');
-                const passwordInput = document.getElementById('password');
-                
-                toggleButton.addEventListener('click', () => {
-                    const isPassword = passwordInput.type === 'password';
-                    passwordInput.type = isPassword ? 'text' : 'password';
-                    toggleButton.textContent = isPassword ? '🙈' : '👁️';
-                });
+                try {
+                    const toggleButton = document.getElementById('togglePassword');
+                    const passwordInput = document.getElementById('password');
+                    
+                    if (!toggleButton || !passwordInput) {
+                        console.error('❌ Password toggle elements non trovati');
+                        return;
+                    }
+                    
+                    toggleButton.addEventListener('click', () => {
+                        const isPassword = passwordInput.type === 'password';
+                        passwordInput.type = isPassword ? 'text' : 'password';
+                        toggleButton.textContent = isPassword ? '🙈' : '👁️';
+                    });
+                    
+                    console.log('✅ Password toggle configurato');
+                } catch (error) {
+                    console.error('❌ Errore setupPasswordToggle:', error);
+                }
             },
 
             // Setup caps lock detection
             setupCapsLockDetection: () => {
-                const passwordInput = document.getElementById('password');
-                const capsWarning = document.getElementById('capsWarning');
-                
-                passwordInput.addEventListener('keydown', (e) => {
-                    const capsLock = e.getModifierState('CapsLock');
-                    capsWarning.style.display = capsLock ? 'block' : 'none';
-                });
-                
-                passwordInput.addEventListener('keyup', (e) => {
-                    const capsLock = e.getModifierState('CapsLock');
-                    capsWarning.style.display = capsLock ? 'block' : 'none';
-                });
+                try {
+                    const passwordInput = document.getElementById('password');
+                    const capsWarning = document.getElementById('capsWarning');
+                    
+                    if (!passwordInput || !capsWarning) {
+                        console.error('❌ Caps lock elements non trovati');
+                        return;
+                    }
+                    
+                    const checkCapsLock = (e) => {
+                        try {
+                            const capsLock = e.getModifierState && e.getModifierState('CapsLock');
+                            capsWarning.style.display = capsLock ? 'block' : 'none';
+                        } catch (error) {
+                            // Fallback silenzioso se getModifierState non è supportato
+                        }
+                    };
+                    
+                    passwordInput.addEventListener('keydown', checkCapsLock);
+                    passwordInput.addEventListener('keyup', checkCapsLock);
+                    
+                    console.log('✅ Caps lock detection configurato');
+                } catch (error) {
+                    console.error('❌ Errore setupCapsLockDetection:', error);
+                }
             },
 
             // Setup keyboard navigation
             setupKeyboardNavigation: () => {
-                const emailInput = document.getElementById('email');
-                const passwordInput = document.getElementById('password');
-                const loginForm = document.getElementById('loginForm');
-                
-                emailInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        passwordInput.focus();
-                    }
-                });
-                
-                passwordInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        loginForm.dispatchEvent(new Event('submit'));
-                    }
-                });
-            },
-
-            // Auto-hide messages
-            setupAutoHideMessages: () => {
-                let messageTimeout;
-                const originalShowMessage = Utils.showMessage;
-                
-                Utils.showMessage = (text, type = 'info') => {
-                    originalShowMessage(text, type);
+                try {
+                    const emailInput = document.getElementById('email');
+                    const passwordInput = document.getElementById('password');
+                    const loginForm = document.getElementById('loginForm');
                     
-                    clearTimeout(messageTimeout);
-                    if (type !== 'error') {
-                        messageTimeout = setTimeout(() => {
-                            const messagesDiv = document.getElementById('messages');
-                            if (messagesDiv.innerHTML) {
-                                messagesDiv.style.opacity = '0.5';
-                                setTimeout(() => {
-                                    messagesDiv.innerHTML = '';
-                                    messagesDiv.style.opacity = '1';
-                                }, 1000);
-                            }
-                        }, 5000);
+                    if (!emailInput || !passwordInput || !loginForm) {
+                        console.error('❌ Navigation elements non trovati');
+                        return;
                     }
-                };
+                    
+                    emailInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            passwordInput.focus();
+                        }
+                    });
+                    
+                    passwordInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            loginForm.dispatchEvent(new Event('submit'));
+                        }
+                    });
+                    
+                    console.log('✅ Keyboard navigation configurato');
+                } catch (error) {
+                    console.error('❌ Errore setupKeyboardNavigation:', error);
+                }
             }
         };
 
-        // Event Listeners e inizializzazione
+        // Event Listeners e inizializzazione sicura
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 MyApp Login Ultra-Visible v' + APP_CONFIG.version);
-            Utils.showMessage('🎨 Interfaccia Ultra-Visibile caricata!', 'success');
-            
-            // Setup form handler
-            const form = document.getElementById('loginForm');
-            
-            form.addEventListener('submit', (event) => {
-                event.preventDefault();
-                event.stopPropagation();
+            try {
+                console.log('🚀 MyApp Login Ultra-Leggibile v' + APP_CONFIG.version);
+                Utils.showMessage('🎨 Interfaccia Ultra-Leggibile caricata!', 'success');
                 
-                console.log('📝 Form submitted - no reload');
-                Utils.showMessage('🚀 Form inviato! Tentativo login...', 'info');
+                // Setup form handler con protezione
+                const form = document.getElementById('loginForm');
                 
-                AuthManager.handleLogin();
+                if (form) {
+                    form.addEventListener('submit', (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        
+                        console.log('📝 Form submitted - no reload');
+                        Utils.showMessage('🚀 Form inviato! Tentativo login...', 'info');
+                        
+                        AuthManager.handleLogin().catch(error => {
+                            console.error('❌ Errore handleLogin:', error);
+                            Utils.showMessage(`❌ Errore imprevisto: ${error.message}`, 'error');
+                        });
+                        
+                        return false;
+                    });
+                } else {
+                    console.error('❌ Form loginForm non trovato');
+                }
                 
-                return false;
-            });
-            
-            // Setup UI features
-            UIManager.setupValidation();
-            UIManager.setupPasswordToggle();
-            UIManager.setupCapsLockDetection();
-            UIManager.setupKeyboardNavigation();
-            UIManager.setupAutoHideMessages();
-            
-            // Test connessione Supabase
-            AuthManager.testConnection();
-            
-            // Focus automatico sul primo campo
-            setTimeout(() => {
-                document.getElementById('email').focus();
-            }, 500);
-            
-            // Validazione iniziale
-            setTimeout(() => {
-                Utils.updateInputStatus('email', true);
-                Utils.updateInputStatus('password', true);
-            }, 1000);
+                // Setup UI features con gestione errori
+                UIManager.setupValidation();
+                UIManager.setupPasswordToggle();
+                UIManager.setupCapsLockDetection();
+                UIManager.setupKeyboardNavigation();
+                
+                // Test connessione Supabase
+                if (supabaseClient) {
+                    AuthManager.testConnection().catch(error => {
+                        console.error('❌ Test connessione fallito:', error);
+                    });
+                } else {
+                    Utils.showMessage('⚠️ Supabase non disponibile - modalità demo', 'error');
+                }
+                
+                // Focus automatico sul primo campo
+                setTimeout(() => {
+                    const emailInput = document.getElementById('email');
+                    if (emailInput) {
+                        emailInput.focus();
+                    }
+                }, 500);
+                
+                console.log('✅ Inizializzazione completata');
+                
+            } catch (error) {
+                console.error('❌ Errore inizializzazione DOMContentLoaded:', error);
+                Utils.showMessage(`❌ Errore inizializzazione: ${error.message}`, 'error');
+            }
         });
 
-        // Controllo sessione esistente al caricamento
+        // Controllo sessione esistente con gestione errori
         window.addEventListener('load', async () => {
             try {
-                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (!supabaseClient) {
+                    console.log('ℹ️ Supabase non disponibile per controllo sessione');
+                    return;
+                }
+                
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                
+                if (error) {
+                    console.warn('⚠️ Errore controllo sessione:', error);
+                    return;
+                }
+                
                 if (session && session.user) {
                     Utils.showMessage('✅ Sessione attiva trovata, reindirizzamento...', 'success');
                     
                     const userProfile = await AuthManager.getUserRole(session.user.id);
                     const redirectUrl = AuthManager.getRedirectUrl(userProfile);
                     
-                    setTimeout(() => {
-                        window.location.href = redirectUrl;
-                    }, 1500);
+                    Utils.safeRedirect(redirectUrl, 1500);
                 }
             } catch (error) {
-                console.log('Nessuna sessione attiva:', error.message);
+                console.log('ℹ️ Controllo sessione:', error.message);
             }
         });
 
-        // Service Worker Registration
+        // Service Worker Registration con controllo
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
                     .then((registration) => {
-                        console.log('SW registered: ', registration);
+                        console.log('✅ SW registered: ', registration);
                     })
                     .catch((registrationError) => {
-                        console.log('SW registration failed: ', registrationError);
+                        console.log('ℹ️ SW registration failed (normale se sw.js non esiste): ', registrationError);
                     });
             });
         }
@@ -1110,22 +1152,27 @@
             Utils.showMessage('📡 Modalità offline attiva', 'info');
         });
 
-        // Gestione errori globali
+        // Gestione errori globali migliorata
         window.addEventListener('error', (event) => {
             console.error('💥 JavaScript Error:', event.error);
-            Utils.showMessage(`💥 Errore JS: ${event.error.message}`, 'error');
+            const errorMessage = event.error && event.error.message ? event.error.message : 'Errore sconosciuto';
+            Utils.showMessage(`💥 Errore JS: ${errorMessage}`, 'error');
         });
 
         window.addEventListener('unhandledrejection', (event) => {
             console.error('💥 Unhandled Promise:', event.reason);
-            Utils.showMessage(`💥 Promise Error: ${event.reason}`, 'error');
+            const errorMessage = event.reason && event.reason.message ? event.reason.message : 'Promise rejection';
+            Utils.showMessage(`💥 Promise Error: ${errorMessage}`, 'error');
+            // Previene che l'errore venga propagato
+            event.preventDefault();
         });
 
         // Debug info per sviluppo
-        console.log('🎨 Aurora Borealis Ultra-Visible Theme Active');
+        console.log('🎨 Login Ultra-Leggibile Theme Active');
         console.log('🔐 Login System Ready');
         console.log('📱 PWA Features Enabled');
         console.log('♿ Accessibility Features Active');
+        console.log('🛡️ Enhanced Error Handling Active');
     </script>
 </body>
 </html>

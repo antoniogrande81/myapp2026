@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -689,9 +689,191 @@
                 border: 1px solid rgba(255, 255, 255, 0.1);
             }
         }
+
+        /* Touch Device Optimizations */
+        .touch-device .service-card:hover {
+            transform: none;
+        }
+        
+        .touch-device .service-card:active {
+            transform: scale(0.98);
+        }
+
+        /* Low Bandwidth Mode */
+        .low-bandwidth * {
+            animation-duration: 0.1s !important;
+            transition-duration: 0.1s !important;
+        }
+        
+        .low-bandwidth .floating-icons {
+            display: none;
+        }
+
+        /* Keyboard Navigation */
+        .keyboard-navigation *:focus {
+            outline: 3px solid #e94560 !important;
+            outline-offset: 2px !important;
+        }
+
+        /* Page Hidden State */
+        .page-hidden .floating-icons {
+            animation-play-state: paused;
+        }
+        
+        .page-hidden body::before {
+            animation-play-state: paused;
+        }
+
+        /* Dark Mode Preference */
+        .dark-mode-preference .glass-card {
+            background: rgba(26, 26, 46, 0.95);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Reduced Motion */
+        .reduced-motion * {
+            animation: none !important;
+            transition: none !important;
+        }
+
+        /* High Contrast Mode */
+        @media (prefers-contrast: high) {
+            .glass-morphism,
+            .glass-strong,
+            .glass-card {
+                border: 2px solid #ffffff !important;
+                background: rgba(255, 255, 255, 0.95) !important;
+            }
+            
+            .text-white {
+                text-shadow: 2px 2px 4px #000000 !important;
+            }
+        }
+
+        /* Focus States for Better Accessibility */
+        .btn-aurora:focus,
+        .btn-cyber:focus,
+        .btn-glass:focus {
+            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.5);
+            transform: scale(1.02);
+        }
+
+        .contact-card:focus {
+            outline: 3px solid #e94560;
+            outline-offset: 2px;
+        }
+
+        /* Print Styles */
+        @media print {
+            .floating-help,
+            .floating-icons,
+            nav,
+            .btn-aurora,
+            .btn-cyber {
+                display: none !important;
+            }
+            
+            body {
+                background: white !important;
+                color: black !important;
+            }
+            
+            .glass-card,
+            .glass-morphism,
+            .service-card {
+                background: white !important;
+                border: 1px solid #ccc !important;
+                box-shadow: none !important;
+            }
+        }
+
+        /* Error States */
+        .error-state {
+            background: rgba(255, 71, 87, 0.1);
+            border: 2px solid rgba(255, 71, 87, 0.3);
+            color: #ff4757;
+        }
+
+        /* Loading States */
+        .loading-state {
+            opacity: 0.7;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .loading-state::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e94560;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Debug Panel */
+        .debug-panel {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 9999;
+            display: none;
+            max-width: 300px;
+            backdrop-filter: blur(10px);
+        }
+
+        .debug-panel.active {
+            display: block;
+        }
+
+        /* Status indicator */
+        .status-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00ea8d;
+            z-index: 9999;
+            box-shadow: 0 0 10px rgba(0, 234, 141, 0.5);
+        }
+
+        .status-indicator.error {
+            background: #ff4757;
+            box-shadow: 0 0 10px rgba(255, 71, 87, 0.5);
+        }
+
+        .status-indicator.warning {
+            background: #ffb800;
+            box-shadow: 0 0 10px rgba(255, 184, 0, 0.5);
+        }
     </style>
 </head>
 <body class="relative overflow-x-hidden">
+    
+    <!-- Status Indicator -->
+    <div class="status-indicator" id="statusIndicator" title="System Status"></div>
+
+    <!-- Debug Panel -->
+    <div class="debug-panel" id="debugPanel">
+        <div id="debugContent"></div>
+    </div>
     
     <!-- Enhanced Floating Background Icons -->
     <div class="floating-icons">🛡️</div>
@@ -751,7 +933,7 @@
 
         <!-- CTA Buttons -->
         <div class="space-y-5 w-full max-w-lg mb-12 animate-fade-in">
-            <a href="login.html" class="btn-cyber block w-full py-4 px-8 rounded-2xl font-bold text-center text-decoration-none fluid-lg">
+            <a href="login-minimal.html" class="btn-cyber block w-full py-4 px-8 rounded-2xl font-bold text-center text-decoration-none fluid-lg">
                 🔐 Accedi al Portale
             </a>
             <a href="registrazione.html" class="btn-aurora block w-full py-4 px-8 rounded-2xl font-bold text-center text-decoration-none fluid-lg">
@@ -1051,7 +1233,7 @@
                 </svg>
                 Home
             </a>
-            <a href="login.html" class="flex flex-col items-center text-xs text-muted hover:text-primary transition-all p-2 hover:scale-105">
+            <a href="login-minimal.html" class="flex flex-col items-center text-xs text-muted hover:text-primary transition-all p-2 hover:scale-105">
                 <img src="/icons/login.svg" alt="Login" class="w-6 h-6 mb-1" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                 <svg class="w-6 h-6 mb-1 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
@@ -1075,472 +1257,854 @@
         </div>
     </nav>
 
-    <!-- JavaScript -->
+    <!-- Enhanced JavaScript - Ultra Reliable -->
     <script>
-        // Enhanced smooth scroll for scroll indicator
-        document.querySelector('.scroll-indicator')?.addEventListener('click', () => {
-            document.querySelector('section:nth-of-type(2)').scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        });
+        // =============================================
+        // MYAPP AURORA BOREALE 2025 - ULTRA RELIABLE
+        // =============================================
 
-        // Ultra-Advanced JavaScript Enhancements
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('🌌 MyApp Aurora Boreale 2025 loaded with ultra-modern features');
-            
-            // Advanced Intersection Observer with Performance Optimization
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach((entry, index) => {
-                    if (entry.isIntersecting) {
-                        setTimeout(() => {
-                            entry.target.style.opacity = '1';
-                            entry.target.style.transform = 'translateY(0) scale(1)';
-                            entry.target.classList.add('animate-in');
-                        }, index * 150);
-                    }
-                });
-            }, observerOptions);
-
-            // Observe all service cards with staggered animation
-            document.querySelectorAll('.service-card').forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(50px) scale(0.95)';
-                card.style.transition = 'all 1s cubic-bezier(0.4, 0, 0.2, 1)';
-                card.style.transitionDelay = `${index * 0.15}s`;
-                observer.observe(card);
-            });
-
-            // Observe contact cards
-            document.querySelectorAll('.contact-card').forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateX(-30px)';
-                card.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
-                card.style.transitionDelay = `${index * 0.2}s`;
-                observer.observe(card);
-            });
-
-            // Ultra-Enhanced Parallax with Performance Throttling
-            let ticking = false;
-            function updateParallax() {
-                const scrolled = window.pageYOffset;
-                const rate = scrolled * -0.3;
-                
-                // Floating icons parallax
-                document.querySelectorAll('.floating-icons').forEach((icon, index) => {
-                    const speed = 0.2 + (index * 0.05);
-                    const rotation = scrolled * 0.008;
-                    icon.style.transform = `translateY(${scrolled * speed}px) rotate(${rotation * (index + 1)}deg)`;
-                });
-                
-                // Logo parallax
-                document.querySelectorAll('.parallax-element').forEach(element => {
-                    element.style.transform = `translateY(${rate}px)`;
-                });
-                
-                ticking = false;
+        // Configurazione sistema ultra affidabile
+        const SYSTEM_CONFIG = {
+            name: 'MyApp Aurora Boreale',
+            version: '2.0.0',
+            debug: true,
+            performance: true,
+            analytics: false,
+            features: {
+                parallax: true,
+                animations: true,
+                intersectionObserver: true,
+                touchOptimizations: true,
+                keyboardNavigation: true,
+                reducedMotion: true,
+                networkAware: true,
+                memoryMonitoring: true,
+                errorTracking: true
+            },
+            timeouts: {
+                scroll: 16,
+                resize: 250,
+                animation: 150
             }
+        };
 
-            function requestTick() {
-                if (!ticking) {
-                    requestAnimationFrame(updateParallax);
-                    ticking = true;
+        // Sistema di stato globale ultra sicuro
+        const SystemState = {
+            isReady: false,
+            isTouch: false,
+            isLowBandwidth: false,
+            reducedMotion: false,
+            darkMode: false,
+            keyboardNav: false,
+            errors: [],
+            performance: {
+                loadTime: 0,
+                memoryUsage: 0,
+                interactions: 0
+            },
+
+            // Aggiorna stato con validazione
+            update(key, value) {
+                try {
+                    if (this.hasOwnProperty(key)) {
+                        const oldValue = this[key];
+                        this[key] = value;
+                        DebugManager.log(`State updated: ${key} = ${value} (was: ${oldValue})`);
+                        
+                        // Trigger custom event per cambi di stato
+                        window.dispatchEvent(new CustomEvent('system-state-change', {
+                            detail: { key, value, oldValue }
+                        }));
+                    }
+                } catch (error) {
+                    ErrorManager.handle(error, 'SystemState.update');
+                }
+            },
+
+            // Get sicuro con fallback
+            get(key, fallback = null) {
+                try {
+                    return this.hasOwnProperty(key) ? this[key] : fallback;
+                } catch (error) {
+                    ErrorManager.handle(error, 'SystemState.get');
+                    return fallback;
                 }
             }
+        };
 
-            window.addEventListener('scroll', requestTick, { passive: true });
+        // Sistema di debug avanzato
+        const DebugManager = {
+            panel: null,
+            content: null,
+            isActive: false,
 
-            // Advanced Mouse Tracking for Desktop
-            if (!('ontouchstart' in window)) {
-                document.querySelectorAll('.service-card, .contact-card').forEach(card => {
-                    card.addEventListener('mousemove', function(e) {
-                        const rect = this.getBoundingClientRect();
-                        const x = e.clientX - rect.left - rect.width / 2;
-                        const y = e.clientY - rect.top - rect.height / 2;
+            // Inizializzazione sicura
+            init() {
+                try {
+                    this.panel = document.getElementById('debugPanel');
+                    this.content = document.getElementById('debugContent');
+                    
+                    if (!this.panel || !this.content) {
+                        console.warn('🐛 Debug panel elements non trovati');
+                        return false;
+                    }
+
+                    // Toggle debug con Ctrl+D
+                    document.addEventListener('keydown', (e) => {
+                        if (e.ctrlKey && e.key === 'd') {
+                            e.preventDefault();
+                            this.toggle();
+                        }
+                    });
+
+                    this.log('Debug Manager inizializzato');
+                    return true;
+                } catch (error) {
+                    console.error('❌ Errore init DebugManager:', error);
+                    return false;
+                }
+            },
+
+            // Toggle debug panel
+            toggle() {
+                try {
+                    if (!this.panel) return;
+                    
+                    this.isActive = !this.isActive;
+                    this.panel.classList.toggle('active', this.isActive);
+                    
+                    if (this.isActive) {
+                        this.updateContent();
+                        this.log('Debug panel attivato');
+                    } else {
+                        this.log('Debug panel disattivato');
+                    }
+                } catch (error) {
+                    console.error('❌ Errore toggle debug:', error);
+                }
+            },
+
+            // Aggiorna contenuto debug
+            updateContent() {
+                try {
+                    if (!this.content) return;
+
+                    const info = {
+                        timestamp: new Date().toLocaleTimeString(),
+                        state: SystemState,
+                        viewport: `${window.innerWidth}x${window.innerHeight}`,
+                        userAgent: navigator.userAgent.split(' ')[0],
+                        memory: this.getMemoryInfo(),
+                        connection: this.getConnectionInfo(),
+                        errors: SystemState.errors.slice(-3)
+                    };
+
+                    this.content.innerHTML = `
+                        <div><strong>🕐 Time:</strong> ${info.timestamp}</div>
+                        <div><strong>📱 Viewport:</strong> ${info.viewport}</div>
+                        <div><strong>🌐 Browser:</strong> ${info.userAgent}</div>
+                        <div><strong>💾 Memory:</strong> ${info.memory}</div>
+                        <div><strong>📶 Connection:</strong> ${info.connection}</div>
+                        <div><strong>⚡ Ready:</strong> ${SystemState.isReady}</div>
+                        <div><strong>👆 Touch:</strong> ${SystemState.isTouch}</div>
+                        <div><strong>🎭 Reduced Motion:</strong> ${SystemState.reducedMotion}</div>
+                        ${SystemState.errors.length > 0 ? 
+                            `<div><strong>❌ Recent Errors:</strong><br>${SystemState.errors.slice(-2).map(e => `• ${e.message}`).join('<br>')}</div>` 
+                            : '<div><strong>✅ No Errors</strong></div>'
+                        }
+                    `;
+                } catch (error) {
+                    console.error('❌ Errore updateContent debug:', error);
+                }
+            },
+
+            // Log avanzato con timestamp
+            log(message, type = 'info') {
+                if (!SYSTEM_CONFIG.debug) return;
+
+                const timestamp = new Date().toLocaleTimeString();
+                const prefix = {
+                    info: '🔵',
+                    warn: '🟡',
+                    error: '🔴',
+                    success: '🟢'
+                }[type] || '⚪';
+
+                console.log(`${prefix} [${timestamp}] ${message}`);
+
+                if (this.isActive) {
+                    setTimeout(() => this.updateContent(), 100);
+                }
+            },
+
+            // Info memoria
+            getMemoryInfo() {
+                try {
+                    if (performance.memory) {
+                        const used = Math.round(performance.memory.usedJSHeapSize / 1048576);
+                        const limit = Math.round(performance.memory.jsHeapSizeLimit / 1048576);
+                        return `${used}MB/${limit}MB`;
+                    }
+                    return 'N/A';
+                } catch (error) {
+                    return 'Error';
+                }
+            },
+
+            // Info connessione
+            getConnectionInfo() {
+                try {
+                    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+                    if (connection) {
+                        return `${connection.effectiveType} (${connection.downlink}Mbps)`;
+                    }
+                    return 'Unknown';
+                } catch (error) {
+                    return 'Error';
+                }
+            }
+        };
+
+        // Sistema di gestione errori ultra robusto
+        const ErrorManager = {
+            maxErrors: 10,
+
+            // Gestione errore con context
+            handle(error, context = 'Unknown', severity = 'error') {
+                try {
+                    const errorInfo = {
+                        message: error.message || 'Unknown error',
+                        context: context,
+                        severity: severity,
+                        timestamp: new Date().toISOString(),
+                        stack: error.stack || 'No stack trace',
+                        userAgent: navigator.userAgent,
+                        url: window.location.href,
+                        viewport: `${window.innerWidth}x${window.innerHeight}`
+                    };
+
+                    // Aggiungi a SystemState con limite
+                    SystemState.errors.push(errorInfo);
+                    if (SystemState.errors.length > this.maxErrors) {
+                        SystemState.errors.shift();
+                    }
+
+                    // Log console
+                    console.error(`❌ [${context}] ${error.message}`, error);
+
+                    // Aggiorna status indicator
+                    StatusManager.setError();
+
+                    // Aggiorna debug se attivo
+                    if (DebugManager.isActive) {
+                        DebugManager.updateContent();
+                    }
+
+                    return errorInfo;
+                } catch (err) {
+                    console.error('💥 Critical error in ErrorManager:', err);
+                }
+            },
+
+            // Pulisci errori vecchi
+            cleanup() {
+                try {
+                    const oneHourAgo = Date.now() - 3600000;
+                    SystemState.errors = SystemState.errors.filter(error => {
+                        return new Date(error.timestamp).getTime() > oneHourAgo;
+                    });
+                    DebugManager.log(`Cleaned up old errors. Current count: ${SystemState.errors.length}`);
+                } catch (error) {
+                    console.error('❌ Error in cleanup:', error);
+                }
+            }
+        };
+
+        // Sistema di status indicator
+        const StatusManager = {
+            indicator: null,
+            currentStatus: 'success',
+
+            // Inizializzazione
+            init() {
+                try {
+                    this.indicator = document.getElementById('statusIndicator');
+                    if (!this.indicator) {
+                        DebugManager.log('Status indicator non trovato', 'warn');
+                        return false;
+                    }
+
+                    this.setSuccess();
+                    DebugManager.log('Status Manager inizializzato');
+                    return true;
+                } catch (error) {
+                    ErrorManager.handle(error, 'StatusManager.init');
+                    return false;
+                }
+            },
+
+            // Set stato successo
+            setSuccess() {
+                this.setStatus('success', 'Sistema operativo');
+            },
+
+            // Set stato errore
+            setError() {
+                this.setStatus('error', 'Errori rilevati');
+            },
+
+            // Set stato warning
+            setWarning() {
+                this.setStatus('warning', 'Attenzione richiesta');
+            },
+
+            // Set stato generico
+            setStatus(status, title) {
+                try {
+                    if (!this.indicator) return;
+
+                    this.indicator.className = `status-indicator ${status}`;
+                    this.indicator.title = title;
+                    this.currentStatus = status;
+
+                    DebugManager.log(`Status: ${status} - ${title}`);
+                } catch (error) {
+                    ErrorManager.handle(error, 'StatusManager.setStatus');
+                }
+            }
+        };
+
+        // Sistema di utilità DOM ultra sicuro
+        const DOMUtils = {
+            // Trova elemento con fallback sicuro
+            safeQuery(selector, context = document) {
+                try {
+                    const element = context.querySelector(selector);
+                    if (!element) {
+                        DebugManager.log(`Elemento non trovato: ${selector}`, 'warn');
+                    }
+                    return element;
+                } catch (error) {
+                    ErrorManager.handle(error, `DOMUtils.safeQuery(${selector})`);
+                    return null;
+                }
+            },
+
+            // Trova elementi multipli con fallback
+            safeQueryAll(selector, context = document) {
+                try {
+                    const elements = Array.from(context.querySelectorAll(selector));
+                    if (elements.length === 0) {
+                        DebugManager.log(`Nessun elemento trovato: ${selector}`, 'warn');
+                    }
+                    return elements;
+                } catch (error) {
+                    ErrorManager.handle(error, `DOMUtils.safeQueryAll(${selector})`);
+                    return [];
+                }
+            },
+
+            // Aggiungi classe sicura
+            safeAddClass(element, className) {
+                try {
+                    if (element && element.classList) {
+                        element.classList.add(className);
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    ErrorManager.handle(error, 'DOMUtils.safeAddClass');
+                    return false;
+                }
+            },
+
+            // Rimuovi classe sicura
+            safeRemoveClass(element, className) {
+                try {
+                    if (element && element.classList) {
+                        element.classList.remove(className);
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    ErrorManager.handle(error, 'DOMUtils.safeRemoveClass');
+                    return false;
+                }
+            },
+
+            // Toggle classe sicuro
+            safeToggleClass(element, className, force = undefined) {
+                try {
+                    if (element && element.classList) {
+                        if (force !== undefined) {
+                            element.classList.toggle(className, force);
+                        } else {
+                            element.classList.toggle(className);
+                        }
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    ErrorManager.handle(error, 'DOMUtils.safeToggleClass');
+                    return false;
+                }
+            },
+
+            // Set stile sicuro
+            safeSetStyle(element, property, value) {
+                try {
+                    if (element && element.style) {
+                        element.style[property] = value;
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    ErrorManager.handle(error, 'DOMUtils.safeSetStyle');
+                    return false;
+                }
+            }
+        };
+
+        // Sistema di animazioni e transizioni migliorato
+        const AnimationManager = {
+            activeAnimations: new Set(),
+            intersectionObserver: null,
+            shouldAnimate: true,
+
+            // Inizializzazione sicura
+            init() {
+                try {
+                    // Verifica preferenze motion
+                    this.shouldAnimate = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+                    SystemState.update('reducedMotion', !this.shouldAnimate);
+
+                    if (!this.shouldAnimate) {
+                        DebugManager.log('Animazioni disabilitate per reduced motion');
+                        DOMUtils.safeAddClass(document.body, 'reduced-motion');
+                        return false;
+                    }
+
+                    // Setup Intersection Observer
+                    this.setupIntersectionObserver();
+
+                    // Setup animazioni hero
+                    this.setupHeroAnimations();
+
+                    // Setup animazioni cards
+                    this.setupCardAnimations();
+
+                    // Setup scroll indicator
+                    this.setupScrollIndicator();
+
+                    DebugManager.log('Animation Manager inizializzato');
+                    return true;
+                } catch (error) {
+                    ErrorManager.handle(error, 'AnimationManager.init');
+                    return false;
+                }
+            },
+
+            // Setup Intersection Observer sicuro
+            setupIntersectionObserver() {
+                try {
+                    if (!('IntersectionObserver' in window)) {
+                        DebugManager.log('IntersectionObserver non supportato', 'warn');
+                        return;
+                    }
+
+                    const options = {
+                        threshold: 0.1,
+                        rootMargin: '0px 0px -50px 0px'
+                    };
+
+                    this.intersectionObserver = new IntersectionObserver((entries) => {
+                        try {
+                            entries.forEach((entry, index) => {
+                                if (entry.isIntersecting && this.shouldAnimate) {
+                                    setTimeout(() => {
+                                        DOMUtils.safeSetStyle(entry.target, 'opacity', '1');
+                                        DOMUtils.safeSetStyle(entry.target, 'transform', 'translateY(0) scale(1)');
+                                        DOMUtils.safeAddClass(entry.target, 'animate-in');
+                                        
+                                        this.activeAnimations.add(entry.target);
+                                    }, index * 150);
+                                }
+                            });
+                        } catch (error) {
+                            ErrorManager.handle(error, 'IntersectionObserver.callback');
+                        }
+                    }, options);
+
+                    DebugManager.log('Intersection Observer configurato');
+                } catch (error) {
+                    ErrorManager.handle(error, 'AnimationManager.setupIntersectionObserver');
+                }
+            },
+
+            // Setup animazioni hero
+            setupHeroAnimations() {
+                try {
+                    const heroElements = DOMUtils.safeQueryAll('.logo-container, .hero-title, .hero-subtitle, .glass-strong, .stats-card');
+                    
+                    heroElements.forEach((element, index) => {
+                        if (!element) return;
+
+                        // Set stato iniziale
+                        DOMUtils.safeSetStyle(element, 'opacity', '0');
+                        DOMUtils.safeSetStyle(element, 'transform', 'translateY(40px)');
+                        DOMUtils.safeSetStyle(element, 'transition', 'opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1)');
+                        DOMUtils.safeSetStyle(element, 'transitionDelay', `${index * 0.2}s`);
                         
-                        this.style.transform = `perspective(1000px) rotateY(${x * 0.05}deg) rotateX(${y * -0.05}deg) translateY(-8px)`;
+                        // Trigger animazione
+                        setTimeout(() => {
+                            if (this.shouldAnimate) {
+                                DOMUtils.safeSetStyle(element, 'opacity', '1');
+                                DOMUtils.safeSetStyle(element, 'transform', 'translateY(0)');
+                            }
+                        }, 300 + (index * 100));
+                    });
+
+                    DebugManager.log(`Hero animations configurate per ${heroElements.length} elementi`);
+                } catch (error) {
+                    ErrorManager.handle(error, 'AnimationManager.setupHeroAnimations');
+                }
+            },
+
+            // Setup animazioni cards
+            setupCardAnimations() {
+                try {
+                    // Service cards
+                    const serviceCards = DOMUtils.safeQueryAll('.service-card');
+                    serviceCards.forEach((card, index) => {
+                        if (!card) return;
+
+                        DOMUtils.safeSetStyle(card, 'opacity', '0');
+                        DOMUtils.safeSetStyle(card, 'transform', 'translateY(50px) scale(0.95)');
+                        DOMUtils.safeSetStyle(card, 'transition', 'all 1s cubic-bezier(0.4, 0, 0.2, 1)');
+                        DOMUtils.safeSetStyle(card, 'transitionDelay', `${index * 0.15}s`);
+                        
+                        if (this.intersectionObserver) {
+                            this.intersectionObserver.observe(card);
+                        }
+                    });
+
+                    // Contact cards
+                    const contactCards = DOMUtils.safeQueryAll('.contact-card');
+                    contactCards.forEach((card, index) => {
+                        if (!card) return;
+
+                        DOMUtils.safeSetStyle(card, 'opacity', '0');
+                        DOMUtils.safeSetStyle(card, 'transform', 'translateX(-30px)');
+                        DOMUtils.safeSetStyle(card, 'transition', 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)');
+                        DOMUtils.safeSetStyle(card, 'transitionDelay', `${index * 0.2}s`);
+                        
+                        if (this.intersectionObserver) {
+                            this.intersectionObserver.observe(card);
+                        }
+                    });
+
+                    DebugManager.log(`Card animations configurate: ${serviceCards.length} service, ${contactCards.length} contact`);
+                } catch (error) {
+                    ErrorManager.handle(error, 'AnimationManager.setupCardAnimations');
+                }
+            },
+
+            // Setup scroll indicator con funzionalità
+            setupScrollIndicator() {
+                try {
+                    const scrollIndicator = DOMUtils.safeQuery('.scroll-indicator');
+                    if (!scrollIndicator) return;
+
+                    scrollIndicator.addEventListener('click', () => {
+                        try {
+                            const servicesSection = DOMUtils.safeQuery('section:nth-of-type(2)');
+                            if (servicesSection) {
+                                servicesSection.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'start'
+                                });
+                                DebugManager.log('Scroll to services triggered');
+                            }
+                        } catch (error) {
+                            ErrorManager.handle(error, 'ScrollIndicator.click');
+                        }
+                    });
+
+                    DebugManager.log('Scroll indicator configurato');
+                } catch (error) {
+                    ErrorManager.handle(error, 'AnimationManager.setupScrollIndicator');
+                }
+            },
+
+            // Cleanup animazioni
+            cleanup() {
+                try {
+                    if (this.intersectionObserver) {
+                        this.intersectionObserver.disconnect();
+                    }
+                    this.activeAnimations.clear();
+                    DebugManager.log('Animation cleanup completato');
+                } catch (error) {
+                    ErrorManager.handle(error, 'AnimationManager.cleanup');
+                }
+            }
+        };
+
+        // Sistema di interazioni ultra responsive
+        const InteractionManager = {
+            // Inizializzazione
+            init() {
+                try {
+                    // Setup touch optimizations
+                    this.setupTouchOptimizations();
+
+                    // Setup mouse tracking desktop
+                    this.setupMouseTracking();
+
+                    // Setup keyboard navigation
+                    this.setupKeyboardNavigation();
+
+                    // Setup click tracking avanzato
+                    this.setupClickTracking();
+
+                    // Setup form interactions
+                    this.setupFormInteractions();
+
+                    DebugManager.log('Interaction Manager inizializzato');
+                    return true;
+                } catch (error) {
+                    ErrorManager.handle(error, 'InteractionManager.init');
+                    return false;
+                }
+            },
+
+            // Setup ottimizzazioni touch
+            setupTouchOptimizations() {
+                try {
+                    const isTouch = 'ontouchstart' in window;
+                    SystemState.update('isTouch', isTouch);
+
+                    if (isTouch) {
+                        DOMUtils.safeAddClass(document.body, 'touch-device');
+                        
+                        // Enhanced touch feedback
+                        const touchElements = DOMUtils.safeQueryAll('.service-card, .contact-card, .btn-aurora, .btn-cyber');
+                        touchElements.forEach(element => {
+                            if (!element) return;
+
+                            element.addEventListener('touchstart', function(e) {
+                                DOMUtils.safeSetStyle(this, 'transform', 'scale(0.97)');
+                                DOMUtils.safeSetStyle(this, 'transition', 'transform 0.1s ease');
+                            }, { passive: true });
+                            
+                            element.addEventListener('touchend', function(e) {
+                                setTimeout(() => {
+                                    DOMUtils.safeSetStyle(this, 'transform', '');
+                                    DOMUtils.safeSetStyle(this, 'transition', 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)');
+                                }, 100);
+                            }, { passive: true });
+                        });
+
+                        DebugManager.log('Touch optimizations configurate');
+                    }
+                } catch (error) {
+                    ErrorManager.handle(error, 'InteractionManager.setupTouchOptimizations');
+                }
+            },
+
+            // Setup mouse tracking per desktop
+            setupMouseTracking() {
+                try {
+                    if (SystemState.isTouch) return;
+
+                    const trackableCards = DOMUtils.safeQueryAll('.service-card, .contact-card');
+                    trackableCards.forEach(card => {
+                        if (!card) return;
+
+                        card.addEventListener('mousemove', function(e) {
+                            try {
+                                const rect = this.getBoundingClientRect();
+                                const x = e.clientX - rect.left - rect.width / 2;
+                                const y = e.clientY - rect.top - rect.height / 2;
+                                
+                                const rotateY = x * 0.05;
+                                const rotateX = y * -0.05;
+                                
+                                DOMUtils.safeSetStyle(this, 'transform', 
+                                    `perspective(1000px) rotateY(${rotateY}deg) rotateX(${rotateX}deg) translateY(-8px)`);
+                            } catch (error) {
+                                ErrorManager.handle(error, 'MouseTracking.mousemove');
+                            }
+                        });
+                        
+                        card.addEventListener('mouseleave', function() {
+                            DOMUtils.safeSetStyle(this, 'transform', '');
+                        });
+                    });
+
+                    DebugManager.log('Mouse tracking configurato per desktop');
+                } catch (error) {
+                    ErrorManager.handle(error, 'InteractionManager.setupMouseTracking');
+                }
+            },
+
+            // Setup navigazione da tastiera
+            setupKeyboardNavigation() {
+                try {
+                    document.addEventListener('keydown', (e) => {
+                        try {
+                            if (e.key === 'Tab') {
+                                SystemState.update('keyboardNav', true);
+                                DOMUtils.safeAddClass(document.body, 'keyboard-navigation');
+                            }
+                            
+                            if (e.key === 'Escape') {
+                                // Close any focused elements
+                                if (document.activeElement) {
+                                    document.activeElement.blur();
+                                }
+                            }
+                        } catch (error) {
+                            ErrorManager.handle(error, 'KeyboardNavigation.keydown');
+                        }
+                    });
+
+                    document.addEventListener('mousedown', () => {
+                        SystemState.update('keyboardNav', false);
+                        DOMUtils.safeRemoveClass(document.body, 'keyboard-navigation');
+                    });
+
+                    DebugManager.log('Keyboard navigation configurato');
+                } catch (error) {
+                    ErrorManager.handle(error, 'InteractionManager.setupKeyboardNavigation');
+                }
+            },
+
+            // Setup click tracking avanzato
+            setupClickTracking() {
+                try {
+                    const trackableLinks = DOMUtils.safeQueryAll('a[href*="registrazione"], a[href*="login"], a[href*="form.jotform"]');
+                    
+                    trackableLinks.forEach(link => {
+                        if (!link) return;
+
+                        link.addEventListener('click', function(e) {
+                            try {
+                                const action = this.textContent.trim();
+                                const section = this.closest('section')?.querySelector('h2')?.textContent || 'Unknown';
+                                
+                                // Enhanced visual feedback
+                                DOMUtils.safeSetStyle(this, 'transform', 'scale(0.96)');
+                                setTimeout(() => {
+                                    DOMUtils.safeSetStyle(this, 'transform', '');
+                                }, 150);
+                                
+                                // Increment interaction counter
+                                SystemState.performance.interactions++;
+                                
+                                DebugManager.log(`User interaction: "${action}" in section "${section}"`);
+                                
+                                // Future analytics hook
+                                // this.sendAnalytics(action, section);
+                            } catch (error) {
+                                ErrorManager.handle(error, 'ClickTracking.click');
+                            }
+                        });
+                    });
+
+                    DebugManager.log(`Click tracking configurato per ${trackableLinks.length} links`);
+                } catch (error) {
+                    ErrorManager.handle(error, 'InteractionManager.setupClickTracking');
+                }
+            },
+
+            // Setup form interactions
+            setupFormInteractions() {
+                try {
+                    const formInputs = DOMUtils.safeQueryAll('.form-input');
+                    
+                    formInputs.forEach(input => {
+                        if (!input) return;
+
+                        input.addEventListener('focus', function() {
+                            DOMUtils.safeAddClass(this.parentElement, 'focused');
+                        });
+                        
+                        input.addEventListener('blur', function() {
+                            if (!this.value) {
+                                DOMUtils.safeRemoveClass(this.parentElement, 'focused');
+                            }
+                        });
+                    });
+
+                    DebugManager.log(`Form interactions configurate per ${formInputs.length} inputs`);
+                } catch (error) {
+                    ErrorManager.handle(error, 'InteractionManager.setupFormInteractions');
+                }
+            }
+        };
+
+        // Sistema di parallax ultra performante
+        const ParallaxManager = {
+            ticking: false,
+            isEnabled: true,
+
+            // Inizializzazione
+            init() {
+                try {
+                    // Disabilita parallax su dispositivi con reduced motion
+                    if (SystemState.reducedMotion) {
+                        this.isEnabled = false;
+                        DebugManager.log('Parallax disabilitato per reduced motion');
+                        return false;
+                    }
+
+                    // Setup scroll listener con throttling
+                    this.setupScrollListener();
+
+                    DebugManager.log('Parallax Manager inizializzato');
+                    return true;
+                } catch (error) {
+                    ErrorManager.handle(error, 'ParallaxManager.init');
+                    return false;
+                }
+            },
+
+            // Setup scroll listener con performance optimization
+            setupScrollListener() {
+                try {
+                    const scrollHandler = () => {
+                        if (!this.ticking && this.isEnabled) {
+                            requestAnimationFrame(() => this.updateParallax());
+                            this.ticking = true;
+                        }
+                    };
+
+                    window.addEventListener('scroll', scrollHandler, { passive: true });
+                    DebugManager.log('Scroll listener configurato');
+                } catch (error) {
+                    ErrorManager.handle(error, 'ParallaxManager.setupScrollListener');
+                }
+            },
+
+            // Update parallax con throttling
+            updateParallax() {
+                try {
+                    const scrolled = window.pageYOffset;
+                    const rate = scrolled * -0.3;
+                    
+                    // Floating icons parallax
+                    const floatingIcons = DOMUtils.safeQueryAll('.floating-icons');
+                    floatingIcons.forEach((icon, index) => {
+                        if (!icon) return;
+
+                        const speed = 0.2 + (index * 0.05);
+                        const rotation = scrolled * 0.008;
+                        const transform = `translateY(${scrolled * speed}px) rotate(${rotation * (index + 1)}deg)`;
+                        
+                        DOMUtils.safeSetStyle(icon, 'transform', transform);
                     });
                     
-                    card.addEventListener('mouseleave', function() {
-                        this.style.transform = '';
-                    });
-                });
-            }
-
-            // Form Enhancement
-            const formInputs = document.querySelectorAll('.form-input');
-            formInputs.forEach(input => {
-                input.addEventListener('focus', function() {
-                    this.parentElement.classList.add('focused');
-                });
-                
-                input.addEventListener('blur', function() {
-                    if (!this.value) {
-                        this.parentElement.classList.remove('focused');
-                    }
-                });
-            });
-
-            // Enhanced Image Loading with Fallback
-            document.querySelectorAll('img[onerror]').forEach(img => {
-                img.addEventListener('error', function() {
-                    console.log(`🖼️ Image fallback triggered for: ${this.src}`);
-                });
-            });
-
-            // Performance Monitoring
-            if (window.performance) {
-                window.addEventListener('load', () => {
-                    const timing = performance.timing;
-                    const loadTime = timing.loadEventEnd - timing.navigationStart;
-                    console.log(`⚡ Aurora page loaded in ${loadTime}ms`);
-                    
-                    // Mark performance milestones
-                    performance.mark('aurora-interactive');
-                });
-            }
-
-            // Service Worker with Cache Strategy
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('/sw.js')
-                        .then(registration => {
-                            console.log('✅ SW registered with Aurora optimizations');
-                        })
-                        .catch(error => {
-                            console.log('❌ SW registration failed:', error);
-                        });
-                });
-            }
-
-            // Enhanced Accessibility
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Tab') {
-                    document.body.classList.add('keyboard-navigation');
-                }
-                
-                if (e.key === 'Escape') {
-                    // Close any focused elements
-                    document.activeElement?.blur();
-                }
-            });
-
-            document.addEventListener('mousedown', () => {
-                document.body.classList.remove('keyboard-navigation');
-            });
-
-            // Color Theme Detection
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                console.log('🌙 Dark mode preference detected');
-                document.body.classList.add('dark-mode-preference');
-            }
-
-            // Aurora Animation Performance
-            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-            if (prefersReducedMotion.matches) {
-                document.body.classList.add('reduced-motion');
-                console.log('♿ Reduced motion preference respected');
-            }
-
-            // Advanced Click Tracking with Context
-            document.querySelectorAll('a[href*="registrazione"], a[href*="login"], a[href*="form.jotform"]').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    const action = this.textContent.trim();
-                    const section = this.closest('section')?.querySelector('h2')?.textContent || 'Unknown';
-                    
-                    console.log(`🎯 User interaction: "${action}" in section "${section}"`);
-                    
-                    // Enhanced visual feedback
-                    this.style.transform = 'scale(0.96)';
-                    setTimeout(() => {
-                        this.style.transform = '';
-                    }, 150);
-                    
-                    // Analytics would go here
-                    // gtag('event', 'click', { 
-                    //     'action': action, 
-                    //     'section': section,
-                    //     'timestamp': new Date().toISOString()
-                    // });
-                });
-            });
-
-            // Enhanced Responsive Handling
-            let resizeTimeout;
-            function handleResize() {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(() => {
-                    const vh = window.innerHeight * 0.01;
-                    document.documentElement.style.setProperty('--vh', `${vh}px`);
-                    
-                    // Responsive typography adjustments
-                    const vw = window.innerWidth;
-                    if (vw !== window.previousWidth) {
-                        window.previousWidth = vw;
-                        console.log(`📱 Viewport changed to: ${vw}px`);
-                        
-                        // Trigger responsive recalculations
-                        document.querySelectorAll('.service-card').forEach(card => {
-                            card.style.willChange = 'transform';
-                            setTimeout(() => {
-                                card.style.willChange = 'auto';
-                            }, 1000);
-                        });
-                    }
-                }, 250);
-            }
-
-            window.addEventListener('resize', handleResize, { passive: true });
-            handleResize();
-
-            // Touch Device Optimizations
-            if ('ontouchstart' in window) {
-                document.body.classList.add('touch-device');
-                console.log('📱 Touch device optimizations enabled');
-                
-                // Enhanced touch feedback
-                document.querySelectorAll('.service-card, .contact-card, .btn-aurora, .btn-cyber').forEach(element => {
-                    element.addEventListener('touchstart', function(e) {
-                        this.style.transform = 'scale(0.97)';
-                        this.style.transition = 'transform 0.1s ease';
-                    }, { passive: true });
-                    
-                    element.addEventListener('touchend', function(e) {
-                        setTimeout(() => {
-                            this.style.transform = '';
-                            this.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-                        }, 100);
-                    }, { passive: true });
-                });
-            }
-
-            // Advanced Image Preloading Strategy
-            const criticalImages = [
-                '/icons/logo-main.png',
-                '/icons/legal-civil.svg',
-                '/icons/legal-penal.svg',
-                '/icons/fiscal.svg',
-                '/icons/administrative.svg',
-                '/icons/email.svg',
-                '/icons/phone.svg',
-                '/icons/help.svg'
-            ];
-
-            // Preload critical images
-            criticalImages.forEach((src, index) => {
-                setTimeout(() => {
-                    const img = new Image();
-                    img.src = src;
-                    img.onload = () => console.log(`✅ Preloaded: ${src}`);
-                    img.onerror = () => console.log(`❌ Failed to preload: ${src}`);
-                }, index * 100);
-            });
-
-            // Enhanced Hero Elements Animation
-            const heroElements = document.querySelectorAll('.logo-container, .hero-title, .text-aurora, .glass-strong, .stats-card');
-            heroElements.forEach((element, index) => {
-                element.style.opacity = '0';
-                element.style.transform = 'translateY(40px)';
-                element.style.transition = 'opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.4, 0, 0.2, 1)';
-                element.style.transitionDelay = `${index * 0.2}s`;
-                
-                setTimeout(() => {
-                    element.style.opacity = '1';
-                    element.style.transform = 'translateY(0)';
-                }, 300 + (index * 100));
-            });
-
-            // Background Color Adaptation (Future Feature)
-            function adaptToSystemTheme() {
-                const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                if (isDark) {
-                    document.documentElement.style.setProperty('--gradient-aurora', 
-                        'linear-gradient(135deg, #0a0a23 0%, #1a1a2e 25%, #16213e 50%, #e94560 75%, #00d4ff 100%)');
-                    console.log('🌙 Dark theme adaptation applied');
-                }
-            }
-
-            // Listen for theme changes
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', adaptToSystemTheme);
-            adaptToSystemTheme();
-
-            // Network Status Monitoring
-            function updateNetworkStatus() {
-                const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-                if (connection) {
-                    console.log(`📶 Network: ${connection.effectiveType}, Downlink: ${connection.downlink}Mbps`);
-                    
-                    // Adapt animations based on connection speed
-                    if (connection.saveData || connection.effectiveType === 'slow-2g') {
-                        document.body.classList.add('low-bandwidth');
-                        console.log('🐌 Low bandwidth mode enabled');
-                    }
-                }
-            }
-
-            if ('connection' in navigator) {
-                navigator.connection.addEventListener('change', updateNetworkStatus);
-                updateNetworkStatus();
-            }
-
-            // Advanced Error Handling
-            window.addEventListener('error', (e) => {
-                console.error('🚨 JavaScript Error:', {
-                    message: e.message,
-                    filename: e.filename,
-                    lineno: e.lineno,
-                    colno: e.colno,
-                    timestamp: new Date().toISOString()
-                });
-            });
-
-            // Unhandled Promise Rejections
-            window.addEventListener('unhandledrejection', (e) => {
-                console.error('🚨 Unhandled Promise Rejection:', e.reason);
-            });
-
-            // Page Visibility API for Performance
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    console.log('👁️ Page hidden - pausing non-critical animations');
-                    document.body.classList.add('page-hidden');
-                } else {
-                    console.log('👁️ Page visible - resuming animations');
-                    document.body.classList.remove('page-hidden');
-                }
-            });
-
-            // Memory Usage Monitoring (Development)
-            if (performance.memory) {
-                setInterval(() => {
-                    const memory = performance.memory;
-                    const used = Math.round(memory.usedJSHeapSize / 1048576);
-                    const limit = Math.round(memory.jsHeapSizeLimit / 1048576);
-                    
-                    if (used > limit * 0.8) {
-                        console.warn(`⚠️ High memory usage: ${used}MB/${limit}MB`);
-                    }
-                }, 30000); // Check every 30 seconds
-            }
-
-            // Initialization Complete
-            console.log('🎉 MyApp Aurora Boreale initialization complete!');
-            
-            // Dispatch custom event for external scripts
-            window.dispatchEvent(new CustomEvent('myapp-ready', {
-                detail: {
-                    version: '2.0',
-                    theme: 'aurora-boreale',
-                    features: ['glassmorphism', 'parallax', 'responsive', 'a11y'],
-                    timestamp: new Date().toISOString()
-                }
-            }));
-        });
-    </script>
-
-    <!-- Additional CSS for Enhanced States -->
-    <style>
-        /* Touch Device Optimizations */
-        .touch-device .service-card:hover {
-            transform: none;
-        }
-        
-        .touch-device .service-card:active {
-            transform: scale(0.98);
-        }
-
-        /* Low Bandwidth Mode */
-        .low-bandwidth * {
-            animation-duration: 0.1s !important;
-            transition-duration: 0.1s !important;
-        }
-        
-        .low-bandwidth .floating-icons {
-            display: none;
-        }
-
-        /* Keyboard Navigation */
-        .keyboard-navigation *:focus {
-            outline: 3px solid #e94560 !important;
-            outline-offset: 2px !important;
-        }
-
-        /* Page Hidden State */
-        .page-hidden .floating-icons {
-            animation-play-state: paused;
-        }
-        
-        .page-hidden body::before {
-            animation-play-state: paused;
-        }
-
-        /* Dark Mode Preference */
-        .dark-mode-preference .glass-card {
-            background: rgba(26, 26, 46, 0.95);
-            border-color: rgba(255, 255, 255, 0.1);
-        }
-
-        /* Reduced Motion */
-        .reduced-motion * {
-            animation: none !important;
-            transition: none !important;
-        }
-
-        /* High Contrast Mode */
-        @media (prefers-contrast: high) {
-            .glass-morphism,
-            .glass-strong,
-            .glass-card {
-                border: 2px solid #ffffff !important;
-                background: rgba(255, 255, 255, 0.95) !important;
-            }
-            
-            .text-white {
-                text-shadow: 2px 2px 4px #000000 !important;
-            }
-        }
-
-        /* Focus States for Better Accessibility */
-        .btn-aurora:focus,
-        .btn-cyber:focus,
-        .btn-glass:focus {
-            box-shadow: 0 0 0 3px rgba(233, 69, 96, 0.5);
-            transform: scale(1.02);
-        }
-
-        .contact-card:focus {
-            outline: 3px solid #e94560;
-            outline-offset: 2px;
-        }
-
-        /* Print Styles */
-        @media print {
-            .floating-help,
-            .floating-icons,
-            nav,
-            .btn-aurora,
-            .btn-cyber {
-                display: none !important;
-            }
-            
-            body {
-                background: white !important;
-                color: black !important;
-            }
-            
-            .glass-card,
-            .glass-morphism,
-            .service-card {
-                background: white !important;
-                border: 1px solid #ccc !important;
-                box-shadow: none !important;
-            }
-        }
-    </style>
-</body>
-</html>
+                    // Logo parallax
+                    const parallaxElements = DOMUtils.safeQueryAll('.parallax-element');
+                    parallax
