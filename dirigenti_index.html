@@ -129,12 +129,14 @@
             border: var(--border-card-readable);
             border-radius: 20px;
             padding: clamp(2rem, 5vw, 3rem); /* Padding aumentato */
+            padding-bottom: clamp(2.5rem, 6vw, 3.5rem); /* Padding extra in basso per i pulsanti */
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            overflow: hidden;
+            overflow: visible; /* Cambiato da hidden a visible per evitare clipping */
             box-shadow: var(--shadow-card-readable);
             color: #111827;
             line-height: var(--line-height-comfortable);
+            min-height: clamp(400px, 50vw, 500px); /* Altezza minima per garantire spazio */
         }
 
         .dirigente-card::before {
@@ -393,18 +395,22 @@
         .contact-button {
             background: var(--gradient-magic);
             color: white;
-            padding: clamp(0.8rem, 2.5vw, 1.1rem) clamp(1.5rem, 4vw, 2rem); /* Più grande */
+            padding: clamp(1rem, 3vw, 1.3rem) clamp(1.8rem, 5vw, 2.3rem); /* Padding più generoso */
             border-radius: 25px;
-            font-size: clamp(0.95rem, 2.5vw, 1.1rem); /* Font più grande */
+            font-size: clamp(1rem, 2.8vw, 1.2rem); /* Font più grande */
             font-weight: 700;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
+            justify-content: center; /* Centra il contenuto */
             gap: 0.75rem; /* Gap aumentato */
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border: 3px solid rgba(233, 69, 96, 0.4); /* Bordo più spesso */
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             line-height: 1.2;
+            min-width: clamp(120px, 25vw, 150px); /* Larghezza minima garantita */
+            white-space: nowrap; /* Evita testo su più righe */
+            box-shadow: 0 4px 12px rgba(233, 69, 96, 0.2); /* Ombra per migliore visibilità */
         }
 
         .contact-button:hover {
@@ -537,9 +543,10 @@
         /* Mobile Portrait (320px - 480px) */
         @media (max-width: 480px) and (orientation: portrait) {
             .dirigente-card {
-                padding: 2rem 1.5rem; /* Padding generoso */
+                padding: 2rem 1.5rem 2.5rem; /* Padding extra in basso anche su mobile */
                 margin-bottom: 2rem;
                 border-radius: 20px;
+                min-height: 380px; /* Altezza minima anche su mobile */
             }
             
             .dirigente-avatar {
@@ -574,6 +581,7 @@
             .contact-button {
                 padding: 1rem 1.5rem;
                 font-size: 1rem;
+                min-width: 140px; /* Larghezza minima aumentata su mobile */
             }
 
             /* Typography mobile-specific */
@@ -1114,10 +1122,10 @@
                         </p>
                         
                         <!-- Contatti -->
-                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <div class="flex flex-col gap-4 justify-center items-center mt-auto pt-4">
                             ${dirigente.email ? 
                                 `<a href="mailto:${dirigente.email}" 
-                                   class="contact-button"
+                                   class="contact-button w-full max-w-xs"
                                    aria-label="Invia email a ${dirigente.nome_cognome}">
                                     <span class="text-xl">📧</span>
                                     <span>Email</span>
@@ -1125,7 +1133,7 @@
                             }
                             ${dirigente.telefono ? 
                                 `<a href="tel:${dirigente.telefono}" 
-                                   class="contact-button"
+                                   class="contact-button w-full max-w-xs"
                                    aria-label="Chiama ${dirigente.nome_cognome}">
                                     <span class="text-xl">📞</span>
                                     <span>Chiama</span>
@@ -1138,11 +1146,12 @@
 
             // Ottieni classe CSS per il ruolo
             getRoleClass(ruolo) {
-                if (!ruolo) return 'role-segretario';
+                if (!ruolo) return 'role-provinciale'; // Default verde invece di blu
                 
                 if (ruolo.includes('Regionale')) return 'role-regionale';
                 if (ruolo.includes('Provinciale')) return 'role-provinciale';
-                return 'role-segretario';
+                if (ruolo.includes('Segretario Generale')) return 'role-provinciale'; // Uniforma a verde
+                return 'role-provinciale'; // Tutti gli altri ruoli uniformati a verde
             }
 
             // Anima le card con effetto stagger
