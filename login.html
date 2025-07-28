@@ -485,7 +485,7 @@
                         <input 
                             type="email" 
                             id="email" 
-                            value="test@test.com" 
+                            value="" 
                             required 
                             placeholder="Inserisci la tua email"
                             autocomplete="email"
@@ -504,7 +504,7 @@
                         <input 
                             type="password" 
                             id="password" 
-                            value="test123456" 
+                            value="" 
                             required 
                             placeholder="Inserisci la tua password"
                             autocomplete="current-password"
@@ -557,75 +557,155 @@
             name: 'MyApp',
             version: '1.0.0',
             supabaseUrl: 'https://lycrgzptkdkksukcwrld.supabase.co',
-            supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk'
+            supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk',
+            fallbackRedirect: 'index.html'
         };
 
-        // Configurazione Supabase
-        const { createClient } = supabase;
-        const supabaseClient = createClient(APP_CONFIG.supabaseUrl, APP_CONFIG.supabaseKey);
+        // Inizializzazione Supabase sicura
+        let supabaseClient = null;
+        
+        try {
+            if (typeof supabase !== 'undefined' && supabase.createClient) {
+                const { createClient } = supabase;
+                supabaseClient = createClient(APP_CONFIG.supabaseUrl, APP_CONFIG.supabaseKey);
+                console.log('✅ Supabase client inizializzato');
+            } else {
+                throw new Error('Supabase library non caricata');
+            }
+        } catch (error) {
+            console.error('❌ Errore inizializzazione Supabase:', error);
+        }
 
-        // Utility functions
+        // Utility functions con error handling migliorato
         const Utils = {
-            // Mostra messaggio
-            showMessage: (text, type = 'info') => {
-                const messagesDiv = document.getElementById('messages');
-                messagesDiv.innerHTML = `<div class="message message-${type}">${text}</div>`;
-                console.log(`[${type.toUpperCase()}] ${text}`);
-                
-                // Debug info
-                const debugInfo = document.getElementById('debugInfo');
-                const debugText = document.getElementById('debugText');
-                debugText.innerHTML = `${new Date().toLocaleTimeString()}: ${text}`;
-                debugInfo.style.display = 'block';
+            // Mostra messaggio con auto-clear
+            showMessage: (text, type = 'info', autoClear = true) => {
+                try {
+                    const messagesDiv = document.getElementById('messages');
+                    if (!messagesDiv) {
+                        console.error('❌ Elemento messages non trovato');
+                        return;
+                    }
+                    
+                    messagesDiv.innerHTML = `<div class="message message-${type}">${text}</div>`;
+                    console.log(`[${type.toUpperCase()}] ${text}`);
+                    
+                    // Debug info
+                    const debugInfo = document.getElementById('debugInfo');
+                    const debugText = document.getElementById('debugText');
+                    if (debugInfo && debugText) {
+                        debugText.innerHTML = `${new Date().toLocaleTimeString()}: ${text}`;
+                        debugInfo.style.display = type === 'error' ? 'block' : 'none';
+                    }
+                    
+                    // Auto-clear per messaggi di successo/info
+                    if (autoClear && type !== 'error') {
+                        setTimeout(() => {
+                            if (messagesDiv.innerHTML.includes(text)) {
+                                messagesDiv.innerHTML = '';
+                            }
+                        }, 5000);
+                    }
+                } catch (error) {
+                    console.error('❌ Errore showMessage:', error);
+                }
             },
 
             // Gestione stato loading del pulsante
             setLoading: (loading) => {
-                const loginBtn = document.getElementById('loginBtn');
-                const loginBtnText = document.getElementById('loginBtnText');
-                
-                loginBtn.disabled = loading;
-                
-                if (loading) {
-                    loginBtnText.innerHTML = '<span class="loading-spinner"></span>🔄 Accesso in corso...';
-                } else {
-                    loginBtnText.textContent = '🚀 Accedi';
+                try {
+                    const loginBtn = document.getElementById('loginBtn');
+                    const loginBtnText = document.getElementById('loginBtnText');
+                    
+                    if (!loginBtn || !loginBtnText) {
+                        console.error('❌ Elementi button non trovati');
+                        return;
+                    }
+                    
+                    loginBtn.disabled = loading;
+                    
+                    if (loading) {
+                        loginBtnText.innerHTML = '<span class="loading-spinner"></span>🔄 Accesso in corso...';
+                    } else {
+                        loginBtnText.textContent = '🚀 Accedi';
+                    }
+                } catch (error) {
+                    console.error('❌ Errore setLoading:', error);
                 }
             },
 
-            // Validazione email
+            // Validazione email migliorata
             isValidEmail: (email) => {
+                if (!email || typeof email !== 'string') return false;
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                return emailRegex.test(email);
+                return emailRegex.test(email.trim());
             },
 
-            // Validazione password
+            // Validazione password migliorata
             isValidPassword: (password) => {
-                return password && password.length >= 6;
+                if (!password || typeof password !== 'string') return false;
+                return password.length >= 6;
             },
 
-            // Gestione validazione visuale
+            // Gestione validazione visuale migliorata
             updateInputStatus: (inputId, isValid) => {
-                const container = document.querySelector(`#${inputId}`).closest('.input-container');
-                const status = container.querySelector('.input-status');
-                
-                if (isValid) {
-                    container.classList.add('input-valid');
-                    container.classList.remove('input-invalid');
-                    status.textContent = '✓';
-                } else {
-                    container.classList.add('input-invalid');
-                    container.classList.remove('input-valid');
-                    status.textContent = '✗';
+                try {
+                    const input = document.getElementById(inputId);
+                    if (!input) {
+                        console.error(`❌ Input ${inputId} non trovato`);
+                        return;
+                    }
+                    
+                    const container = input.closest('.input-container');
+                    const status = container ? container.querySelector('.input-status') : null;
+                    
+                    if (!container || !status) {
+                        console.error(`❌ Container o status per ${inputId} non trovato`);
+                        return;
+                    }
+                    
+                    if (isValid) {
+                        container.classList.add('input-valid');
+                        container.classList.remove('input-invalid');
+                        status.textContent = '✓';
+                    } else {
+                        container.classList.add('input-invalid');
+                        container.classList.remove('input-valid');
+                        status.textContent = '✗';
+                    }
+                } catch (error) {
+                    console.error(`❌ Errore updateInputStatus per ${inputId}:`, error);
+                }
+            },
+
+            // Safe redirect
+            safeRedirect: (url, delay = 1500) => {
+                try {
+                    console.log(`🔄 Redirect programmato a: ${url} tra ${delay}ms`);
+                    setTimeout(() => {
+                        try {
+                            window.location.href = url;
+                        } catch (error) {
+                            console.error('❌ Errore redirect:', error);
+                            // Fallback redirect
+                            window.location.href = APP_CONFIG.fallbackRedirect;
+                        }
+                    }, delay);
+                } catch (error) {
+                    console.error('❌ Errore safeRedirect:', error);
                 }
             }
         };
 
-        // Gestione autenticazione Supabase
+        // Gestione autenticazione Supabase migliorata
         const AuthManager = {
             // Test connessione Supabase
             testConnection: async () => {
                 try {
+                    if (!supabaseClient) {
+                        throw new Error('Client Supabase non inizializzato');
+                    }
+                    
                     Utils.showMessage('🔧 Test connessione Supabase...', 'info');
                     
                     const { data, error } = await supabaseClient.auth.getSession();
@@ -637,14 +717,19 @@
                     Utils.showMessage('✅ Supabase connesso correttamente!', 'success');
                     return true;
                 } catch (error) {
-                    Utils.showMessage(`❌ Errore Supabase: ${error.message}`, 'error');
+                    console.error('❌ Test connessione fallito:', error);
+                    Utils.showMessage(`❌ Errore connessione: ${error.message}`, 'error');
                     return false;
                 }
             },
 
-            // Recupera ruolo utente
+            // Recupera ruolo utente con fallback
             getUserRole: async (userId) => {
                 try {
+                    if (!supabaseClient || !userId) {
+                        throw new Error('Client Supabase o userId mancante');
+                    }
+                    
                     Utils.showMessage('🔍 Controllo ruolo utente...', 'info');
                     
                     const { data: profile, error } = await supabaseClient
@@ -654,8 +739,18 @@
                         .single();
                     
                     if (error) {
-                        console.error('❌ Errore recupero profilo:', error);
-                        throw new Error(`Errore recupero profilo: ${error.message}`);
+                        console.warn('⚠️ Tabella profiles non trovata o errore:', error);
+                        // Fallback a utente base
+                        return {
+                            ruolo: 'USER',
+                            ruoli: ['USER'],
+                            nome: 'Utente',
+                            cognome: '',
+                            email: '',
+                            telefono: '',
+                            isDirigente: false,
+                            isAdmin: false
+                        };
                     }
                     
                     if (!profile) {
@@ -664,8 +759,8 @@
                     
                     console.log('👤 Profilo utente:', profile);
                     
-                    // Gestione array di ruoli
-                    const ruoli = profile.ruoli || ['USER'];
+                    // Gestione array di ruoli con fallback
+                    const ruoli = Array.isArray(profile.ruoli) ? profile.ruoli : ['USER'];
                     const isDirigente = ruoli.includes('DIRIGENTE');
                     const isAdmin = ruoli.includes('ADMIN');
                     
@@ -690,47 +785,63 @@
                     
                 } catch (error) {
                     console.error('❌ Errore getUserRole:', error);
-                    Utils.showMessage(`❌ Errore controllo ruolo: ${error.message}`, 'error');
+                    Utils.showMessage(`⚠️ Impossibile recuperare ruolo, usando default: ${error.message}`, 'info');
                     
-                    // In caso di errore, ritorna un ruolo di default
+                    // Fallback robusto
                     return { 
                         ruolo: 'USER', 
                         ruoli: ['USER'],
                         nome: 'Utente', 
                         email: '', 
                         cognome: '',
+                        telefono: '',
                         isDirigente: false,
                         isAdmin: false
                     };
                 }
             },
 
-            // Determina URL di redirect
+            // Determina URL di redirect con fallback
             getRedirectUrl: (userProfile) => {
-                const ruoli = userProfile.ruoli || ['USER'];
-                const isDirigente = userProfile.isDirigente;
-                const isAdmin = userProfile.isAdmin;
-                
-                // Priorità: ADMIN > DIRIGENTE > USER
-                if (isAdmin) {
-                    Utils.showMessage('🎯 Reindirizzamento a Dashboard Admin...', 'success');
-                    return 'app/home_dirigenti.html';
-                } else if (isDirigente) {
-                    Utils.showMessage('🎯 Reindirizzamento a Dashboard Dirigenti...', 'success');
-                    return 'app/home_dirigenti.html';
-                } else {
-                    Utils.showMessage('🎯 Reindirizzamento a Dashboard Utente...', 'success');
-                    return 'app/home.html';
+                try {
+                    const ruoli = userProfile.ruoli || ['USER'];
+                    const isDirigente = userProfile.isDirigente;
+                    const isAdmin = userProfile.isAdmin;
+                    
+                    // Tutti gli utenti vengono reindirizzati alla pagina principale
+                    if (isAdmin) {
+                        Utils.showMessage('🎯 Reindirizzamento a pagina principale (Admin)...', 'success');
+                    } else if (isDirigente) {
+                        Utils.showMessage('🎯 Reindirizzamento a pagina principale (Dirigente)...', 'success');
+                    } else {
+                        Utils.showMessage('🎯 Reindirizzamento a pagina principale...', 'success');
+                    }
+                    
+                    return 'index.html';
+                } catch (error) {
+                    console.error('❌ Errore getRedirectUrl:', error);
+                    return APP_CONFIG.fallbackRedirect;
                 }
             },
 
-            // Gestione login principale
+            // Gestione login principale con migliore error handling
             handleLogin: async () => {
                 try {
+                    if (!supabaseClient) {
+                        throw new Error('Supabase non disponibile');
+                    }
+                    
                     Utils.setLoading(true);
                     
-                    const email = document.getElementById('email').value.trim();
-                    const password = document.getElementById('password').value;
+                    const emailInput = document.getElementById('email');
+                    const passwordInput = document.getElementById('password');
+                    
+                    if (!emailInput || !passwordInput) {
+                        throw new Error('Campi di input non trovati');
+                    }
+                    
+                    const email = emailInput.value.trim();
+                    const password = passwordInput.value;
                     
                     // Validazioni
                     if (!email || !password) {
@@ -769,11 +880,8 @@
                         const ruoliStr = userProfile.ruoli ? userProfile.ruoli.join(', ') : 'USER';
                         Utils.showMessage(`👤 Ruoli: [${ruoliStr}] - Reindirizzamento in corso...`, 'info');
                         
-                        // Redirect dopo 2 secondi
-                        setTimeout(() => {
-                            console.log(`🔄 Redirect to: ${redirectUrl}`);
-                            window.location.href = redirectUrl;
-                        }, 2000);
+                        // Redirect sicuro
+                        Utils.safeRedirect(redirectUrl, 2000);
                         
                     } else {
                         throw new Error('Nessun dato utente ricevuto');
@@ -781,20 +889,19 @@
                     
                 } catch (error) {
                     console.error('❌ Login error:', error);
-                    Utils.showMessage(`❌ Errore: ${error.message}`, 'error');
                     
-                    // Suggerimenti specifici per tipo di errore
+                    // Messaggi di errore specifici
+                    let errorMessage = `❌ Errore: ${error.message}`;
+                    
                     if (error.message.includes('Invalid login credentials')) {
-                        Utils.showMessage('💡 Verifica email e password, o crea un account su Supabase', 'error');
+                        errorMessage = '❌ Email o password non corretti';
                     } else if (error.message.includes('Email not confirmed')) {
-                        Utils.showMessage('📧 Conferma la tua email prima di accedere', 'error');
-                    } else if (error.message.includes('Errore recupero profilo')) {
-                        Utils.showMessage('⚠️ Login riuscito ma errore nel recupero del profilo. Reindirizzamento alla dashboard utente...', 'info');
-                        
-                        setTimeout(() => {
-                            window.location.href = 'app/home.html';
-                        }, 3000);
+                        errorMessage = '📧 Conferma la tua email prima di accedere';
+                    } else if (error.message.includes('Too many requests')) {
+                        errorMessage = '⏰ Troppi tentativi. Riprova tra qualche minuto';
                     }
+                    
+                    Utils.showMessage(errorMessage, 'error', false);
                     
                 } finally {
                     Utils.setLoading(false);
@@ -802,186 +909,236 @@
             }
         };
 
-        // Gestione interfaccia avanzata
+        // Gestione interfaccia migliorata
         const UIManager = {
             // Setup validazione real-time
             setupValidation: () => {
-                const emailInput = document.getElementById('email');
-                const passwordInput = document.getElementById('password');
-                
-                // Validazione email in tempo reale
-                emailInput.addEventListener('input', () => {
-                    const email = emailInput.value.trim();
-                    const isValid = email.length === 0 || Utils.isValidEmail(email);
-                    Utils.updateInputStatus('email', isValid);
-                });
-                
-                emailInput.addEventListener('blur', () => {
-                    const email = emailInput.value.trim();
-                    if (email && !Utils.isValidEmail(email)) {
-                        Utils.showMessage('⚠️ Formato email non valido', 'error');
+                try {
+                    const emailInput = document.getElementById('email');
+                    const passwordInput = document.getElementById('password');
+                    
+                    if (!emailInput || !passwordInput) {
+                        console.error('❌ Input fields non trovati');
+                        return;
                     }
-                });
-                
-                // Validazione password in tempo reale
-                passwordInput.addEventListener('input', () => {
-                    const password = passwordInput.value;
-                    const isValid = password.length === 0 || Utils.isValidPassword(password);
-                    Utils.updateInputStatus('password', isValid);
-                });
-                
-                passwordInput.addEventListener('blur', () => {
-                    const password = passwordInput.value;
-                    if (password && !Utils.isValidPassword(password)) {
-                        Utils.showMessage('⚠️ Password troppo corta (minimo 6 caratteri)', 'error');
-                    }
-                });
+                    
+                    // Validazione email in tempo reale
+                    emailInput.addEventListener('input', () => {
+                        const email = emailInput.value.trim();
+                        const isEmpty = email.length === 0;
+                        const isValid = isEmpty || Utils.isValidEmail(email);
+                        Utils.updateInputStatus('email', isValid && !isEmpty);
+                    });
+                    
+                    emailInput.addEventListener('blur', () => {
+                        const email = emailInput.value.trim();
+                        if (email && !Utils.isValidEmail(email)) {
+                            Utils.showMessage('⚠️ Formato email non valido', 'error');
+                        }
+                    });
+                    
+                    // Validazione password in tempo reale
+                    passwordInput.addEventListener('input', () => {
+                        const password = passwordInput.value;
+                        const isEmpty = password.length === 0;
+                        const isValid = isEmpty || Utils.isValidPassword(password);
+                        Utils.updateInputStatus('password', isValid && !isEmpty);
+                    });
+                    
+                    passwordInput.addEventListener('blur', () => {
+                        const password = passwordInput.value;
+                        if (password && !Utils.isValidPassword(password)) {
+                            Utils.showMessage('⚠️ Password troppo corta (minimo 6 caratteri)', 'error');
+                        }
+                    });
+                    
+                    console.log('✅ Validazione real-time configurata');
+                } catch (error) {
+                    console.error('❌ Errore setupValidation:', error);
+                }
             },
 
             // Setup password visibility toggle
             setupPasswordToggle: () => {
-                const toggleButton = document.getElementById('togglePassword');
-                const passwordInput = document.getElementById('password');
-                
-                toggleButton.addEventListener('click', () => {
-                    const isPassword = passwordInput.type === 'password';
-                    passwordInput.type = isPassword ? 'text' : 'password';
-                    toggleButton.textContent = isPassword ? '🙈' : '👁️';
-                });
+                try {
+                    const toggleButton = document.getElementById('togglePassword');
+                    const passwordInput = document.getElementById('password');
+                    
+                    if (!toggleButton || !passwordInput) {
+                        console.error('❌ Password toggle elements non trovati');
+                        return;
+                    }
+                    
+                    toggleButton.addEventListener('click', () => {
+                        const isPassword = passwordInput.type === 'password';
+                        passwordInput.type = isPassword ? 'text' : 'password';
+                        toggleButton.textContent = isPassword ? '🙈' : '👁️';
+                    });
+                    
+                    console.log('✅ Password toggle configurato');
+                } catch (error) {
+                    console.error('❌ Errore setupPasswordToggle:', error);
+                }
             },
 
             // Setup caps lock detection
             setupCapsLockDetection: () => {
-                const passwordInput = document.getElementById('password');
-                const capsWarning = document.getElementById('capsWarning');
-                
-                passwordInput.addEventListener('keydown', (e) => {
-                    const capsLock = e.getModifierState('CapsLock');
-                    capsWarning.style.display = capsLock ? 'block' : 'none';
-                });
-                
-                passwordInput.addEventListener('keyup', (e) => {
-                    const capsLock = e.getModifierState('CapsLock');
-                    capsWarning.style.display = capsLock ? 'block' : 'none';
-                });
+                try {
+                    const passwordInput = document.getElementById('password');
+                    const capsWarning = document.getElementById('capsWarning');
+                    
+                    if (!passwordInput || !capsWarning) {
+                        console.error('❌ Caps lock elements non trovati');
+                        return;
+                    }
+                    
+                    const checkCapsLock = (e) => {
+                        try {
+                            const capsLock = e.getModifierState && e.getModifierState('CapsLock');
+                            capsWarning.style.display = capsLock ? 'block' : 'none';
+                        } catch (error) {
+                            // Fallback silenzioso se getModifierState non è supportato
+                        }
+                    };
+                    
+                    passwordInput.addEventListener('keydown', checkCapsLock);
+                    passwordInput.addEventListener('keyup', checkCapsLock);
+                    
+                    console.log('✅ Caps lock detection configurato');
+                } catch (error) {
+                    console.error('❌ Errore setupCapsLockDetection:', error);
+                }
             },
 
             // Setup keyboard navigation
             setupKeyboardNavigation: () => {
-                const emailInput = document.getElementById('email');
-                const passwordInput = document.getElementById('password');
-                const loginForm = document.getElementById('loginForm');
-                
-                emailInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        passwordInput.focus();
-                    }
-                });
-                
-                passwordInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        loginForm.dispatchEvent(new Event('submit'));
-                    }
-                });
-            },
-
-            // Auto-hide messages
-            setupAutoHideMessages: () => {
-                let messageTimeout;
-                const originalShowMessage = Utils.showMessage;
-                
-                Utils.showMessage = (text, type = 'info') => {
-                    originalShowMessage(text, type);
+                try {
+                    const emailInput = document.getElementById('email');
+                    const passwordInput = document.getElementById('password');
+                    const loginForm = document.getElementById('loginForm');
                     
-                    clearTimeout(messageTimeout);
-                    if (type !== 'error') {
-                        messageTimeout = setTimeout(() => {
-                            const messagesDiv = document.getElementById('messages');
-                            if (messagesDiv.innerHTML) {
-                                messagesDiv.style.opacity = '0.7';
-                                setTimeout(() => {
-                                    messagesDiv.innerHTML = '';
-                                    messagesDiv.style.opacity = '1';
-                                }, 1000);
-                            }
-                        }, 5000);
+                    if (!emailInput || !passwordInput || !loginForm) {
+                        console.error('❌ Navigation elements non trovati');
+                        return;
                     }
-                };
+                    
+                    emailInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            passwordInput.focus();
+                        }
+                    });
+                    
+                    passwordInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            loginForm.dispatchEvent(new Event('submit'));
+                        }
+                    });
+                    
+                    console.log('✅ Keyboard navigation configurato');
+                } catch (error) {
+                    console.error('❌ Errore setupKeyboardNavigation:', error);
+                }
             }
         };
 
-        // Event Listeners e inizializzazione
+        // Event Listeners e inizializzazione sicura
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 MyApp Login Ultra-Leggibile v' + APP_CONFIG.version);
-            Utils.showMessage('🎨 Interfaccia Ultra-Leggibile caricata!', 'success');
-            
-            // Setup form handler
-            const form = document.getElementById('loginForm');
-            
-            form.addEventListener('submit', (event) => {
-                event.preventDefault();
-                event.stopPropagation();
+            try {
+                console.log('🚀 MyApp Login Ultra-Leggibile v' + APP_CONFIG.version);
+                Utils.showMessage('🎨 Interfaccia Ultra-Leggibile caricata!', 'success');
                 
-                console.log('📝 Form submitted - no reload');
-                Utils.showMessage('🚀 Form inviato! Tentativo login...', 'info');
+                // Setup form handler con protezione
+                const form = document.getElementById('loginForm');
                 
-                AuthManager.handleLogin();
+                if (form) {
+                    form.addEventListener('submit', (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        
+                        console.log('📝 Form submitted - no reload');
+                        Utils.showMessage('🚀 Form inviato! Tentativo login...', 'info');
+                        
+                        AuthManager.handleLogin().catch(error => {
+                            console.error('❌ Errore handleLogin:', error);
+                            Utils.showMessage(`❌ Errore imprevisto: ${error.message}`, 'error');
+                        });
+                        
+                        return false;
+                    });
+                } else {
+                    console.error('❌ Form loginForm non trovato');
+                }
                 
-                return false;
-            });
-            
-            // Setup UI features
-            UIManager.setupValidation();
-            UIManager.setupPasswordToggle();
-            UIManager.setupCapsLockDetection();
-            UIManager.setupKeyboardNavigation();
-            UIManager.setupAutoHideMessages();
-            
-            // Test connessione Supabase
-            AuthManager.testConnection();
-            
-            // Focus automatico sul primo campo
-            setTimeout(() => {
-                document.getElementById('email').focus();
-            }, 500);
-            
-            // Validazione iniziale
-            setTimeout(() => {
-                Utils.updateInputStatus('email', true);
-                Utils.updateInputStatus('password', true);
-            }, 1000);
+                // Setup UI features con gestione errori
+                UIManager.setupValidation();
+                UIManager.setupPasswordToggle();
+                UIManager.setupCapsLockDetection();
+                UIManager.setupKeyboardNavigation();
+                
+                // Test connessione Supabase
+                if (supabaseClient) {
+                    AuthManager.testConnection().catch(error => {
+                        console.error('❌ Test connessione fallito:', error);
+                    });
+                } else {
+                    Utils.showMessage('⚠️ Supabase non disponibile - modalità demo', 'error');
+                }
+                
+                // Focus automatico sul primo campo
+                setTimeout(() => {
+                    const emailInput = document.getElementById('email');
+                    if (emailInput) {
+                        emailInput.focus();
+                    }
+                }, 500);
+                
+                console.log('✅ Inizializzazione completata');
+                
+            } catch (error) {
+                console.error('❌ Errore inizializzazione DOMContentLoaded:', error);
+                Utils.showMessage(`❌ Errore inizializzazione: ${error.message}`, 'error');
+            }
         });
 
-        // Controllo sessione esistente al caricamento
+        // Controllo sessione esistente con gestione errori
         window.addEventListener('load', async () => {
             try {
-                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (!supabaseClient) {
+                    console.log('ℹ️ Supabase non disponibile per controllo sessione');
+                    return;
+                }
+                
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                
+                if (error) {
+                    console.warn('⚠️ Errore controllo sessione:', error);
+                    return;
+                }
+                
                 if (session && session.user) {
                     Utils.showMessage('✅ Sessione attiva trovata, reindirizzamento...', 'success');
                     
                     const userProfile = await AuthManager.getUserRole(session.user.id);
                     const redirectUrl = AuthManager.getRedirectUrl(userProfile);
                     
-                    setTimeout(() => {
-                        window.location.href = redirectUrl;
-                    }, 1500);
+                    Utils.safeRedirect(redirectUrl, 1500);
                 }
             } catch (error) {
-                console.log('Nessuna sessione attiva:', error.message);
+                console.log('ℹ️ Controllo sessione:', error.message);
             }
         });
 
-        // Service Worker Registration
+        // Service Worker Registration con controllo
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
                     .then((registration) => {
-                        console.log('SW registered: ', registration);
+                        console.log('✅ SW registered: ', registration);
                     })
                     .catch((registrationError) => {
-                        console.log('SW registration failed: ', registrationError);
+                        console.log('ℹ️ SW registration failed (normale se sw.js non esiste): ', registrationError);
                     });
             });
         }
@@ -995,15 +1152,19 @@
             Utils.showMessage('📡 Modalità offline attiva', 'info');
         });
 
-        // Gestione errori globali
+        // Gestione errori globali migliorata
         window.addEventListener('error', (event) => {
             console.error('💥 JavaScript Error:', event.error);
-            Utils.showMessage(`💥 Errore JS: ${event.error.message}`, 'error');
+            const errorMessage = event.error && event.error.message ? event.error.message : 'Errore sconosciuto';
+            Utils.showMessage(`💥 Errore JS: ${errorMessage}`, 'error');
         });
 
         window.addEventListener('unhandledrejection', (event) => {
             console.error('💥 Unhandled Promise:', event.reason);
-            Utils.showMessage(`💥 Promise Error: ${event.reason}`, 'error');
+            const errorMessage = event.reason && event.reason.message ? event.reason.message : 'Promise rejection';
+            Utils.showMessage(`💥 Promise Error: ${errorMessage}`, 'error');
+            // Previene che l'errore venga propagato
+            event.preventDefault();
         });
 
         // Debug info per sviluppo
@@ -1011,6 +1172,7 @@
         console.log('🔐 Login System Ready');
         console.log('📱 PWA Features Enabled');
         console.log('♿ Accessibility Features Active');
+        console.log('🛡️ Enhanced Error Handling Active');
     </script>
 </body>
 </html>
