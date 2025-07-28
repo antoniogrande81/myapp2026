@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -7,7 +7,7 @@
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2400C1">
+    <meta name="theme-color" content="#1a1a2e">
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     
     <!-- iOS PWA Support -->
@@ -23,19 +23,19 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#2400C1',
-                        secondary: '#8E008C',
-                        accent: '#00BFFF',
+                        // Aurora Boreale 2025 Palette
+                        primary: '#1a1a2e',      // Blu notte profondo
+                        secondary: '#16213e',     // Blu oceano
+                        accent: '#0f3460',        // Blu acciaio
+                        aurora: '#e94560',        // Rosa aurora
+                        cyan: '#00d4ff',          // Cyan elettrico
+                        magenta: '#ff006e',       // Magenta vibrante
+                        gold: '#ffd700',          // Oro elegante
+                        teal: '#03dac6',          // Teal premium
+                        dark: '#0a0a23',          // Nero cyber
+                        light: '#f8fafc',         // Bianco ghiaccio
                         textDark: '#1C1C1E',
                         backgroundLight: '#F4F4F8',
-                    },
-                    screens: {
-                        'xs': '320px',
-                        'sm': '640px',
-                        'md': '768px',
-                        'lg': '1024px',
-                        'xl': '1280px',
-                        '2xl': '1536px',
                     }
                 }
             }
@@ -43,137 +43,314 @@
     </script>
     
     <style>
+        :root {
+            --gradient-aurora: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #e94560 75%, #00d4ff 100%);
+            --gradient-cyber: linear-gradient(135deg, #0a0a23 0%, #1a1a2e 50%, #00d4ff 100%);
+            --gradient-magic: linear-gradient(135deg, #ff006e 0%, #e94560 50%, #03dac6 100%);
+            --shadow-primary: 0 8px 32px rgba(26, 26, 46, 0.3);
+            --shadow-elevated: 0 16px 64px rgba(26, 26, 46, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: linear-gradient(135deg, #2400C1, #8E008C);
+            background: var(--gradient-aurora);
+            background-size: 400% 400%;
+            animation: aurora 30s ease infinite;
             min-height: 100vh;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-weight: 500;
         }
 
-        .text-white {
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        @keyframes aurora {
+            0%, 100% { background-position: 0% 50%; }
+            25% { background-position: 100% 50%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
         }
 
-        .glass-effect {
+        /* HEADER ULTRA LEGGIBILE */
+        header {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 3px solid rgba(233, 69, 96, 0.3);
+            box-shadow: var(--shadow-primary);
         }
 
-        .glass-light {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        /* CONTAINER PRINCIPALE ULTRA LEGGIBILE */
+        .registration-container {
+            background: rgba(255, 255, 255, 0.98);
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            border-radius: 28px;
+            padding: 2.5rem 2rem;
+            box-shadow: 
+                var(--shadow-elevated),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            position: relative;
         }
 
-        .form-input {
+        /* STEP INDICATOR ULTRA LEGGIBILE */
+        .step-indicator {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid rgba(233, 69, 96, 0.3);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-primary);
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #e5e7eb;
+            background: #ffffff;
+            color: #6b7280;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             transition: all 0.3s ease;
-            border: 2px solid #e5e7eb;
+        }
+
+        .step-circle.active {
+            border-color: #e94560;
+            background: #e94560;
+            color: white;
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.3);
+        }
+
+        .step-circle.completed {
+            border-color: #10b981;
+            background: #10b981;
+            color: white;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .step-line {
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            flex-grow: 1;
+            margin: 0 1rem;
+        }
+
+        .step-line.completed {
+            background: #10b981;
+        }
+
+        /* LOGO ULTRA LEGGIBILE */
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-magic);
+            border-radius: 24px;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            box-shadow: var(--shadow-primary);
+            transition: all 0.3s ease;
+        }
+
+        .logo-icon:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-elevated);
+        }
+
+        /* FORM STYLING ULTRA LEGGIBILE */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+            color: #1a1a2e;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        /* INPUT FIELDS ULTRA LEGGIBILI */
+        .form-input {
+            width: 100%;
+            padding: 1rem 1rem;
+            border: 3px solid #e94560;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: #ffffff;
+            color: #1a1a2e;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-primary);
+        }
+
+        .form-input::placeholder {
+            color: #6b7280;
+            font-weight: 500;
+            opacity: 0.8;
         }
 
         .form-input:focus {
             outline: none;
-            border-color: #2400C1;
-            box-shadow: 0 0 0 3px rgba(36, 0, 193, 0.1);
+            border-color: #00d4ff;
+            background: #ffffff;
+            box-shadow: 
+                0 12px 32px rgba(0, 212, 255, 0.3),
+                var(--shadow-primary);
+        }
+
+        .form-input:hover {
+            border-color: #ff006e;
+            box-shadow: 
+                0 10px 28px rgba(233, 69, 96, 0.25),
+                var(--shadow-primary);
         }
 
         .form-input.error {
             border-color: #dc2626;
-            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+            box-shadow: 
+                0 8px 25px rgba(220, 38, 38, 0.3),
+                var(--shadow-primary);
         }
 
         .form-input.valid {
             border-color: #10b981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+            box-shadow: 
+                0 8px 25px rgba(16, 185, 129, 0.3),
+                var(--shadow-primary);
         }
 
+        /* SELECT STYLING */
+        select.form-input {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.5em 1.5em;
+            padding-right: 3rem;
+        }
+
+        /* BUTTONS ULTRA LEGGIBILI */
         .btn-primary {
-            background: linear-gradient(135deg, #2400C1, #1a0099);
+            background: var(--gradient-magic);
+            color: white;
+            border: 3px solid rgba(233, 69, 96, 0.5);
+            border-radius: 16px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
             transition: all 0.3s ease;
+            box-shadow: var(--shadow-primary);
+            text-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.5),
+                0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, #1a0099, #0d0066);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(36, 0, 193, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 20px 40px rgba(233, 69, 96, 0.4),
+                var(--shadow-elevated);
+            border-color: rgba(233, 69, 96, 0.8);
         }
 
         .btn-primary:disabled {
             background: linear-gradient(135deg, #9ca3af, #6b7280);
-            transform: none;
+            border-color: rgba(156, 163, 175, 0.3);
             cursor: not-allowed;
+            transform: none;
+            box-shadow: var(--shadow-primary);
         }
 
-        .floating-icons {
-            position: absolute;
-            opacity: 0.1;
-            font-size: 2rem;
-            animation: float 6s ease-in-out infinite;
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1a1a2e;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-primary);
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+            transform: translateY(-2px);
         }
 
-        .floating-icons:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
-        .floating-icons:nth-child(2) { top: 20%; right: 15%; animation-delay: 2s; }
-        .floating-icons:nth-child(3) { bottom: 30%; left: 20%; animation-delay: 4s; }
-        .floating-icons:nth-child(4) { bottom: 20%; right: 10%; animation-delay: 1s; }
-
-        .logo-mini {
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
+        /* MESSAGE STYLING */
+        .message {
+            padding: 1rem 1.25rem;
+            margin: 1rem 0;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--shadow-primary);
         }
 
         .error-message {
-            background: rgba(220, 38, 38, 0.1);
-            border: 1px solid rgba(220, 38, 38, 0.3);
-            color: #dc2626;
-            backdrop-filter: blur(10px);
+            background: rgba(239, 68, 68, 0.95);
+            color: white;
+            border-color: rgba(239, 68, 68, 0.8);
         }
 
         .success-message {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #059669;
-            backdrop-filter: blur(10px);
+            background: rgba(16, 185, 129, 0.95);
+            color: white;
+            border-color: rgba(16, 185, 129, 0.8);
         }
 
+        /* PASSWORD TOGGLE */
         .password-toggle {
             position: absolute;
-            right: 12px;
+            right: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            cursor: pointer;
+            background: none;
+            border: none;
             color: #6b7280;
-            transition: color 0.3s ease;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
 
         .password-toggle:hover {
-            color: #2400C1;
+            color: #1a1a2e;
+            background: rgba(0, 0, 0, 0.05);
         }
 
-        .loading-spinner {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
+        /* PASSWORD STRENGTH */
         .strength-bar {
-            height: 4px;
-            border-radius: 2px;
+            height: 6px;
+            border-radius: 3px;
             transition: all 0.3s ease;
+            margin-top: 0.5rem;
         }
 
         .strength-weak { background: #ef4444; width: 25%; }
@@ -181,284 +358,360 @@
         .strength-good { background: #eab308; width: 75%; }
         .strength-strong { background: #10b981; width: 100%; }
 
-        .step-indicator {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+        /* REQUIREMENTS LIST */
+        .requirements-list {
+            background: rgba(249, 250, 251, 0.95);
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
         }
 
-        .step-active {
-            background: rgba(255, 255, 255, 0.9);
-            color: #2400C1;
+        .requirement-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 480px) {
-            .logo-mini { 
-                width: 50px; 
-                height: 50px; 
+        .requirement-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .requirement-indicator.met {
+            background: #10b981;
+        }
+
+        /* CHECKBOX STYLING */
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #e94560;
+            cursor: pointer;
+        }
+
+        /* ERROR DISPLAY */
+        .field-error {
+            color: #dc2626;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        /* LOADING SPINNER */
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* NAVIGATION */
+        nav {
+            background: rgba(255, 255, 255, 0.98);
+            border-top: 3px solid rgba(233, 69, 96, 0.3);
+            box-shadow: 0 -8px 32px rgba(26, 26, 46, 0.2);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .registration-container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
             }
+            
+            .logo-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 2rem;
+            }
+
+            .step-circle {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+
+            .form-input {
+                font-size: 1rem;
+                padding: 0.875rem;
+            }
+
+            .btn-primary {
+                font-size: 1rem;
+                padding: 0.875rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .registration-container {
+                padding: 1.5rem 1rem;
+                margin: 0.5rem;
+            }
+            
+            .logo-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.75rem;
+            }
+
+            .step-circle {
+                width: 30px;
+                height: 30px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* REDUCED MOTION */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* FOCUS VISIBLE */
+        *:focus-visible {
+            outline: 3px solid #00d4ff;
+            outline-offset: 2px;
         }
     </style>
 </head>
-<body class="relative overflow-x-hidden">
-    
-    <!-- Floating Background Icons -->
-    <div class="floating-icons">👤</div>
-    <div class="floating-icons">✍️</div>
-    <div class="floating-icons">🛡️</div>
-    <div class="floating-icons">📱</div>
+<body>
 
     <!-- Header -->
-    <header class="w-full px-4 py-4 relative z-10">
-        <div class="max-w-md mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <button onclick="history.back()" class="text-white hover:text-accent transition-colors">
+    <header class="w-full px-6 py-6 relative z-10">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <button onclick="history.back()" class="text-primary hover:text-aurora transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                     </svg>
                 </button>
-                <h1 class="text-xl font-bold text-white drop-shadow-lg">Registrazione</h1>
+                <h1 class="text-2xl font-black text-primary">Registrazione</h1>
             </div>
-            <a href="index.html" class="text-white hover:text-accent transition-colors text-sm">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="index.html" class="text-primary hover:text-aurora transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0 7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1v4a1 1 0 001 1m-6 0h6"></path>
                 </svg>
             </a>
         </div>
     </header>
 
-    <!-- Step Indicator -->
-    <div class="max-w-md mx-auto px-4 mb-6">
-        <div class="flex items-center justify-center space-x-2">
-            <div id="step1" class="step-indicator step-active w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold">
-                1
-            </div>
-            <div class="w-8 h-1 bg-white bg-opacity-30 rounded"></div>
-            <div id="step2" class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                2
-            </div>
-            <div class="w-8 h-1 bg-white bg-opacity-30 rounded"></div>
-            <div id="step3" class="step-indicator w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white">
-                3
-            </div>
-        </div>
-        <div class="text-center mt-2">
-            <span id="stepLabel" class="text-white text-sm">Dati Personali</span>
-        </div>
-    </div>
-
     <!-- Main Content -->
-    <main class="flex-1 flex items-center justify-center px-4 pb-20">
-        <div class="w-full max-w-sm">
+    <main class="flex-1 flex items-center justify-center px-6 pb-32">
+        <div class="w-full max-w-lg">
             
-            <!-- Logo Mini -->
-            <div class="logo-mini">
-                <span class="text-white text-xl font-bold">M</span>
-            </div>
-
-            <!-- Welcome Message -->
-            <div class="text-center mb-8">
-                <h2 class="text-2xl md:text-3xl font-bold text-white drop-shadow-lg mb-2">
+            <!-- Logo -->
+            <div class="logo-container">
+                <div class="logo-icon">
+                    <span class="text-white font-black">📝</span>
+                </div>
+                <h2 class="text-3xl font-black text-white text-center mb-2">
                     Benvenuto in MyApp!
                 </h2>
-                <p class="text-blue-100 text-sm md:text-base">
+                <p class="text-lg text-white text-center font-semibold">
                     Crea il tuo account per accedere ai servizi riservati
                 </p>
             </div>
 
-            <!-- Registration Form -->
-            <div class="glass-effect rounded-2xl p-6 mb-6">
+            <!-- Registration Container -->
+            <div class="registration-container">
                 
+                <!-- Step Indicator -->
+                <div class="step-indicator">
+                    <div class="flex items-center justify-center">
+                        <div id="step1" class="step-circle active">1</div>
+                        <div id="line1" class="step-line"></div>
+                        <div id="step2" class="step-circle">2</div>
+                        <div id="line2" class="step-line"></div>
+                        <div id="step3" class="step-circle">3</div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <span id="stepLabel" class="text-primary font-bold text-lg">Dati Personali</span>
+                    </div>
+                </div>
+
                 <!-- Messages -->
-                <div id="errorMessage" class="error-message rounded-lg p-3 mb-4 text-sm hidden">
+                <div id="errorMessage" class="message error-message hidden">
                     <div class="flex items-center space-x-2">
-                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <span id="errorText"></span>
                     </div>
                 </div>
 
-                <div id="successMessage" class="success-message rounded-lg p-3 mb-4 text-sm hidden">
+                <div id="successMessage" class="message success-message hidden">
                     <div class="flex items-center space-x-2">
-                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
                         <span id="successText"></span>
                     </div>
                 </div>
 
-                <form id="registrationForm" class="space-y-4">
+                <form id="registrationForm">
                     
                     <!-- Step 1: Dati Personali -->
                     <div id="step1Form" class="step-form">
                         <!-- Nome -->
-                        <div>
-                            <label for="nome" class="block text-sm font-semibold text-textDark mb-2">
-                                Nome *
-                            </label>
+                        <div class="form-group">
+                            <label for="nome">Nome *</label>
                             <input 
                                 type="text" 
                                 id="nome" 
                                 name="nome" 
-                                class="form-input w-full px-4 py-3 rounded-lg text-textDark placeholder-gray-500"
+                                class="form-input"
                                 placeholder="Il tuo nome"
                                 required
                                 autocomplete="given-name"
                             >
-                            <div id="nomeError" class="text-red-600 text-xs mt-1 hidden"></div>
+                            <div id="nomeError" class="field-error hidden"></div>
                         </div>
 
                         <!-- Cognome -->
-                        <div>
-                            <label for="cognome" class="block text-sm font-semibold text-textDark mb-2">
-                                Cognome *
-                            </label>
+                        <div class="form-group">
+                            <label for="cognome">Cognome *</label>
                             <input 
                                 type="text" 
                                 id="cognome" 
                                 name="cognome" 
-                                class="form-input w-full px-4 py-3 rounded-lg text-textDark placeholder-gray-500"
+                                class="form-input"
                                 placeholder="Il tuo cognome"
                                 required
                                 autocomplete="family-name"
                             >
-                            <div id="cognomeError" class="text-red-600 text-xs mt-1 hidden"></div>
+                            <div id="cognomeError" class="field-error hidden"></div>
                         </div>
 
                         <!-- Email -->
-                        <div>
-                            <label for="email" class="block text-sm font-semibold text-textDark mb-2">
-                                Email *
-                            </label>
+                        <div class="form-group">
+                            <label for="email">Email *</label>
                             <input 
                                 type="email" 
                                 id="email" 
                                 name="email" 
-                                class="form-input w-full px-4 py-3 rounded-lg text-textDark placeholder-gray-500"
+                                class="form-input"
                                 placeholder="nome@esempio.com"
                                 required
                                 autocomplete="email"
                             >
-                            <div id="emailError" class="text-red-600 text-xs mt-1 hidden"></div>
+                            <div id="emailError" class="field-error hidden"></div>
                         </div>
 
                         <!-- Telefono -->
-                        <div>
-                            <label for="telefono" class="block text-sm font-semibold text-textDark mb-2">
-                                Telefono
-                            </label>
+                        <div class="form-group">
+                            <label for="telefono">Telefono</label>
                             <input 
                                 type="tel" 
                                 id="telefono" 
                                 name="telefono" 
-                                class="form-input w-full px-4 py-3 rounded-lg text-textDark placeholder-gray-500"
+                                class="form-input"
                                 placeholder="+39 xxx xxx xxxx"
                                 autocomplete="tel"
                             >
-                            <div id="telefonoError" class="text-red-600 text-xs mt-1 hidden"></div>
+                            <div id="telefonoError" class="field-error hidden"></div>
                         </div>
                     </div>
 
                     <!-- Step 2: Password e Sicurezza -->
                     <div id="step2Form" class="step-form hidden">
                         <!-- Password -->
-                        <div>
-                            <label for="password" class="block text-sm font-semibold text-textDark mb-2">
-                                Password *
-                            </label>
-                            <div class="relative">
+                        <div class="form-group">
+                            <label for="password">Password *</label>
+                            <div class="input-container">
                                 <input 
                                     type="password" 
                                     id="password" 
                                     name="password" 
-                                    class="form-input w-full px-4 py-3 pr-12 rounded-lg text-textDark placeholder-gray-500"
+                                    class="form-input"
                                     placeholder="Scegli una password sicura"
                                     required
                                     autocomplete="new-password"
                                 >
                                 <button type="button" class="password-toggle" onclick="togglePassword('password')">
-                                    <svg id="eyeIconPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                    </svg>
+                                    👁️
                                 </button>
                             </div>
-                            <div id="passwordError" class="text-red-600 text-xs mt-1 hidden"></div>
+                            <div id="passwordError" class="field-error hidden"></div>
+                            
                             <!-- Password Strength -->
-                            <div class="mt-2">
-                                <div class="flex justify-between text-xs text-gray-600 mb-1">
-                                    <span>Sicurezza password:</span>
-                                    <span id="strengthText">Troppo debole</span>
+                            <div class="mt-3">
+                                <div class="flex justify-between text-sm text-gray-600 mb-2">
+                                    <span class="font-semibold">Sicurezza password:</span>
+                                    <span id="strengthText" class="font-bold">Troppo debole</span>
                                 </div>
-                                <div class="w-full bg-gray-200 rounded-full h-1">
+                                <div class="w-full bg-gray-200 rounded-full h-2">
                                     <div id="strengthBar" class="strength-bar strength-weak"></div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Conferma Password -->
-                        <div>
-                            <label for="confirmPassword" class="block text-sm font-semibold text-textDark mb-2">
-                                Conferma Password *
-                            </label>
-                            <div class="relative">
+                        <div class="form-group">
+                            <label for="confirmPassword">Conferma Password *</label>
+                            <div class="input-container">
                                 <input 
                                     type="password" 
                                     id="confirmPassword" 
                                     name="confirmPassword" 
-                                    class="form-input w-full px-4 py-3 pr-12 rounded-lg text-textDark placeholder-gray-500"
+                                    class="form-input"
                                     placeholder="Ripeti la password"
                                     required
                                     autocomplete="new-password"
                                 >
                                 <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
-                                    <svg id="eyeIconConfirm" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                    </svg>
+                                    👁️
                                 </button>
                             </div>
-                            <div id="confirmPasswordError" class="text-red-600 text-xs mt-1 hidden"></div>
+                            <div id="confirmPasswordError" class="field-error hidden"></div>
                         </div>
 
                         <!-- Password Requirements -->
-                        <div class="text-xs text-gray-600 bg-gray-50 rounded-lg p-3">
-                            <p class="font-semibold mb-2">La password deve contenere:</p>
-                            <ul class="space-y-1">
-                                <li id="req-length" class="flex items-center space-x-2">
-                                    <span class="w-4 h-4 rounded-full bg-gray-300"></span>
+                        <div class="requirements-list">
+                            <p class="font-bold mb-3 text-primary">La password deve contenere:</p>
+                            <div class="space-y-2">
+                                <div id="req-length" class="requirement-item">
+                                    <div class="requirement-indicator"></div>
                                     <span>Almeno 8 caratteri</span>
-                                </li>
-                                <li id="req-upper" class="flex items-center space-x-2">
-                                    <span class="w-4 h-4 rounded-full bg-gray-300"></span>
+                                </div>
+                                <div id="req-upper" class="requirement-item">
+                                    <div class="requirement-indicator"></div>
                                     <span>Una lettera maiuscola</span>
-                                </li>
-                                <li id="req-lower" class="flex items-center space-x-2">
-                                    <span class="w-4 h-4 rounded-full bg-gray-300"></span>
+                                </div>
+                                <div id="req-lower" class="requirement-item">
+                                    <div class="requirement-indicator"></div>
                                     <span>Una lettera minuscola</span>
-                                </li>
-                                <li id="req-number" class="flex items-center space-x-2">
-                                    <span class="w-4 h-4 rounded-full bg-gray-300"></span>
+                                </div>
+                                <div id="req-number" class="requirement-item">
+                                    <div class="requirement-indicator"></div>
                                     <span>Un numero</span>
-                                </li>
-                            </ul>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Step 3: Termini e Condizioni -->
                     <div id="step3Form" class="step-form hidden">
                         <!-- Ruolo -->
-                        <div>
-                            <label for="ruolo" class="block text-sm font-semibold text-textDark mb-2">
-                                Ruolo/Qualifica
-                            </label>
-                            <select 
-                                id="ruolo" 
-                                name="ruolo" 
-                                class="form-input w-full px-4 py-3 rounded-lg text-textDark"
-                            >
+                        <div class="form-group">
+                            <label for="ruolo">Ruolo/Qualifica</label>
+                            <select id="ruolo" name="ruolo" class="form-input">
                                 <option value="">Seleziona il tuo ruolo</option>
                                 <option value="carabiniere">Carabiniere</option>
                                 <option value="appuntato">Appuntato</option>
@@ -474,26 +727,24 @@
                         </div>
 
                         <!-- Matricola -->
-                        <div>
-                            <label for="matricola" class="block text-sm font-semibold text-textDark mb-2">
-                                Matricola (opzionale)
-                            </label>
+                        <div class="form-group">
+                            <label for="matricola">Matricola (opzionale)</label>
                             <input 
                                 type="text" 
                                 id="matricola" 
                                 name="matricola" 
-                                class="form-input w-full px-4 py-3 rounded-lg text-textDark placeholder-gray-500"
+                                class="form-input"
                                 placeholder="La tua matricola"
                             >
                         </div>
 
-                        <!-- Privacy Policy -->
-                        <div class="space-y-3">
+                        <!-- Termini e Condizioni -->
+                        <div class="space-y-4 mt-6">
                             <label class="flex items-start space-x-3 cursor-pointer">
-                                <input type="checkbox" id="privacyAccept" required class="mt-1 w-4 h-4 text-primary">
-                                <span class="text-sm text-textDark">
+                                <input type="checkbox" id="privacyAccept" required class="mt-1">
+                                <span class="text-sm text-textDark font-semibold">
                                     Accetto la 
-                                    <a href="privacy.html" target="_blank" class="text-primary hover:text-secondary font-medium underline">
+                                    <a href="privacy.html" target="_blank" class="text-aurora hover:text-magenta font-bold underline">
                                         Privacy Policy
                                     </a> 
                                     e autorizzo il trattamento dei miei dati personali secondo il GDPR
@@ -501,10 +752,10 @@
                             </label>
 
                             <label class="flex items-start space-x-3 cursor-pointer">
-                                <input type="checkbox" id="termsAccept" required class="mt-1 w-4 h-4 text-primary">
-                                <span class="text-sm text-textDark">
+                                <input type="checkbox" id="termsAccept" required class="mt-1">
+                                <span class="text-sm text-textDark font-semibold">
                                     Accetto i 
-                                    <a href="#" target="_blank" class="text-primary hover:text-secondary font-medium underline">
+                                    <a href="#" target="_blank" class="text-aurora hover:text-magenta font-bold underline">
                                         Termini e Condizioni
                                     </a> 
                                     del servizio
@@ -512,8 +763,8 @@
                             </label>
 
                             <label class="flex items-start space-x-3 cursor-pointer">
-                                <input type="checkbox" id="newsletterAccept" class="mt-1 w-4 h-4 text-primary">
-                                <span class="text-sm text-textDark">
+                                <input type="checkbox" id="newsletterAccept" class="mt-1">
+                                <span class="text-sm text-textDark font-semibold">
                                     Desidero ricevere comunicazioni e newsletter dal Sindacato Carabinieri (facoltativo)
                                 </span>
                             </label>
@@ -521,11 +772,11 @@
                     </div>
 
                     <!-- Navigation Buttons -->
-                    <div class="flex justify-between items-center pt-4">
+                    <div class="flex justify-between items-center pt-6">
                         <button 
                             type="button" 
                             id="prevBtn"
-                            class="text-primary hover:text-secondary font-medium text-sm hidden"
+                            class="btn-secondary hidden"
                             onclick="previousStep()"
                         >
                             ← Indietro
@@ -535,7 +786,7 @@
                             <button 
                                 type="button" 
                                 id="nextBtn"
-                                class="bg-accent hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                                class="btn-primary"
                                 onclick="nextStep()"
                             >
                                 Avanti →
@@ -544,54 +795,54 @@
                             <button 
                                 type="submit" 
                                 id="submitBtn"
-                                class="btn-primary hidden font-semibold py-3 px-6 rounded-lg text-white flex items-center space-x-2 disabled:opacity-50"
+                                class="btn-primary hidden flex items-center space-x-2"
                             >
                                 <span id="submitText">✅ Registrati</span>
-                                <div id="loadingSpinner" class="loading-spinner w-5 h-5 border-2 border-white border-t-transparent rounded-full hidden"></div>
+                                <div id="loadingSpinner" class="loading-spinner hidden"></div>
                             </button>
                         </div>
                     </div>
 
                 </form>
 
-            </div>
+                <!-- Login Link -->
+                <div class="text-center mt-6 pt-6 border-t-2 border-gray-200">
+                    <p class="text-textDark font-semibold">
+                        Hai già un account?
+                        <a href="login.html" class="text-aurora hover:text-magenta transition-colors font-bold ml-1">
+                            Accedi ora →
+                        </a>
+                    </p>
+                </div>
 
-            <!-- Login Link -->
-            <div class="glass-light rounded-2xl p-4 text-center">
-                <p class="text-white text-sm">
-                    Hai già un account?
-                    <a href="login.html" class="text-accent hover:text-white transition-colors font-semibold ml-1">
-                        Accedi ora
-                    </a>
-                </p>
             </div>
 
         </div>
     </main>
 
-    <!-- Bottom Navigation - STANDARD PUBBLICHE -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 md:hidden">
-        <div class="flex justify-around items-center max-w-md mx-auto">
-            <a href="index.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-2">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 px-6 py-4 md:hidden">
+        <div class="flex justify-around items-center max-w-4xl mx-auto">
+            <a href="index.html" class="flex flex-col items-center text-xs text-primary font-bold p-3 rounded-lg">
+                <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m3 12 2-2m0 0 7-7 7 7M5 10v10a1 1 0 0 0 1 1h3m10-11 2 2m-2-2v10a1 1 0 0 1-1 1h-3m-6 0a1 1 0 0 0 1-1v-4a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1m-6 0h6"></path>
                 </svg>
                 Home
             </a>
-            <a href="convenzioni.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-2">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="convenzioni.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-3 rounded-lg transition-colors">
+                <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
                 Convenzioni
             </a>
-            <a href="servizi.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-2">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="servizi.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-3 rounded-lg transition-colors">
+                <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 Servizi
             </a>
-            <a href="contatti.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-2">
-                <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="contatti.html" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary p-3 rounded-lg transition-colors">
+                <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                 </svg>
                 Contatti
@@ -710,13 +961,13 @@
 
         function updateRequirement(reqId, met) {
             const element = document.getElementById(reqId);
-            const indicator = element.querySelector('span');
+            const indicator = element.querySelector('.requirement-indicator');
             
             if (met) {
-                indicator.className = 'w-4 h-4 rounded-full bg-green-500';
+                indicator.classList.add('met');
                 element.classList.add('text-green-600');
             } else {
-                indicator.className = 'w-4 h-4 rounded-full bg-gray-300';
+                indicator.classList.remove('met');
                 element.classList.remove('text-green-600');
             }
         }
@@ -725,7 +976,7 @@
             document.querySelectorAll('.form-input').forEach(input => {
                 input.classList.remove('error', 'valid');
             });
-            document.querySelectorAll('[id$="Error"]').forEach(errorDiv => {
+            document.querySelectorAll('.field-error').forEach(errorDiv => {
                 errorDiv.classList.add('hidden');
             });
         }
@@ -752,14 +1003,25 @@
             // Update step indicators
             for (let i = 1; i <= totalSteps; i++) {
                 const stepElement = document.getElementById(`step${i}`);
+                const lineElement = document.getElementById(`line${i}`);
+                
                 if (i === currentStep) {
-                    stepElement.className = 'step-indicator step-active w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold';
+                    stepElement.className = 'step-circle active';
                 } else if (i < currentStep) {
-                    stepElement.className = 'step-indicator w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white bg-green-500';
+                    stepElement.className = 'step-circle completed';
                     stepElement.innerHTML = '✓';
                 } else {
-                    stepElement.className = 'step-indicator w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white';
+                    stepElement.className = 'step-circle';
                     stepElement.textContent = i;
+                }
+                
+                // Update lines
+                if (lineElement) {
+                    if (i < currentStep) {
+                        lineElement.classList.add('completed');
+                    } else {
+                        lineElement.classList.remove('completed');
+                    }
                 }
             }
             
@@ -830,7 +1092,7 @@
                 if (!validatePhone(telefono)) {
                     showFieldError('telefono', 'Formato telefono non valido');
                     isValid = false;
-                } else {
+                } else if (telefono) {
                     showFieldValid('telefono');
                 }
                 
@@ -893,19 +1155,14 @@
         // Password Toggle Functions
         function togglePassword(fieldId) {
             const passwordField = document.getElementById(fieldId);
-            const eyeIcon = document.getElementById('eyeIcon' + (fieldId === 'password' ? 'Password' : 'Confirm'));
+            const toggleButton = passwordField.parentElement.querySelector('.password-toggle');
             
             if (passwordField.type === 'password') {
                 passwordField.type = 'text';
-                eyeIcon.innerHTML = `
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
-                `;
+                toggleButton.textContent = '🙈';
             } else {
                 passwordField.type = 'password';
-                eyeIcon.innerHTML = `
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                `;
+                toggleButton.textContent = '👁️';
             }
         }
 
@@ -1036,7 +1293,9 @@
         });
 
         document.getElementById('password').addEventListener('input', function() {
-            checkPasswordStrength(this.value);
+            if (this.value.length > 0) {
+                checkPasswordStrength(this.value);
+            }
         });
 
         document.getElementById('confirmPassword').addEventListener('input', function() {
@@ -1088,6 +1347,12 @@
                     console.log('SW registration failed: ', registrationError);
                 });
         }
+
+        // Debug info
+        console.log('🎨 Registrazione Ultra-Leggibile Theme Active');
+        console.log('📝 Registration System Ready');
+        console.log('📱 PWA Features Enabled');
+        console.log('♿ Accessibility Features Active');
     </script>
 </body>
 </html>
