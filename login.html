@@ -484,8 +484,15 @@
             },
 
             safeRedirect: (url, delay = 1500) => {
+                console.log(`🔄 Redirect programmato a: ${url} tra ${delay}ms`);
                 setTimeout(() => {
-                    window.location.href = url;
+                    try {
+                        window.location.href = url;
+                    } catch (error) {
+                        console.error('❌ Errore redirect:', error);
+                        // Fallback
+                        window.location.href = APP_CONFIG.fallbackRedirect;
+                    }
                 }, delay);
             }
         };
@@ -573,8 +580,8 @@
                 });
                 
                 if (isAdmin || isDirigente) {
-                    console.log('👑 Redirect a pagina dirigenti: myapp2026/app/home_dirigenti.html');
-                    return 'myapp2026/app/home_dirigenti.html';
+                    console.log('👑 Redirect a pagina dirigenti: app/home_dirigenti.html');
+                    return 'app/home_dirigenti.html';
                 } else {
                     console.log('👤 Redirect a pagina utente: app/home.html');
                     return 'app/home.html';
