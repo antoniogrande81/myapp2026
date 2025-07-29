@@ -166,61 +166,109 @@
             margin-bottom: 0.5rem;
         }
 
-        /* INPUT FIELDS ULTRA LEGGIBILI - SENZA ICONE */
+        /* INPUT FIELDS ULTRA MODERNI CON ICONE */
         input {
             width: 100%;
-            padding: 1.5rem 1.5rem;
+            padding: 1.5rem 1.5rem 1.5rem 4rem;
             border: 3px solid #e94560;
             border-radius: 20px;
             font-size: 1.2rem;
             font-weight: 600;
-            background: #ffffff;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
             color: #1a1a2e;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow-primary);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 
+                var(--shadow-primary),
+                inset 0 2px 4px rgba(255, 255, 255, 0.9);
+            position: relative;
         }
 
         input::placeholder {
             color: #6b7280;
             font-weight: 500;
             opacity: 0.8;
+            transition: all 0.3s ease;
         }
 
         input:focus {
             outline: none;
             border-color: #00d4ff;
-            background: #ffffff;
+            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
             box-shadow: 
-                0 12px 32px rgba(0, 212, 255, 0.3),
-                var(--shadow-primary);
+                0 16px 40px rgba(0, 212, 255, 0.25),
+                0 4px 16px rgba(0, 212, 255, 0.15),
+                inset 0 2px 4px rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+        }
+
+        input:focus::placeholder {
+            opacity: 0.5;
+            transform: translateX(10px);
         }
 
         input:hover {
             border-color: #ff006e;
+            background: linear-gradient(135deg, #ffffff 0%, #fef7ff 100%);
             box-shadow: 
-                0 10px 28px rgba(233, 69, 96, 0.25),
-                var(--shadow-primary);
+                0 12px 32px rgba(233, 69, 96, 0.2),
+                inset 0 2px 4px rgba(255, 255, 255, 0.9);
+            transform: translateY(-1px);
         }
 
-        /* INDICATORI DI STATO */
+        /* ICONE NEI CAMPI INPUT */
+        .input-icon {
+            position: absolute;
+            left: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: #6b7280;
+            transition: all 0.3s ease;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .input-container:focus-within .input-icon {
+            color: #00d4ff;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .input-container:hover .input-icon {
+            color: #ff006e;
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        /* INDICATORI DI STATO MIGLIORATI */
         .input-status {
             position: absolute;
-            right: 1.5rem;
+            right: 4rem;
             top: 50%;
             transform: translateY(-50%);
             font-size: 1.5rem;
             opacity: 0;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 10;
         }
 
         .input-valid .input-status {
             opacity: 1;
             color: #10b981;
+            transform: translateY(-50%) scale(1.2);
+            text-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
         }
 
         .input-invalid .input-status {
             opacity: 1;
             color: #ef4444;
+            transform: translateY(-50%) scale(1.2);
+            text-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateY(-50%) scale(1.2) translateX(0); }
+            25% { transform: translateY(-50%) scale(1.2) translateX(-5px); }
+            75% { transform: translateY(-50%) scale(1.2) translateX(5px); }
         }
 
         /* HELPER TEXT */
@@ -370,38 +418,123 @@
             to { transform: rotate(360deg); }
         }
 
-        /* PASSWORD VISIBILITY TOGGLE */
+        /* PASSWORD VISIBILITY TOGGLE MIGLIORATO */
         .password-toggle {
             position: absolute;
             right: 1.5rem;
             top: 50%;
             transform: translateY(-50%);
-            background: none;
-            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(107, 114, 128, 0.2);
             color: #6b7280;
             cursor: pointer;
             font-size: 1.2rem;
-            padding: 0.5rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
+            padding: 0.75rem;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+            z-index: 15;
         }
 
         .password-toggle:hover {
             color: #1a1a2e;
-            background: rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 1);
+            border-color: rgba(26, 26, 46, 0.3);
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
-        /* CAPS LOCK WARNING */
+        .password-toggle:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        /* CAPS LOCK WARNING MIGLIORATO */
         .caps-warning {
-            background: rgba(245, 158, 11, 0.95);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.95), rgba(251, 191, 36, 0.95));
             color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-top: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-top: 0.75rem;
             display: none;
             border: 2px solid rgba(245, 158, 11, 0.8);
+            box-shadow: 
+                0 4px 12px rgba(245, 158, 11, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* PASSWORD STRENGTH INDICATOR */
+        .password-strength {
+            margin-top: 0.75rem;
+            padding: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .password-strength.show {
+            opacity: 1;
+        }
+
+        .strength-bars {
+            display: flex;
+            gap: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .strength-bar {
+            height: 4px;
+            flex: 1;
+            background: rgba(156, 163, 175, 0.3);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-bar.active {
+            transform: scaleY(1.5);
+        }
+
+        .strength-bar.weak { background: #ef4444; }
+        .strength-bar.medium { background: #f59e0b; }
+        .strength-bar.strong { background: #10b981; }
+
+        .strength-text {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .strength-text.weak { color: #ef4444; }
+        .strength-text.medium { color: #f59e0b; }
+        .strength-text.strong { color: #10b981; }
+
+        /* ENHANCED FORM GROUP STATES */
+        .form-group.focused {
+            transform: scale(1.02);
+        }
+
+        .form-group.focused label {
+            color: #00d4ff;
+            transform: translateX(5px);
+        }
+
+        /* FLOATING LABEL EFFECT */
+        label {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         /* RESPONSIVE */
@@ -480,27 +613,29 @@
         <div id="loginContainer">
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="email">Email</label>
+                    <label for="email">User ID / Email</label>
                     <div class="input-container">
+                        <div class="input-icon">👤</div>
                         <input 
                             type="email" 
                             id="email" 
                             value="" 
                             required 
-                            placeholder="Inserisci la tua email"
+                            placeholder="Inserisci la tua email o user ID"
                             autocomplete="email"
                             aria-describedby="email-helper"
                         >
                         <div class="input-status" id="email-status">✓</div>
                     </div>
                     <div class="input-helper" id="email-helper">
-                        Inserisci un indirizzo email valido
+                        Inserisci un indirizzo email valido o il tuo user ID
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="input-container">
+                        <div class="input-icon">🔒</div>
                         <input 
                             type="password" 
                             id="password" 
@@ -517,6 +652,15 @@
                     </div>
                     <div class="input-helper" id="password-helper">
                         Minimo 6 caratteri richiesti
+                    </div>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bars">
+                            <div class="strength-bar" id="bar1"></div>
+                            <div class="strength-bar" id="bar2"></div>
+                            <div class="strength-bar" id="bar3"></div>
+                            <div class="strength-bar" id="bar4"></div>
+                        </div>
+                        <div class="strength-text" id="strengthText">Sicurezza password</div>
                     </div>
                     <div class="caps-warning" id="capsWarning">
                         ⚠️ CAPS LOCK è attivo
@@ -558,7 +702,7 @@
             version: '1.0.0',
             supabaseUrl: 'https://lycrgzptkdkksukcwrld.supabase.co',
             supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk',
-            fallbackRedirect: 'index.html'
+            fallbackRedirect: 'home.html'
         };
 
         // Inizializzazione Supabase sicura
@@ -578,9 +722,15 @@
 
         // Utility functions con error handling migliorato
         const Utils = {
-            // Mostra messaggio con auto-clear
-            showMessage: (text, type = 'info', autoClear = true) => {
+            // Mostra messaggio con auto-clear (solo per messaggi utente)
+            showMessage: (text, type = 'info', autoClear = true, userVisible = true) => {
                 try {
+                    // Log sempre in console
+                    console.log(`[${type.toUpperCase()}] ${text}`);
+                    
+                    // Mostra all'utente solo se userVisible è true
+                    if (!userVisible) return;
+                    
                     const messagesDiv = document.getElementById('messages');
                     if (!messagesDiv) {
                         console.error('❌ Elemento messages non trovato');
@@ -588,7 +738,6 @@
                     }
                     
                     messagesDiv.innerHTML = `<div class="message message-${type}">${text}</div>`;
-                    console.log(`[${type.toUpperCase()}] ${text}`);
                     
                     // Debug info
                     const debugInfo = document.getElementById('debugInfo');
@@ -609,6 +758,11 @@
                 } catch (error) {
                     console.error('❌ Errore showMessage:', error);
                 }
+            },
+
+            // Funzione per messaggi di debug (solo console)
+            debugLog: (text, type = 'info') => {
+                console.log(`[DEBUG-${type.toUpperCase()}] ${text}`);
             },
 
             // Gestione stato loading del pulsante
@@ -678,8 +832,103 @@
                 }
             },
 
+            // Password strength checker
+            checkPasswordStrength: (password) => {
+                if (!password) return { score: 0, text: '', class: '' };
+                
+                let score = 0;
+                let text = '';
+                let strengthClass = '';
+                
+                // Lunghezza
+                if (password.length >= 6) score++;
+                if (password.length >= 8) score++;
+                
+                // Caratteri speciali e numeri
+                if (/[0-9]/.test(password)) score++;
+                if (/[^a-zA-Z0-9]/.test(password)) score++;
+                
+                switch (score) {
+                    case 0:
+                    case 1:
+                        text = 'Troppo debole';
+                        strengthClass = 'weak';
+                        break;
+                    case 2:
+                        text = 'Debole';
+                        strengthClass = 'weak';
+                        break;
+                    case 3:
+                        text = 'Media';
+                        strengthClass = 'medium';
+                        break;
+                    case 4:
+                        text = 'Forte';
+                        strengthClass = 'strong';
+                        break;
+                }
+                
+                return { score, text, class: strengthClass };
+            },
+
+            // Aggiorna indicatore forza password
+            updatePasswordStrength: (password) => {
+                try {
+                    const strengthElement = document.getElementById('passwordStrength');
+                    const strengthText = document.getElementById('strengthText');
+                    const bars = ['bar1', 'bar2', 'bar3', 'bar4'].map(id => document.getElementById(id));
+                    
+                    if (!strengthElement || !strengthText || bars.some(bar => !bar)) {
+                        return;
+                    }
+                    
+                    if (password.length === 0) {
+                        strengthElement.classList.remove('show');
+                        return;
+                    }
+                    
+                    strengthElement.classList.add('show');
+                    
+                    const strength = Utils.checkPasswordStrength(password);
+                    
+                    // Reset bars
+                    bars.forEach(bar => {
+                        bar.classList.remove('active', 'weak', 'medium', 'strong');
+                    });
+                    
+                    // Attiva le barre necessarie
+                    for (let i = 0; i < strength.score; i++) {
+                        if (bars[i]) {
+                            bars[i].classList.add('active', strength.class);
+                        }
+                    }
+                    
+                    // Aggiorna testo
+                    strengthText.textContent = strength.text;
+                    strengthText.className = `strength-text ${strength.class}`;
+                    
+                } catch (error) {
+                    console.error('❌ Errore updatePasswordStrength:', error);
+                }
+            },
+
             // Safe redirect
             safeRedirect: (url, delay = 1500) => {
+                try {
+                    console.log(`🔄 Redirect programmato a: ${url} tra ${delay}ms`);
+                    setTimeout(() => {
+                        try {
+                            window.location.href = url;
+                        } catch (error) {
+                            console.error('❌ Errore redirect:', error);
+                            // Fallback redirect
+                            window.location.href = APP_CONFIG.fallbackRedirect;
+                        }
+                    }, delay);
+                } catch (error) {
+                    console.error('❌ Errore safeRedirect:', error);
+                }
+            },
                 try {
                     console.log(`🔄 Redirect programmato a: ${url} tra ${delay}ms`);
                     setTimeout(() => {
@@ -706,7 +955,7 @@
                         throw new Error('Client Supabase non inizializzato');
                     }
                     
-                    Utils.showMessage('🔧 Test connessione Supabase...', 'info');
+                    Utils.debugLog('Test connessione Supabase...');
                     
                     const { data, error } = await supabaseClient.auth.getSession();
                     
@@ -714,11 +963,11 @@
                         throw error;
                     }
                     
-                    Utils.showMessage('✅ Supabase connesso correttamente!', 'success');
+                    Utils.debugLog('Supabase connesso correttamente!', 'success');
                     return true;
                 } catch (error) {
                     console.error('❌ Test connessione fallito:', error);
-                    Utils.showMessage(`❌ Errore connessione: ${error.message}`, 'error');
+                    Utils.showMessage(`❌ Errore di connessione. Riprova più tardi.`, 'error');
                     return false;
                 }
             },
@@ -730,7 +979,7 @@
                         throw new Error('Client Supabase o userId mancante');
                     }
                     
-                    Utils.showMessage('🔍 Controllo ruolo utente...', 'info');
+                    Utils.debugLog('Controllo ruolo utente...');
                     
                     const { data: profile, error } = await supabaseClient
                         .from('profiles')
@@ -773,7 +1022,7 @@
                     }
                     
                     const ruoliStr = ruoli.join(', ');
-                    Utils.showMessage(`✅ Profilo caricato: ${profile.nome || 'Utente'} - Ruoli: [${ruoliStr}]`, 'success');
+                    Utils.debugLog(`Profilo caricato: ${profile.nome || 'Utente'} - Ruoli: [${ruoliStr}]`, 'success');
                     
                     return {
                         ...profile,
@@ -785,7 +1034,7 @@
                     
                 } catch (error) {
                     console.error('❌ Errore getUserRole:', error);
-                    Utils.showMessage(`⚠️ Impossibile recuperare ruolo, usando default: ${error.message}`, 'info');
+                    Utils.debugLog(`Impossibile recuperare ruolo, usando default: ${error.message}`, 'info');
                     
                     // Fallback robusto
                     return { 
@@ -801,26 +1050,26 @@
                 }
             },
 
-            // Determina URL di redirect con fallback
+            // Determina URL di redirect basato sui ruoli utente - MODIFICATA
             getRedirectUrl: (userProfile) => {
                 try {
                     const ruoli = userProfile.ruoli || ['USER'];
                     const isDirigente = userProfile.isDirigente;
                     const isAdmin = userProfile.isAdmin;
                     
-                    // Tutti gli utenti vengono reindirizzati alla pagina principale
-                    if (isAdmin) {
-                        Utils.showMessage('🎯 Reindirizzamento a pagina principale (Admin)...', 'success');
-                    } else if (isDirigente) {
-                        Utils.showMessage('🎯 Reindirizzamento a pagina principale (Dirigente)...', 'success');
+                    // Redirect basato sui ruoli
+                    if (isAdmin || isDirigente) {
+                        Utils.debugLog('Reindirizzamento a pagina dirigenti...', 'success');
+                        return 'home_dirigenti.html';
                     } else {
-                        Utils.showMessage('🎯 Reindirizzamento a pagina principale...', 'success');
+                        Utils.debugLog('Reindirizzamento a home utente...', 'success');
+                        return 'home.html';
                     }
                     
-                    return 'index.html';
                 } catch (error) {
                     console.error('❌ Errore getRedirectUrl:', error);
-                    return APP_CONFIG.fallbackRedirect;
+                    // Fallback a home utente in caso di errore
+                    return 'home.html';
                 }
             },
 
@@ -856,7 +1105,7 @@
                         throw new Error('La password deve essere di almeno 6 caratteri');
                     }
                     
-                    Utils.showMessage(`🔑 Tentativo login con ${email}...`, 'info');
+                    Utils.debugLog(`Tentativo login con ${email}...`);
                     
                     // Chiamata Supabase per l'autenticazione
                     const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -869,7 +1118,7 @@
                     }
                     
                     if (data && data.user) {
-                        Utils.showMessage(`✅ Login riuscito! Benvenuto ${data.user.email}`, 'success');
+                        Utils.showMessage(`✅ Accesso riuscito! Benvenuto`, 'success');
                         
                         // Controllo del ruolo utente
                         const userProfile = await AuthManager.getUserRole(data.user.id);
@@ -878,7 +1127,7 @@
                         const redirectUrl = AuthManager.getRedirectUrl(userProfile);
                         
                         const ruoliStr = userProfile.ruoli ? userProfile.ruoli.join(', ') : 'USER';
-                        Utils.showMessage(`👤 Ruoli: [${ruoliStr}] - Reindirizzamento in corso...`, 'info');
+                        Utils.debugLog(`Ruoli: [${ruoliStr}] - Reindirizzamento in corso...`);
                         
                         // Redirect sicuro
                         Utils.safeRedirect(redirectUrl, 2000);
@@ -911,7 +1160,7 @@
 
         // Gestione interfaccia migliorata
         const UIManager = {
-            // Setup validazione real-time
+            // Setup validazione real-time con miglioramenti UX
             setupValidation: () => {
                 try {
                     const emailInput = document.getElementById('email');
@@ -921,6 +1170,23 @@
                         console.error('❌ Input fields non trovati');
                         return;
                     }
+                    
+                    // Enhanced focus effects
+                    [emailInput, passwordInput].forEach(input => {
+                        const formGroup = input.closest('.form-group');
+                        
+                        input.addEventListener('focus', () => {
+                            if (formGroup) {
+                                formGroup.classList.add('focused');
+                            }
+                        });
+                        
+                        input.addEventListener('blur', () => {
+                            if (formGroup) {
+                                formGroup.classList.remove('focused');
+                            }
+                        });
+                    });
                     
                     // Validazione email in tempo reale
                     emailInput.addEventListener('input', () => {
@@ -937,12 +1203,14 @@
                         }
                     });
                     
-                    // Validazione password in tempo reale
+                    // Validazione password in tempo reale con strength indicator
                     passwordInput.addEventListener('input', () => {
                         const password = passwordInput.value;
                         const isEmpty = password.length === 0;
                         const isValid = isEmpty || Utils.isValidPassword(password);
+                        
                         Utils.updateInputStatus('password', isValid && !isEmpty);
+                        Utils.updatePasswordStrength(password);
                     });
                     
                     passwordInput.addEventListener('blur', () => {
@@ -1047,7 +1315,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 console.log('🚀 MyApp Login Ultra-Leggibile v' + APP_CONFIG.version);
-                Utils.showMessage('🎨 Interfaccia Ultra-Leggibile caricata!', 'success');
+                Utils.debugLog('Interfaccia Ultra-Leggibile caricata!', 'success');
                 
                 // Setup form handler con protezione
                 const form = document.getElementById('loginForm');
@@ -1058,7 +1326,7 @@
                         event.stopPropagation();
                         
                         console.log('📝 Form submitted - no reload');
-                        Utils.showMessage('🚀 Form inviato! Tentativo login...', 'info');
+                        Utils.debugLog('Form inviato! Tentativo login...');
                         
                         AuthManager.handleLogin().catch(error => {
                             console.error('❌ Errore handleLogin:', error);
@@ -1083,7 +1351,7 @@
                         console.error('❌ Test connessione fallito:', error);
                     });
                 } else {
-                    Utils.showMessage('⚠️ Supabase non disponibile - modalità demo', 'error');
+                    Utils.showMessage('⚠️ Servizio temporaneamente non disponibile', 'error');
                 }
                 
                 // Focus automatico sul primo campo
@@ -1118,7 +1386,7 @@
                 }
                 
                 if (session && session.user) {
-                    Utils.showMessage('✅ Sessione attiva trovata, reindirizzamento...', 'success');
+                    Utils.showMessage('✅ Accesso automatico in corso...', 'success');
                     
                     const userProfile = await AuthManager.getUserRole(session.user.id);
                     const redirectUrl = AuthManager.getRedirectUrl(userProfile);
@@ -1145,24 +1413,24 @@
 
         // Gestione stati di connessione
         window.addEventListener('online', () => {
-            Utils.showMessage('🌐 Connessione ripristinata', 'success');
+            Utils.debugLog('Connessione ripristinata', 'success');
         });
 
         window.addEventListener('offline', () => {
-            Utils.showMessage('📡 Modalità offline attiva', 'info');
+            Utils.showMessage('📡 Connessione persa. Controlla la tua rete.', 'error');
         });
 
         // Gestione errori globali migliorata
         window.addEventListener('error', (event) => {
             console.error('💥 JavaScript Error:', event.error);
             const errorMessage = event.error && event.error.message ? event.error.message : 'Errore sconosciuto';
-            Utils.showMessage(`💥 Errore JS: ${errorMessage}`, 'error');
+            Utils.debugLog(`JS Error: ${errorMessage}`, 'error');
         });
 
         window.addEventListener('unhandledrejection', (event) => {
             console.error('💥 Unhandled Promise:', event.reason);
             const errorMessage = event.reason && event.reason.message ? event.reason.message : 'Promise rejection';
-            Utils.showMessage(`💥 Promise Error: ${errorMessage}`, 'error');
+            Utils.debugLog(`Promise Error: ${errorMessage}`, 'error');
             // Previene che l'errore venga propagato
             event.preventDefault();
         });
