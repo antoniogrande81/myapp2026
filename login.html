@@ -436,7 +436,7 @@
             version: '1.0.0',
             supabaseUrl: 'https://lycrgzptkdkksukcwrld.supabase.co',
             supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk',
-            fallbackRedirect: 'home.html'
+            fallbackRedirect: 'app/home.html'
         };
 
         // Inizializzazione Supabase
@@ -573,11 +573,11 @@
                 });
                 
                 if (isAdmin || isDirigente) {
-                    console.log('👑 Redirect a pagina dirigenti: home_dirigenti.html');
-                    return 'home_dirigenti.html';
+                    console.log('👑 Redirect a pagina dirigenti: myapp2026/app/home_dirigenti.html');
+                    return 'myapp2026/app/home_dirigenti.html';
                 } else {
-                    console.log('👤 Redirect a pagina utente: home.html');
-                    return 'home.html';
+                    console.log('👤 Redirect a pagina utente: app/home.html');
+                    return 'app/home.html';
                 }
             },
 
