@@ -99,10 +99,7 @@
             100% { background-position: 0% 50%; }
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
+
 
         @keyframes fade-in {
             from { opacity: 0; transform: translateY(30px); }
@@ -381,7 +378,6 @@
             overflow-y: auto;
             border: 1px solid rgba(255, 255, 255, 0.3);
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
-            animation: float 6s ease-in-out infinite;
         }
 
         .action-buttons {
@@ -499,16 +495,8 @@
         }
 
         /* Floating elements */
-        .floating {
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .floating:nth-child(2) {
-            animation-delay: -2s;
-        }
-
-        .floating:nth-child(3) {
-            animation-delay: -4s;
+        .fade-in {
+            animation: fade-in 0.6s ease-out forwards;
         }
 
         /* Utility buttons */
@@ -618,9 +606,19 @@
     <!-- Main Content -->
     <main class="min-h-screen px-4 py-8 max-w-6xl mx-auto">
         
+        <!-- Back Button -->
+        <div class="mb-6">
+            <button onclick="history.back()" class="flex items-center gap-3 text-ultra-visible hover:text-cyan transition-all duration-300 transform hover:scale-110 group">
+                <svg class="w-8 h-8 group-hover:translate-x-[-2px] transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                <span class="text-lg font-bold">Indietro</span>
+            </button>
+        </div>
+
         <!-- Hero Section -->
         <div class="text-center mb-12 fade-in">
-            <div class="w-24 h-24 bg-gradient-to-br from-aurora to-cyan rounded-full mx-auto mb-8 flex items-center justify-content shadow-2xl floating">
+            <div class="w-24 h-24 bg-gradient-to-br from-aurora to-cyan rounded-full mx-auto mb-8 flex items-center justify-content shadow-2xl">
                 <span class="text-4xl text-white mx-auto">🛠️</span>
             </div>
             <h1 class="hero-title text-ultra-visible mb-6">Strumenti Aurora</h1>
@@ -630,7 +628,7 @@
         </div>
 
         <!-- Menu Strumenti -->
-        <div class="glass-strong rounded-3xl p-6 md:p-8 mb-8 floating fade-in">
+        <div class="glass-strong rounded-3xl p-6 md:p-8 mb-8 fade-in">
             <!-- Navigation Tabs -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
                 <button onclick="showTool('turni')" class="tool-nav-btn active p-4 md:p-6 rounded-2xl font-black text-base md:text-lg">
@@ -699,7 +697,7 @@
 
             <!-- Azioni Rapide Turni -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-                <div class="glass-card rounded-3xl p-6 md:p-8 card-hover floating fade-in">
+                <div class="glass-card rounded-3xl p-6 md:p-8 card-hover fade-in">
                     <h3 class="text-lg md:text-xl font-black text-primary mb-6">🗓️ Nuovo Turno</h3>
                     <button onclick="openTurnoModal()" class="w-full btn-aurora font-black py-4 px-6 rounded-2xl text-base md:text-lg mb-6">
                         ✨ Programma Turno
@@ -709,7 +707,7 @@
                     </div>
                 </div>
 
-                <div class="glass-card rounded-3xl p-6 md:p-8 card-hover floating fade-in">
+                <div class="glass-card rounded-3xl p-6 md:p-8 card-hover fade-in">
                     <h3 class="text-lg md:text-xl font-black text-primary mb-6">📊 Statistiche Mese</h3>
                     <div class="space-y-3 text-base md:text-lg" id="stats-container">
                         <div class="flex justify-between stats-item">
@@ -744,14 +742,14 @@
         <!-- Sezione Licenze -->
         <div id="licenze-section" class="tool-section">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-                <div class="glass-card rounded-3xl p-6 md:p-8 card-hover floating fade-in">
+                <div class="glass-card rounded-3xl p-6 md:p-8 card-hover fade-in">
                     <h3 class="text-lg md:text-xl font-black text-primary mb-6">🏖️ Nuova Licenza</h3>
                     <button onclick="openLicenzaModal()" class="w-full btn-aurora font-black py-4 px-6 rounded-2xl text-base md:text-lg mb-6">
                         ✨ Programma Licenza/Permesso
                     </button>
                 </div>
 
-                <div class="glass-card rounded-3xl p-6 md:p-8 card-hover floating fade-in">
+                <div class="glass-card rounded-3xl p-6 md:p-8 card-hover fade-in">
                     <h3 class="text-lg md:text-xl font-black text-primary mb-6">📋 Licenze Programmate</h3>
                     <div class="space-y-4 max-h-72 overflow-y-auto" id="licenze-list">
                         <p class="text-gray-500 text-base md:text-lg text-center font-semibold">Nessuna licenza programmata</p>
@@ -763,14 +761,14 @@
         <!-- Sezione Recuperi -->
         <div id="recuperi-section" class="tool-section">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-                <div class="glass-card rounded-3xl p-6 md:p-8 card-hover floating fade-in">
+                <div class="glass-card rounded-3xl p-6 md:p-8 card-hover fade-in">
                     <h3 class="text-lg md:text-xl font-black text-primary mb-6">🔄 Nuovo Recupero</h3>
                     <button onclick="openRecuperoModal()" class="w-full btn-cyber font-black py-4 px-6 rounded-2xl text-base md:text-lg mb-6">
                         ✨ Registra Recupero
                     </button>
                 </div>
 
-                <div class="glass-card rounded-3xl p-6 md:p-8 card-hover floating fade-in">
+                <div class="glass-card rounded-3xl p-6 md:p-8 card-hover fade-in">
                     <h3 class="text-lg md:text-xl font-black text-primary mb-6">📊 Recuperi Registrati</h3>
                     <div class="space-y-4 max-h-72 overflow-y-auto" id="recuperi-list">
                         <p class="text-gray-500 text-base md:text-lg text-center font-semibold">Nessun recupero registrato</p>
@@ -782,7 +780,7 @@
         <!-- Sezione Utilità -->
         <div id="utilita-section" class="tool-section">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                <div class="utility-card rounded-3xl p-6 md:p-8 text-center floating fade-in">
+                <div class="utility-card rounded-3xl p-6 md:p-8 text-center fade-in">
                     <div class="w-16 h-16 bg-gradient-to-br from-cyan to-blue-600 rounded-full mx-auto mb-6 flex items-center justify-center shadow-2xl">
                         <span class="text-2xl text-white">📊</span>
                     </div>
@@ -793,7 +791,7 @@
                     </button>
                 </div>
 
-                <div class="utility-card rounded-3xl p-6 md:p-8 text-center floating fade-in">
+                <div class="utility-card rounded-3xl p-6 md:p-8 text-center fade-in">
                     <div class="w-16 h-16 bg-gradient-to-br from-teal to-green-600 rounded-full mx-auto mb-6 flex items-center justify-center shadow-2xl">
                         <span class="text-2xl text-white">⏰</span>
                     </div>
@@ -804,7 +802,7 @@
                     </button>
                 </div>
 
-                <div class="utility-card rounded-3xl p-6 md:p-8 text-center floating fade-in">
+                <div class="utility-card rounded-3xl p-6 md:p-8 text-center fade-in">
                     <div class="w-16 h-16 bg-gradient-to-br from-magenta to-purple-600 rounded-full mx-auto mb-6 flex items-center justify-center shadow-2xl">
                         <span class="text-2xl text-white">📱</span>
                     </div>
@@ -1876,7 +1874,7 @@
             });
 
             // Osserva tutti gli elementi che devono essere animati
-            document.querySelectorAll('.card-hover, .floating, .utility-card').forEach(el => {
+            document.querySelectorAll('.card-hover, .utility-card').forEach(el => {
                 observer.observe(el);
             });
         }
