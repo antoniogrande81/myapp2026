@@ -494,36 +494,91 @@
         const AuthManager = {
             getUserRole: async (userId) => {
                 try {
-                    if (!supabaseClient) return { ruoli: ['USER'], isDirigente: false, isAdmin: false };
+                    if (!supabaseClient) {
+                        console.log('⚠️ Supabase non disponibile, usando profilo USER');
+                        return { ruoli: ['USER'], isDirigente: false, isAdmin: false };
+                    }
                     
-                    const { data: profile } = await supabaseClient
+                    console.log('🔍 Caricamento profilo per utente:', userId);
+                    
+                    const { data: profile, error } = await supabaseClient
                         .from('profiles')
-                        .select('ruoli, nome, cognome, email')
+                        .select('ruoli, nome, cognome, email, telefono')
                         .eq('id', userId)
                         .single();
                     
-                    if (profile) {
-                        const ruoli = Array.isArray(profile.ruoli) ? profile.ruoli : ['USER'];
-                        return {
-                            ...profile,
-                            ruoli,
-                            isDirigente: ruoli.includes('DIRIGENTE'),
-                            isAdmin: ruoli.includes('ADMIN')
+                    if (error) {
+                        console.warn('⚠️ Errore caricamento profilo:', error.message);
+                        console.log('📝 Usando profilo USER di default');
+                        return { 
+                            ruoli: ['USER'], 
+                            isDirigente: false, 
+                            isAdmin: false,
+                            nome: 'Utente',
+                            email: '',
+                            cognome: '',
+                            telefono: ''
                         };
                     }
                     
+                    if (profile) {
+                        const ruoli = Array.isArray(profile.ruoli) ? profile.ruoli : 
+                                     profile.ruoli ? [profile.ruoli] : ['USER'];
+                        
+                        const isDirigente = ruoli.includes('DIRIGENTE');
+                        const isAdmin = ruoli.includes('ADMIN');
+                        
+                        console.log('👤 Profilo caricato:', {
+                            nome: profile.nome || 'N/A',
+                            ruoli: ruoli,
+                            isDirigente: isDirigente,
+                            isAdmin: isAdmin
+                        });
+                        
+                        return {
+                            ...profile,
+                            ruoli,
+                            isDirigente,
+                            isAdmin
+                        };
+                    }
+                    
+                    console.log('📝 Nessun profilo trovato, usando USER default');
                     return { ruoli: ['USER'], isDirigente: false, isAdmin: false };
+                    
                 } catch (error) {
-                    console.warn('Profilo non trovato, usando default');
-                    return { ruoli: ['USER'], isDirigente: false, isAdmin: false };
+                    console.error('❌ Errore getUserRole:', error);
+                    console.log('📝 Fallback a profilo USER');
+                    return { 
+                        ruoli: ['USER'], 
+                        isDirigente: false, 
+                        isAdmin: false,
+                        nome: 'Utente',
+                        email: '',
+                        cognome: '',
+                        telefono: ''
+                    };
                 }
             },
 
             getRedirectUrl: (userProfile) => {
-                if (userProfile.isAdmin || userProfile.isDirigente) {
-                    return 'app/home_dirigenti.html';
+                const ruoli = userProfile.ruoli || [];
+                const isDirigente = ruoli.includes('DIRIGENTE') || userProfile.isDirigente;
+                const isAdmin = ruoli.includes('ADMIN') || userProfile.isAdmin;
+                
+                console.log('🔍 Redirect logic:', {
+                    ruoli: ruoli,
+                    isDirigente: isDirigente,
+                    isAdmin: isAdmin
+                });
+                
+                if (isAdmin || isDirigente) {
+                    console.log('👑 Redirect a pagina dirigenti: home_dirigenti.html');
+                    return 'home_dirigenti.html';
+                } else {
+                    console.log('👤 Redirect a pagina utente: home.html');
+                    return 'home.html';
                 }
-                return 'home.html';
             },
 
             handleLogin: async () => {
@@ -559,8 +614,15 @@
                     if (data?.user) {
                         Utils.showMessage('✅ Accesso riuscito!', 'success');
                         
+                        console.log('🎉 Login successful per:', data.user.email);
+                        
+                        // Carica il profilo utente
                         const userProfile = await AuthManager.getUserRole(data.user.id);
+                        
+                        // Determina dove reindirizzare
                         const redirectUrl = AuthManager.getRedirectUrl(userProfile);
+                        
+                        console.log('🚀 Reindirizzamento a:', redirectUrl);
                         
                         Utils.safeRedirect(redirectUrl, 2000);
                     }
