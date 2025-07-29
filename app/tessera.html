@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tessera Digitale - MyApp</title>
+    <title>Tessera Digitale - MyApp Aurora</title>
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json">
@@ -20,12 +20,12 @@
     <!-- iOS Support -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="MyApp">
+    <meta name="apple-mobile-web-app-title" content="MyApp Aurora">
     <link rel="apple-touch-icon" href="/public/icons/apple-touch-icon.png">
 
     <!-- Android Support -->
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="MyApp">
+    <meta name="application-name" content="MyApp Aurora">
     <meta name="msapplication-TileColor" content="#1a1a2e">
     
     <!-- Preconnect per performance -->
@@ -37,329 +37,79 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        // Aurora Boreale 2025 Palette
-                        primary: '#1a1a2e',      // Blu notte profondo
-                        secondary: '#16213e',     // Blu oceano
-                        accent: '#0f3460',        // Blu acciaio
-                        aurora: '#e94560',        // Rosa aurora
-                        cyan: '#00d4ff',          // Cyan elettrico
-                        magenta: '#ff006e',       // Magenta vibrante
-                        gold: '#ffd700',          // Oro elegante
-                        teal: '#03dac6',          // Teal premium
-                        dark: '#0a0a23',          // Nero cyber
-                        light: '#f8fafc',         // Bianco ghiaccio
-                        textDark: '#1C1C1E',
-                        backgroundLight: '#F4F4F8',
-                    },
-                    screens: {
-                        'xs': '320px',
-                        'sm': '640px',
-                        'md': '768px',
-                        'lg': '1024px',
-                        'xl': '1280px',
-                        '2xl': '1536px',
-                        '3xl': '1920px',
-                        '4xl': '2560px',
-                    }
-                }
-            }
-        }
-    </script>
+    
     <style>
+        /* Aurora Boreale 2025 System */
         :root {
-            --gradient-aurora: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #e94560 75%, #00d4ff 100%);
-            --gradient-cyber: linear-gradient(135deg, #0a0a23 0%, #1a1a2e 50%, #00d4ff 100%);
-            --gradient-magic: linear-gradient(135deg, #ff006e 0%, #e94560 50%, #03dac6 100%);
-            --gradient-card: linear-gradient(135deg, #ffffff 0%, #f8f9ff 25%, #ffffff 50%, #f0f4ff 75%, #ffffff 100%);
+            /* Palette Principale Aurora */
+            --gradient-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #e94560 75%, #00d4ff 100%);
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #0f3460;
+            --aurora: #e94560;
+            --cyan: #00d4ff;
+            --magenta: #ff006e;
+            --gold: #ffd700;
+            --teal: #03dac6;
+            --dark: #0a0a23;
+            --light: #f8fafc;
+            
+            /* Colori Carabinieri */
+            --carabinieri-red: #dc143c;
+            --carabinieri-blue: #000080;
+            --carabinieri-gold: #ffd700;
+            
+            /* Shadows e Effects */
+            --shadow-card: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --shadow-elevated: 0 8px 25px rgba(0, 0, 0, 0.15);
+            --shadow-premium: 0 20px 40px rgba(0, 0, 0, 0.2);
+            
+            /* Layout Variables */
+            --header-height: 60px;
+            --content-height: calc(100vh - var(--header-height) - 2rem);
         }
 
+        /* Typography System */
         body {
-            background: var(--gradient-aurora);
-            background-size: 400% 400%;
-            animation: aurora 20s ease infinite;
-            min-height: 100vh;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: var(--gradient-bg);
+            background-size: 400% 400%;
+            animation: gradientShift 30s ease infinite;
+            min-height: 100vh;
         }
 
-        @keyframes aurora {
+        @keyframes gradientShift {
             0%, 100% { background-position: 0% 50%; }
-            25% { background-position: 100% 50%; }
-            50% { background-position: 100% 100%; }
-            75% { background-position: 0% 100%; }
+            50% { background-position: 100% 50%; }
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            33% { transform: translateY(-8px) rotate(0.5deg); }
-            66% { transform: translateY(-4px) rotate(-0.5deg); }
-        }
-
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 30px rgba(233, 69, 96, 0.6); }
-            50% { box-shadow: 0 0 50px rgba(0, 212, 255, 0.8); }
-        }
-
-        @keyframes pulse-card {
-            0%, 100% { 
-                transform: scale(1);
-                box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-            }
-            50% { 
-                transform: scale(1.02);
-                box-shadow: 0 25px 50px rgba(0,0,0,0.25);
-            }
-        }
-
-        @keyframes qr-glow {
-            0%, 100% { 
-                box-shadow: 0 0 20px rgba(233, 69, 96, 0.3);
-            }
-            50% { 
-                box-shadow: 0 0 40px rgba(0, 212, 255, 0.5);
-            }
-        }
-
-        /* Typography Ultra-Visibile */
+        /* Text System */
         .text-ultra-visible {
             color: #ffffff;
             text-shadow: 0 8px 25px rgba(0, 0, 0, 0.9), 0 4px 12px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 1);
             font-weight: 800;
         }
 
-        .text-white {
-            text-shadow: 0 8px 25px rgba(0, 0, 0, 0.9), 0 4px 12px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 1);
-        }
-
-        /* Glassmorphism Avanzato */
-        .glass-strong {
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-        }
-
-        /* Tessera Card Premium */
-        .tessera-card {
-            background: var(--gradient-card);
-            background-size: 400% 400%;
-            animation: pulse-card 4s ease-in-out infinite;
-            box-shadow: 
-                0 25px 50px rgba(0,0,0,0.2),
-                0 0 0 1px rgba(255,255,255,0.1),
-                inset 0 1px 0 rgba(255,255,255,0.9);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tessera-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.8s;
-        }
-
-        .tessera-card:hover::before {
-            left: 100%;
-        }
-
-        /* Profile Avatar Premium */
-        .profile-avatar {
-            background: var(--gradient-magic);
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            animation: glow 3s ease-in-out infinite;
-            transition: all 0.4s ease;
-        }
-
-        .profile-avatar:hover {
-            transform: scale(1.1) rotate(5deg);
-            animation: glow 1s ease-in-out infinite;
-        }
-
-        /* QR Code Container */
-        .qr-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 12px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            animation: qr-glow 3s ease-in-out infinite;
-            transition: all 0.3s ease;
-        }
-
-        .qr-container:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(233, 69, 96, 0.5);
-        }
-
-        /* Tessera Header */
-        .tessera-header {
-            background: var(--gradient-magic);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.3);
-        }
-
-        /* Numero Tessera */
-        .numero-tessera {
-            background: var(--gradient-cyber);
-            border: 2px solid rgba(0, 212, 255, 0.3);
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
-            animation: glow 4s ease-in-out infinite;
-        }
-
-        /* Status Badges */
-        .status-active {
-            background: linear-gradient(135deg, #10b981, #047857);
-            border: 2px solid rgba(16, 185, 129, 0.3);
+        .text-on-gradient {
             color: white;
-            font-weight: 700;
-            animation: glow 3s ease-in-out infinite;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            font-weight: 600;
         }
 
-        .status-expiring {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            border: 2px solid rgba(245, 158, 11, 0.3);
-            color: white;
-            font-weight: 700;
-        }
-
-        .status-expired {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            border: 2px solid rgba(239, 68, 68, 0.3);
-            color: white;
-            font-weight: 700;
-        }
-
-        .status-unknown {
-            background: linear-gradient(135deg, #6b7280, #4b5563);
-            border: 2px solid rgba(107, 114, 128, 0.3);
-            color: white;
-            font-weight: 700;
-        }
-
-        /* Buttons Aurora */
-        .btn-aurora {
-            background: var(--gradient-magic);
-            color: white;
-            border: 2px solid rgba(233, 69, 96, 0.3);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 700;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-aurora::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.3s;
-        }
-
-        .btn-aurora:hover::before {
-            left: 100%;
-        }
-
-        .btn-aurora:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 20px 40px rgba(233, 69, 96, 0.4);
-            border-color: rgba(233, 69, 96, 0.8);
-        }
-
-        .btn-cyber {
-            background: var(--gradient-cyber);
-            border: 2px solid rgba(0, 212, 255, 0.3);
-            color: white;
-            font-weight: 700;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .btn-cyber:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.4);
-            border-color: rgba(0, 212, 255, 0.8);
-        }
-
-        /* Header glassmorphism */
-        header {
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        /* Bottom navigation glassmorphism */
-        nav {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        /* Logout button style */
-        #logoutBtn {
-            background: var(--gradient-magic) !important;
-            border: 2px solid rgba(233, 69, 96, 0.3);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            font-weight: 700;
-        }
-
-        #logoutBtn:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 15px 30px rgba(233, 69, 96, 0.4);
-            border-color: rgba(233, 69, 96, 0.8);
-        }
-
-        /* Watermark */
-        .watermark {
-            opacity: 0.3;
-            background: linear-gradient(45deg, #1a1a2e, #e94560);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 700;
-        }
-
-        /* Card Image */
-        .card-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.05;
-            z-index: 0;
-        }
-
-        .card-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Responsive text scaling */
+        /* Responsive Typography */
         .hero-title {
-            font-size: clamp(1.25rem, 6vw, 1.5rem);
-            font-weight: 900;
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
         }
 
         .card-title {
-            font-size: clamp(1rem, 5vw, 1.25rem);
-            font-weight: 800;
+            font-size: clamp(1.25rem, 3vw, 2rem);
+            font-weight: 600;
+            color: #374151;
         }
 
         .tessera-number {
@@ -367,12 +117,482 @@
             font-weight: 900;
         }
 
-        /* Floating animation for main elements */
-        .floating-element {
-            animation: float 6s ease-in-out infinite;
+        /* Container System */
+        .main-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--shadow-elevated);
+            max-width: 900px;
+            margin: 1rem auto;
+            overflow: hidden;
         }
 
-        /* Reduced motion support */
+        /* Header Pattern */
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        /* Back Button Pattern */
+        .back-button {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            transition: all 0.2s ease;
+            min-height: 44px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--aurora);
+            transform: translateY(-1px);
+        }
+
+        /* Button System */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--aurora), var(--cyan));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            min-height: 44px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(233, 69, 96, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid #e5e7eb;
+            color: #374151;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            min-height: 44px;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--aurora);
+            color: var(--aurora);
+            background: #f9fafb;
+        }
+
+        /* TESSERA CARABINIERI PREMIUM DESIGN */
+        .tessera-carabinieri {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 25%, #ffffff 50%, #f0f4ff 75%, #ffffff 100%);
+            background-size: 400% 400%;
+            animation: tessera-shimmer 8s ease-in-out infinite;
+            border-radius: 24px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 25px 50px rgba(0,0,0,0.15),
+                0 0 0 2px rgba(220, 20, 60, 0.1),
+                inset 0 1px 0 rgba(255,255,255,0.9);
+            border: 3px solid transparent;
+            background-clip: padding-box;
+        }
+
+        .tessera-carabinieri::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--carabinieri-red), var(--carabinieri-blue), var(--aurora));
+            border-radius: 24px;
+            padding: 3px;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            z-index: -1;
+        }
+
+        .tessera-carabinieri::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(220, 20, 60, 0.1), transparent, rgba(0, 0, 128, 0.1), transparent);
+            animation: tessera-rotate 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes tessera-shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes tessera-rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Stemma Carabinieri */
+        .stemma-carabinieri {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--carabinieri-red), var(--carabinieri-blue));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(220, 20, 60, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.9);
+            z-index: 10;
+        }
+
+        .stemma-carabinieri::before {
+            content: '★';
+            color: var(--carabinieri-gold);
+            font-size: 1.5rem;
+            font-weight: 900;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Intestazione Tessera */
+        .tessera-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .tessera-header h1 {
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            font-weight: 900;
+            color: var(--carabinieri-blue);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .tessera-header h2 {
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            font-weight: 700;
+            color: var(--carabinieri-red);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Sezione Utente */
+        .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            border: 1px solid rgba(220, 20, 60, 0.1);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--carabinieri-red), var(--carabinieri-blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 900;
+            border: 4px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            flex-shrink: 0;
+        }
+
+        .user-info h3 {
+            font-size: clamp(1.1rem, 4vw, 1.3rem);
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .user-info p {
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        /* Numero Tessera */
+        .numero-tessera {
+            background: linear-gradient(135deg, var(--carabinieri-blue), var(--primary));
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            border: 2px solid rgba(0, 0, 128, 0.3);
+            box-shadow: 0 8px 20px rgba(0, 0, 128, 0.2);
+        }
+
+        .numero-tessera p:first-child {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .numero-tessera p:last-child {
+            font-size: clamp(1.2rem, 6vw, 1.4rem);
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+
+        /* QR Code Premium */
+        .qr-section {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .qr-container {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 1rem;
+            border: 3px solid rgba(220, 20, 60, 0.2);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .qr-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--carabinieri-red), var(--carabinieri-blue), var(--aurora));
+            border-radius: 20px;
+            z-index: -1;
+            animation: qr-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes qr-glow {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+        }
+
+        /* Status Badge System */
+        .status-active {
+            background: linear-gradient(135deg, #10b981, #047857);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            color: white;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .status-expiring {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border: 2px solid rgba(245, 158, 11, 0.3);
+            color: white;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .status-expired {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            color: white;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .status-unknown {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            border: 2px solid rgba(107, 114, 128, 0.3);
+            color: white;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        /* Validità */
+        .validita-section {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: #6b7280;
+            font-weight: 600;
+        }
+
+        /* Watermark */
+        .watermark {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            font-size: 0.8rem;
+            opacity: 0.4;
+            background: linear-gradient(45deg, var(--primary), var(--aurora));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        /* Actions Buttons */
+        .actions-container {
+            margin-top: 2rem;
+            gap: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .btn-aurora {
+            background: linear-gradient(135deg, var(--aurora), var(--magenta));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            min-height: 48px;
+            font-size: 1rem;
+        }
+
+        .btn-aurora:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(233, 69, 96, 0.4);
+        }
+
+        .btn-cyber {
+            background: linear-gradient(135deg, var(--cyan), var(--teal));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            min-height: 48px;
+            font-size: 1rem;
+        }
+
+        .btn-cyber:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(233, 69, 96, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--aurora);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(22, 33, 62, 0.95));
+            backdrop-filter: blur(20px);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            :root {
+                --header-height: 56px;
+            }
+            
+            .tessera-carabinieri {
+                padding: 1.5rem;
+                margin: 0.5rem;
+                border-radius: 20px;
+            }
+            
+            .user-section {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            .stemma-carabinieri {
+                width: 50px;
+                height: 50px;
+                top: 0.5rem;
+                right: 0.5rem;
+            }
+            
+            .profile-avatar {
+                width: 70px;
+                height: 70px;
+                font-size: 1.5rem;
+            }
+            
+            .actions-container {
+                gap: 0.75rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tessera-carabinieri {
+                padding: 1rem;
+                margin: 0.25rem;
+                border-radius: 16px;
+            }
+            
+            .btn-aurora,
+            .btn-cyber {
+                min-height: 44px;
+                font-size: 1rem;
+                padding: 0.75rem 1rem;
+            }
+        }
+
+        /* Focus States per Accessibilità */
+        *:focus-visible {
+            outline: 2px solid var(--aurora);
+            outline-offset: 2px;
+        }
+
+        /* Reduced Motion Support */
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.01ms !important;
@@ -380,116 +600,135 @@
                 transition-duration: 0.01ms !important;
             }
         }
+
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            .tessera-carabinieri {
+                background: linear-gradient(135deg, #1f2937 0%, #111827 25%, #1f2937 50%, #111827 75%, #1f2937 100%);
+                color: #f9fafb;
+            }
+            
+            .user-section {
+                background: rgba(31, 41, 55, 0.7);
+            }
+            
+            .user-info h3 {
+                color: #f9fafb;
+            }
+        }
+
+        /* iOS Safari Fixes */
+        @supports (-webkit-touch-callout: none) {
+            .main-container {
+                height: calc(100vh - var(--header-height) - env(safe-area-inset-bottom) - 2rem);
+            }
+        }
     </style>
 </head>
-<body class="font-sans text-white">
-    <!-- Loading Spinner -->
-    <div id="loading" class="fixed inset-0 bg-primary bg-opacity-90 flex items-center justify-center z-50">
-        <div class="glass-strong rounded-3xl p-8 text-center">
-            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-aurora mx-auto mb-6"></div>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading" class="loading-screen fixed inset-0 flex items-center justify-center z-50">
+        <div class="bg-white bg-opacity-10 backdrop-blur-20 rounded-3xl p-8 text-center border border-white border-opacity-20">
+            <div class="loading-spinner mx-auto mb-6"></div>
             <p class="text-ultra-visible font-bold text-lg">Caricamento tessera...</p>
         </div>
     </div>
 
     <!-- Header -->
-    <header class="w-full flex justify-between items-center px-4 py-6 relative z-10">
+    <header class="header w-full flex justify-between items-center px-4 py-4 relative z-10">
         <div class="flex items-center space-x-4">
-            <button onclick="history.back()" class="text-ultra-visible hover:text-cyan transition-all duration-300 hover:scale-110">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onclick="history.back()" class="back-button flex items-center justify-center transition-all duration-300 hover:scale-110">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path>
                 </svg>
             </button>
-            <h1 class="text-2xl font-black text-ultra-visible drop-shadow-lg">Tessera Digitale</h1>
+            <h1 class="text-xl font-black text-ultra-visible">Tessera Digitale</h1>
         </div>
-        <button id="logoutBtn" class="text-white text-sm px-6 py-3 rounded-full font-bold transition-all shadow-lg">
+        <button id="logoutBtn" class="btn-secondary text-sm px-4 py-2 font-bold transition-all shadow-lg">
             Logout
         </button>
     </header>
 
     <!-- Main Content -->
     <main class="flex-1 flex items-center justify-center px-4 pb-20">
-        <div class="w-full max-w-sm floating-element">
-            <!-- Tessera Card -->
-            <div id="tesseraCard" class="tessera-card rounded-3xl p-8 relative border border-gray-200">
-                <!-- Background Image for Tessera -->
-                <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI1MCIgdmlld0JveD0iMCAwIDQwMCAyNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImJnR3JhZGllbnQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMTAwJSIgeTI9IjEwMCUiPgo8c3RvcCBvZmZzZXQ9IjAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMWExYTJlO3N0b3Atb3BhY2l0eTowLjEiLz4KPHN0b3Agb2Zmc2V0PSIyNSUiIHN0eWxlPSJzdG9wLWNvbG9yOiMxNjIxM2U7c3RvcC1vcGFjaXR5OjAuMDciLz4KPHN0b3Agb2Zmc2V0PSI1MCUiIHN0eWxlPSJzdG9wLWNvbG9yOiMwZjM0NjA7c3RvcC1vcGFjaXR5OjAuMDUiLz4KPHN0b3Agb2Zmc2V0PSI3NSUiIHN0eWxlPSJzdG9wLWNvbG9yOiNlOTQ1NjA7c3RvcC1vcGFjaXR5OjAuMDciLz4KPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMDBkNGZmO3N0b3Atb3BhY2l0eTowLjEiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8cmVjdCB3aWR0aD0iNDAwIiBoZWlnaHQ9IjI1MCIgZmlsbD0idXJsKCNiZ0dyYWRpZW50KSIvPgo8Y2lyY2xlIGN4PSIzNDAiIGN5PSI2MCIgcj0iODAiIGZpbGw9InVybCgjYmdHcmFkaWVudCkiIG9wYWNpdHk9IjAuMyIvPgo8Y2lyY2xlIGN4PSI2MCIgY3k9IjE5MCIgcj0iNjAiIGZpbGw9InVybCgjYmdHcmFkaWVudCkiIG9wYWNpdHk9IjAuMiIvPgo8cGF0aCBkPSJNMCAxMDBDMTMzLjMgMTIwIDI2Ni43IDgwIDQwMCAxMDBWMjUwSDBWMTAwWiIgZmlsbD0idXJsKCNiZ0dyYWRpZW50KSIgb3BhY2l0eT0iMC4xIi8+Cjwvc3ZnPgo=" 
-                     alt="Card Background" 
-                     class="card-image">
+        <div class="w-full max-w-md">
+            <!-- Tessera Carabinieri -->
+            <div id="tesseraCard" class="tessera-carabinieri relative">
+                <!-- Stemma Carabinieri -->
+                <div class="stemma-carabinieri"></div>
                 
-                <div class="card-content">
-                    <!-- Header tessera -->
-                    <div class="text-center mb-8">
-                        <div class="tessera-header text-white text-xs font-bold py-3 px-6 rounded-full inline-block mb-3">
-                            SINDACATO CARABINIERI
+                <!-- Header Tessera -->
+                <div class="tessera-header">
+                    <h1>Arma dei Carabinieri</h1>
+                    <h2>Sindacato MyApp</h2>
+                </div>
+
+                <!-- Sezione Utente -->
+                <div class="user-section">
+                    <div class="profile-avatar">
+                        <span id="iniziali">--</span>
+                    </div>
+                    <div class="user-info">
+                        <h3 id="nomeCompleto">Nome Cognome</h3>
+                        <p id="emailUtente">email@example.com</p>
+                    </div>
+                </div>
+
+                <!-- Numero Tessera -->
+                <div class="numero-tessera">
+                    <p>Tessera Digitale N°</p>
+                    <p id="numeroTessera">000000</p>
+                </div>
+
+                <!-- QR Code -->
+                <div class="qr-section">
+                    <div class="qr-container">
+                        <div id="qrcode" class="w-28 h-28 flex items-center justify-center">
+                            <div class="animate-pulse bg-gray-300 w-28 h-28 rounded-2xl"></div>
                         </div>
-                        <h2 class="text-primary font-black card-title">MyApp Digital Card</h2>
                     </div>
+                    <p class="text-sm text-gray-600 mt-3 font-semibold">Scansiona per verificare</p>
+                </div>
 
-                    <!-- Foto profilo -->
-                    <div class="text-center mb-6">
-                        <div class="profile-avatar w-24 h-24 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-3xl font-black shadow-lg">
-                            <span id="iniziali">--</span>
-                        </div>
-                        <h3 id="nomeCompleto" class="hero-title text-textDark mb-2">Nome Cognome</h3>
-                        <p id="emailUtente" class="text-base text-gray-600 font-semibold">email@example.com</p>
-                    </div>
+                <!-- Validità -->
+                <div class="validita-section">
+                    <p>Valida fino al: <span id="dataScadenza" class="font-bold">--/--/----</span></p>
+                </div>
 
-                    <!-- Numero tessera -->
-                    <div class="numero-tessera text-white text-center py-4 px-6 rounded-2xl mb-6">
-                        <p class="text-sm opacity-90 mb-2 font-bold">Tessera Digitale N°</p>
-                        <p id="numeroTessera" class="tessera-number">000000</p>
-                    </div>
+                <!-- Stato Tessera -->
+                <div id="statoTessera" class="text-center mb-4">
+                    <span class="status-active">
+                        ✓ Tessera Attiva
+                    </span>
+                </div>
 
-                    <!-- QR Code -->
-                    <div class="text-center mb-6">
-                        <div class="qr-container inline-block">
-                            <div id="qrcode" class="w-28 h-28 flex items-center justify-center">
-                                <div class="animate-pulse bg-gray-200 w-28 h-28 rounded-2xl"></div>
-                            </div>
-                        </div>
-                        <p class="text-sm text-gray-600 mt-3 font-semibold">Scansiona per verificare</p>
-                    </div>
-
-                    <!-- Data scadenza -->
-                    <div class="text-center text-sm text-gray-600 mb-6">
-                        <p class="font-semibold">Valida fino al: <span id="dataScadenza" class="font-bold">--/--/----</span></p>
-                    </div>
-
-                    <!-- Stato tessera -->
-                    <div id="statoTessera" class="text-center mb-4">
-                        <span class="status-active text-sm font-bold px-4 py-2 rounded-full">
-                            ✓ Tessera Attiva
-                        </span>
-                    </div>
-
-                    <!-- Watermark -->
-                    <div class="absolute bottom-3 right-4 text-sm watermark">
-                        Powered by MyApp
-                    </div>
+                <!-- Watermark -->
+                <div class="watermark">
+                    Powered by MyApp Aurora
                 </div>
             </div>
 
-            <!-- Azioni -->
-            <div class="mt-8 space-y-4">
-                <button id="downloadPDF" class="w-full btn-aurora py-4 px-8 rounded-2xl transition-all flex items-center justify-center space-x-3">
+            <!-- Actions -->
+            <div class="actions-container">
+                <button id="downloadPDF" class="btn-aurora">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                    <span class="font-bold">Scarica PDF</span>
+                    <span>Scarica PDF</span>
                 </button>
                 
-                <button id="condividi" class="w-full btn-cyber py-4 px-8 rounded-2xl transition-all flex items-center justify-center space-x-3">
+                <button id="condividi" class="btn-cyber">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
                     </svg>
-                    <span class="font-bold">Condividi</span>
+                    <span>Condividi</span>
                 </button>
             </div>
         </div>
     </main>
 
     <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 px-4 py-3">
+    <nav class="bottom-nav fixed bottom-0 left-0 right-0 px-4 py-3">
         <div class="flex justify-around items-center max-w-md mx-auto">
             <a href="#" onclick="smartHomeRedirect()" class="flex flex-col items-center text-xs text-gray-600 hover:text-primary transition-colors p-3">
                 <svg class="w-7 h-7 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -557,12 +796,11 @@
                     img.style.width = '112px';
                     img.style.height = '112px';
                     img.style.borderRadius = '16px';
-                    img.style.border = '2px solid rgba(255, 255, 255, 0.3)';
                 }
             } catch (error) {
                 console.error('Errore generazione QR:', error);
                 document.getElementById('qrcode').innerHTML = `
-                    <div class="w-28 h-28 bg-gradient-to-br from-gray-200 to-gray-300 rounded-2xl flex items-center justify-center text-gray-500 font-bold border-2 border-white shadow-lg">
+                    <div class="w-28 h-28 bg-gradient-to-br from-gray-200 to-gray-300 rounded-2xl flex items-center justify-center text-gray-500 font-bold">
                         QR
                     </div>
                 `;
@@ -729,7 +967,7 @@
             const stato = verificaStatoTessera(tesseraData.data_scadenza);
             const statoElement = document.getElementById('statoTessera');
             statoElement.innerHTML = `
-                <span class="${stato.classe} text-sm font-bold px-4 py-2 rounded-full">
+                <span class="${stato.classe}">
                     ${stato.messaggio}
                 </span>
             `;
@@ -750,7 +988,8 @@
                 // Usa html2canvas per catturare la tessera
                 const tesseraElement = document.getElementById('tesseraCard');
                 
-                // Temporaneamente nascondi le animazioni per la cattura
+                // Temporaneamente disabilita animazioni
+                const originalStyle = tesseraElement.style.cssText;
                 tesseraElement.style.animation = 'none';
                 tesseraElement.style.transform = 'none';
                 
@@ -763,9 +1002,8 @@
                     foreignObjectRendering: true
                 });
 
-                // Ripristina le animazioni
-                tesseraElement.style.animation = '';
-                tesseraElement.style.transform = '';
+                // Ripristina lo stile originale
+                tesseraElement.style.cssText = originalStyle;
 
                 const imgData = canvas.toDataURL('image/png');
                 
@@ -780,7 +1018,7 @@
                 // Aggiungi header
                 pdf.setFontSize(20);
                 pdf.setTextColor(26, 26, 46); // Primary color
-                pdf.text('Tessera Digitale MyApp', pdfWidth / 2, 20, { align: 'center' });
+                pdf.text('Tessera Digitale - Arma dei Carabinieri', pdfWidth / 2, 20, { align: 'center' });
                 
                 // Aggiungi l'immagine
                 pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
@@ -789,10 +1027,10 @@
                 pdf.setFontSize(10);
                 pdf.setTextColor(100, 100, 100);
                 pdf.text(`Generata il: ${new Date().toLocaleDateString('it-IT')} alle ${new Date().toLocaleTimeString('it-IT')}`, pdfWidth / 2, imgHeight + y + 20, { align: 'center' });
-                pdf.text('Documento ufficiale - Sindacato Carabinieri MyApp', pdfWidth / 2, imgHeight + y + 30, { align: 'center' });
+                pdf.text('Documento ufficiale - Sindacato Carabinieri MyApp Aurora', pdfWidth / 2, imgHeight + y + 30, { align: 'center' });
                 
                 // Scarica il PDF
-                pdf.save(`tessera_digitale_${tesseraData?.numero_tessera || 'myapp'}_${new Date().getTime()}.pdf`);
+                pdf.save(`tessera_carabinieri_${tesseraData?.numero_tessera || 'myapp'}_${new Date().getTime()}.pdf`);
 
             } catch (error) {
                 console.error('Errore nella generazione del PDF:', error);
@@ -804,8 +1042,8 @@
         async function condividiTessera() {
             try {
                 const shareData = {
-                    title: 'La mia Tessera Digitale MyApp',
-                    text: `Tessera Digitale N° ${tesseraData?.numero_tessera || ''} - Sindacato Carabinieri`,
+                    title: 'Tessera Digitale - Arma dei Carabinieri',
+                    text: `Tessera Digitale N° ${tesseraData?.numero_tessera || ''} - Sindacato Carabinieri MyApp`,
                     url: window.location.href
                 };
 
@@ -814,7 +1052,7 @@
                 } else {
                     // Fallback per browser che non supportano Web Share API
                     const url = window.location.href;
-                    const text = `Tessera Digitale N° ${tesseraData?.numero_tessera || ''} - MyApp`;
+                    const text = `Tessera Digitale N° ${tesseraData?.numero_tessera || ''} - Sindacato Carabinieri`;
                     
                     if (navigator.clipboard && window.isSecureContext) {
                         await navigator.clipboard.writeText(`${text}\n${url}`);
@@ -834,7 +1072,7 @@
             } catch (error) {
                 console.error('Errore nella condivisione:', error);
                 // Fallback in caso di errore
-                const fallbackText = `Tessera Digitale MyApp N° ${tesseraData?.numero_tessera || ''}`;
+                const fallbackText = `Tessera Digitale Carabinieri N° ${tesseraData?.numero_tessera || ''}`;
                 prompt('Copia queste informazioni:', fallbackText);
             }
         }
