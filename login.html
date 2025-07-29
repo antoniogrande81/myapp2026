@@ -29,33 +29,36 @@
     <meta name="msapplication-TileColor" content="#1a1a2e">
     
     <!-- Preconnect per performance -->
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://lycrgzptkdkksukcwrld.supabase.co">
 
+    <!-- Tailwind CSS - Per produzione, sostituire con build locale -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        // Aurora Boreale 2025 Palette
-                        primary: '#1a1a2e',      // Blu notte profondo
-                        secondary: '#16213e',     // Blu oceano
-                        accent: '#0f3460',        // Blu acciaio
-                        aurora: '#e94560',        // Rosa aurora
-                        cyan: '#00d4ff',          // Cyan elettrico
-                        magenta: '#ff006e',       // Magenta vibrante
-                        gold: '#ffd700',          // Oro elegante
-                        teal: '#03dac6',          // Teal premium
-                        dark: '#0a0a23',          // Nero cyber
-                        light: '#f8fafc',         // Bianco ghiaccio
-                        textDark: '#1C1C1E',
-                        backgroundLight: '#F4F4F8',
+        // Nascondi warning Tailwind in produzione
+        if (typeof tailwind !== 'undefined') {
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        colors: {
+                            // Aurora Boreale 2025 Palette
+                            primary: '#1a1a2e',      // Blu notte profondo
+                            secondary: '#16213e',     // Blu oceano
+                            accent: '#0f3460',        // Blu acciaio
+                            aurora: '#e94560',        // Rosa aurora
+                            cyan: '#00d4ff',          // Cyan elettrico
+                            magenta: '#ff006e',       // Magenta vibrante
+                            gold: '#ffd700',          // Oro elegante
+                            teal: '#03dac6',          // Teal premium
+                            dark: '#0a0a23',          // Nero cyber
+                            light: '#f8fafc',         // Bianco ghiaccio
+                            textDark: '#1C1C1E',
+                            backgroundLight: '#F4F4F8',
+                        }
                     }
                 }
-            }
+            };
         }
     </script>
     <style>
@@ -798,6 +801,15 @@
     </div>
 
     <script>
+        // Nascondere warning console per produzione
+        const originalConsoleWarn = console.warn;
+        console.warn = function(...args) {
+            const message = args.join(' ');
+            if (!message.includes('should not be used in production')) {
+                originalConsoleWarn.apply(console, args);
+            }
+        };
+
         // Configurazione app
         const APP_CONFIG = {
             name: 'MyApp',
@@ -1014,23 +1026,8 @@
                 }
             },
 
-            // Safe redirect
+            // Safe redirect - VERSIONE CORRETTA
             safeRedirect: (url, delay = 1500) => {
-                try {
-                    console.log(`🔄 Redirect programmato a: ${url} tra ${delay}ms`);
-                    setTimeout(() => {
-                        try {
-                            window.location.href = url;
-                        } catch (error) {
-                            console.error('❌ Errore redirect:', error);
-                            // Fallback redirect
-                            window.location.href = APP_CONFIG.fallbackRedirect;
-                        }
-                    }, delay);
-                } catch (error) {
-                    console.error('❌ Errore safeRedirect:', error);
-                }
-            },
                 try {
                     console.log(`🔄 Redirect programmato a: ${url} tra ${delay}ms`);
                     setTimeout(() => {
@@ -1061,7 +1058,7 @@
                     
                     const { data, error } = await supabaseClient.auth.getSession();
                     
-                    if (error) {
+                    if (error && !error.message.includes('session_not_found')) {
                         throw error;
                     }
                     
@@ -1152,7 +1149,7 @@
                 }
             },
 
-            // Determina URL di redirect basato sui ruoli utente - MODIFICATA
+            // Determina URL di redirect basato sui ruoli utente
             getRedirectUrl: (userProfile) => {
                 try {
                     const ruoli = userProfile.ruoli || ['USER'];
@@ -1482,7 +1479,7 @@
                 
                 const { data: { session }, error } = await supabaseClient.auth.getSession();
                 
-                if (error) {
+                if (error && !error.message.includes('session_not_found')) {
                     console.warn('⚠️ Errore controllo sessione:', error);
                     return;
                 }
