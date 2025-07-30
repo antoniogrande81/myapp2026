@@ -142,6 +142,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
         }
 
         .btn-aurora:hover {
@@ -163,6 +164,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
         }
 
         .btn-secondary:hover {
@@ -369,24 +371,24 @@
         <div class="glass-card p-6 mb-8 fade-in">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-4">
-                    <button onclick="openConventionModal()" class="btn-aurora">
+                    <button id="newConventionBtn" class="btn-aurora">
                         <span class="mr-2">➕</span>
                         Nuova Convenzione
                     </button>
-                    <button onclick="loadConventions()" class="btn-secondary" id="refreshBtn">
+                    <button id="refreshBtn" class="btn-secondary">
                         <span class="mr-2">🔄</span>
                         Aggiorna
                     </button>
                 </div>
                 
                 <div class="flex items-center gap-4">
-                    <select id="filterStatus" onchange="filterConventions()" class="text-sm">
+                    <select id="filterStatus" class="text-sm">
                         <option value="all">Tutte</option>
                         <option value="active">Attive</option>
                         <option value="inactive">Inattive</option>
                         <option value="expired">Scadute</option>
                     </select>
-                    <select id="filterCategory" onchange="filterConventions()" class="text-sm">
+                    <select id="filterCategory" class="text-sm">
                         <option value="all">Tutte le categorie</option>
                         <option value="casa">Casa</option>
                         <option value="auto">Auto</option>
@@ -418,7 +420,7 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-bold text-primary" id="modalTitle">🏷️ Nuova Convenzione</h3>
-                <button onclick="closeConventionModal()" class="text-gray-500 hover:text-cyan text-3xl font-bold transition-colors" aria-label="Chiudi">&times;</button>
+                <button id="closeModalBtn" class="text-gray-500 hover:text-cyan text-3xl font-bold transition-colors" aria-label="Chiudi">&times;</button>
             </div>
 
             <form id="conventionForm" class="space-y-6">
@@ -488,7 +490,7 @@
 
                 <div>
                     <label class="block text-sm font-bold text-primary mb-2">Logo Partner (opzionale)</label>
-                    <input type="file" id="logoPartner" accept="image/*" onchange="previewLogo(event)">
+                    <input type="file" id="logoPartner" accept="image/*">
                     <div id="logoPreview"></div>
                 </div>
 
@@ -504,11 +506,11 @@
                         <span class="mr-2">💾</span>
                         Salva Convenzione
                     </button>
-                    <button type="button" onclick="closeConventionModal()" class="btn-secondary">
+                    <button type="button" id="cancelBtn" class="btn-secondary">
                         <span class="mr-2">❌</span>
                         Annulla
                     </button>
-                    <button type="button" onclick="deleteConvention()" class="btn-danger" id="deleteConventionBtn" style="display: none;">
+                    <button type="button" id="deleteConventionBtn" class="btn-danger" style="display: none;">
                         <span class="mr-2">🗑️</span>
                         Elimina
                     </button>
@@ -623,12 +625,15 @@
                         <div class="text-6xl mb-4">🏷️</div>
                         <h3 class="text-xl font-bold text-primary mb-2">Nessuna convenzione trovata</h3>
                         <p class="text-gray-600 mb-6">Inizia creando la prima partnership</p>
-                        <button onclick="openConventionModal()" class="btn-aurora">
+                        <button id="createFirstBtn" class="btn-aurora">
                             <span class="mr-2">➕</span>
                             Crea Prima Convenzione
                         </button>
                     </div>
                 `;
+                
+                // Add event listener for the create first button
+                document.getElementById('createFirstBtn').addEventListener('click', openConventionModal);
                 return;
             }
 
@@ -682,4 +687,377 @@
                                             <span class="discount-badge">💰 -${convention.sconto_percentuale}%</span>
                                         ` : ''}
                                         
-                                        <span class="status-badge
+                                        <span class="status-badge ${status}">
+                                            ${status === 'active' ? '✅ Attiva' : status === 'expired' ? '❌ Scaduta' : '⏸️ Inattiva'}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="flex items-center gap-4 text-sm text-gray-500">
+                                        <span>📅 ${new Date(convention.data_inizio).toLocaleDateString('it-IT')}</span>
+                                        ${convention.data_fine ? `<span>⏰ Scade: ${new Date(convention.data_fine).toLocaleDateString('it-IT')}</span>` : ''}
+                                        <span>👤 ${authorName}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            ${canEdit ? `
+                                <div class="flex gap-2 ml-4">
+                                    <button class="edit-convention-btn btn-secondary text-sm px-3 py-2" data-id="${convention.id}">
+                                        <span class="mr-1">✏️</span>
+                                        Modifica
+                                    </button>
+                                    ${convention.attiva ? `
+                                        <button class="toggle-convention-btn btn-secondary text-sm px-3 py-2" data-id="${convention.id}" data-active="true">
+                                            <span class="mr-1">⏸️</span>
+                                            Disattiva
+                                        </button>
+                                    ` : `
+                                        <button class="toggle-convention-btn btn-success text-sm px-3 py-2" data-id="${convention.id}" data-active="false">
+                                            <span class="mr-1">▶️</span>
+                                            Attiva
+                                        </button>
+                                    `}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add event listeners to dynamically created buttons
+            setupConventionCardListeners();
+        }
+
+        function setupConventionCardListeners() {
+            // Edit buttons
+            document.querySelectorAll('.edit-convention-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const conventionId = e.target.closest('.edit-convention-btn').dataset.id;
+                    editConvention(conventionId);
+                });
+            });
+
+            // Toggle buttons
+            document.querySelectorAll('.toggle-convention-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const button = e.target.closest('.toggle-convention-btn');
+                    const conventionId = button.dataset.id;
+                    const currentActive = button.dataset.active === 'true';
+                    toggleConvention(conventionId, !currentActive);
+                });
+            });
+        }
+
+        function getFilteredConventions() {
+            const statusFilter = document.getElementById('filterStatus').value;
+            const categoryFilter = document.getElementById('filterCategory').value;
+            
+            return allConventions.filter(convention => {
+                const isExpired = convention.data_fine && new Date(convention.data_fine) < new Date();
+                const status = isExpired ? 'expired' : (convention.attiva ? 'active' : 'inactive');
+                
+                const statusMatch = statusFilter === 'all' || status === statusFilter;
+                const categoryMatch = categoryFilter === 'all' || convention.categoria === categoryFilter;
+                
+                return statusMatch && categoryMatch;
+            });
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'casa': '🏠',
+                'auto': '🚗',
+                'viaggi': '✈️',
+                'salute': '🏥',
+                'shopping': '🛍️',
+                'servizi': '⚙️',
+                'altro': '📦'
+            };
+            return icons[category] || '📦';
+        }
+
+        // Modal functions
+        function openConventionModal() {
+            resetForm();
+            document.getElementById('modalTitle').textContent = '🏷️ Nuova Convenzione';
+            document.getElementById('deleteConventionBtn').style.display = 'none';
+            document.getElementById('conventionModal').classList.add('active');
+        }
+
+        function closeConventionModal() {
+            document.getElementById('conventionModal').classList.remove('active');
+            resetForm();
+        }
+
+        function resetForm() {
+            editingConventionId = null;
+            uploadedLogoUrl = null;
+            document.getElementById('conventionForm').reset();
+            document.getElementById('conventionId').value = '';
+            document.getElementById('logoPreview').innerHTML = '';
+            document.getElementById('dataInizio').value = new Date().toISOString().split('T')[0];
+        }
+
+        function editConvention(conventionId) {
+            const convention = allConventions.find(c => c.id === conventionId);
+            if (!convention) return;
+
+            editingConventionId = conventionId;
+            
+            document.getElementById('modalTitle').textContent = '✏️ Modifica Convenzione';
+            document.getElementById('deleteConventionBtn').style.display = 'inline-flex';
+            
+            document.getElementById('conventionId').value = convention.id;
+            document.getElementById('nomePartner').value = convention.nome_partner;
+            document.getElementById('categoria').value = convention.categoria;
+            document.getElementById('icona').value = convention.icona || '🏷️';
+            document.getElementById('scontoPercentuale').value = convention.sconto_percentuale || '';
+            document.getElementById('descrizione').value = convention.descrizione;
+            document.getElementById('dataInizio').value = convention.data_inizio;
+            document.getElementById('dataFine').value = convention.data_fine || '';
+            document.getElementById('linkEsterno').value = convention.link_esterno || '';
+            document.getElementById('attiva').checked = convention.attiva;
+            
+            if (convention.logo_url) {
+                uploadedLogoUrl = convention.logo_url;
+                document.getElementById('logoPreview').innerHTML = `
+                    <img src="${convention.logo_url}" alt="Anteprima" class="logo-preview">
+                `;
+            }
+            
+            document.getElementById('conventionModal').classList.add('active');
+        }
+
+        async function saveConvention(event) {
+            event.preventDefault();
+            
+            const saveBtn = document.getElementById('saveConventionBtn');
+            saveBtn.innerHTML = '<div class="spinner"></div>Salvando...';
+            saveBtn.disabled = true;
+
+            try {
+                const formData = {
+                    nome_partner: document.getElementById('nomePartner').value.trim(),
+                    categoria: document.getElementById('categoria').value,
+                    icona: document.getElementById('icona').value,
+                    sconto_percentuale: document.getElementById('scontoPercentuale').value ? parseInt(document.getElementById('scontoPercentuale').value) : null,
+                    descrizione: document.getElementById('descrizione').value.trim(),
+                    data_inizio: document.getElementById('dataInizio').value,
+                    data_fine: document.getElementById('dataFine').value || null,
+                    link_esterno: document.getElementById('linkEsterno').value.trim() || null,
+                    attiva: document.getElementById('attiva').checked,
+                    logo_url: uploadedLogoUrl
+                };
+
+                if (!formData.nome_partner || !formData.descrizione) {
+                    throw new Error('Nome partner e descrizione sono obbligatori');
+                }
+
+                let result;
+                if (editingConventionId) {
+                    // Update existing convention
+                    const { data, error } = await supabase
+                        .from('convenzioni')
+                        .update(formData)
+                        .eq('id', editingConventionId)
+                        .select();
+                    
+                    if (error) throw error;
+                    result = data;
+                    showNotification('✅ Convenzione aggiornata con successo!', 'success');
+                } else {
+                    // Create new convention
+                    const { data, error } = await supabase
+                        .from('convenzioni')
+                        .insert({
+                            ...formData,
+                            autore_id: currentUser.id
+                        })
+                        .select();
+
+                    if (error) throw error;
+                    result = data;
+                    showNotification('✅ Convenzione creata con successo!', 'success');
+                }
+
+                closeConventionModal();
+                await loadConventions();
+
+            } catch (error) {
+                console.error('Errore salvataggio convenzione:', error);
+                showNotification(`❌ ${error.message}`, 'error');
+            } finally {
+                saveBtn.innerHTML = '<span class="mr-2">💾</span>Salva Convenzione';
+                saveBtn.disabled = false;
+            }
+        }
+
+        async function deleteConvention() {
+            if (!editingConventionId) return;
+            
+            if (!confirm('Sei sicuro di voler eliminare questa convenzione? Questa azione non può essere annullata.')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('convenzioni')
+                    .delete()
+                    .eq('id', editingConventionId);
+
+                if (error) throw error;
+
+                showNotification('✅ Convenzione eliminata con successo!', 'success');
+                closeConventionModal();
+                await loadConventions();
+
+            } catch (error) {
+                console.error('Errore eliminazione convenzione:', error);
+                showNotification('❌ Errore nell\'eliminazione della convenzione', 'error');
+            }
+        }
+
+        async function toggleConvention(conventionId, newStatus) {
+            try {
+                const { error } = await supabase
+                    .from('convenzioni')
+                    .update({ attiva: newStatus })
+                    .eq('id', conventionId);
+
+                if (error) throw error;
+
+                showNotification(`✅ Convenzione ${newStatus ? 'attivata' : 'disattivata'}!`, 'success');
+                await loadConventions();
+
+            } catch (error) {
+                console.error('Errore toggle convenzione:', error);
+                showNotification('❌ Errore nella modifica dello stato', 'error');
+            }
+        }
+
+        async function uploadLogo(file) {
+            if (!file) return null;
+
+            try {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+                const filePath = `convenzioni/${fileName}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('images')
+                    .upload(filePath, file);
+
+                if (uploadError) throw uploadError;
+
+                const { data: { publicUrl } } = supabase.storage
+                    .from('images')
+                    .getPublicUrl(filePath);
+
+                return publicUrl;
+
+            } catch (error) {
+                console.error('Errore upload logo:', error);
+                throw new Error('Errore nell\'upload del logo');
+            }
+        }
+
+        async function previewLogo(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showNotification('❌ Seleziona solo file immagine', 'error');
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('❌ Il logo deve essere inferiore a 5MB', 'error');
+                return;
+            }
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('logoPreview').innerHTML = `
+                    <img src="${e.target.result}" alt="Anteprima" class="logo-preview">
+                    <p class="text-sm text-gray-600 mt-2">Anteprima - il logo sarà caricato al salvataggio</p>
+                `;
+            };
+            reader.readAsDataURL(file);
+
+            // Upload logo
+            try {
+                uploadedLogoUrl = await uploadLogo(file);
+                showNotification('✅ Logo caricato con successo!', 'success');
+            } catch (error) {
+                showNotification('❌ Errore nel caricamento del logo', 'error');
+                uploadedLogoUrl = null;
+            }
+        }
+
+        function filterConventions() {
+            displayConventions();
+        }
+
+        function setupEventListeners() {
+            // Main buttons
+            document.getElementById('newConventionBtn').addEventListener('click', openConventionModal);
+            document.getElementById('refreshBtn').addEventListener('click', loadConventions);
+            
+            // Modal buttons
+            document.getElementById('closeModalBtn').addEventListener('click', closeConventionModal);
+            document.getElementById('cancelBtn').addEventListener('click', closeConventionModal);
+            document.getElementById('deleteConventionBtn').addEventListener('click', deleteConvention);
+            
+            // Form submission
+            document.getElementById('conventionForm').addEventListener('submit', saveConvention);
+            
+            // File upload
+            document.getElementById('logoPartner').addEventListener('change', previewLogo);
+            
+            // Filters
+            document.getElementById('filterStatus').addEventListener('change', filterConventions);
+            document.getElementById('filterCategory').addEventListener('change', filterConventions);
+            
+            // Close modal on click outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    closeConventionModal();
+                }
+            });
+
+            // Close modal on ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeConventionModal();
+                }
+            });
+        }
+
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const colors = {
+                success: 'bg-gradient-to-r from-green-500 to-green-600',
+                error: 'bg-gradient-to-r from-red-500 to-red-600',
+                info: 'bg-gradient-to-r from-blue-500 to-blue-600'
+            };
+            
+            notification.className = `fixed top-6 right-6 ${colors[type]} text-white px-6 py-4 rounded-2xl shadow-2xl z-50 transform translate-x-full transition-transform duration-500 font-bold text-base backdrop-blur-md border border-white/20`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.remove('translate-x-full'), 100);
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => notification.remove(), 500);
+            }, 4000);
+        }
+
+        // Initialize app
+        init();
+    </script>
+
+</body>
+</html>

@@ -179,6 +179,7 @@
             padding: 0.75rem 1.5rem;
             text-decoration: none;
             display: inline-block;
+            cursor: pointer;
         }
 
         .btn-aurora:hover {
@@ -198,6 +199,7 @@
             padding: 0.75rem 1.5rem;
             text-decoration: none;
             display: inline-block;
+            cursor: pointer;
         }
 
         .btn-gold:hover {
@@ -217,6 +219,7 @@
             padding: 0.75rem 1.5rem;
             text-decoration: none;
             display: inline-block;
+            cursor: pointer;
         }
 
         .btn-secondary:hover {
@@ -296,6 +299,27 @@
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
         }
 
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 215, 0, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #ffd700;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .glass-card {
@@ -321,35 +345,13 @@
             outline: 2px solid #ffd700;
             outline-offset: 2px;
         }
-
-        /* Loading states */
-        .loading {
-            opacity: 0.6;
-            pointer-events: none;
-        }
-
-        .spinner {
-            border: 3px solid rgba(255, 215, 0, 0.3);
-            border-radius: 50%;
-            border-top: 3px solid #ffd700;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 0.5rem;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
     </style>
 </head>
 <body class="font-inter">
 
     <!-- Back Button -->
     <div class="absolute top-6 left-6 z-10">
-        <button onclick="history.back()" class="flex items-center gap-3 text-ultra-visible hover:text-gold transition-all duration-300 transform hover:scale-110 group">
+        <button id="backBtn" class="flex items-center gap-3 text-ultra-visible hover:text-gold transition-all duration-300 transform hover:scale-110 group">
             <svg class="w-8 h-8 group-hover:translate-x-[-2px] transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path>
             </svg>
@@ -407,7 +409,7 @@
             </h3>
             
             <div class="mb-6 text-center">
-                <button onclick="loadUsers()" class="btn-gold" id="loadUsersBtn">
+                <button id="loadUsersBtn" class="btn-gold">
                     <span class="mr-2">🔄</span>
                     Carica Utenti
                 </button>
@@ -441,7 +443,7 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-bold text-primary">Modifica Ruoli Utente</h3>
-                <button onclick="closeRolesModal()" class="text-gray-500 hover:text-aurora text-3xl font-bold transition-colors" aria-label="Chiudi">&times;</button>
+                <button id="closeRolesModalBtn" class="text-gray-500 hover:text-aurora text-3xl font-bold transition-colors" aria-label="Chiudi">&times;</button>
             </div>
             
             <div class="mb-6">
@@ -485,7 +487,7 @@
                         <span class="mr-2">💾</span>
                         Salva Modifiche
                     </button>
-                    <button type="button" onclick="closeRolesModal()" class="flex-1 btn-secondary">
+                    <button type="button" id="cancelRolesBtn" class="flex-1 btn-secondary">
                         <span class="mr-2">❌</span>
                         Annulla
                     </button>
@@ -520,6 +522,7 @@
                 currentUser = user;
                 await loadUserProfile();
                 loadDirigentiFunctions();
+                setupEventListeners();
                 
                 // Show admin section if user is ADMIN
                 if (currentUserRoles.includes('ADMIN')) {
@@ -580,28 +583,28 @@
                     icon: '👥',
                     title: 'Gestione Soci',
                     description: 'Amministra gli iscritti',
-                    action: () => window.location.href = 'gestione-soci.html',
+                    action: 'gestione-soci.html',
                     roles: ['DIRIGENTE', 'ADMIN']
                 },
                 {
                     icon: '📊',
                     title: 'Statistiche',
                     description: 'Report e analytics',
-                    action: () => window.location.href = 'dashboard-statistiche.html',
+                    action: 'dashboard-statistiche.html',
                     roles: ['DIRIGENTE', 'ADMIN']
                 },
                 {
                     icon: '📰',
                     title: 'Gestione Notizie',
                     description: 'Pubblica comunicazioni',
-                    action: () => window.location.href = 'gestione-notizie.html',
+                    action: 'gestione-notizie.html',
                     roles: ['DIRIGENTE', 'ADMIN']
                 },
                 {
                     icon: '🏷️',
                     title: 'Convenzioni',
                     description: 'Gestisci partnership',
-                    action: () => window.location.href = 'gestione-convenzioni.html',
+                    action: 'gestione-convenzioni.html',
                     roles: ['DIRIGENTE', 'ADMIN']
                 },
                 {
@@ -624,12 +627,24 @@
             container.innerHTML = functions
                 .filter(func => func.roles.some(role => currentUserRoles.includes(role)))
                 .map(func => `
-                    <div class="function-card" onclick="(${func.action})()">
+                    <div class="function-card" data-action="${typeof func.action === 'string' ? func.action : 'function'}">
                         <div class="text-4xl mb-3">${func.icon}</div>
                         <h4 class="font-bold text-ultra-visible text-lg mb-2">${func.title}</h4>
                         <p class="text-ultra-visible opacity-80 text-sm">${func.description}</p>
                     </div>
                 `).join('');
+
+            // Add click handlers to function cards
+            document.querySelectorAll('.function-card').forEach((card, index) => {
+                const func = functions.filter(f => f.roles.some(role => currentUserRoles.includes(role)))[index];
+                card.addEventListener('click', () => {
+                    if (typeof func.action === 'string') {
+                        window.location.href = func.action;
+                    } else {
+                        func.action();
+                    }
+                });
+            });
         }
 
         // Load users for role management (ADMIN only)
@@ -695,7 +710,7 @@
                                 <div class="flex flex-wrap gap-1">${rolesHtml}</div>
                             </div>
                             <div class="ml-4">
-                                <button onclick="openRolesModal('${user.id}')" class="btn-gold text-sm px-3 py-2">
+                                <button class="edit-user-btn btn-gold text-sm px-3 py-2" data-user-id="${user.id}">
                                     <span class="mr-1">✏️</span>
                                     Modifica
                                 </button>
@@ -704,6 +719,14 @@
                     </div>
                 `;
             }).join('');
+
+            // Add event listeners to edit buttons
+            document.querySelectorAll('.edit-user-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const userId = e.target.closest('.edit-user-btn').dataset.userId;
+                    openRolesModal(userId);
+                });
+            });
         }
 
         // Modal functions
@@ -829,28 +852,36 @@
             }
         }
 
-        // Event listeners
-        document.getElementById('rolesForm').addEventListener('submit', saveUserRoles);
+        function setupEventListeners() {
+            // Back button
+            document.getElementById('backBtn').addEventListener('click', () => {
+                history.back();
+            });
 
-        // Close modal on click outside
-        document.addEventListener('click', function(e) {
-            if (e.target.classList.contains('modal')) {
-                closeRolesModal();
-            }
-        });
+            // Load users button
+            document.getElementById('loadUsersBtn').addEventListener('click', loadUsers);
 
-        // Close modal on ESC key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeRolesModal();
-            }
-        });
+            // Modal close buttons
+            document.getElementById('closeRolesModalBtn').addEventListener('click', closeRolesModal);
+            document.getElementById('cancelRolesBtn').addEventListener('click', closeRolesModal);
 
-        // Expose functions globally
-        window.loadUsers = loadUsers;
-        window.openRolesModal = openRolesModal;
-        window.closeRolesModal = closeRolesModal;
-        window.smartHomeRedirect = smartHomeRedirect;
+            // Form submission
+            document.getElementById('rolesForm').addEventListener('submit', saveUserRoles);
+
+            // Close modal on click outside
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    closeRolesModal();
+                }
+            });
+
+            // Close modal on ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeRolesModal();
+                }
+            });
+        }
 
         // Initialize app
         init();
