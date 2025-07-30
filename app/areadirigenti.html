@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Area Riservata Dirigenti - Aurora</title>
+    <title>Area Riservata Dirigenti</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -580,28 +580,28 @@
                     icon: '👥',
                     title: 'Gestione Soci',
                     description: 'Amministra gli iscritti',
-                    action: () => showNotification('🚧 Funzione in sviluppo', 'info'),
+                    action: () => window.location.href = 'gestione-soci.html',
                     roles: ['DIRIGENTE', 'ADMIN']
                 },
                 {
                     icon: '📊',
                     title: 'Statistiche',
                     description: 'Report e analytics',
-                    action: () => showNotification('🚧 Funzione in sviluppo', 'info'),
+                    action: () => window.location.href = 'dashboard-statistiche.html',
                     roles: ['DIRIGENTE', 'ADMIN']
                 },
                 {
                     icon: '📰',
                     title: 'Gestione Notizie',
                     description: 'Pubblica comunicazioni',
-                    action: () => showNotification('🚧 Funzione in sviluppo', 'info'),
+                    action: () => window.location.href = 'gestione-notizie.html',
                     roles: ['DIRIGENTE', 'ADMIN']
                 },
                 {
                     icon: '🏷️',
                     title: 'Convenzioni',
                     description: 'Gestisci partnership',
-                    action: () => showNotification('🚧 Funzione in sviluppo', 'info'),
+                    action: () => window.location.href = 'gestione-convenzioni.html',
                     roles: ['DIRIGENTE', 'ADMIN']
                 },
                 {
