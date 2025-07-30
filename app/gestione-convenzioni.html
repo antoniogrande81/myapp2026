@@ -909,9 +909,17 @@
         async function deleteConvention() {
             if (!editingConventionId) return;
             
-            if (!confirm('Sei sicuro di voler eliminare questa convenzione? Questa azione non può essere annullata.')) return;
+            // Doppia conferma per eliminazione definitiva
+            if (!confirm('⚠️ ATTENZIONE: Stai per eliminare definitivamente questa convenzione.\n\nQuesta azione è IRREVERSIBILE e rimuoverà completamente il record dal database.\n\nSei sicuro di voler procedere?')) return;
+            
+            if (!confirm('🗑️ CONFERMA FINALE: Eliminare definitivamente la convenzione?\n\nNON sarà più possibile recuperarla.')) return;
+
+            const deleteBtn = document.getElementById('deleteConventionBtn');
+            deleteBtn.innerHTML = '<div class="spinner"></div>Eliminando...';
+            deleteBtn.disabled = true;
 
             try {
+                // Elimina definitivamente il record dal database
                 const { error } = await supabase
                     .from('convenzioni')
                     .delete()
@@ -919,13 +927,16 @@
 
                 if (error) throw error;
 
-                showNotification('✅ Convenzione eliminata con successo!', 'success');
+                showNotification('✅ Convenzione eliminata definitivamente dal database!', 'success');
                 closeConventionModal();
-                await loadConventions();
+                await loadConventions(); // Ricarica la lista
 
             } catch (error) {
                 console.error('Errore eliminazione convenzione:', error);
                 showNotification('❌ Errore nell\'eliminazione della convenzione', 'error');
+            } finally {
+                deleteBtn.innerHTML = '<span class="mr-2">🗑️</span>Elimina';
+                deleteBtn.disabled = false;
             }
         }
 

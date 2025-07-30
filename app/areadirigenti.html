@@ -42,6 +42,7 @@
             --gradient-cyber: linear-gradient(135deg, #0a0a23 0%, #1a1a2e 50%, #00d4ff 100%);
             --gradient-magic: linear-gradient(135deg, #ff006e 0%, #e94560 50%, #03dac6 100%);
             --gradient-gold: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+            --gradient-teal: linear-gradient(135deg, #03dac6 0%, #00d4ff 100%);
         }
 
         * {
@@ -144,10 +145,10 @@
         }
 
         .function-card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(12px);
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(16px);
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            border-radius: 18px;
             padding: 1.5rem;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
@@ -157,13 +158,39 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                        0 0 0 1px rgba(255, 215, 0, 0.1);
+            position: relative;
+        }
+
+        .function-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 15px;
+            padding: 2px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(233, 69, 96, 0.3), rgba(0, 212, 255, 0.3));
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: xor;
+            -webkit-mask-composite: xor;
+            pointer-events: none;
         }
 
         .function-card:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.3);
             transform: translateY(-6px) scale(1.03);
-            border-color: rgba(255, 215, 0, 0.4);
-            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.15);
+            border-color: rgba(255, 215, 0, 0.6);
+            box-shadow: 0 25px 50px rgba(255, 215, 0, 0.2),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                        0 0 0 2px rgba(255, 215, 0, 0.3);
+        }
+
+        .function-card:hover::before {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.5), rgba(233, 69, 96, 0.5), rgba(0, 212, 255, 0.5));
         }
 
         .btn-aurora {
@@ -395,6 +422,46 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="dirigentiFunctions">
                 <!-- Functions will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Funzioni Amministrative -->
+        <div class="glass-card p-6 md:p-8 mb-8 fade-in">
+            <h3 class="section-title text-primary mb-8 text-center">
+                <span class="mr-3 text-3xl">📋</span>
+                Funzioni Amministrative
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="function-card" onclick="window.open('https://form.jotform.com/243226223182044', '_blank')">
+                    <div class="text-4xl mb-3">💰</div>
+                    <h4 class="font-bold text-ultra-visible text-lg mb-2">Richiedi Rimborso</h4>
+                    <p class="text-ultra-visible opacity-80 text-sm">Compila il modulo per richieste di rimborso spese</p>
+                </div>
+
+                <div class="function-card" onclick="window.open('https://form.jotform.com/243262801203343', '_blank')">
+                    <div class="text-4xl mb-3">📝</div>
+                    <h4 class="font-bold text-ultra-visible text-lg mb-2">Richiedi Permesso</h4>
+                    <p class="text-ultra-visible opacity-80 text-sm">Inoltra richiesta di permesso sindacale</p>
+                </div>
+
+                <div class="function-card" onclick="window.open('https://eu.jotform.com/tables/243226223182044?st=UGpyTWZFR0lXeUlKclRSWFpURFNEWEk5TklTZ2RSWithczc5UzJ3ajVKVDRrenVEWlIxdzJaVDduV1I0ZjVVM21BM1NzQlNmOEZ2cFNxQ3hIczlkK2JWL2w2a0grU1FSa0NrVGl2WmZCcGNsTlkvZlZ1V2FKUUNkdUdJL0d1YXA=', '_blank')">
+                    <div class="text-4xl mb-3">📊</div>
+                    <h4 class="font-bold text-ultra-visible text-lg mb-2">Tabella Rendiconto</h4>
+                    <p class="text-ultra-visible opacity-80 text-sm">Visualizza i dati di rendiconto</p>
+                </div>
+
+                <div class="function-card" onclick="window.open('https://eu.jotform.com/tables/243262801203343', '_blank')">
+                    <div class="text-4xl mb-3">📅</div>
+                    <h4 class="font-bold text-ultra-visible text-lg mb-2">Tabella Permessi</h4>
+                    <p class="text-ultra-visible opacity-80 text-sm">Gestisci permessi sindacali</p>
+                </div>
+
+                <div class="function-card" onclick="window.open('https://mega.nz/#fm/b3ojlZgY', '_blank')">
+                    <div class="text-4xl mb-3">☁️</div>
+                    <h4 class="font-bold text-ultra-visible text-lg mb-2">Accesso Cloud</h4>
+                    <p class="text-ultra-visible opacity-80 text-sm">Repository documenti</p>
+                </div>
             </div>
         </div>
 

@@ -561,12 +561,17 @@
 
             try {
                 // Load from 'notizie' table without foreign key relationship
-                const { data: news, error } = await supabase
+                let { data: news, error } = await supabase
                     .from('notizie')
                     .select('*')
                     .order('id', { ascending: false });
 
                 if (error) throw error;
+
+                // Filter bozze for USER role - only show published news to regular users
+                if (currentUserRoles.includes('USER') && !currentUserRoles.includes('DIRIGENTE') && !currentUserRoles.includes('ADMIN')) {
+                    news = news.filter(n => n.pubblicata === true);
+                }
 
                 // Get author names separately if needed
                 if (news && news.length > 0) {
@@ -864,9 +869,17 @@
         async function deleteNews() {
             if (!editingNewsId) return;
             
-            if (!confirm('Sei sicuro di voler eliminare questa notizia? Questa azione non può essere annullata.')) return;
+            // Doppia conferma per eliminazione definitiva
+            if (!confirm('⚠️ ATTENZIONE: Stai per eliminare definitivamente questa notizia.\n\nQuesta azione è IRREVERSIBILE e rimuoverà completamente il record dal database.\n\nSei sicuro di voler procedere?')) return;
+            
+            if (!confirm('🗑️ CONFERMA FINALE: Eliminare definitivamente la notizia?\n\nNON sarà più possibile recuperarla.')) return;
+
+            const deleteBtn = document.getElementById('deleteNewsBtn');
+            deleteBtn.innerHTML = '<div class="spinner"></div>Eliminando...';
+            deleteBtn.disabled = true;
 
             try {
+                // Elimina definitivamente il record dal database
                 const { error } = await supabase
                     .from('notizie')
                     .delete()
@@ -874,13 +887,16 @@
 
                 if (error) throw error;
 
-                showNotification('✅ Notizia eliminata con successo!', 'success');
+                showNotification('✅ Notizia eliminata definitivamente dal database!', 'success');
                 closeNewsModal();
-                await loadNews();
+                await loadNews(); // Ricarica la lista
 
             } catch (error) {
                 console.error('Errore eliminazione notizia:', error);
                 showNotification('❌ Errore nell\'eliminazione della notizia', 'error');
+            } finally {
+                deleteBtn.innerHTML = '<span class="mr-2">🗑️</span>Elimina';
+                deleteBtn.disabled = false;
             }
         }
 
