@@ -587,17 +587,31 @@
             refreshBtn.disabled = true;
 
             try {
+                // Try simple query first without foreign key relationship
                 const { data: conventions, error } = await supabase
                     .from('convenzioni')
-                    .select(`
-                        id, nome_partner, descrizione, logo_url, link_esterno,
-                        categoria, attiva, sconto_percentuale, data_inizio, data_fine,
-                        icona, autore_id, created_at,
-                        profiles!convenzioni_autore_id_fkey (nome)
-                    `)
+                    .select('*')
                     .order('created_at', { ascending: false });
 
                 if (error) throw error;
+
+                // Get author names separately if needed
+                if (conventions && conventions.length > 0) {
+                    const authorIds = [...new Set(conventions.map(c => c.autore_id).filter(Boolean))];
+                    
+                    if (authorIds.length > 0) {
+                        const { data: authors } = await supabase
+                            .from('profiles')
+                            .select('id, nome')
+                            .in('id', authorIds);
+
+                        // Add author names to conventions
+                        conventions.forEach(convention => {
+                            const author = authors?.find(a => a.id === convention.autore_id);
+                            convention.author_name = author?.nome || 'Autore sconosciuto';
+                        });
+                    }
+                }
 
                 allConventions = conventions || [];
                 displayConventions();
@@ -609,6 +623,16 @@
 
             } catch (error) {
                 console.error('Errore caricamento convenzioni:', error);
+                showNotification('❌ Errore nel caricamento delle convenzioni', 'error');
+                refreshBtn.innerHTML = '<span class="mr-2">⚠️</span>Errore';
+            } finally {
+                refreshBtn.disabled = false;
+            }
+        }
+
+        function showTableMissingInfo() {
+            // Remove this function since table exists
+        }
                 showNotification('❌ Errore nel caricamento delle convenzioni', 'error');
                 refreshBtn.innerHTML = '<span class="mr-2">⚠️</span>Errore';
             } finally {
@@ -650,7 +674,7 @@
             }
 
             container.innerHTML = filteredConventions.map(convention => {
-                const authorName = convention.profiles?.nome || 'Autore sconosciuto';
+                const authorName = convention.author_name || 'Autore sconosciuto';
                 const isOwner = convention.autore_id === currentUser.id;
                 const canEdit = isOwner || currentUserRoles.includes('ADMIN');
                 const isExpired = convention.data_fine && new Date(convention.data_fine) < new Date();

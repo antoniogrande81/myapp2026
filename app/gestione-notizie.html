@@ -560,18 +560,31 @@
             refreshBtn.disabled = true;
 
             try {
-                // Load from 'notizie' table with proper structure
+                // Load from 'notizie' table without foreign key relationship
                 const { data: news, error } = await supabase
                     .from('notizie')
-                    .select(`
-                        id, titolo, contenuto, icona, priorita, 
-                        pubblicata, data_pubblicazione, immagine_url,
-                        autore_id,
-                        profiles!notizie_autore_id_fkey (nome)
-                    `)
+                    .select('*')
                     .order('id', { ascending: false });
 
                 if (error) throw error;
+
+                // Get author names separately if needed
+                if (news && news.length > 0) {
+                    const authorIds = [...new Set(news.map(n => n.autore_id).filter(Boolean))];
+                    
+                    if (authorIds.length > 0) {
+                        const { data: authors } = await supabase
+                            .from('profiles')
+                            .select('id, nome')
+                            .in('id', authorIds);
+
+                        // Add author names to news
+                        news.forEach(newsItem => {
+                            const author = authors?.find(a => a.id === newsItem.autore_id);
+                            newsItem.author_name = author?.nome || 'Autore sconosciuto';
+                        });
+                    }
+                }
 
                 allNews = news || [];
                 displayNews();
@@ -957,7 +970,7 @@
             }
 
             container.innerHTML = filteredNews.map(news => {
-                const authorName = news.profiles?.nome || 'Autore sconosciuto';
+                const authorName = news.author_name || 'Autore sconosciuto';
                 const isOwner = news.autore_id === currentUser.id;
                 const canEdit = isOwner || currentUserRoles.includes('ADMIN');
                 
