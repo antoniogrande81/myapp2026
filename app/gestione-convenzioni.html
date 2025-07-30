@@ -346,7 +346,7 @@
 
     <!-- Back Button -->
     <div class="absolute top-6 left-6 z-10">
-        <button onclick="history.back()" class="flex items-center gap-3 text-ultra-visible hover:text-cyan transition-all duration-300 transform hover:scale-110 group">
+        <button id="backBtn" class="flex items-center gap-3 text-ultra-visible hover:text-cyan transition-all duration-300 transform hover:scale-110 group">
             <svg class="w-8 h-8 group-hover:translate-x-[-2px] transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path>
             </svg>
@@ -587,7 +587,7 @@
             refreshBtn.disabled = true;
 
             try {
-                // Try simple query first without foreign key relationship
+                // Simple query without foreign key relationship
                 const { data: conventions, error } = await supabase
                     .from('convenzioni')
                     .select('*')
@@ -623,16 +623,6 @@
 
             } catch (error) {
                 console.error('Errore caricamento convenzioni:', error);
-                showNotification('❌ Errore nel caricamento delle convenzioni', 'error');
-                refreshBtn.innerHTML = '<span class="mr-2">⚠️</span>Errore';
-            } finally {
-                refreshBtn.disabled = false;
-            }
-        }
-
-        function showTableMissingInfo() {
-            // Remove this function since table exists
-        }
                 showNotification('❌ Errore nel caricamento delle convenzioni', 'error');
                 refreshBtn.innerHTML = '<span class="mr-2">⚠️</span>Errore';
             } finally {
@@ -1024,6 +1014,11 @@
         }
 
         function setupEventListeners() {
+            // Back button
+            document.getElementById('backBtn').addEventListener('click', () => {
+                history.back();
+            });
+
             // Main buttons
             document.getElementById('newConventionBtn').addEventListener('click', openConventionModal);
             document.getElementById('refreshBtn').addEventListener('click', loadConventions);

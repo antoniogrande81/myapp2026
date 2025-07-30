@@ -343,7 +343,7 @@
 
     <!-- Back Button -->
     <div class="absolute top-6 left-6 z-10">
-        <button onclick="history.back()" class="flex items-center gap-3 text-ultra-visible hover:text-aurora transition-all duration-300 transform hover:scale-110 group">
+        <button id="backBtn" class="flex items-center gap-3 text-ultra-visible hover:text-aurora transition-all duration-300 transform hover:scale-110 group">
             <svg class="w-8 h-8 group-hover:translate-x-[-2px] transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path>
             </svg>
@@ -601,6 +601,101 @@
             } finally {
                 refreshBtn.disabled = false;
             }
+        }
+
+        function displayNews() {
+            const container = document.getElementById('newsContainer');
+            
+            if (allNews.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="text-6xl mb-4">📰</div>
+                        <h3 class="text-xl font-bold text-primary mb-2">Nessuna notizia trovata</h3>
+                        <p class="text-gray-600 mb-6">Inizia creando la tua prima notizia</p>
+                        <button id="createFirstNewsBtn" class="btn-aurora">
+                            <span class="mr-2">➕</span>
+                            Crea Prima Notizia
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('createFirstNewsBtn').addEventListener('click', openNewsModal);
+                return;
+            }
+
+            const filteredNews = getFilteredNews();
+            
+            if (filteredNews.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="text-4xl mb-4">🔍</div>
+                        <p class="text-gray-600 font-semibold">Nessuna notizia corrisponde ai filtri selezionati</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredNews.map(news => {
+                const authorName = news.author_name || 'Autore sconosciuto';
+                const isOwner = news.autore_id === currentUser.id;
+                const canEdit = isOwner || currentUserRoles.includes('ADMIN');
+                
+                return `
+                    <div class="news-card ${news.pubblicata ? '' : 'draft'} ${news.priorita === 'urgente' ? 'urgent' : ''}">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex items-start gap-3 flex-1">
+                                <div class="text-2xl flex-shrink-0">${news.icona || '📰'}</div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-primary text-lg mb-2">${news.titolo}</h4>
+                                    <p class="text-gray-700 mb-3 leading-relaxed">${news.contenuto.slice(0, 200)}${news.contenuto.length > 200 ? '...' : ''}</p>
+                                    
+                                    <div class="flex flex-wrap items-center gap-2 mb-3">
+                                        <span class="priority-badge ${news.priorita}">${getPriorityIcon(news.priorita)} ${news.priorita.toUpperCase()}</span>
+                                        <span class="status-badge ${news.pubblicata ? 'published' : 'draft'}">
+                                            ${news.pubblicata ? '✅ Pubblicata' : '📝 Bozza'}
+                                        </span>
+                                        <span class="text-xs text-gray-500">
+                                            📅 ${new Date(news.data_pubblicazione).toLocaleDateString('it-IT')}
+                                        </span>
+                                        <span class="text-xs text-gray-500">
+                                            👤 ${authorName}
+                                        </span>
+                                    </div>
+
+                                    ${news.immagine_url ? `
+                                        <div class="mb-3">
+                                            <img src="${news.immagine_url}" alt="Immagine notizia" class="image-preview">
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                            
+                            ${canEdit ? `
+                                <div class="flex gap-2 ml-4">
+                                    <button class="edit-news-btn btn-secondary text-sm px-3 py-2" data-id="${news.id}">
+                                        <span class="mr-1">✏️</span>
+                                        Modifica
+                                    </button>
+                                    ${!news.pubblicata ? `
+                                        <button class="publish-news-btn btn-success text-sm px-3 py-2" data-id="${news.id}">
+                                            <span class="mr-1">📢</span>
+                                            Pubblica
+                                        </button>
+                                    ` : `
+                                        <button class="unpublish-news-btn btn-secondary text-sm px-3 py-2" data-id="${news.id}">
+                                            <span class="mr-1">📝</span>
+                                            Bozza
+                                        </button>
+                                    `}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Add event listeners to dynamically created buttons
+            setupNewsCardListeners();
         }
 
         function setupNewsCardListeners() {
@@ -897,6 +992,11 @@
         }
 
         function setupEventListeners() {
+            // Back button
+            document.getElementById('backBtn').addEventListener('click', () => {
+                history.back();
+            });
+
             // Main buttons
             document.getElementById('newNewsBtn').addEventListener('click', openNewsModal);
             document.getElementById('refreshBtn').addEventListener('click', loadNews);
@@ -934,99 +1034,30 @@
             });
         }
 
-        function displayNews() {
-            const container = document.getElementById('newsContainer');
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const colors = {
+                success: 'bg-gradient-to-r from-green-500 to-green-600',
+                error: 'bg-gradient-to-r from-red-500 to-red-600',
+                info: 'bg-gradient-to-r from-blue-500 to-blue-600'
+            };
             
-            if (allNews.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-12">
-                        <div class="text-6xl mb-4">📰</div>
-                        <h3 class="text-xl font-bold text-primary mb-2">Nessuna notizia trovata</h3>
-                        <p class="text-gray-600 mb-6">
-                            La tabella potrebbe essere vuota o avere una struttura diversa.<br>
-                            <small>Controllare la console per dettagli sulla struttura del database.</small>
-                        </p>
-                        <button id="createFirstNewsBtn" class="btn-aurora">
-                            <span class="mr-2">➕</span>
-                            Crea Prima Notizia
-                        </button>
-                    </div>
-                `;
-                
-                document.getElementById('createFirstNewsBtn').addEventListener('click', openNewsModal);
-                return;
-            }
-
-            const filteredNews = getFilteredNews();
+            notification.className = `fixed top-6 right-6 ${colors[type]} text-white px-6 py-4 rounded-2xl shadow-2xl z-50 transform translate-x-full transition-transform duration-500 font-bold text-base backdrop-blur-md border border-white/20`;
+            notification.textContent = message;
             
-            if (filteredNews.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-8">
-                        <div class="text-4xl mb-4">🔍</div>
-                        <p class="text-gray-600 font-semibold">Nessuna notizia corrisponde ai filtri selezionati</p>
-                    </div>
-                `;
-                return;
-            }
+            document.body.appendChild(notification);
+            
+            setTimeout(() => notification.classList.remove('translate-x-full'), 100);
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => notification.remove(), 500);
+            }, 4000);
+        }
 
-            container.innerHTML = filteredNews.map(news => {
-                const authorName = news.author_name || 'Autore sconosciuto';
-                const isOwner = news.autore_id === currentUser.id;
-                const canEdit = isOwner || currentUserRoles.includes('ADMIN');
-                
-                return `
-                    <div class="news-card ${news.pubblicata ? '' : 'draft'} ${news.priorita === 'urgente' ? 'urgent' : ''}">
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="flex items-start gap-3 flex-1">
-                                <div class="text-2xl flex-shrink-0">${news.icona || '📰'}</div>
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-primary text-lg mb-2">${news.titolo}</h4>
-                                    <p class="text-gray-700 mb-3 leading-relaxed">${news.contenuto.slice(0, 200)}${news.contenuto.length > 200 ? '...' : ''}</p>
-                                    
-                                    <div class="flex flex-wrap items-center gap-2 mb-3">
-                                        <span class="priority-badge ${news.priorita}">${getPriorityIcon(news.priorita)} ${news.priorita.toUpperCase()}</span>
-                                        <span class="status-badge ${news.pubblicata ? 'published' : 'draft'}">
-                                            ${news.pubblicata ? '✅ Pubblicata' : '📝 Bozza'}
-                                        </span>
-                                        <span class="text-xs text-gray-500">
-                                            📅 ${new Date(news.data_pubblicazione).toLocaleDateString('it-IT')}
-                                        </span>
-                                        <span class="text-xs text-gray-500">
-                                            👤 ${authorName}
-                                        </span>
-                                    </div>
+        // Initialize app
+        init();
+    </script>
 
-                                    ${news.immagine_url ? `
-                                        <div class="mb-3">
-                                            <img src="${news.immagine_url}" alt="Immagine notizia" class="image-preview">
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            </div>
-                            
-                            ${canEdit ? `
-                                <div class="flex gap-2 ml-4">
-                                    <button class="edit-news-btn btn-secondary text-sm px-3 py-2" data-id="${news.id}">
-                                        <span class="mr-1">✏️</span>
-                                        Modifica
-                                    </button>
-                                    ${!news.pubblicata ? `
-                                        <button class="publish-news-btn btn-success text-sm px-3 py-2" data-id="${news.id}">
-                                            <span class="mr-1">📢</span>
-                                            Pubblica
-                                        </button>
-                                    ` : `
-                                        <button class="unpublish-news-btn btn-secondary text-sm px-3 py-2" data-id="${news.id}">
-                                            <span class="mr-1">📝</span>
-                                            Bozza
-                                        </button>
-                                    `}
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            // Add event listeners to dynamically created buttons
-            setupNewsCardListeners();
+</body>
+</html>
