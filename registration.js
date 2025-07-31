@@ -709,88 +709,46 @@ async function handleRegistration() {
 async function createUserProfile(userId) {
     console.log('👤 Creazione profilo per utente:', userId);
     
-    // Versione BASE - solo campi essenziali per profiles
-    const profileDataBase = {
+    // Dati completi per la tabella profiles
+    const profileData = {
         id: userId,
+        email: formData.email,
         nome: formData.nome,
         cognome: formData.cognome,
-        email: formData.email,
-        telefono: formData.telefono && formData.telefono.trim() !== '' ? formData.telefono.trim() : null
-    };
-    
-    // Versione con nomi colonne alternativi per profiles
-    const profileDataAlt = {
-        id: userId,
-        first_name: formData.nome,
-        last_name: formData.cognome,
-        email: formData.email,
-        phone: formData.telefono && formData.telefono.trim() !== '' ? formData.telefono.trim() : null,
-        birth_date: formData.dataNascita,
-        birth_place: formData.luogoNascita
-    };
-    
-    // Versione completa italiana
-    const profileDataCompleta = {
-        id: userId,
-        nome: formData.nome,
-        cognome: formData.cognome,
-        email: formData.email,
         telefono: formData.telefono && formData.telefono.trim() !== '' ? formData.telefono.trim() : null,
         data_nascita: formData.dataNascita,
         luogo_nascita: formData.luogoNascita,
-        marketing_consent: formData.marketingConsent || false,
+        ruoli: ['USER'], // Array di ruoli - default USER
+        newsletter_consent: formData.marketingConsent ? 'true' : 'false', // Manteniamo come string per compatibilità
+        marketing_consent: formData.marketingConsent || false, // Nuovo campo boolean
         privacy_accepted: formData.privacyAccepted || false,
         privacy_accepted_at: new Date().toISOString(),
         ip_registrazione: await getUserIP(),
         user_agent: navigator.userAgent
     };
     
-    console.log('📊 Tentativo con profiles - dati base:', profileDataBase);
+    console.log('📊 Dati profilo completi per tabella profiles:', profileData);
     
     try {
-        // Prima prova con solo campi base su profiles
-        console.log('🔄 Tentativo 1: profiles con campi base...');
-        const { data: data1, error: error1 } = await supabase
+        console.log('🔄 Inserimento profilo completo in tabella "profiles"...');
+        
+        const { data, error } = await supabase
             .from('profiles')
-            .insert([profileDataBase])
+            .insert([profileData])
             .select();
         
-        if (!error1) {
-            console.log('✅ Profilo creato con successo in "profiles" (base):', data1);
-            return data1;
+        if (error) {
+            console.error('❌ Errore inserimento profiles:', {
+                message: error.message,
+                details: error.details,
+                hint: error.hint,
+                code: error.code
+            });
+            throw error;
         }
         
-        console.warn('⚠️ Errore profiles base:', error1.message);
-        
-        // Seconda prova con nomi inglesi
-        console.log('🔄 Tentativo 2: profiles con nomi inglesi...');
-        const { data: data2, error: error2 } = await supabase
-            .from('profiles')
-            .insert([profileDataAlt])
-            .select();
-        
-        if (!error2) {
-            console.log('✅ Profilo creato con successo in "profiles" (alt):', data2);
-            return data2;
-        }
-        
-        console.warn('⚠️ Errore profiles alternative:', error2.message);
-        
-        // Terza prova con tutti i campi italiani
-        console.log('🔄 Tentativo 3: profiles completa italiana...');
-        const { data: data3, error: error3 } = await supabase
-            .from('profiles')
-            .insert([profileDataCompleta])
-            .select();
-        
-        if (!error3) {
-            console.log('✅ Profilo creato con successo in "profiles" (completa):', data3);
-            return data3;
-        }
-        
-        console.warn('⚠️ Errore profiles completa:', error3.message);
-        
-        throw new Error(`Nessuna versione di profiles ha funzionato. Errori: base(${error1.message}), alt(${error2.message}), completa(${error3.message})`);
+        console.log('✅ Profilo completo creato con successo in "profiles":', data);
+        return data;
         
     } catch (err) {
         console.error('❌ Errore generale creazione profilo:', err);
