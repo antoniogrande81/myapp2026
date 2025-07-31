@@ -1,7 +1,560 @@
-</style>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrazione - MyApp</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="MyApp">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    
+    <!-- Supabase JS - versione stabile -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1a1a2e',
+                        secondary: '#16213e',
+                        accent: '#0f3460',
+                        aurora: '#e94560',
+                        cyan: '#00d4ff',
+                        magenta: '#ff006e',
+                        gold: '#ffd700',
+                        teal: '#03dac6',
+                        dark: '#0a0a23',
+                        light: '#f8fafc',
+                        textDark: '#1C1C1E',
+                        backgroundLight: '#F4F4F8',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        :root {
+            --gradient-aurora: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #e94560 75%, #00d4ff 100%);
+            --gradient-cyber: linear-gradient(135deg, #0a0a23 0%, #1a1a2e 50%, #00d4ff 100%);
+            --gradient-magic: linear-gradient(135deg, #ff006e 0%, #e94560 50%, #03dac6 100%);
+            --shadow-primary: 0 8px 32px rgba(26, 26, 46, 0.3);
+            --shadow-elevated: 0 16px 64px rgba(26, 26, 46, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--gradient-aurora);
+            background-size: 400% 400%;
+            animation: aurora 30s ease infinite;
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-weight: 500;
+        }
+
+        @keyframes aurora {
+            0%, 100% { background-position: 0% 50%; }
+            25% { background-position: 100% 50%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 3px solid rgba(233, 69, 96, 0.3);
+            box-shadow: var(--shadow-primary);
+        }
+
+        .registration-container {
+            background: rgba(255, 255, 255, 0.98);
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            border-radius: 28px;
+            padding: 2.5rem 2rem;
+            box-shadow: 
+                var(--shadow-elevated),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            position: relative;
+        }
+
+        .email-confirmation-container {
+            background: rgba(255, 255, 255, 0.98);
+            border: 3px solid rgba(16, 185, 129, 0.5);
+            border-radius: 28px;
+            padding: 2.5rem 2rem;
+            box-shadow: 
+                var(--shadow-elevated),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            position: relative;
+            text-align: center;
+        }
+
+        .email-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-radius: 50%;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            border: 4px solid rgba(255, 255, 255, 0.8);
+            box-shadow: var(--shadow-primary);
+            animation: emailPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes emailPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .resend-timer {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        .step-indicator {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid rgba(233, 69, 96, 0.3);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-primary);
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #e5e7eb;
+            background: #ffffff;
+            color: #6b7280;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .step-circle.active {
+            border-color: #e94560;
+            background: #e94560;
+            color: white;
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.3);
+        }
+
+        .step-circle.completed {
+            border-color: #10b981;
+            background: #10b981;
+            color: white;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .step-line {
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            flex-grow: 1;
+            margin: 0 1rem;
+        }
+
+        .step-line.completed {
+            background: #10b981;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-magic);
+            border-radius: 24px;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            box-shadow: var(--shadow-primary);
+            transition: all 0.3s ease;
+        }
+
+        .logo-icon:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-elevated);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 800;
+            color: #1a1a2e;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1rem;
+            border: 3px solid #e94560;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: #ffffff;
+            color: #1a1a2e;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-primary);
+        }
+
+        .form-input::placeholder {
+            color: #6b7280;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: #ffffff;
+            box-shadow: 
+                0 12px 32px rgba(0, 212, 255, 0.3),
+                var(--shadow-primary);
+        }
+
+        .form-input:hover {
+            border-color: #ff006e;
+            box-shadow: 
+                0 10px 28px rgba(233, 69, 96, 0.25),
+                var(--shadow-primary);
+        }
+
+        .form-input.error {
+            border-color: #dc2626;
+            box-shadow: 
+                0 8px 25px rgba(220, 38, 38, 0.3),
+                var(--shadow-primary);
+        }
+
+        .form-input.valid {
+            border-color: #10b981;
+            box-shadow: 
+                0 8px 25px rgba(16, 185, 129, 0.3),
+                var(--shadow-primary);
+        }
+
+        .btn-primary {
+            background: var(--gradient-magic);
+            color: white;
+            border: 3px solid rgba(233, 69, 96, 0.5);
+            border-radius: 16px;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-primary);
+            text-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.5),
+                0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 20px 40px rgba(233, 69, 96, 0.4),
+                var(--shadow-elevated);
+            border-color: rgba(233, 69, 96, 0.8);
+        }
+
+        .btn-primary:disabled {
+            background: linear-gradient(135deg, #9ca3af, #6b7280);
+            border-color: rgba(156, 163, 175, 0.3);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: var(--shadow-primary);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.95);
+            color: #1a1a2e;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-primary);
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+            transform: translateY(-2px);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: #10b981;
+            border: 2px solid #10b981;
+            border-radius: 16px;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-ghost:hover {
+            background: #10b981;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-ghost:disabled {
+            background: transparent;
+            color: #9ca3af;
+            border-color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            padding: 1rem 1.25rem;
+            margin: 1rem 0;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--shadow-primary);
+        }
+
+        .error-message {
+            background: rgba(239, 68, 68, 0.95);
+            color: white;
+            border-color: rgba(239, 68, 68, 0.8);
+        }
+
+        .success-message {
+            background: rgba(16, 185, 129, 0.95);
+            color: white;
+            border-color: rgba(16, 185, 129, 0.8);
+        }
+
+        .info-message {
+            background: rgba(59, 130, 246, 0.95);
+            color: white;
+            border-color: rgba(59, 130, 246, 0.8);
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 1.1rem;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .password-toggle:hover {
+            color: #1a1a2e;
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .strength-bar {
+            height: 6px;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+
+        .strength-weak { background: #ef4444; width: 25%; }
+        .strength-medium { background: #f59e0b; width: 50%; }
+        .strength-good { background: #eab308; width: 75%; }
+        .strength-strong { background: #10b981; width: 100%; }
+
+        .requirements-list {
+            background: rgba(249, 250, 251, 0.95);
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .requirement-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .requirement-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            transition: all 0.3s ease;
+        }
+
+        .requirement-indicator.met {
+            background: #10b981;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #e94560;
+            cursor: pointer;
+        }
+
+        .field-error {
+            color: #dc2626;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        nav {
+            background: rgba(255, 255, 255, 0.98);
+            border-top: 3px solid rgba(233, 69, 96, 0.3);
+            box-shadow: 0 -8px 32px rgba(26, 26, 46, 0.2);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .registration-container,
+            .email-confirmation-container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+            
+            .logo-icon,
+            .email-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 2rem;
+            }
+
+            .email-icon {
+                width: 100px;
+                height: 100px;
+                font-size: 3rem;
+            }
+
+            .step-circle {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+
+            .form-input {
+                font-size: 1rem;
+                padding: 0.875rem;
+            }
+
+            .btn-primary {
+                font-size: 1rem;
+                padding: 0.875rem 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .registration-container,
+            .email-confirmation-container {
+                padding: 1.5rem 1rem;
+                margin: 0.5rem;
+            }
+            
+            .logo-icon {
+                width: 60px;
+                height: 60px;
+                font-size: 1.75rem;
+            }
+
+            .email-icon {
+                width: 80px;
+                height: 80px;
+                font-size: 2.5rem;
+            }
+
+            .step-circle {
+                width: 30px;
+                height: 30px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        *:focus-visible {
+            outline: 3px solid #00d4ff;
+            outline-offset: 2px;
+        }
+    </style>
 </head>
 <body>
-
     <!-- Header -->
     <header class="w-full px-6 py-6 relative z-10">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
@@ -296,7 +849,7 @@
                             <button type="button" class="btn-secondary" onclick="prevStep()">
                                 Indietro
                             </button>
-                            <button type="submit" class="btn-primary" onclick="handleRegistration()">
+                            <button type="button" class="btn-primary" onclick="handleRegistration()">
                                 🚀 Registrati
                             </button>
                         </div>
@@ -307,1420 +860,8 @@
         </div>
     </main>
 
-    <!-- Include JavaScript -->
-    <script>
-        // ================================
-        // CONFIGURAZIONE SUPABASE
-        // ================================
-
-        // SOSTITUISCI CON LE TUE CREDENZIALI SUPABASE
-        const SUPABASE_URL = 'https://your-project-url.supabase.co';
-        const SUPABASE_ANON_KEY = 'your-anon-key-here';
-
-        // Inizializza Supabase client
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-        // ================================
-        // VARIABILI GLOBALI
-        // ================================
-
-        let currentStep = 1;
-        let formData = {};
-        let resendTimer = 0;
-        let resendInterval;
-
-        // ================================
-        // INIZIALIZZAZIONE
-        // ================================
-
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeForm();
-            setupEventListeners();
-            setupPasswordValidation();
-        });
-
-        function initializeForm() {
-            showStep(1);
-            updateStepIndicator();
-        }
-
-        // ================================
-        // GESTIONE STEP DEL FORM
-        // ================================
-
-        function showStep(step) {
-            // Nascondi tutti gli step
-            document.querySelectorAll('.step-form').forEach(form => {
-                form.classList.add('hidden');
-            });
-            
-            // Mostra lo step corrente
-            document.getElementById(`step${step}Form`).classList.remove('hidden');
-            
-            currentStep = step;
-            updateStepIndicator();
-            updateStepLabel();
-            
-            // Aggiorna il riepilogo se siamo al terzo step
-            if (step === 3) {
-                updateSummary();
-            }
-        }
-
-        function updateStepIndicator() {
-            const steps = ['step1', 'step2', 'step3'];
-            const lines = ['line1', 'line2'];
-            
-            steps.forEach((stepId, index) => {
-                const stepElement = document.getElementById(stepId);
-                const stepNumber = index + 1;
-                
-                if (stepNumber < currentStep) {
-                    stepElement.className = 'step-circle completed';
-                    stepElement.innerHTML = '✓';
-                } else if (stepNumber === currentStep) {
-                    stepElement.className = 'step-circle active';
-                    stepElement.innerHTML = stepNumber;
-                } else {
-                    stepElement.className = 'step-circle';
-                    stepElement.innerHTML = stepNumber;
-                }
-            });
-            
-            lines.forEach((lineId, index) => {
-                const lineElement = document.getElementById(lineId);
-                if (index + 1 < currentStep) {
-                    lineElement.classList.add('completed');
-                } else {
-                    lineElement.classList.remove('completed');
-                }
-            });
-        }
-
-        function updateStepLabel() {
-            const labels = {
-                1: 'Dati Personali',
-                2: 'Password e Sicurezza',
-                3: 'Termini e Condizioni'
-            };
-            
-            document.getElementById('stepLabel').textContent = labels[currentStep];
-        }
-
-        function updateSummary() {
-            document.getElementById('summaryNome').textContent = formData.nome || '-';
-            document.getElementById('summaryCognome').textContent = formData.cognome || '-';
-            document.getElementById('summaryEmail').textContent = formData.email || '-';
-            document.getElementById('summaryTelefono').textContent = formData.telefono || 'Non fornito';
-        }
-
-        function nextStep() {
-            if (validateCurrentStep()) {
-                if (currentStep < 3) {
-                    saveCurrentStepData();
-                    showStep(currentStep + 1);
-                } else {
-                    // Ultimo step - procedi con la registrazione
-                    handleRegistration();
-                }
-            }
-        }
-
-        function prevStep() {
-            if (currentStep > 1) {
-                showStep(currentStep - 1);
-            }
-        }
-
-        // ================================
-        // GESTIONE EVENTI
-        // ================================
-
-        function setupEventListeners() {
-            const form = document.getElementById('registrationForm');
-            
-            // Gestione submit del form
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                // Non fare nulla qui, i bottoni hanno le loro funzioni
-            });
-            
-            // Validazione real-time
-            setupRealTimeValidation();
-        }
-
-        // ================================
-        // VALIDAZIONE
-        // ================================
-
-        function validateCurrentStep() {
-            clearMessages();
-            
-            switch (currentStep) {
-                case 1:
-                    return validateStep1();
-                case 2:
-                    return validateStep2();
-                case 3:
-                    return validateStep3();
-                default:
-                    return false;
-            }
-        }
-
-        function validateStep1() {
-            let isValid = true;
-            
-            // Validazione Nome
-            const nome = document.getElementById('nome').value.trim();
-            if (!nome) {
-                showFieldError('nome', 'Il nome è obbligatorio');
-                isValid = false;
-            } else if (nome.length < 2) {
-                showFieldError('nome', 'Il nome deve contenere almeno 2 caratteri');
-                isValid = false;
-            } else {
-                clearFieldError('nome');
-            }
-            
-            // Validazione Cognome
-            const cognome = document.getElementById('cognome').value.trim();
-            if (!cognome) {
-                showFieldError('cognome', 'Il cognome è obbligatorio');
-                isValid = false;
-            } else if (cognome.length < 2) {
-                showFieldError('cognome', 'Il cognome deve contenere almeno 2 caratteri');
-                isValid = false;
-            } else {
-                clearFieldError('cognome');
-            }
-            
-            // Validazione Email
-            const email = document.getElementById('email').value.trim();
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!email) {
-                showFieldError('email', 'L\'email è obbligatoria');
-                isValid = false;
-            } else if (!emailRegex.test(email)) {
-                showFieldError('email', 'Inserisci un\'email valida');
-                isValid = false;
-            } else {
-                clearFieldError('email');
-            }
-            
-            // Validazione Conferma Email
-            const confirmEmail = document.getElementById('confirmEmail').value.trim();
-            if (!confirmEmail) {
-                showFieldError('confirmEmail', 'Conferma l\'email è obbligatoria');
-                isValid = false;
-            } else if (email !== confirmEmail) {
-                showFieldError('confirmEmail', 'Le email non coincidono');
-                isValid = false;
-            } else {
-                clearFieldError('confirmEmail');
-            }
-            
-            // Validazione Telefono (opzionale ma se inserito deve essere valido)
-            const telefono = document.getElementById('telefono').value.trim();
-            if (telefono) {
-                const phoneRegex = /^[\+]?[\d\s\-\(\)]{8,}$/;
-                if (!phoneRegex.test(telefono)) {
-                    showFieldError('telefono', 'Inserisci un numero di telefono valido');
-                    isValid = false;
-                } else {
-                    clearFieldError('telefono');
-                }
-            }
-            
-            return isValid;
-        }
-
-        function validateStep2() {
-            let isValid = true;
-            
-            // Validazione Password
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            if (!password) {
-                showFieldError('password', 'La password è obbligatoria');
-                isValid = false;
-            } else if (!isPasswordStrong(password)) {
-                showFieldError('password', 'La password non soddisfa i requisiti di sicurezza');
-                isValid = false;
-            } else {
-                clearFieldError('password');
-            }
-            
-            // Validazione Conferma Password
-            if (!confirmPassword) {
-                showFieldError('confirmPassword', 'Conferma la password');
-                isValid = false;
-            } else if (password !== confirmPassword) {
-                showFieldError('confirmPassword', 'Le password non coincidono');
-                isValid = false;
-            } else {
-                clearFieldError('confirmPassword');
-            }
-            
-            return isValid;
-        }
-
-        function validateStep3() {
-            const privacyAccept = document.getElementById('privacyAccept');
-            
-            if (!privacyAccept.checked) {
-                showError('Devi accettare i termini e condizioni per procedere');
-                return false;
-            }
-            
-            return true;
-        }
-
-        // ================================
-        // VALIDAZIONE PASSWORD
-        // ================================
-
-        function setupPasswordValidation() {
-            const passwordInput = document.getElementById('password');
-            const confirmPasswordInput = document.getElementById('confirmPassword');
-            const emailInput = document.getElementById('email');
-            const confirmEmailInput = document.getElementById('confirmEmail');
-            
-            passwordInput.addEventListener('input', function() {
-                updatePasswordStrength(this.value);
-                updatePasswordRequirements(this.value);
-            });
-            
-            confirmPasswordInput.addEventListener('input', function() {
-                validatePasswordMatch();
-            });
-            
-            // Validazione email match
-            emailInput.addEventListener('input', function() {
-                validateEmailMatch();
-            });
-            
-            confirmEmailInput.addEventListener('input', function() {
-                validateEmailMatch();
-            });
-        }
-
-        function validateEmailMatch() {
-            const email = document.getElementById('email').value.trim();
-            const confirmEmail = document.getElementById('confirmEmail').value.trim();
-            
-            if (confirmEmail && email !== confirmEmail) {
-                showFieldError('confirmEmail', 'Le email non coincidono');
-            } else {
-                clearFieldError('confirmEmail');
-            }
-        }
-
-        function updatePasswordStrength(password) {
-            const strengthBar = document.getElementById('strengthBar');
-            const strengthText = document.getElementById('strengthText');
-            
-            const strength = calculatePasswordStrength(password);
-            
-            // Reset classes
-            strengthBar.className = 'strength-bar';
-            
-            switch (strength.level) {
-                case 0:
-                    strengthBar.classList.add('strength-weak');
-                    strengthText.textContent = 'Troppo debole';
-                    strengthText.style.color = '#ef4444';
-                    break;
-                case 1:
-                    strengthBar.classList.add('strength-medium');
-                    strengthText.textContent = 'Debole';
-                    strengthText.style.color = '#f59e0b';
-                    break;
-                case 2:
-                    strengthBar.classList.add('strength-good');
-                    strengthText.textContent = 'Buona';
-                    strengthText.style.color = '#eab308';
-                    break;
-                case 3:
-                    strengthBar.classList.add('strength-strong');
-                    strengthText.textContent = 'Forte';
-                    strengthText.style.color = '#10b981';
-                    break;
-            }
-        }
-
-        function updatePasswordRequirements(password) {
-            const requirements = {
-                'req-length': password.length >= 8,
-                'req-upper': /[A-Z]/.test(password),
-                'req-lower': /[a-z]/.test(password),
-                'req-number': /\d/.test(password)
-            };
-            
-            Object.entries(requirements).forEach(([reqId, met]) => {
-                const indicator = document.querySelector(`#${reqId} .requirement-indicator`);
-                if (met) {
-                    indicator.classList.add('met');
-                } else {
-                    indicator.classList.remove('met');
-                }
-            });
-        }
-
-        function calculatePasswordStrength(password) {
-            let score = 0;
-            const checks = {
-                length: password.length >= 8,
-                upper: /[A-Z]/.test(password),
-                lower: /[a-z]/.test(password),
-                number: /\d/.test(password),
-                special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
-            };
-            
-            Object.values(checks).forEach(check => {
-                if (check) score++;
-            });
-            
-            let level;
-            if (score < 2) level = 0; // Debole
-            else if (score < 3) level = 1; // Medio
-            else if (score < 4) level = 2; // Buono
-            else level = 3; // Forte
-            
-            return { score, level, checks };
-        }
-
-        function isPasswordStrong(password) {
-            const strength = calculatePasswordStrength(password);
-            return strength.checks.length && strength.checks.upper && 
-                   strength.checks.lower && strength.checks.number;
-        }
-
-        function validatePasswordMatch() {
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            if (confirmPassword && password !== confirmPassword) {
-                showFieldError('confirmPassword', 'Le password non coincidono');
-            } else {
-                clearFieldError('confirmPassword');
-            }
-        }
-
-        // ================================
-        // GESTIONE DATI FORM
-        // ================================
-
-        function saveCurrentStepData() {
-            switch (currentStep) {
-                case 1:
-                    formData.nome = document.getElementById('nome').value.trim();
-                    formData.cognome = document.getElementById('cognome').value.trim();
-                    formData.email = document.getElementById('email').value.trim();
-                    formData.telefono = document.getElementById('telefono').value.trim();
-                    break;
-                case 2:
-                    formData.password = document.getElementById('password').value;
-                    break;
-                case 3:
-                    formData.privacyAccept = document.getElementById('privacyAccept').checked;
-                    formData.marketingAccept = document.getElementById('marketingAccept').checked;
-                    break;
-            }
-        }
-
-        // ================================
-        // REGISTRAZIONE UTENTE
-        // ================================
-
-        async function handleRegistration() {
-            try {
-                // Salva i dati dell'ultimo step
-                saveCurrentStepData();
-                
-                // Mostra loading
-                showLoading();
-                
-                console.log('Inizio registrazione per:', formData.email);
-                
-                // 1. Registra l'utente in Supabase Auth
-                const { data: authData, error: authError } = await supabase.auth.signUp({
-                    email: formData.email,
-                    password: formData.password,
-                    options: {
-                        data: {
-                            nome: formData.nome,
-                            cognome: formData.cognome,
-                            telefono: formData.telefono || null,
-                            marketing_consent: formData.marketingAccept || false
-                        }
-                    }
-                });
-                
-                if (authError) {
-                    throw new Error(`Errore registrazione: ${getErrorMessage(authError)}`);
-                }
-                
-                console.log('Utente registrato con successo:', authData.user?.id);
-                
-                // 2. Crea record nella tabella tessera
-                if (authData.user) {
-                    const tesseraData = {
-                        user_id: authData.user.id,
-                        nome: formData.nome,
-                        cognome: formData.cognome,
-                        email: formData.email,
-                        telefono: formData.telefono || null,
-                        stato: 'pending', // In attesa di conferma email
-                        marketing_consent: formData.marketingAccept || false,
-                        created_at: new Date().toISOString()
-                    };
-                    
-                    console.log('Creazione tessera:', tesseraData);
-                    
-                    const { data: tessera, error: tesseraError } = await supabase
-                        .from('tessera')
-                        .insert([tesseraData])
-                        .select();
-                    
-                    if (tesseraError) {
-                        console.error('Errore creazione tessera:', tesseraError);
-                        throw new Error(`Errore creazione profilo: ${tesseraError.message}`);
-                    }
-                    
-                    console.log('Tessera creata con successo:', tessera);
-                }
-                
-                // 3. Mostra conferma
-                hideLoading();
-                showEmailConfirmation();
-                
-                // 4. Avvia timer per riinvio email
-                startResendTimer();
-                
-                console.log('Registrazione completata con successo');
-                
-            } catch (error) {
-                hideLoading();
-                console.error('Errore durante la registrazione:', error);
-                showError(error.message || 'Errore durante la registrazione. Riprova.');
-            }
-        }
-
-        function getErrorMessage(error) {
-            switch (error.message) {
-                case 'User already registered':
-                    return 'Questo indirizzo email è già registrato';
-                case 'Invalid email':
-                    return 'Indirizzo email non valido';
-                case 'Password should be at least 6 characters':
-                    return 'La password deve contenere almeno 6 caratteri';
-                default:
-                    return error.message;
-            }
-        }
-
-        // ================================
-        // CONFERMA EMAIL
-        // ================================
-
-        function showEmailConfirmation() {
-            // Nascondi il form di registrazione
-            document.getElementById('registrationSection').classList.add('hidden');
-            
-            // Crea e mostra la sezione di conferma email
-            const confirmationHTML = `
-                <div class="email-confirmation-container">
-                    <div class="email-icon">✉️</div>
-                    <h2 class="text-2xl font-black text-primary mb-4">Controlla la tua email!</h2>
-                    <p class="text-lg text-gray-700 mb-6">
-                        Abbiamo inviato un link di conferma a<br>
-                        <strong class="text-primary">${formData.email}</strong>
-                    </p>
-                    <p class="text-gray-600 mb-8">
-                        Clicca sul link nell'email per attivare il tuo account.
-                        Se non vedi l'email, controlla la cartella spam.
-                    </p>
-                    
-                    <div class="space-y-4">
-                        <button id="resendButton" class="btn-ghost w-full" onclick="resendConfirmationEmail()" disabled>
-                            Invia di nuovo
-                        </button>
-                        <div id="resendTimer" class="resend-timer">
-                            Puoi inviare di nuovo l'email tra <span id="timerCount">60</span> secondi
-                        </div>
-                    </div>
-                    
-                    <div class="mt-8 pt-6 border-t border-gray-200">
-                        <a href="login.html" class="btn-secondary w-full text-center block">
-                            Torna al Login
-                        </a>
-                    </div>
-                </div>
-            `;
-            
-            // Inserisci il contenuto
-            const mainContainer = document.querySelector('main .max-w-lg');
-            mainContainer.innerHTML = confirmationHTML;
-        }
-
-        async function resendConfirmationEmail() {
-            try {
-                showInfo('Invio email in corso...');
-                
-                const { error } = await supabase.auth.resend({
-                    type: 'signup',
-                    email: formData.email
-                });
-                
-                if (error) {
-                    throw error;
-                }
-                
-                showSuccess('Email di conferma inviata nuovamente!');
-                startResendTimer();
-                
-            } catch (error) {
-                console.error('Errore riinvio email:', error);
-                showError('Errore nell\'invio dell\'email. Riprova più tardi.');
-            }
-        }
-
-        function startResendTimer() {
-            resendTimer = 60;
-            const resendButton = document.getElementById('resendButton');
-            const timerElement = document.getElementById('timerCount');
-            const timerContainer = document.getElementById('resendTimer');
-            
-            if (resendButton) {
-                resendButton.disabled = true;
-                resendButton.textContent = 'Attendi...';
-            }
-            
-            if (timerContainer) {
-                timerContainer.classList.remove('hidden');
-            }
-            
-            resendInterval = setInterval(() => {
-                resendTimer--;
-                if (timerElement) {
-                    timerElement.textContent = resendTimer;
-                }
-                
-                if (resendTimer <= 0) {
-                    clearInterval(resendInterval);
-                    if (resendButton) {
-                        resendButton.disabled = false;
-                        resendButton.textContent = 'Invia di nuovo';
-                    }
-                    if (timerContainer) {
-                        timerContainer.classList.add('hidden');
-                    }
-                }
-            }, 1000);
-        }
-
-        // ================================
-        // UTILITY FUNCTIONS
-        // ================================
-
-        function togglePassword(inputId) {
-            const input = document.getElementById(inputId);
-            const button = input.nextElementSibling;
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                button.textContent = '🙈';
-            } else {
-                input.type = 'password';
-                button.textContent = '👁️';
-            }
-        }
-
-        function setupRealTimeValidation() {
-            // Validazione real-time per tutti i campi
-            const inputs = document.querySelectorAll('.form-input');
-            
-            inputs.forEach(input => {
-                input.addEventListener('blur', function() {
-                    validateField(this);
-                });
-                
-                input.addEventListener('input', function() {
-                    // Rimuovi l'errore quando l'utente inizia a digitare
-                    clearFieldError(this.id);
-                    updateFieldState(this);
-                });
-            });
-        }
-
-        function validateField(input) {
-            const fieldId = input.id;
-            const value = input.value.trim();
-            
-            switch (fieldId) {
-                case 'nome':
-                case 'cognome':
-                    if (!value) {
-                        showFieldError(fieldId, `Il ${fieldId} è obbligatorio`);
-                        return false;
-                    } else if (value.length < 2) {
-                        showFieldError(fieldId, `Il ${fieldId} deve contenere almeno 2 caratteri`);
-                        return false;
-                    }
-                    break;
-                    
-                case 'email':
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    if (!value) {
-                        showFieldError(fieldId, 'L\'email è obbligatoria');
-                        return false;
-                    } else if (!emailRegex.test(value)) {
-                        showFieldError(fieldId, 'Inserisci un\'email valida');
-                        return false;
-                    }
-                    break;
-                    
-                case 'confirmEmail':
-                    const originalEmail = document.getElementById('email').value.trim();
-                    if (!value) {
-                        showFieldError(fieldId, 'Conferma l\'email è obbligatoria');
-                        return false;
-                    } else if (value !== originalEmail) {
-                        showFieldError(fieldId, 'Le email non coincidono');
-                        return false;
-                    }
-                    break;
-                    
-                case 'telefono':
-                    if (value) {
-                        const phoneRegex = /^[\+]?[\d\s\-\(\)]{8,}$/;
-                        if (!phoneRegex.test(value)) {
-                            showFieldError(fieldId, 'Inserisci un numero di telefono valido');
-                            return false;
-                        }
-                    }
-                    break;
-            }
-            
-            clearFieldError(fieldId);
-            return true;
-        }
-
-        function updateFieldState(input) {
-            if (input.value.trim()) {
-                if (validateField(input)) {
-                    input.classList.remove('error');
-                    input.classList.add('valid');
-                } else {
-                    input.classList.remove('valid');
-                    input.classList.add('error');
-                }
-            } else {
-                input.classList.remove('valid', 'error');
-            }
-        }
-
-        // ================================
-        // GESTIONE MESSAGGI
-        // ================================
-
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            const errorText = document.getElementById('errorText');
-            
-            if (errorDiv && errorText) {
-                errorText.textContent = message;
-                errorDiv.classList.remove('hidden');
-                
-                // Scroll to message
-                errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
-                // Auto-hide dopo 5 secondi
-                setTimeout(() => {
-                    errorDiv.classList.add('hidden');
-                }, 5000);
-            }
-        }
-
-        function showSuccess(message) {
-            const successDiv = document.getElementById('successMessage');
-            const successText = document.getElementById('successText');
-            
-            if (successDiv && successText) {
-                successText.textContent = message;
-                successDiv.classList.remove('hidden');
-                
-                // Auto-hide dopo 3 secondi
-                setTimeout(() => {
-                    successDiv.classList.add('hidden');
-                }, 3000);
-            }
-        }
-
-        function showInfo(message) {
-            const infoDiv = document.getElementById('infoMessage');
-            const infoText = document.getElementById('infoText');
-            
-            if (infoDiv && infoText) {
-                infoText.textContent = message;
-                infoDiv.classList.remove('hidden');
-                
-                // Auto-hide dopo 4 secondi
-                setTimeout(() => {
-                    infoDiv.classList.add('hidden');
-                }, 4000);
-            }
-        }
-
-        function clearMessages() {
-            const messages = ['errorMessage', 'successMessage', 'infoMessage'];
-            messages.forEach(msgId => {
-                const msgDiv = document.getElementById(msgId);
-                if (msgDiv) {
-                    msgDiv.classList.add('hidden');
-                }
-            });
-        }
-
-        function showFieldError(fieldId, message) {
-            const errorDiv = document.getElementById(`${fieldId}Error`);
-            const input = document.getElementById(fieldId);
-            
-            if (errorDiv) {
-                errorDiv.textContent = message;
-                errorDiv.classList.remove('hidden');
-            }
-            
-            if (input) {
-                input.classList.add('error');
-                input.classList.remove('valid');
-            }
-        }
-
-        function clearFieldError(fieldId) {
-            const errorDiv = document.getElementById(`${fieldId}Error`);
-            const input = document.getElementById(fieldId);
-            
-            if (errorDiv) {
-                errorDiv.classList.add('hidden');
-            }
-            
-            if (input) {
-                input.classList.remove('error');
-            }
-        }
-
-        function showLoading() {
-            // Disabilita tutti i bottoni durante il caricamento
-            const allButtons = document.querySelectorAll('button');
-            allButtons.forEach(button => {
-                button.disabled = true;
-            });
-            
-            // Mostra loading solo sul bottone di registrazione
-            const registerButton = document.querySelector('button[onclick="handleRegistration()"]');
-            if (registerButton) {
-                registerButton.innerHTML = '<span class="loading-spinner"></span>Registrazione in corso...';
-            }
-        }
-
-        function hideLoading() {
-            // Riabilita tutti i bottoni
-            const allButtons = document.querySelectorAll('button');
-            allButtons.forEach(button => {
-                button.disabled = false;
-            });
-            
-            // Ripristina il testo del bottone di registrazione
-            const registerButton = document.querySelector('button[onclick="handleRegistration()"]');
-            if (registerButton) {
-                registerButton.innerHTML = '🚀 Registrati';
-            }
-        }
-
-        // ================================
-        // UTILITY GENERALI
-        // ================================
-
-        function goBack() {
-            if (window.history.length > 1) {
-                window.history.back();
-            } else {
-                window.location.href = 'index.html';
-            }
-        }
-    </script>
+    <!-- JavaScript esterno -->
+    <script src="registration.js"></script>
 
 </body>
-</html><!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrazione - MyApp</title>
-    
-    <!-- PWA Meta Tags -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1a1a2e">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    
-    <!-- iOS PWA Support -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="MyApp">
-    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-    
-    <!-- Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        // Aurora Boreale 2025 Palette
-                        primary: '#1a1a2e',      // Blu notte profondo
-                        secondary: '#16213e',     // Blu oceano
-                        accent: '#0f3460',        // Blu acciaio
-                        aurora: '#e94560',        // Rosa aurora
-                        cyan: '#00d4ff',          // Cyan elettrico
-                        magenta: '#ff006e',       // Magenta vibrante
-                        gold: '#ffd700',          // Oro elegante
-                        teal: '#03dac6',          // Teal premium
-                        dark: '#0a0a23',          // Nero cyber
-                        light: '#f8fafc',         // Bianco ghiaccio
-                        textDark: '#1C1C1E',
-                        backgroundLight: '#F4F4F8',
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <style>
-        :root {
-            --gradient-aurora: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #e94560 75%, #00d4ff 100%);
-            --gradient-cyber: linear-gradient(135deg, #0a0a23 0%, #1a1a2e 50%, #00d4ff 100%);
-            --gradient-magic: linear-gradient(135deg, #ff006e 0%, #e94560 50%, #03dac6 100%);
-            --shadow-primary: 0 8px 32px rgba(26, 26, 46, 0.3);
-            --shadow-elevated: 0 16px 64px rgba(26, 26, 46, 0.25);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            background: var(--gradient-aurora);
-            background-size: 400% 400%;
-            animation: aurora 30s ease infinite;
-            min-height: 100vh;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            font-weight: 500;
-        }
-
-        @keyframes aurora {
-            0%, 100% { background-position: 0% 50%; }
-            25% { background-position: 100% 50%; }
-            50% { background-position: 100% 100%; }
-            75% { background-position: 0% 100%; }
-        }
-
-        /* HEADER ULTRA LEGGIBILE */
-        header {
-            background: rgba(255, 255, 255, 0.95);
-            border-bottom: 3px solid rgba(233, 69, 96, 0.3);
-            box-shadow: var(--shadow-primary);
-        }
-
-        /* CONTAINER PRINCIPALE ULTRA LEGGIBILE */
-        .registration-container {
-            background: rgba(255, 255, 255, 0.98);
-            border: 3px solid rgba(255, 255, 255, 0.8);
-            border-radius: 28px;
-            padding: 2.5rem 2rem;
-            box-shadow: 
-                var(--shadow-elevated),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8);
-            position: relative;
-        }
-
-        /* EMAIL CONFIRMATION CONTAINER */
-        .email-confirmation-container {
-            background: rgba(255, 255, 255, 0.98);
-            border: 3px solid rgba(16, 185, 129, 0.5);
-            border-radius: 28px;
-            padding: 2.5rem 2rem;
-            box-shadow: 
-                var(--shadow-elevated),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8);
-            position: relative;
-            text-align: center;
-        }
-
-        .email-icon {
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(135deg, #10b981, #059669);
-            border-radius: 50%;
-            margin: 0 auto 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3.5rem;
-            border: 4px solid rgba(255, 255, 255, 0.8);
-            box-shadow: var(--shadow-primary);
-            animation: emailPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes emailPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .resend-timer {
-            color: #6b7280;
-            font-size: 0.9rem;
-            margin-top: 1rem;
-        }
-
-        /* STEP INDICATOR ULTRA LEGGIBILE */
-        .step-indicator {
-            background: rgba(255, 255, 255, 0.95);
-            border: 2px solid rgba(233, 69, 96, 0.3);
-            border-radius: 16px;
-            padding: 1rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-primary);
-        }
-
-        .step-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 3px solid #e5e7eb;
-            background: #ffffff;
-            color: #6b7280;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .step-circle.active {
-            border-color: #e94560;
-            background: #e94560;
-            color: white;
-            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.3);
-        }
-
-        .step-circle.completed {
-            border-color: #10b981;
-            background: #10b981;
-            color: white;
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
-        }
-
-        .step-line {
-            height: 4px;
-            background: #e5e7eb;
-            border-radius: 2px;
-            flex-grow: 1;
-            margin: 0 1rem;
-        }
-
-        .step-line.completed {
-            background: #10b981;
-        }
-
-        /* LOGO ULTRA LEGGIBILE */
-        .logo-container {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .logo-icon {
-            width: 80px;
-            height: 80px;
-            background: var(--gradient-magic);
-            border-radius: 24px;
-            margin: 0 auto 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            border: 3px solid rgba(255, 255, 255, 0.8);
-            box-shadow: var(--shadow-primary);
-            transition: all 0.3s ease;
-        }
-
-        .logo-icon:hover {
-            transform: scale(1.05);
-            box-shadow: var(--shadow-elevated);
-        }
-
-        /* FORM STYLING ULTRA LEGGIBILE */
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 800;
-            color: #1a1a2e;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .input-container {
-            position: relative;
-        }
-
-        /* INPUT FIELDS ULTRA LEGGIBILI */
-        .form-input {
-            width: 100%;
-            padding: 1rem 1rem;
-            border: 3px solid #e94560;
-            border-radius: 16px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            background: #ffffff;
-            color: #1a1a2e;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow-primary);
-        }
-
-        .form-input::placeholder {
-            color: #6b7280;
-            font-weight: 500;
-            opacity: 0.8;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #00d4ff;
-            background: #ffffff;
-            box-shadow: 
-                0 12px 32px rgba(0, 212, 255, 0.3),
-                var(--shadow-primary);
-        }
-
-        .form-input:hover {
-            border-color: #ff006e;
-            box-shadow: 
-                0 10px 28px rgba(233, 69, 96, 0.25),
-                var(--shadow-primary);
-        }
-
-        .form-input.error {
-            border-color: #dc2626;
-            box-shadow: 
-                0 8px 25px rgba(220, 38, 38, 0.3),
-                var(--shadow-primary);
-        }
-
-        .form-input.valid {
-            border-color: #10b981;
-            box-shadow: 
-                0 8px 25px rgba(16, 185, 129, 0.3),
-                var(--shadow-primary);
-        }
-
-        /* BUTTONS ULTRA LEGGIBILI */
-        .btn-primary {
-            background: var(--gradient-magic);
-            color: white;
-            border: 3px solid rgba(233, 69, 96, 0.5);
-            border-radius: 16px;
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow-primary);
-            text-shadow: 
-                0 2px 4px rgba(0, 0, 0, 0.5),
-                0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 
-                0 20px 40px rgba(233, 69, 96, 0.4),
-                var(--shadow-elevated);
-            border-color: rgba(233, 69, 96, 0.8);
-        }
-
-        .btn-primary:disabled {
-            background: linear-gradient(135deg, #9ca3af, #6b7280);
-            border-color: rgba(156, 163, 175, 0.3);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: var(--shadow-primary);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.95);
-            color: #1a1a2e;
-            border: 2px solid #e5e7eb;
-            border-radius: 16px;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow-primary);
-        }
-
-        .btn-secondary:hover {
-            background: #f9fafb;
-            border-color: #d1d5db;
-            transform: translateY(-2px);
-        }
-
-        .btn-ghost {
-            background: transparent;
-            color: #10b981;
-            border: 2px solid #10b981;
-            border-radius: 16px;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-ghost:hover {
-            background: #10b981;
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .btn-ghost:disabled {
-            background: transparent;
-            color: #9ca3af;
-            border-color: #9ca3af;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* MESSAGE STYLING */
-        .message {
-            padding: 1rem 1.25rem;
-            margin: 1rem 0;
-            border-radius: 16px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            box-shadow: var(--shadow-primary);
-        }
-
-        .error-message {
-            background: rgba(239, 68, 68, 0.95);
-            color: white;
-            border-color: rgba(239, 68, 68, 0.8);
-        }
-
-        .success-message {
-            background: rgba(16, 185, 129, 0.95);
-            color: white;
-            border-color: rgba(16, 185, 129, 0.8);
-        }
-
-        .info-message {
-            background: rgba(59, 130, 246, 0.95);
-            color: white;
-            border-color: rgba(59, 130, 246, 0.8);
-        }
-
-        /* PASSWORD TOGGLE */
-        .password-toggle {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #6b7280;
-            cursor: pointer;
-            font-size: 1.1rem;
-            padding: 0.5rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .password-toggle:hover {
-            color: #1a1a2e;
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        /* PASSWORD STRENGTH */
-        .strength-bar {
-            height: 6px;
-            border-radius: 3px;
-            transition: all 0.3s ease;
-            margin-top: 0.5rem;
-        }
-
-        .strength-weak { background: #ef4444; width: 25%; }
-        .strength-medium { background: #f59e0b; width: 50%; }
-        .strength-good { background: #eab308; width: 75%; }
-        .strength-strong { background: #10b981; width: 100%; }
-
-        /* REQUIREMENTS LIST */
-        .requirements-list {
-            background: rgba(249, 250, 251, 0.95);
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-
-        .requirement-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .requirement-indicator {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #e5e7eb;
-            transition: all 0.3s ease;
-        }
-
-        .requirement-indicator.met {
-            background: #10b981;
-        }
-
-        /* CHECKBOX STYLING */
-        input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: #e94560;
-            cursor: pointer;
-        }
-
-        /* ERROR DISPLAY */
-        .field-error {
-            color: #dc2626;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-top: 0.5rem;
-        }
-
-        /* LOADING SPINNER */
-        .loading-spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            display: inline-block;
-            margin-right: 0.5rem;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* NAVIGATION */
-        nav {
-            background: rgba(255, 255, 255, 0.98);
-            border-top: 3px solid rgba(233, 69, 96, 0.3);
-            box-shadow: 0 -8px 32px rgba(26, 26, 46, 0.2);
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .registration-container,
-            .email-confirmation-container {
-                padding: 2rem 1.5rem;
-                margin: 1rem;
-            }
-            
-            .logo-icon,
-            .email-icon {
-                width: 70px;
-                height: 70px;
-                font-size: 2rem;
-            }
-
-            .email-icon {
-                width: 100px;
-                height: 100px;
-                font-size: 3rem;
-            }
-
-            .step-circle {
-                width: 35px;
-                height: 35px;
-                font-size: 0.9rem;
-            }
-
-            .form-input {
-                font-size: 1rem;
-                padding: 0.875rem;
-            }
-
-            .btn-primary {
-                font-size: 1rem;
-                padding: 0.875rem 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .registration-container,
-            .email-confirmation-container {
-                padding: 1.5rem 1rem;
-                margin: 0.5rem;
-            }
-            
-            .logo-icon {
-                width: 60px;
-                height: 60px;
-                font-size: 1.75rem;
-            }
-
-            .email-icon {
-                width: 80px;
-                height: 80px;
-                font-size: 2.5rem;
-            }
-
-            .step-circle {
-                width: 30px;
-                height: 30px;
-                font-size: 0.8rem;
-            }
-        }
-
-        /* REDUCED MOTION */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        /* FOCUS VISIBLE */
-        *:focus-visible {
-            outline: 3px solid #00d4ff;
-            outline-offset: 2px;
-        }
+</html>
