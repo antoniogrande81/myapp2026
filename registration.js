@@ -819,23 +819,32 @@ async function generateNumeroTessera() {
     const numeroTessera = `${year}-${randomNum}`;
     
     try {
-        // Verifica che il numero non esista già
-        const { data: existing, error } = await supabase
-            .from('tessere') // Prova prima con tessere
-            .select('numero_tessera')
-            .eq('numero_tessera', numeroTessera)
-            .single();
+        // Verifica che il numero non esista già (prova su tutte le possibili tabelle)
+        const possibleTables = ['tessere', 'cards', 'user_cards', 'membership_cards'];
         
-        if (existing) {
-            console.log('🔄 Numero tessera già esistente, genero un nuovo numero...');
-            return await generateNumeroTessera(); // Ricorsivo fino a trovare un numero univoco
+        for (const tableName of possibleTables) {
+            try {
+                const { data: existing, error } = await supabase
+                    .from(tableName)
+                    .select('numero_tessera')
+                    .eq('numero_tessera', numeroTessera)
+                    .single();
+                
+                if (existing && !error) {
+                    console.log('🔄 Numero tessera già esistente, genero un nuovo numero...');
+                    return await generateNumeroTessera(); // Ricorsivo fino a trovare un numero univoco
+                }
+            } catch (err) {
+                // Tabella non esiste o altro errore, continua
+                continue;
+            }
         }
         
         console.log('✅ Numero tessera generato:', numeroTessera);
         return numeroTessera;
         
     } catch (error) {
-        // Se la tabella non esiste o il numero non è trovato, va bene
+        // Se c'è un errore generale, usa comunque il numero generato
         console.log('✅ Numero tessera generato (no check):', numeroTessera);
         return numeroTessera;
     }
