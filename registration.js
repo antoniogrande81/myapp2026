@@ -584,7 +584,7 @@ function saveCurrentStepData() {
 }
 
 // ================================
-// REGISTRAZIONE UTENTE
+// REGISTRAZIONE UTENTE - VERSIONE CORRETTA
 // ================================
 
 async function handleRegistration() {
@@ -605,16 +605,25 @@ async function handleRegistration() {
             throw new Error('Dati incompleti per la registrazione');
         }
         
-        // 1. Registra l'utente in Supabase Auth
-        console.log('👤 Registrazione utente in Auth...');
+        console.log('👤 Registrazione utente in Auth con metadata completi...');
+        
+        // METODO 1: Registrazione con tutti i metadata
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: formData.email,
             password: formData.password,
             options: {
                 data: {
+                    // Dati base per Supabase Auth
                     nome: formData.nome,
                     cognome: formData.cognome,
-                    full_name: formData.nome + ' ' + formData.cognome
+                    full_name: `${formData.nome} ${formData.cognome}`,
+                    
+                    // Dati completi per il trigger
+                    telefono: formData.telefono || null,
+                    data_nascita: formData.dataNascita,
+                    luogo_nascita: formData.luogoNascita,
+                    privacy_accepted: formData.privacyAccepted,
+                    marketing_consent: formData.marketingConsent || false
                 }
             }
         });
@@ -626,43 +635,59 @@ async function handleRegistration() {
         
         console.log('✅ Utente registrato in Auth:', authData);
         
-        // 2. Salva il profilo nella tabella personalizzata
+        // METODO 2: Se il trigger non ha funzionato, inserisci/aggiorna il profilo manualmente
         if (authData.user) {
-            console.log('📝 Creazione profilo utente...');
             try {
-                await createUserProfile(authData.user.id);
-                console.log('✅ Profilo utente creato con successo');
+                console.log('🔄 Verifica/aggiornamento profilo utente...');
                 
-                // 3. Verifica policy e crea la tessera per l'utente
-                console.log('🔍 Debug: Verifica stato autenticazione prima di creare tessera...');
-                const { data: currentUser, error: userError } = await supabase.auth.getUser();
-                console.log('👤 Utente corrente per tessera:', currentUser?.user?.id);
-                console.log('🆔 UserId per tessera:', authData.user.id);
-                console.log('🔒 Match ID:', currentUser?.user?.id === authData.user.id);
+                // Prima controlla se il profilo esiste già (creato dal trigger)
+                const { data: existingProfile, error: checkError } = await supabase
+                    .from('profiles')
+                    .select('id')
+                    .eq('id', authData.user.id)
+                    .single();
                 
+                if (existingProfile) {
+                    console.log('📝 Profilo esistente trovato, aggiornamento con dati completi...');
+                    // Aggiorna il profilo esistente con tutti i dati
+                    await updateUserProfile(authData.user.id);
+                } else {
+                    console.log('📝 Profilo non trovato, creazione nuovo profilo...');
+                    // Crea un nuovo profilo completo
+                    await createUserProfile(authData.user.id);
+                }
+                
+                console.log('✅ Profilo utente gestito con successo');
+                
+                // Crea la tessera
                 console.log('🎫 Creazione tessera utente...');
                 await createUserTessera(authData.user.id);
                 console.log('✅ Tessera creata con successo');
                 
             } catch (profileError) {
-                console.error('❌ Errore creazione profilo/tessera:', profileError);
+                console.error('❌ Errore gestione profilo/tessera:', profileError);
                 
-                // Diamo più dettagli sull'errore
-                if (profileError.message && profileError.message.includes('policy')) {
-                    showError('Errore di permessi durante la creazione del profilo. Contatta il supporto.');
-                } else if (profileError.message && profileError.message.includes('relation')) {
-                    showError('Errore di configurazione del database. Contatta il supporto.');
+                // Log dettagliato per debugging
+                console.log('🔍 Dettagli errore:', {
+                    message: profileError.message,
+                    details: profileError.details,
+                    hint: profileError.hint,
+                    code: profileError.code
+                });
+                
+                // Non bloccare il processo se l'utente è già registrato in Auth
+                if (profileError.message && profileError.message.includes('duplicate key')) {
+                    console.log('ℹ️ Profilo già esistente, procedo...');
                 } else {
-                    // Non bloccare il processo - l'utente è già registrato in Auth
-                    showInfo('Account creato! Il profilo e la tessera saranno completati automaticamente al primo accesso.');
+                    showInfo('Account creato! Il profilo sarà completato automaticamente al primo accesso.');
                 }
             }
         }
         
-        // 3. Mostra messaggio di successo
+        // Mostra messaggio di successo
         showSuccess('Registrazione completata! Controlla la tua email per confermare l\'account.');
         
-        // 4. Reindirizza dopo un breve delay
+        // Reindirizza dopo un breve delay
         setTimeout(() => {
             window.location.href = 'login.html';
         }, 3000);
@@ -671,8 +696,6 @@ async function handleRegistration() {
         console.error('❌ Errore durante la registrazione:', error);
         
         let errorMessage = 'Si è verificato un errore durante la registrazione.';
-        
-        // Verifica che error.message esista prima di usare includes
         const errorMsg = error?.message || error?.error_description || error?.msg || '';
         
         if (errorMsg.includes('already registered') || errorMsg.includes('User already registered')) {
@@ -685,14 +708,14 @@ async function handleRegistration() {
             const match = errorMsg.match(/after (\d+) seconds/);
             const seconds = match ? match[1] : '60';
             errorMessage = `Troppi tentativi di registrazione. Riprova tra ${seconds} secondi per motivi di sicurezza.`;
-            
-            // Disabilita il bottone per il tempo specificato
             startRegistrationCooldown(parseInt(seconds));
         } else if (errorMsg.includes('rate limit')) {
             errorMessage = 'Hai fatto troppi tentativi. Aspetta qualche minuto prima di riprovare.';
-            startRegistrationCooldown(60); // 1 minuto di default
-        } else if (errorMsg.includes('relation') && errorMsg.includes('does not exist')) {
-            errorMessage = 'Errore di configurazione del database. Contatta il supporto tecnico.';
+            startRegistrationCooldown(60);
+        } else if (errorMsg.includes('null value in column')) {
+            errorMessage = 'Errore nei dati forniti. Verifica che tutti i campi obbligatori siano compilati.';
+        } else if (errorMsg.includes('violates not-null constraint')) {
+            errorMessage = 'Alcuni dati obbligatori sono mancanti. Riprova compilando tutti i campi.';
         }
         
         showError(errorMessage);
@@ -706,10 +729,50 @@ async function handleRegistration() {
     }
 }
 
+// ================================
+// FUNZIONE PER AGGIORNARE PROFILO ESISTENTE
+// ================================
+
+async function updateUserProfile(userId) {
+    console.log('🔄 Aggiornamento profilo esistente per utente:', userId);
+    
+    const profileData = {
+        email: formData.email,
+        nome: formData.nome,
+        cognome: formData.cognome,
+        telefono: formData.telefono && formData.telefono.trim() !== '' ? formData.telefono.trim() : null,
+        data_nascita: formData.dataNascita,
+        luogo_nascita: formData.luogoNascita,
+        ruoli: ['USER'],
+        newsletter_consent: formData.marketingConsent ? 'true' : 'false',
+        marketing_consent: formData.marketingConsent || false,
+        privacy_accepted: formData.privacyAccepted || false,
+        privacy_accepted_at: new Date().toISOString(),
+        ip_registrazione: await getUserIP(),
+        user_agent: navigator.userAgent,
+        updated_at: new Date().toISOString()
+    };
+    
+    console.log('📊 Dati per aggiornamento profilo:', profileData);
+    
+    const { data, error } = await supabase
+        .from('profiles')
+        .update(profileData)
+        .eq('id', userId)
+        .select();
+    
+    if (error) {
+        console.error('❌ Errore aggiornamento profilo:', error);
+        throw error;
+    }
+    
+    console.log('✅ Profilo aggiornato con successo:', data);
+    return data;
+}
+
 async function createUserProfile(userId) {
     console.log('👤 Creazione profilo per utente:', userId);
     
-    // Dati completi per la tabella profiles
     const profileData = {
         id: userId,
         email: formData.email,
@@ -718,122 +781,70 @@ async function createUserProfile(userId) {
         telefono: formData.telefono && formData.telefono.trim() !== '' ? formData.telefono.trim() : null,
         data_nascita: formData.dataNascita,
         luogo_nascita: formData.luogoNascita,
-        ruoli: ['USER'], // Array di ruoli - default USER
-        newsletter_consent: formData.marketingConsent ? 'true' : 'false', // Manteniamo come string per compatibilità
-        marketing_consent: formData.marketingConsent || false, // Nuovo campo boolean
+        ruoli: ['USER'],
+        newsletter_consent: formData.marketingConsent ? 'true' : 'false',
+        marketing_consent: formData.marketingConsent || false,
         privacy_accepted: formData.privacyAccepted || false,
         privacy_accepted_at: new Date().toISOString(),
         ip_registrazione: await getUserIP(),
         user_agent: navigator.userAgent
     };
     
-    console.log('📊 Dati profilo completi per tabella profiles:', profileData);
+    console.log('📊 Dati profilo per inserimento:', profileData);
     
-    try {
-        console.log('🔄 Inserimento profilo completo in tabella "profiles"...');
-        
-        const { data, error } = await supabase
-            .from('profiles')
-            .insert([profileData])
-            .select();
-        
-        if (error) {
-            console.error('❌ Errore inserimento profiles:', {
-                message: error.message,
-                details: error.details,
-                hint: error.hint,
-                code: error.code
-            });
-            throw error;
-        }
-        
-        console.log('✅ Profilo completo creato con successo in "profiles":', data);
-        return data;
-        
-    } catch (err) {
-        console.error('❌ Errore generale creazione profilo:', err);
-        throw err;
+    // Usa upsert per gestire eventuali conflitti
+    const { data, error } = await supabase
+        .from('profiles')
+        .upsert([profileData], { 
+            onConflict: 'id',
+            ignoreDuplicates: false 
+        })
+        .select();
+    
+    if (error) {
+        console.error('❌ Errore inserimento/aggiornamento profilo:', error);
+        throw error;
     }
+    
+    console.log('✅ Profilo creato/aggiornato con successo:', data);
+    return data;
 }
 
 async function createUserTessera(userId) {
     console.log('🎫 Creazione tessera per utente:', userId);
     
-    // Genera il numero tessera univoco
     const numeroTessera = await generateNumeroTessera();
     
-    // Prepara i dati per la tessera - VERSIONE SEMPLIFICATA per debug
     const tesseraData = {
         id: userId,
         numero_tessera: numeroTessera,
-        data_scadenza: calculateScadenzaTessera()
+        stato: 'attiva',
+        data_emissione: new Date().toISOString().split('T')[0],
+        data_scadenza: calculateScadenzaTessera(),
+        tipo_tessera: 'standard',
+        punti_accumulati: 0,
+        livello: 'bronze',
+        note: 'Tessera creata durante registrazione'
     };
     
-    console.log('📊 Dati tessera SEMPLIFICATI da inserire:', tesseraData);
+    console.log('📊 Dati tessera per inserimento:', tesseraData);
     
-    try {
-        // Prima proviamo con dati minimi per capire il problema
-        console.log('🔄 Tentativo inserimento SEMPLIFICATO in tabella "tessere"...');
-        
-        const { data, error } = await supabase
-            .from('tessere')
-            .insert([tesseraData])
-            .select(); // Aggiungiamo select per vedere i dati inseriti
-        
-        if (error) {
-            console.error('❌ Errore dettagliato inserimento tessera:', {
-                message: error.message,
-                details: error.details,
-                hint: error.hint,
-                code: error.code
-            });
-            
-            // Proviamo a verificare se l'utente esiste in auth.users
-            console.log('🔍 Verifica esistenza utente in auth...');
-            const { data: authUser, error: authError } = await supabase.auth.getUser();
-            console.log('👤 Utente corrente:', authUser);
-            
-            throw error;
-        }
-        
-        console.log('✅ Tessera creata con successo:', data);
-        return data;
-        
-    } catch (err) {
-        console.error('❌ Eccezione durante creazione tessera:', err);
-        
-        // Proviamo un approccio alternativo - inserimento con tutti i campi default
-        console.log('🔄 Tentativo alternativo con tutti i campi...');
-        
-        const tesseraDataCompleta = {
-            id: userId,
-            numero_tessera: numeroTessera,
-            stato: 'attiva',
-            data_emissione: new Date().toISOString(),
-            data_scadenza: calculateScadenzaTessera(),
-            tipo_tessera: 'standard',
-            punti_accumulati: 0,
-            livello: 'bronze',
-            note: 'Tessera creata durante registrazione',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-        };
-        
-        console.log('📊 Tentativo con dati completi:', tesseraDataCompleta);
-        
-        const { data: dataCompleta, error: errorCompleto } = await supabase
-            .from('tessere')
-            .insert([tesseraDataCompleta])
-            .select();
-        
-        if (errorCompleto) {
-            console.error('❌ Anche il tentativo completo è fallito:', errorCompleto);
-            throw errorCompleto;
-        }
-        
-        console.log('✅ Tessera creata con dati completi:', dataCompleta);
-        return dataCompleta;
+    // Usa upsert anche per la tessera
+    const { data, error } = await supabase
+        .from('tessere')
+        .upsert([tesseraData], { 
+            onConflict: 'id',
+            ignoreDuplicates: false 
+        })
+        .select();
+    
+    if (error) {
+        console.error('❌ Errore inserimento tessera:', error);
+        throw error;
     }
+    
+    console.log('✅ Tessera creata con successo:', data);
+    return data;
 }
 
 async function generateNumeroTessera() {
