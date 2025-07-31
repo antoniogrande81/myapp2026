@@ -477,6 +477,24 @@
             display: none !important;
         }
 
+        /* Stile migliorato per data di nascita */
+        .date-input-wrapper {
+            position: relative;
+        }
+
+        .date-label-helper {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-size: 0.9rem;
+            pointer-events: none;
+            background: white;
+            padding: 0 0.5rem;
+        }
+
+        /* Responsive adjustments */
         @media (max-width: 768px) {
             .registration-container,
             .email-confirmation-container {
@@ -651,6 +669,7 @@
                                 placeholder="Il tuo nome"
                                 required
                                 autocomplete="given-name"
+                                maxlength="50"
                             >
                             <div id="nomeError" class="field-error hidden"></div>
                         </div>
@@ -666,6 +685,7 @@
                                 placeholder="Il tuo cognome"
                                 required
                                 autocomplete="family-name"
+                                maxlength="50"
                             >
                             <div id="cognomeError" class="field-error hidden"></div>
                         </div>
@@ -681,6 +701,7 @@
                                 placeholder="nome@esempio.com"
                                 required
                                 autocomplete="email"
+                                maxlength="100"
                             >
                             <div id="emailError" class="field-error hidden"></div>
                         </div>
@@ -696,6 +717,7 @@
                                 placeholder="Ripeti l'indirizzo email"
                                 required
                                 autocomplete="email"
+                                maxlength="100"
                             >
                             <div id="confirmEmailError" class="field-error hidden"></div>
                         </div>
@@ -710,24 +732,34 @@
                                 class="form-input"
                                 placeholder="+39 xxx xxx xxxx"
                                 autocomplete="tel"
+                                maxlength="20"
                             >
                             <div id="telefonoError" class="field-error hidden"></div>
+                            <small class="text-gray-500 text-sm mt-1 block">
+                                Formato consigliato: +39 123 456 7890 (opzionale)
+                            </small>
                         </div>
 
                         <!-- Data di Nascita -->
                         <div class="form-group">
                             <label for="dataNascita">Data di Nascita *</label>
-                            <input 
-                                type="date" 
-                                id="dataNascita" 
-                                name="dataNascita" 
-                                class="form-input"
-                                required
-                                autocomplete="bday"
-                                max="2010-12-31"
-                                min="1900-01-01"
-                            >
+                            <div class="date-input-wrapper">
+                                <input 
+                                    type="date" 
+                                    id="dataNascita" 
+                                    name="dataNascita" 
+                                    class="form-input"
+                                    required
+                                    autocomplete="bday"
+                                    max="2010-12-31"
+                                    min="1900-01-01"
+                                >
+                                <span class="date-label-helper">📅</span>
+                            </div>
                             <div id="dataNascitaError" class="field-error hidden"></div>
+                            <small class="text-gray-500 text-sm mt-1 block">
+                                Devi avere almeno 14 anni per registrarti
+                            </small>
                         </div>
 
                         <!-- Luogo di Nascita -->
@@ -738,18 +770,22 @@
                                 id="luogoNascita" 
                                 name="luogoNascita" 
                                 class="form-input"
-                                placeholder="Città di nascita"
+                                placeholder="Es: Roma, Milano, Napoli..."
                                 required
                                 autocomplete="address-level2"
+                                maxlength="100"
                             >
                             <div id="luogoNascitaError" class="field-error hidden"></div>
+                            <small class="text-gray-500 text-sm mt-1 block">
+                                Inserisci la città o il comune di nascita
+                            </small>
                         </div>
 
                         <!-- Bottoni Step 1 -->
                         <div class="flex justify-between mt-8">
                             <div></div>
                             <button type="button" class="btn-primary" onclick="nextStep()">
-                                Continua
+                                Continua →
                             </button>
                         </div>
                     </div>
@@ -768,6 +804,7 @@
                                     placeholder="Scegli una password sicura"
                                     required
                                     autocomplete="new-password"
+                                    maxlength="100"
                                 >
                                 <button type="button" class="password-toggle" onclick="togglePassword('password')">
                                     👁️
@@ -799,6 +836,7 @@
                                     placeholder="Ripeti la password"
                                     required
                                     autocomplete="new-password"
+                                    maxlength="100"
                                 >
                                 <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
                                     👁️
@@ -833,68 +871,257 @@
                         <!-- Bottoni Step 2 -->
                         <div class="flex justify-between mt-8">
                             <button type="button" class="btn-secondary" onclick="prevStep()">
-                                Indietro
+                                ← Indietro
                             </button>
                             <button type="button" class="btn-primary" onclick="nextStep()">
-                                Continua
+                                Continua →
                             </button>
                         </div>
                     </div>
 
                     <!-- Step 3: Termini e Condizioni -->
                     <div id="step3Form" class="step-form hidden">
-                        <!-- Termini e Condizioni -->
-                        <div class="space-y-4 mt-6">
-                            <label class="flex items-start space-x-3 cursor-pointer">
-                                <input type="checkbox" id="privacyAccept" required class="mt-1">
-                                <div class="text-sm text-gray-700 leading-relaxed">
-                                    <span class="font-semibold">Accetto i</span>
-                                    <a href="privacy.html" target="_blank" class="text-aurora hover:underline font-bold">Termini e Condizioni</a>
-                                    <span class="font-semibold">e l'</span>
-                                    <a href="privacy.html#privacy" target="_blank" class="text-aurora hover:underline font-bold">Informativa sulla Privacy</a>
+                        <!-- Riepilogo Dati -->
+                        <div class="bg-gray-50 rounded-2xl p-4 mb-6">
+                            <h3 class="font-bold text-primary mb-3 flex items-center">
+                                <span class="mr-2">📋</span>
+                                Riepilogo della tua registrazione:
+                            </h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="font-semibold text-gray-600">Nome:</span> 
+                                    <span id="summaryNome" class="text-primary font-bold">-</span>
                                 </div>
-                            </label>
-                            
-                            <label class="flex items-start space-x-3 cursor-pointer">
-                                <input type="checkbox" id="marketingAccept" class="mt-1">
-                                <div class="text-sm text-gray-700 leading-relaxed">
-                                    Acconsento al trattamento dei miei dati per finalità di marketing e comunicazioni promozionali
-                                    <span class="text-gray-500">(opzionale)</span>
+                                <div class="flex justify-between">
+                                    <span class="font-semibold text-gray-600">Cognome:</span> 
+                                    <span id="summaryCognome" class="text-primary font-bold">-</span>
                                 </div>
-                            </label>
+                                <div class="flex justify-between">
+                                    <span class="font-semibold text-gray-600">Email:</span> 
+                                    <span id="summaryEmail" class="text-primary font-bold">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="font-semibold text-gray-600">Telefono:</span> 
+                                    <span id="summaryTelefono" class="text-gray-600">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="font-semibold text-gray-600">Data di Nascita:</span> 
+                                    <span id="summaryDataNascita" class="text-primary font-bold">-</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="font-semibold text-gray-600">Luogo di Nascita:</span> 
+                                    <span id="summaryLuogoNascita" class="text-primary font-bold">-</span>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Riepilogo Dati -->
-                        <div class="bg-gray-50 rounded-2xl p-4 mt-6">
-                            <h3 class="font-bold text-primary mb-3">Riepilogo Registrazione:</h3>
-                            <div class="space-y-2 text-sm">
-                                <div><span class="font-semibold">Nome:</span> <span id="summaryNome">-</span></div>
-                                <div><span class="font-semibold">Cognome:</span> <span id="summaryCognome">-</span></div>
-                                <div><span class="font-semibold">Email:</span> <span id="summaryEmail">-</span></div>
-                                <div><span class="font-semibold">Telefono:</span> <span id="summaryTelefono">-</span></div>
-                                <div><span class="font-semibold">Data di Nascita:</span> <span id="summaryDataNascita">-</span></div>
-                                <div><span class="font-semibold">Luogo di Nascita:</span> <span id="summaryLuogoNascita">-</span></div>
+                        <!-- Termini e Condizioni -->
+                        <div class="space-y-4">
+                            <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+                                <label class="flex items-start space-x-3 cursor-pointer">
+                                    <input type="checkbox" id="privacyAccept" required class="mt-1 accent-primary">
+                                    <div class="text-sm text-gray-700 leading-relaxed">
+                                        <span class="font-semibold">✅ Dichiaro di aver letto e accettato i</span>
+                                        <a href="privacy.html" target="_blank" class="text-aurora hover:underline font-bold ml-1">Termini e Condizioni</a>
+                                        <span class="font-semibold">e l'</span>
+                                        <a href="privacy.html#privacy" target="_blank" class="text-aurora hover:underline font-bold">Informativa sulla Privacy</a>
+                                        <span class="text-red-500 font-bold">*</span>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <div class="bg-green-50 border-2 border-green-200 rounded-xl p-4">
+                                <label class="flex items-start space-x-3 cursor-pointer">
+                                    <input type="checkbox" id="marketingAccept" class="mt-1 accent-primary">
+                                    <div class="text-sm text-gray-700 leading-relaxed">
+                                        <span class="font-semibold">📧 Acconsento al trattamento dei miei dati per finalità di marketing e comunicazioni promozionali</span>
+                                        <span class="text-gray-500 block mt-1">(opzionale - puoi modificare questa preferenza in qualsiasi momento)</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Info aggiuntive -->
+                        <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4 mt-4">
+                            <div class="flex items-start space-x-2">
+                                <span class="text-yellow-600 text-lg">ℹ️</span>
+                                <div class="text-sm text-gray-700">
+                                    <p class="font-semibold mb-1">Cosa succede dopo la registrazione:</p>
+                                    <ul class="list-disc list-inside space-y-1 text-xs">
+                                        <li>Riceverai un'email di conferma all'indirizzo fornito</li>
+                                        <li>Dovrai cliccare sul link di conferma per attivare l'account</li>
+                                        <li>Una volta confermato, potrai accedere a tutti i servizi</li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Bottoni Step 3 -->
                         <div class="flex justify-between mt-8">
                             <button type="button" class="btn-secondary" onclick="prevStep()">
-                                Indietro
+                                ← Indietro
                             </button>
-                            <button type="button" class="btn-primary" onclick="handleRegistration()">
-                                🚀 Registrati
+                            <button type="button" class="btn-primary" onclick="handleRegistration()" id="registerBtn">
+                                🚀 Completa Registrazione
                             </button>
                         </div>
                     </div>
 
                 </form>
             </div>
+
+            <!-- Email Confirmation Screen (inizialmente nascosta) -->
+            <div id="emailConfirmationSection" class="email-confirmation-container hidden">
+                <div class="email-icon">
+                    📧
+                </div>
+                
+                <h2 class="text-2xl font-bold text-primary mb-4">
+                    Controlla la tua email!
+                </h2>
+                
+                <p class="text-gray-600 mb-6 leading-relaxed">
+                    Abbiamo inviato un messaggio di conferma all'indirizzo:
+                </p>
+                
+                <div class="bg-gray-100 rounded-xl p-4 mb-6">
+                    <p id="confirmationEmail" class="font-bold text-primary text-lg">
+                        <!-- Email inserita dall'utente -->
+                    </p>
+                </div>
+                
+                <p class="text-gray-600 mb-6 text-sm">
+                    Clicca sul link di conferma nell'email per attivare il tuo account e completare la registrazione.
+                </p>
+                
+                <div class="space-y-4">
+                    <button type="button" class="btn-primary w-full" onclick="window.open('https://mail.google.com', '_blank')">
+                        📧 Apri Gmail
+                    </button>
+                    
+                    <button type="button" class="btn-secondary w-full" onclick="window.location.href='login.html'">
+                        🔑 Vai al Login
+                    </button>
+                    
+                    <div class="text-center">
+                        <button type="button" id="resendBtn" class="btn-ghost" onclick="resendConfirmationEmail()" disabled>
+                            📤 Invia nuovamente l'email
+                        </button>
+                        <div id="resendTimer" class="resend-timer">
+                            Potrai inviare nuovamente l'email tra <span id="timerSeconds">60</span> secondi
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 text-xs text-gray-500 text-center">
+                    <p>Non hai ricevuto l'email? Controlla anche la cartella spam/posta indesiderata.</p>
+                </div>
+            </div>
         </div>
     </main>
 
     <!-- JavaScript esterno -->
     <script src="registration.js"></script>
+
+    <!-- Script aggiuntivo per funzionalità extra -->
+    <script>
+        // Funzione per resend email
+        async function resendConfirmationEmail() {
+            if (!formData.email) return;
+            
+            const resendBtn = document.getElementById('resendBtn');
+            resendBtn.disabled = true;
+            resendBtn.innerHTML = '<span class="loading-spinner"></span>Invio in corso...';
+            
+            try {
+                const { error } = await supabase.auth.resend({
+                    type: 'signup',
+                    email: formData.email
+                });
+                
+                if (error) throw error;
+                
+                showInfo('Email di conferma inviata nuovamente!');
+                startResendTimer();
+                
+            } catch (error) {
+                console.error('Errore resend:', error);
+                showError('Errore nell\'invio dell\'email. Riprova più tardi.');
+            } finally {
+                resendBtn.innerHTML = '📤 Invia nuovamente l\'email';
+            }
+        }
+        
+        // Timer per resend
+        function startResendTimer() {
+            let seconds = 60;
+            const timerElement = document.getElementById('timerSeconds');
+            const resendBtn = document.getElementById('resendBtn');
+            const timerDiv = document.getElementById('resendTimer');
+            
+            resendBtn.disabled = true;
+            timerDiv.style.display = 'block';
+            
+            const interval = setInterval(() => {
+                seconds--;
+                timerElement.textContent = seconds;
+                
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    resendBtn.disabled = false;
+                    timerDiv.style.display = 'none';
+                }
+            }, 1000);
+        }
+        
+        // Mostra schermata conferma email
+        function showEmailConfirmation(email) {
+            document.getElementById('registrationSection').classList.add('hidden');
+            document.getElementById('emailConfirmationSection').classList.remove('hidden');
+            document.getElementById('confirmationEmail').textContent = email;
+            startResendTimer();
+        }
+        
+        // Formattazione automatica telefono
+        document.addEventListener('DOMContentLoaded', function() {
+            const telefonoInput = document.getElementById('telefono');
+            if (telefonoInput) {
+                telefonoInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    
+                    if (value.startsWith('39')) {
+                        value = '+' + value;
+                    } else if (value.startsWith('3') && value.length >= 3) {
+                        value = '+39 ' + value;
+                    }
+                    
+                    // Formatta il numero
+                    if (value.startsWith('+39')) {
+                        value = value.replace(/(\+39)(\d{3})(\d{3})(\d{4})/, '$1 $2 $3 $4');
+                    }
+                    
+                    e.target.value = value;
+                });
+            }
+        });
+        
+        // Validazione data di nascita in tempo reale
+        document.addEventListener('DOMContentLoaded', function() {
+            const dataNascitaInput = document.getElementById('dataNascita');
+            if (dataNascitaInput) {
+                dataNascitaInput.addEventListener('change', function() {
+                    const isValid = validateDataNascita(this.value);
+                    if (this.value) {
+                        if (isValid) {
+                            setFieldValid('dataNascita');
+                        } else {
+                            setFieldError('dataNascita');
+                        }
+                    }
+                });
+            }
+        });
+    </script>
 
 </body>
 </html>
