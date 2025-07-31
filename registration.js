@@ -633,15 +633,29 @@ async function handleRegistration() {
                 await createUserProfile(authData.user.id);
                 console.log('✅ Profilo utente creato con successo');
                 
-                // 3. Crea la tessera per l'utente
+                // 3. Verifica policy e crea la tessera per l'utente
+                console.log('🔍 Debug: Verifica stato autenticazione prima di creare tessera...');
+                const { data: currentUser, error: userError } = await supabase.auth.getUser();
+                console.log('👤 Utente corrente per tessera:', currentUser?.user?.id);
+                console.log('🆔 UserId per tessera:', authData.user.id);
+                console.log('🔒 Match ID:', currentUser?.user?.id === authData.user.id);
+                
                 console.log('🎫 Creazione tessera utente...');
                 await createUserTessera(authData.user.id);
                 console.log('✅ Tessera creata con successo');
                 
             } catch (profileError) {
                 console.error('❌ Errore creazione profilo/tessera:', profileError);
-                // Non bloccare il processo - l'utente è già registrato in Auth
-                showInfo('Account creato! Il profilo e la tessera saranno completati automaticamente al primo accesso.');
+                
+                // Diamo più dettagli sull'errore
+                if (profileError.message && profileError.message.includes('policy')) {
+                    showError('Errore di permessi durante la creazione del profilo. Contatta il supporto.');
+                } else if (profileError.message && profileError.message.includes('relation')) {
+                    showError('Errore di configurazione del database. Contatta il supporto.');
+                } else {
+                    // Non bloccare il processo - l'utente è già registrato in Auth
+                    showInfo('Account creato! Il profilo e la tessera saranno completati automaticamente al primo accesso.');
+                }
             }
         }
         
@@ -756,58 +770,78 @@ async function createUserTessera(userId) {
     // Genera il numero tessera univoco
     const numeroTessera = await generateNumeroTessera();
     
-    // Prepara i dati per la tessera
+    // Prepara i dati per la tessera - VERSIONE SEMPLIFICATA per debug
     const tesseraData = {
-        id: userId, // Collega la tessera all'utente
+        id: userId,
         numero_tessera: numeroTessera,
-        stato: 'attiva', // o 'pending' se deve essere attivata manualmente
-        data_emissione: new Date().toISOString(),
-        data_scadenza: calculateScadenzaTessera(), // Calcola data scadenza (es. 1 anno)
-        tipo_tessera: 'standard', // o 'premium', 'basic', etc.
-        punti_accumulati: 0,
-        livello: 'bronze', // bronze, silver, gold, platinum
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        data_scadenza: calculateScadenzaTessera()
     };
     
-    console.log('📊 Dati tessera da inserire:', tesseraData);
+    console.log('📊 Dati tessera SEMPLIFICATI da inserire:', tesseraData);
     
-    // Lista di possibili nomi per la tabella tessere
-    const possibleTessereTables = [
-        'tessere',        // Nome italiano
-        'tessere_utenti', // Nome italiano composto
-        'cards',          // Nome inglese
-        'user_cards',     // Nome inglese composto
-        'membership_cards', // Nome descrittivo
-        'loyalty_cards',  // Nome per fedeltà
-        'badges',         // Nome alternativo
-        'membership'      // Nome per appartenenza
-    ];
-    
-    for (const tableName of possibleTessereTables) {
-        try {
-            console.log(`🔄 Tentativo inserimento in tabella "${tableName}"...`);
+    try {
+        // Prima proviamo con dati minimi per capire il problema
+        console.log('🔄 Tentativo inserimento SEMPLIFICATO in tabella "tessere"...');
+        
+        const { data, error } = await supabase
+            .from('tessere')
+            .insert([tesseraData])
+            .select(); // Aggiungiamo select per vedere i dati inseriti
+        
+        if (error) {
+            console.error('❌ Errore dettagliato inserimento tessera:', {
+                message: error.message,
+                details: error.details,
+                hint: error.hint,
+                code: error.code
+            });
             
-            const { data, error } = await supabase
-                .from(tableName)
-                .insert([tesseraData]);
+            // Proviamo a verificare se l'utente esiste in auth.users
+            console.log('🔍 Verifica esistenza utente in auth...');
+            const { data: authUser, error: authError } = await supabase.auth.getUser();
+            console.log('👤 Utente corrente:', authUser);
             
-            if (!error) {
-                console.log(`✅ Tessera creata con successo in "${tableName}":`, data);
-                return data;
-            }
-            
-            console.warn(`⚠️ Errore tabella "${tableName}":`, error.message);
-            
-        } catch (err) {
-            console.warn(`⚠️ Eccezione tabella "${tableName}":`, err.message);
+            throw error;
         }
+        
+        console.log('✅ Tessera creata con successo:', data);
+        return data;
+        
+    } catch (err) {
+        console.error('❌ Eccezione durante creazione tessera:', err);
+        
+        // Proviamo un approccio alternativo - inserimento con tutti i campi default
+        console.log('🔄 Tentativo alternativo con tutti i campi...');
+        
+        const tesseraDataCompleta = {
+            id: userId,
+            numero_tessera: numeroTessera,
+            stato: 'attiva',
+            data_emissione: new Date().toISOString(),
+            data_scadenza: calculateScadenzaTessera(),
+            tipo_tessera: 'standard',
+            punti_accumulati: 0,
+            livello: 'bronze',
+            note: 'Tessera creata durante registrazione',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        };
+        
+        console.log('📊 Tentativo con dati completi:', tesseraDataCompleta);
+        
+        const { data: dataCompleta, error: errorCompleto } = await supabase
+            .from('tessere')
+            .insert([tesseraDataCompleta])
+            .select();
+        
+        if (errorCompleto) {
+            console.error('❌ Anche il tentativo completo è fallito:', errorCompleto);
+            throw errorCompleto;
+        }
+        
+        console.log('✅ Tessera creata con dati completi:', dataCompleta);
+        return dataCompleta;
     }
-    
-    // Se tutti i tentativi falliscono
-    const errorMsg = `Impossibile trovare la tabella corretta per le tessere. Tabelle provate: ${possibleTessereTables.join(', ')}`;
-    console.error('❌ Creazione tessera fallita:', errorMsg);
-    throw new Error(errorMsg);
 }
 
 async function generateNumeroTessera() {
