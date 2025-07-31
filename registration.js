@@ -367,7 +367,6 @@ async function handleRegistration() {
     try {
         saveCurrentStepData();
         if (!validateCurrentStep()) throw new Error('Dati mancanti');
-
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: formData.email,
             password: formData.password,
@@ -384,16 +383,13 @@ async function handleRegistration() {
                 }
             }
         });
-
         if (authError) throw authError;
         const userId = authData.user?.id;
         if (!userId) throw new Error('ID utente mancante');
-
         const { data: existingProfile } = await supabase.from('profiles').select('id').eq('id', userId).single();
         existingProfile ? await updateUserProfile(userId) : await createUserProfile(userId);
         const tessera = await createUserTessera(userId);
         console.log('Tessera scadenza:', tessera.data_scadenza_europeo);
-
         showSuccess('Registrazione completata! Controlla la tua email.');
         setTimeout(() => window.location.href = 'login.html', 3000);
     } catch (error) {
@@ -424,7 +420,6 @@ async function createUserProfile(userId) {
         ip_registrazione: await getUserIP(),
         user_agent: navigator.userAgent
     };
-
     const { error } = await supabase.from('profiles').upsert([profileData], { onConflict: 'id', ignoreDuplicates: false }).select();
     if (error) throw error;
 }
@@ -446,7 +441,6 @@ async function updateUserProfile(userId) {
         user_agent: navigator.userAgent,
         updated_at: new Date().toISOString()
     };
-
     await supabase.from('profiles').update(profileData).eq('id', userId).select();
 }
 
@@ -478,7 +472,6 @@ async function createUserTessera(userId) {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
     };
-
     const { data } = await supabase.from('tessere').insert([tesseraData]).select();
     return { ...data[0], data_scadenza_europeo: scadenza.eu };
 }
