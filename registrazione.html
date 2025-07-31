@@ -132,6 +132,21 @@
                             <div id="emailError" class="field-error hidden"></div>
                         </div>
 
+                        <!-- Conferma Email -->
+                        <div class="form-group">
+                            <label for="confirmEmail">Conferma Email *</label>
+                            <input 
+                                type="email" 
+                                id="confirmEmail" 
+                                name="confirmEmail" 
+                                class="form-input"
+                                placeholder="Ripeti l'indirizzo email"
+                                required
+                                autocomplete="email"
+                            >
+                            <div id="confirmEmailError" class="field-error hidden"></div>
+                        </div>
+
                         <!-- Telefono -->
                         <div class="form-group">
                             <label for="telefono">Telefono</label>
@@ -144,6 +159,14 @@
                                 autocomplete="tel"
                             >
                             <div id="telefonoError" class="field-error hidden"></div>
+                        </div>
+
+                        <!-- Bottoni Step 1 -->
+                        <div class="flex justify-between mt-8">
+                            <div></div>
+                            <button type="button" class="btn-primary" onclick="nextStep()">
+                                Continua
+                            </button>
                         </div>
                     </div>
 
@@ -222,6 +245,16 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Bottoni Step 2 -->
+                        <div class="flex justify-between mt-8">
+                            <button type="button" class="btn-secondary" onclick="prevStep()">
+                                Indietro
+                            </button>
+                            <button type="button" class="btn-primary" onclick="nextStep()">
+                                Continua
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Step 3: Termini e Condizioni -->
@@ -256,6 +289,16 @@
                                 <div><span class="font-semibold">Email:</span> <span id="summaryEmail">-</span></div>
                                 <div><span class="font-semibold">Telefono:</span> <span id="summaryTelefono">-</span></div>
                             </div>
+                        </div>
+
+                        <!-- Bottoni Step 3 -->
+                        <div class="flex justify-between mt-8">
+                            <button type="button" class="btn-secondary" onclick="prevStep()">
+                                Indietro
+                            </button>
+                            <button type="submit" class="btn-primary" onclick="handleRegistration()">
+                                🚀 Registrati
+                            </button>
                         </div>
                     </div>
 
@@ -399,46 +442,11 @@
             // Gestione submit del form
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                nextStep();
+                // Non fare nulla qui, i bottoni hanno le loro funzioni
             });
-            
-            // Aggiungi bottoni di navigazione
-            addNavigationButtons();
             
             // Validazione real-time
             setupRealTimeValidation();
-        }
-
-        function addNavigationButtons() {
-            const steps = document.querySelectorAll('.step-form');
-            
-            steps.forEach((step, index) => {
-                const stepNumber = index + 1;
-                const buttonContainer = document.createElement('div');
-                buttonContainer.className = 'flex justify-between mt-8';
-                
-                // Bottone Indietro (non per il primo step)
-                if (stepNumber > 1) {
-                    const backButton = document.createElement('button');
-                    backButton.type = 'button';
-                    backButton.className = 'btn-secondary';
-                    backButton.textContent = 'Indietro';
-                    backButton.onclick = prevStep;
-                    buttonContainer.appendChild(backButton);
-                } else {
-                    buttonContainer.appendChild(document.createElement('div'));
-                }
-                
-                // Bottone Avanti/Registrati
-                const nextButton = document.createElement('button');
-                nextButton.type = 'submit';
-                nextButton.className = 'btn-primary';
-                nextButton.textContent = stepNumber === 3 ? 'Registrati' : 'Continua';
-                nextButton.id = `nextButton${stepNumber}`;
-                buttonContainer.appendChild(nextButton);
-                
-                step.appendChild(buttonContainer);
-            });
         }
 
         // ================================
@@ -498,6 +506,18 @@
                 isValid = false;
             } else {
                 clearFieldError('email');
+            }
+            
+            // Validazione Conferma Email
+            const confirmEmail = document.getElementById('confirmEmail').value.trim();
+            if (!confirmEmail) {
+                showFieldError('confirmEmail', 'Conferma l\'email è obbligatoria');
+                isValid = false;
+            } else if (email !== confirmEmail) {
+                showFieldError('confirmEmail', 'Le email non coincidono');
+                isValid = false;
+            } else {
+                clearFieldError('confirmEmail');
             }
             
             // Validazione Telefono (opzionale ma se inserito deve essere valido)
@@ -564,6 +584,8 @@
         function setupPasswordValidation() {
             const passwordInput = document.getElementById('password');
             const confirmPasswordInput = document.getElementById('confirmPassword');
+            const emailInput = document.getElementById('email');
+            const confirmEmailInput = document.getElementById('confirmEmail');
             
             passwordInput.addEventListener('input', function() {
                 updatePasswordStrength(this.value);
@@ -573,6 +595,26 @@
             confirmPasswordInput.addEventListener('input', function() {
                 validatePasswordMatch();
             });
+            
+            // Validazione email match
+            emailInput.addEventListener('input', function() {
+                validateEmailMatch();
+            });
+            
+            confirmEmailInput.addEventListener('input', function() {
+                validateEmailMatch();
+            });
+        }
+
+        function validateEmailMatch() {
+            const email = document.getElementById('email').value.trim();
+            const confirmEmail = document.getElementById('confirmEmail').value.trim();
+            
+            if (confirmEmail && email !== confirmEmail) {
+                showFieldError('confirmEmail', 'Le email non coincidono');
+            } else {
+                clearFieldError('confirmEmail');
+            }
         }
 
         function updatePasswordStrength(password) {
@@ -940,6 +982,17 @@
                     }
                     break;
                     
+                case 'confirmEmail':
+                    const originalEmail = document.getElementById('email').value.trim();
+                    if (!value) {
+                        showFieldError(fieldId, 'Conferma l\'email è obbligatoria');
+                        return false;
+                    } else if (value !== originalEmail) {
+                        showFieldError(fieldId, 'Le email non coincidono');
+                        return false;
+                    }
+                    break;
+                    
                 case 'telefono':
                     if (value) {
                         const phoneRegex = /^[\+]?[\d\s\-\(\)]{8,}$/;
@@ -1060,25 +1113,31 @@
         }
 
         function showLoading() {
-            const submitButtons = document.querySelectorAll('button[type="submit"]');
-            
-            submitButtons.forEach(button => {
+            // Disabilita tutti i bottoni durante il caricamento
+            const allButtons = document.querySelectorAll('button');
+            allButtons.forEach(button => {
                 button.disabled = true;
-                button.innerHTML = '<span class="loading-spinner"></span>Registrazione in corso...';
             });
+            
+            // Mostra loading solo sul bottone di registrazione
+            const registerButton = document.querySelector('button[onclick="handleRegistration()"]');
+            if (registerButton) {
+                registerButton.innerHTML = '<span class="loading-spinner"></span>Registrazione in corso...';
+            }
         }
 
         function hideLoading() {
-            const submitButtons = document.querySelectorAll('button[type="submit"]');
-            
-            submitButtons.forEach((button, index) => {
+            // Riabilita tutti i bottoni
+            const allButtons = document.querySelectorAll('button');
+            allButtons.forEach(button => {
                 button.disabled = false;
-                if (index === 2) { // Ultimo bottone
-                    button.textContent = 'Registrati';
-                } else {
-                    button.textContent = 'Continua';
-                }
             });
+            
+            // Ripristina il testo del bottone di registrazione
+            const registerButton = document.querySelector('button[onclick="handleRegistration()"]');
+            if (registerButton) {
+                registerButton.innerHTML = '🚀 Registrati';
+            }
         }
 
         // ================================
