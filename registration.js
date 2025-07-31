@@ -2,26 +2,16 @@
 // CONFIGURAZIONE SUPABASE
 // ================================
 
-// CREDENZIALI SUPABASE DEL PROGETTO
 const SUPABASE_URL = 'https://lycrgzptkdkksukcwrld.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
-
-// Variabile per il client Supabase
-let supabase = null;
 
 // ================================
 // VARIABILI GLOBALI
 // ================================
 
+let supabase = null;
 let currentStep = 1;
-let formData = {// Esporta le funzioni per uso globale
-window.nextStep = nextStep;
-window.prevStep = prevStep;
-window.handleRegistration = handleRegistration;
-window.togglePassword = togglePassword;
-window.resendConfirmationEmail = resendConfirmationEmail;
-window.goBack = goBack;
-window.generateNextTesseraNumber = generateNextTesseraNumber;;
+let formData = {};
 let resendTimer = 0;
 let resendInterval;
 
@@ -32,27 +22,47 @@ let resendInterval;
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Inizializzazione applicazione...');
     
-    // Attendi che Supabase sia caricato
-    setTimeout(() => {
-        initializeSupabase();
-        initializeForm();
-        setupEventListeners();
-        setupPasswordValidation();
-    }, 100);
+    // Controllo Supabase con retry
+    let attempts = 0;
+    const maxAttempts = 20;
+    
+    function checkSupabase() {
+        attempts++;
+        console.log('🔍 Tentativo ' + attempts + ': controllo Supabase...');
+        
+        if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+            console.log('✅ Supabase trovato, inizializzazione...');
+            initializeSupabase();
+            initializeForm();
+            setupEventListeners();
+            setupPasswordValidation();
+        } else if (attempts < maxAttempts) {
+            console.log('⏳ Supabase non ancora disponibile, riprovo...');
+            setTimeout(checkSupabase, 200);
+        } else {
+            console.error('❌ Impossibile caricare Supabase dopo ' + maxAttempts + ' tentativi');
+            showError('Errore di caricamento. Ricarica la pagina.');
+        }
+    }
+    
+    checkSupabase();
 });
 
 function initializeSupabase() {
     try {
-        if (typeof window.supabase !== 'undefined') {
+        console.log('🔧 Inizializzazione Supabase...');
+        console.log('📍 URL:', SUPABASE_URL);
+        console.log('🔑 Key presente:', SUPABASE_ANON_KEY ? 'Sì' : 'No');
+        
+        if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            console.log('✅ Supabase inizializzato correttamente');
+            console.log('✅ Supabase client creato con successo');
         } else {
-            console.error('❌ Libreria Supabase non disponibile');
-            showError('Errore di configurazione. Ricarica la pagina.');
+            throw new Error('window.supabase.createClient non disponibile');
         }
     } catch (error) {
         console.error('❌ Errore inizializzazione Supabase:', error);
-        showError('Errore di configurazione. Ricarica la pagina.');
+        showError('Errore di configurazione del servizio. Ricarica la pagina.');
     }
 }
 
@@ -69,15 +79,16 @@ function initializeForm() {
 // ================================
 
 function showStep(step) {
-    console.log('🔄 Cambio step da', currentStep, 'a', step);
+    console.log('🔄 Cambio step da ' + currentStep + ' a ' + step);
     
     // Nascondi tutti gli step
-    document.querySelectorAll('.step-form').forEach(form => {
-        form.classList.add('hidden');
-    });
+    const stepForms = document.querySelectorAll('.step-form');
+    for (let i = 0; i < stepForms.length; i++) {
+        stepForms[i].classList.add('hidden');
+    }
     
     // Mostra lo step corrente
-    const stepElement = document.getElementById(`step${step}Form`);
+    const stepElement = document.getElementById('step' + step + 'Form');
     if (stepElement) {
         stepElement.classList.remove('hidden');
         currentStep = step;
@@ -89,9 +100,9 @@ function showStep(step) {
             updateSummary();
         }
         
-        console.log('✅ Step', step, 'mostrato correttamente');
+        console.log('✅ Step ' + step + ' mostrato correttamente');
     } else {
-        console.error('❌ Elemento step non trovato:', `step${step}Form`);
+        console.error('❌ Elemento step non trovato: step' + step + 'Form');
     }
 }
 
@@ -99,9 +110,9 @@ function updateStepIndicator() {
     const steps = ['step1', 'step2', 'step3'];
     const lines = ['line1', 'line2'];
     
-    steps.forEach((stepId, index) => {
-        const stepElement = document.getElementById(stepId);
-        const stepNumber = index + 1;
+    for (let i = 0; i < steps.length; i++) {
+        const stepElement = document.getElementById(steps[i]);
+        const stepNumber = i + 1;
         
         if (stepElement) {
             if (stepNumber < currentStep) {
@@ -115,18 +126,18 @@ function updateStepIndicator() {
                 stepElement.innerHTML = stepNumber;
             }
         }
-    });
+    }
     
-    lines.forEach((lineId, index) => {
-        const lineElement = document.getElementById(lineId);
+    for (let i = 0; i < lines.length; i++) {
+        const lineElement = document.getElementById(lines[i]);
         if (lineElement) {
-            if (index + 1 < currentStep) {
+            if (i + 1 < currentStep) {
                 lineElement.classList.add('completed');
             } else {
                 lineElement.classList.remove('completed');
             }
         }
-    });
+    }
 }
 
 function updateStepLabel() {
@@ -150,12 +161,12 @@ function updateSummary() {
         summaryTelefono: formData.telefono || 'Non fornito'
     };
     
-    Object.entries(summaryElements).forEach(([elementId, value]) => {
+    for (const elementId in summaryElements) {
         const element = document.getElementById(elementId);
         if (element) {
-            element.textContent = value;
+            element.textContent = summaryElements[elementId];
         }
-    });
+    }
 }
 
 function nextStep() {
@@ -166,7 +177,6 @@ function nextStep() {
             saveCurrentStepData();
             showStep(currentStep + 1);
         } else {
-            // Ultimo step - procedi con la registrazione
             console.log('🚀 Avvio registrazione...');
             handleRegistration();
         }
@@ -190,14 +200,11 @@ function setupEventListeners() {
     const form = document.getElementById('registrationForm');
     
     if (form) {
-        // Gestione submit del form
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            // Non fare nulla qui, i bottoni hanno le loro funzioni
         });
     }
     
-    // Validazione real-time
     setupRealTimeValidation();
 }
 
@@ -279,7 +286,7 @@ function validateStep1() {
         clearFieldError('confirmEmail');
     }
     
-    // Validazione Telefono (opzionale ma se inserito deve essere valido)
+    // Validazione Telefono (opzionale)
     const telefono = getElementValue('telefono');
     if (telefono) {
         const phoneRegex = /^[\+]?[\d\s\-\(\)]{8,}$/;
@@ -297,7 +304,6 @@ function validateStep1() {
 function validateStep2() {
     let isValid = true;
     
-    // Validazione Password
     const password = getElementValue('password', false);
     const confirmPassword = getElementValue('confirmPassword', false);
     
@@ -311,7 +317,6 @@ function validateStep2() {
         clearFieldError('password');
     }
     
-    // Validazione Conferma Password
     if (!confirmPassword) {
         showFieldError('confirmPassword', 'Conferma la password');
         isValid = false;
@@ -359,7 +364,6 @@ function setupPasswordValidation() {
         });
     }
     
-    // Validazione email match
     if (emailInput) {
         emailInput.addEventListener('input', function() {
             validateEmailMatch();
@@ -392,7 +396,6 @@ function updatePasswordStrength(password) {
     
     const strength = calculatePasswordStrength(password);
     
-    // Reset classes
     strengthBar.className = 'strength-bar';
     
     switch (strength.level) {
@@ -427,16 +430,16 @@ function updatePasswordRequirements(password) {
         'req-number': /\d/.test(password)
     };
     
-    Object.entries(requirements).forEach(([reqId, met]) => {
-        const indicator = document.querySelector(`#${reqId} .requirement-indicator`);
+    for (const reqId in requirements) {
+        const indicator = document.querySelector('#' + reqId + ' .requirement-indicator');
         if (indicator) {
-            if (met) {
+            if (requirements[reqId]) {
                 indicator.classList.add('met');
             } else {
                 indicator.classList.remove('met');
             }
         }
-    });
+    }
 }
 
 function calculatePasswordStrength(password) {
@@ -449,17 +452,17 @@ function calculatePasswordStrength(password) {
         special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
     };
     
-    Object.values(checks).forEach(check => {
-        if (check) score++;
-    });
+    for (const check in checks) {
+        if (checks[check]) score++;
+    }
     
     let level;
-    if (score < 2) level = 0; // Debole
-    else if (score < 3) level = 1; // Medio
-    else if (score < 4) level = 2; // Buono
-    else level = 3; // Forte
+    if (score < 2) level = 0;
+    else if (score < 3) level = 1;
+    else if (score < 4) level = 2;
+    else level = 3;
     
-    return { score, level, checks };
+    return { score: score, level: level, checks: checks };
 }
 
 function isPasswordStrong(password) {
@@ -495,11 +498,13 @@ function saveCurrentStepData() {
             formData.password = getElementValue('password', false);
             break;
         case 3:
-            formData.privacyAccept = document.getElementById('privacyAccept')?.checked || false;
-            formData.marketingAccept = document.getElementById('marketingAccept')?.checked || false;
+            const privacyElement = document.getElementById('privacyAccept');
+            const marketingElement = document.getElementById('marketingAccept');
+            formData.privacyAccept = privacyElement ? privacyElement.checked : false;
+            formData.marketingAccept = marketingElement ? marketingElement.checked : false;
             break;
     }
-    console.log('💾 Dati step', currentStep, 'salvati:', formData);
+    console.log('💾 Dati step ' + currentStep + ' salvati:', formData);
 }
 
 // ================================
@@ -510,21 +515,17 @@ async function handleRegistration() {
     try {
         console.log('🚀 Inizio processo di registrazione');
         
-        // Controllo se Supabase è inizializzato
         if (!supabase) {
             throw new Error('Supabase non inizializzato correttamente');
         }
         
-        // Salva i dati dell'ultimo step
         saveCurrentStepData();
-        
-        // Mostra loading
         showLoading();
         
         console.log('📧 Registrazione per email:', formData.email);
         
         // 1. Registra l'utente in Supabase Auth
-        const { data: authData, error: authError } = await supabase.auth.signUp({
+        const authResult = await supabase.auth.signUp({
             email: formData.email,
             password: formData.password,
             options: {
@@ -537,46 +538,71 @@ async function handleRegistration() {
             }
         });
         
-        if (authError) {
-            throw new Error(`Errore registrazione: ${getErrorMessage(authError)}`);
+        if (authResult.error) {
+            throw new Error('Errore registrazione: ' + getErrorMessage(authResult.error));
         }
         
-        console.log('✅ Utente registrato:', authData.user?.id);
+        console.log('✅ Utente registrato:', authResult.data.user?.id);
         
-        // 2. Crea record nella tabella tessera
-        if (authData.user) {
-            const tesseraData = {
-                user_id: authData.user.id,
+        // 2. Crea record nella tabella tessere
+        if (authResult.data.user) {
+            const numeroTessera = await generateNextTesseraNumber();
+            
+            const dataScadenza = new Date();
+            dataScadenza.setFullYear(dataScadenza.getFullYear() + 1);
+            
+            const tessereData = {
+                user_id: authResult.data.user.id,
+                numero_tessera: numeroTessera,
+                data_scadenza: dataScadenza.toISOString().split('T')[0],
+                attiva: false,
+                qr_code: null,
                 nome: formData.nome,
                 cognome: formData.cognome,
                 email: formData.email,
                 telefono: formData.telefono || null,
-                stato: 'pending', // In attesa di conferma email
-                marketing_consent: formData.marketingAccept || false,
-                created_at: new Date().toISOString()
+                marketing_consent: formData.marketingAccept || false
             };
             
-            console.log('💳 Creazione tessera:', tesseraData);
+            console.log('💳 Creazione tessera:', tessereData);
             
-            const { data: tessera, error: tesseraError } = await supabase
-                .from('tessera')
-                .insert([tesseraData])
+            const tessereResult = await supabase
+                .from('tessere')
+                .insert([tessereData])
                 .select();
             
-            if (tesseraError) {
-                console.error('❌ Errore creazione tessera:', tesseraError);
-                // Non blocchiamo la registrazione per questo errore
-                showInfo('Utente creato, ma errore nella creazione del profilo. Contatta il supporto.');
+            if (tessereResult.error) {
+                console.error('❌ Errore creazione tessera:', tessereResult.error);
+                
+                if (tessereResult.error.message.includes('duplicate') || tessereResult.error.message.includes('tessere_numero_tessera_key')) {
+                    console.log('🔄 Numero tessera duplicato, rigenerazione...');
+                    
+                    tessereData.numero_tessera = Date.now().toString().slice(-6);
+                    
+                    const tessereResult2 = await supabase
+                        .from('tessere')
+                        .insert([tessereData])
+                        .select();
+                    
+                    if (tessereResult2.error) {
+                        console.error('❌ Errore anche con numero alternativo:', tessereResult2.error);
+                        showInfo('Utente creato, ma errore nella creazione della tessera. Contatta il supporto.');
+                    } else {
+                        console.log('✅ Tessera creata con numero alternativo:', tessereResult2.data);
+                    }
+                } else {
+                    showInfo('Utente creato, ma errore nella creazione della tessera. Contatta il supporto.');
+                }
             } else {
-                console.log('✅ Tessera creata:', tessera);
+                console.log('✅ Tessera creata:', tessereResult.data);
+                if (tessereResult.data && tessereResult.data[0]) {
+                    console.log('🎫 Numero tessera assegnato:', tessereResult.data[0].numero_tessera);
+                }
             }
         }
         
-        // 3. Mostra conferma
         hideLoading();
         showEmailConfirmation();
-        
-        // 4. Avvia timer per riinvio email
         startResendTimer();
         
         console.log('🎉 Registrazione completata con successo');
@@ -603,49 +629,80 @@ function getErrorMessage(error) {
     }
 }
 
+// Funzione per generare numero tessera
+async function generateNextTesseraNumber() {
+    try {
+        console.log('🔢 Generazione numero tessera...');
+        
+        const result = await supabase
+            .from('tessere')
+            .select('numero_tessera')
+            .order('created_at', { ascending: false })
+            .limit(10);
+        
+        if (result.error) {
+            console.error('Errore nel recuperare numeri tessera:', result.error);
+            return Date.now().toString().slice(-6);
+        }
+        
+        let maxNumber = 300;
+        
+        if (result.data && result.data.length > 0) {
+            for (let i = 0; i < result.data.length; i++) {
+                const num = parseInt(result.data[i].numero_tessera);
+                if (!isNaN(num) && num > maxNumber) {
+                    maxNumber = num;
+                }
+            }
+        }
+        
+        const nextNumber = maxNumber + 1;
+        console.log('🎯 Prossimo numero tessera:', nextNumber);
+        
+        return nextNumber.toString();
+        
+    } catch (error) {
+        console.error('Errore nella generazione numero tessera:', error);
+        return (Date.now() % 1000000).toString();
+    }
+}
+
 // ================================
 // CONFERMA EMAIL
 // ================================
 
 function showEmailConfirmation() {
-    // Nascondi il form di registrazione
     const registrationSection = document.getElementById('registrationSection');
     if (registrationSection) {
         registrationSection.classList.add('hidden');
     }
     
-    // Crea e mostra la sezione di conferma email
-    const confirmationHTML = `
-        <div class="email-confirmation-container">
-            <div class="email-icon">✉️</div>
-            <h2 class="text-2xl font-black text-primary mb-4">Controlla la tua email!</h2>
-            <p class="text-lg text-gray-700 mb-6">
-                Abbiamo inviato un link di conferma a<br>
-                <strong class="text-primary">${formData.email}</strong>
-            </p>
-            <p class="text-gray-600 mb-8">
-                Clicca sul link nell'email per attivare il tuo account.
-                Se non vedi l'email, controlla la cartella spam.
-            </p>
-            
-            <div class="space-y-4">
-                <button id="resendButton" class="btn-ghost w-full" onclick="resendConfirmationEmail()" disabled>
-                    Invia di nuovo
-                </button>
-                <div id="resendTimer" class="resend-timer">
-                    Puoi inviare di nuovo l'email tra <span id="timerCount">60</span> secondi
-                </div>
-            </div>
-            
-            <div class="mt-8 pt-6 border-t border-gray-200">
-                <a href="login.html" class="btn-secondary w-full text-center block">
-                    Torna al Login
-                </a>
-            </div>
-        </div>
-    `;
+    const confirmationHTML = '<div class="email-confirmation-container">' +
+        '<div class="email-icon">✉️</div>' +
+        '<h2 class="text-2xl font-black text-primary mb-4">Controlla la tua email!</h2>' +
+        '<p class="text-lg text-gray-700 mb-6">' +
+        'Abbiamo inviato un link di conferma a<br>' +
+        '<strong class="text-primary">' + formData.email + '</strong>' +
+        '</p>' +
+        '<p class="text-gray-600 mb-8">' +
+        'Clicca sul link nell\'email per attivare il tuo account. ' +
+        'Se non vedi l\'email, controlla la cartella spam.' +
+        '</p>' +
+        '<div class="space-y-4">' +
+        '<button id="resendButton" class="btn-ghost w-full" onclick="resendConfirmationEmail()" disabled>' +
+        'Invia di nuovo' +
+        '</button>' +
+        '<div id="resendTimer" class="resend-timer">' +
+        'Puoi inviare di nuovo l\'email tra <span id="timerCount">60</span> secondi' +
+        '</div>' +
+        '</div>' +
+        '<div class="mt-8 pt-6 border-t border-gray-200">' +
+        '<a href="login.html" class="btn-secondary w-full text-center block">' +
+        'Torna al Login' +
+        '</a>' +
+        '</div>' +
+        '</div>';
     
-    // Inserisci il contenuto
     const mainContainer = document.querySelector('main .max-w-lg');
     if (mainContainer) {
         mainContainer.innerHTML = confirmationHTML;
@@ -660,13 +717,13 @@ async function resendConfirmationEmail() {
             throw new Error('Servizio non disponibile');
         }
         
-        const { error } = await supabase.auth.resend({
+        const result = await supabase.auth.resend({
             type: 'signup',
             email: formData.email
         });
         
-        if (error) {
-            throw error;
+        if (result.error) {
+            throw result.error;
         }
         
         showSuccess('Email di conferma inviata nuovamente!');
@@ -693,7 +750,7 @@ function startResendTimer() {
         timerContainer.classList.remove('hidden');
     }
     
-    resendInterval = setInterval(() => {
+    resendInterval = setInterval(function() {
         resendTimer--;
         if (timerElement) {
             timerElement.textContent = resendTimer;
@@ -732,20 +789,18 @@ function togglePassword(inputId) {
 }
 
 function setupRealTimeValidation() {
-    // Validazione real-time per tutti i campi
     const inputs = document.querySelectorAll('.form-input');
     
-    inputs.forEach(input => {
-        input.addEventListener('blur', function() {
+    for (let i = 0; i < inputs.length; i++) {
+        inputs[i].addEventListener('blur', function() {
             validateField(this);
         });
         
-        input.addEventListener('input', function() {
-            // Rimuovi l'errore quando l'utente inizia a digitare
+        inputs[i].addEventListener('input', function() {
             clearFieldError(this.id);
             updateFieldState(this);
         });
-    });
+    }
 }
 
 function validateField(input) {
@@ -756,10 +811,10 @@ function validateField(input) {
         case 'nome':
         case 'cognome':
             if (!value) {
-                showFieldError(fieldId, `Il ${fieldId} è obbligatorio`);
+                showFieldError(fieldId, 'Il ' + fieldId + ' è obbligatorio');
                 return false;
             } else if (value.length < 2) {
-                showFieldError(fieldId, `Il ${fieldId} deve contenere almeno 2 caratteri`);
+                showFieldError(fieldId, 'Il ' + fieldId + ' deve contenere almeno 2 caratteri');
                 return false;
             }
             break;
@@ -815,10 +870,10 @@ function updateFieldState(input) {
     }
 }
 
-function getElementValue(elementId, trim = true) {
+function getElementValue(elementId, trim) {
     const element = document.getElementById(elementId);
     if (!element) return '';
-    return trim ? element.value.trim() : element.value;
+    return (trim !== false) ? element.value.trim() : element.value;
 }
 
 // ================================
@@ -834,11 +889,9 @@ function showError(message) {
         errorText.textContent = message;
         errorDiv.classList.remove('hidden');
         
-        // Scroll to message
         errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
         
-        // Auto-hide dopo 8 secondi
-        setTimeout(() => {
+        setTimeout(function() {
             errorDiv.classList.add('hidden');
         }, 8000);
     }
@@ -853,8 +906,7 @@ function showSuccess(message) {
         successText.textContent = message;
         successDiv.classList.remove('hidden');
         
-        // Auto-hide dopo 4 secondi
-        setTimeout(() => {
+        setTimeout(function() {
             successDiv.classList.add('hidden');
         }, 4000);
     }
@@ -869,8 +921,7 @@ function showInfo(message) {
         infoText.textContent = message;
         infoDiv.classList.remove('hidden');
         
-        // Auto-hide dopo 5 secondi
-        setTimeout(() => {
+        setTimeout(function() {
             infoDiv.classList.add('hidden');
         }, 5000);
     }
@@ -878,16 +929,16 @@ function showInfo(message) {
 
 function clearMessages() {
     const messages = ['errorMessage', 'successMessage', 'infoMessage'];
-    messages.forEach(msgId => {
-        const msgDiv = document.getElementById(msgId);
+    for (let i = 0; i < messages.length; i++) {
+        const msgDiv = document.getElementById(messages[i]);
         if (msgDiv) {
             msgDiv.classList.add('hidden');
         }
-    });
+    }
 }
 
 function showFieldError(fieldId, message) {
-    const errorDiv = document.getElementById(`${fieldId}Error`);
+    const errorDiv = document.getElementById(fieldId + 'Error');
     const input = document.getElementById(fieldId);
     
     if (errorDiv) {
@@ -902,7 +953,7 @@ function showFieldError(fieldId, message) {
 }
 
 function clearFieldError(fieldId) {
-    const errorDiv = document.getElementById(`${fieldId}Error`);
+    const errorDiv = document.getElementById(fieldId + 'Error');
     const input = document.getElementById(fieldId);
     
     if (errorDiv) {
@@ -917,13 +968,11 @@ function clearFieldError(fieldId) {
 function showLoading() {
     console.log('⏳ Mostrando loading...');
     
-    // Disabilita tutti i bottoni durante il caricamento
     const allButtons = document.querySelectorAll('button');
-    allButtons.forEach(button => {
-        button.disabled = true;
-    });
+    for (let i = 0; i < allButtons.length; i++) {
+        allButtons[i].disabled = true;
+    }
     
-    // Mostra loading solo sul bottone di registrazione
     const registerButton = document.querySelector('button[onclick="handleRegistration()"]');
     if (registerButton) {
         registerButton.innerHTML = '<span class="loading-spinner"></span>Registrazione in corso...';
@@ -933,13 +982,11 @@ function showLoading() {
 function hideLoading() {
     console.log('✅ Nascondendo loading...');
     
-    // Riabilita tutti i bottoni
     const allButtons = document.querySelectorAll('button');
-    allButtons.forEach(button => {
-        button.disabled = false;
-    });
+    for (let i = 0; i < allButtons.length; i++) {
+        allButtons[i].disabled = false;
+    }
     
-    // Ripristina il testo del bottone di registrazione
     const registerButton = document.querySelector('button[onclick="handleRegistration()"]');
     if (registerButton) {
         registerButton.innerHTML = '🚀 Registrati';
@@ -958,7 +1005,7 @@ function goBack() {
     }
 }
 
-// Funzioni globali per compatibilità
+// Esporta funzioni globali
 window.nextStep = nextStep;
 window.prevStep = prevStep;
 window.handleRegistration = handleRegistration;
