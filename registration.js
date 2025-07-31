@@ -74,43 +74,6 @@ function initializeForm() {
 }
 
 // ================================
-// VERIFICA EMAIL ESISTENTE
-// ================================
-
-async function checkEmailExists(email) {
-    try {
-        // Verifica nella tabella profiles
-        const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('email')
-            .eq('email', email)
-            .single();
-
-        if (profileData) {
-            console.log('❌ Email già registrata nei profiles:', email);
-            return true;
-        }
-
-        // Verifica anche negli utenti auth (backup check)
-        const { data: users, error: authError } = await supabase.auth.admin.listUsers();
-        
-        if (users?.users) {
-            const existingUser = users.users.find(user => user.email === email);
-            if (existingUser) {
-                console.log('❌ Email già registrata in auth:', email);
-                return true;
-            }
-        }
-
-        return false;
-    } catch (error) {
-        console.warn('⚠️ Impossibile verificare email esistente:', error);
-        // In caso di errore nella verifica, procediamo comunque
-        return false;
-    }
-}
-
-// ================================
 // GESTIONE STEP DEL FORM
 // ================================
 
@@ -204,10 +167,10 @@ function updateSummary() {
     }
 }
 
-async function nextStep() {
+function nextStep() {
     console.log('▶️ Tentativo di andare al prossimo step. Step corrente:', currentStep);
     
-    if (await validateCurrentStep()) {
+    if (validateCurrentStep()) {
         if (currentStep < 3) {
             saveCurrentStepData();
             showStep(currentStep + 1);
@@ -270,10 +233,10 @@ function setupRealTimeValidation() {
 }
 
 // ================================
-// VALIDAZIONE MIGLIORATA
+// VALIDAZIONE SEMPLIFICATA
 // ================================
 
-async function validateCurrentStep() {
+function validateCurrentStep() {
     console.log('🔍 Validazione step', currentStep);
     clearMessages();
     
@@ -284,7 +247,7 @@ async function validateCurrentStep() {
     
     switch (currentStep) {
         case 1:
-            return await validateStep1();
+            return validateStep1();
         case 2:
             return validateStep2();
         case 3:
@@ -295,7 +258,7 @@ async function validateCurrentStep() {
     }
 }
 
-async function validateStep1() {
+function validateStep1() {
     let isValid = true;
     
     // Validazione Nome
@@ -332,14 +295,7 @@ async function validateStep1() {
         showFieldError('email', 'Inserisci un\'email valida');
         isValid = false;
     } else {
-        // Verifica se l'email esiste già
-        const emailExists = await checkEmailExists(email);
-        if (emailExists) {
-            showFieldError('email', 'Questa email è già registrata. Prova ad effettuare il login.');
-            isValid = false;
-        } else {
-            clearFieldError('email');
-        }
+        clearFieldError('email');
     }
     
     // Validazione Conferma Email
@@ -628,7 +584,7 @@ function saveCurrentStepData() {
 }
 
 // ================================
-// REGISTRAZIONE UTENTE MIGLIORATA
+// REGISTRAZIONE UTENTE SEMPLIFICATA
 // ================================
 
 async function handleRegistration() {
@@ -651,13 +607,7 @@ async function handleRegistration() {
         
         console.log('👤 Registrazione utente con email:', formData.email);
         
-        // Prima verifica: controlla se l'email esiste già
-        const emailExists = await checkEmailExists(formData.email);
-        if (emailExists) {
-            throw new Error('EMAIL_ALREADY_EXISTS');
-        }
-        
-        // Registrazione con Supabase Auth
+        // Registrazione diretta con Supabase Auth (rimuoviamo il controllo preventivo)
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: formData.email,
             password: formData.password,
@@ -684,19 +634,19 @@ async function handleRegistration() {
         
         // Mostra messaggio di successo
         if (authData.user && !authData.user.email_confirmed_at) {
-            showSuccess(`Registrazione completata! 
+            showSuccess(`🎉 Registrazione completata con successo! 
                 Controlla la tua email (${formData.email}) per confermare l'account.
                 Dopo la conferma potrai accedere a tutti i servizi.`);
                 
             // Reindirizza alla pagina di login dopo qualche secondo
             setTimeout(() => {
                 window.location.href = 'login.html';
-            }, 4000);
+            }, 5000);
         } else {
-            showSuccess('Registrazione completata con successo!');
+            showSuccess('🎉 Registrazione completata con successo!');
             setTimeout(() => {
                 window.location.href = 'login.html';
-            }, 2000);
+            }, 3000);
         }
         
     } catch (error) {
@@ -705,24 +655,29 @@ async function handleRegistration() {
         let errorMessage = 'Si è verificato un errore durante la registrazione.';
         const errorMsg = error?.message || error?.error_description || error?.msg || '';
         
-        if (errorMsg === 'EMAIL_ALREADY_EXISTS' || 
-            errorMsg.includes('already registered') || 
+        // Gestione errori più specifica
+        if (errorMsg.includes('duplicate key value violates unique constraint "profiles_pkey"') ||
+            errorMsg.includes('duplicate key value violates unique constraint "profiles_email_key"') ||
             errorMsg.includes('User already registered') ||
-            errorMsg.includes('duplicate key') ||
-            errorMsg.includes('profiles_email_key')) {
-            errorMessage = 'Questa email è già registrata. Prova ad effettuare il login o utilizza un\'altra email.';
+            errorMsg.includes('already registered')) {
+            errorMessage = `⚠️ Questa email è già registrata nel sistema. 
+                Prova ad effettuare il login o utilizza un'email diversa.
+                Se hai dimenticato la password, usa la funzione "Password dimenticata".`;
         } else if (errorMsg.includes('invalid email')) {
-            errorMessage = 'L\'indirizzo email non è valido.';
+            errorMessage = '❌ L\'indirizzo email non è valido.';
         } else if (errorMsg.includes('weak password')) {
-            errorMessage = 'La password non è sufficientemente sicura.';
+            errorMessage = '❌ La password non è sufficientemente sicura.';
         } else if (errorMsg.includes('For security purposes') || errorMsg.includes('Too Many Requests')) {
             const match = errorMsg.match(/after (\d+) seconds/);
             const seconds = match ? match[1] : '60';
-            errorMessage = `Troppi tentativi di registrazione. Riprova tra ${seconds} secondi per motivi di sicurezza.`;
+            errorMessage = `⏳ Troppi tentativi di registrazione. Riprova tra ${seconds} secondi per motivi di sicurezza.`;
             startRegistrationCooldown(parseInt(seconds));
         } else if (errorMsg.includes('rate limit')) {
-            errorMessage = 'Hai fatto troppi tentativi. Aspetta qualche minuto prima di riprovare.';
+            errorMessage = '⏳ Hai fatto troppi tentativi. Aspetta qualche minuto prima di riprovare.';
             startRegistrationCooldown(60);
+        } else if (errorMsg.includes('Internal Server Error')) {
+            errorMessage = `🔧 Errore temporaneo del server. Riprova tra qualche minuto.
+                Se il problema persiste, contatta l'assistenza.`;
         }
         
         showError(errorMessage);
@@ -730,7 +685,12 @@ async function handleRegistration() {
     } finally {
         // Ripristina il bottone
         if (registerButton) {
-            registerButton.disabled = false;
+            registerButton.innerHTML = '🚀 Completa Registrazione';
+        } else {
+            updateButton();
+        }
+    }, 1000);
+}disabled = false;
             registerButton.innerHTML = '🚀 Completa Registrazione';
         }
     }
@@ -901,9 +861,4 @@ function startRegistrationCooldown(seconds) {
         if (remainingSeconds <= 0) {
             clearInterval(interval);
             registerButton.disabled = false;
-            registerButton.innerHTML = '🚀 Completa Registrazione';
-        } else {
-            updateButton();
-        }
-    }, 1000);
-}
+            registerButton.
