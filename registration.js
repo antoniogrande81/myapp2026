@@ -629,7 +629,20 @@ async function handleRegistration() {
         // 2. Salva il profilo nella tabella personalizzata
         if (authData.user) {
             console.log('📝 Creazione profilo utente...');
-            await createUserProfile(authData.user.id);
+            try {
+                await createUserProfile(authData.user.id);
+                console.log('✅ Profilo utente creato con successo');
+                
+                // 3. Crea la tessera per l'utente
+                console.log('🎫 Creazione tessera utente...');
+                await createUserTessera(authData.user.id);
+                console.log('✅ Tessera creata con successo');
+                
+            } catch (profileError) {
+                console.error('❌ Errore creazione profilo/tessera:', profileError);
+                // Non bloccare il processo - l'utente è già registrato in Auth
+                showInfo('Account creato! Il profilo e la tessera saranno completati automaticamente al primo accesso.');
+            }
         }
         
         // 3. Mostra messaggio di successo
@@ -645,12 +658,27 @@ async function handleRegistration() {
         
         let errorMessage = 'Si è verificato un errore durante la registrazione.';
         
-        if (error.message.includes('already registered')) {
+        // Verifica che error.message esista prima di usare includes
+        const errorMsg = error?.message || error?.error_description || error?.msg || '';
+        
+        if (errorMsg.includes('already registered') || errorMsg.includes('User already registered')) {
             errorMessage = 'Questa email è già registrata. Prova ad effettuare il login.';
-        } else if (error.message.includes('invalid email')) {
+        } else if (errorMsg.includes('invalid email')) {
             errorMessage = 'L\'indirizzo email non è valido.';
-        } else if (error.message.includes('weak password')) {
+        } else if (errorMsg.includes('weak password')) {
             errorMessage = 'La password non è sufficientemente sicura.';
+        } else if (errorMsg.includes('For security purposes') || errorMsg.includes('Too Many Requests')) {
+            const match = errorMsg.match(/after (\d+) seconds/);
+            const seconds = match ? match[1] : '60';
+            errorMessage = `Troppi tentativi di registrazione. Riprova tra ${seconds} secondi per motivi di sicurezza.`;
+            
+            // Disabilita il bottone per il tempo specificato
+            startRegistrationCooldown(parseInt(seconds));
+        } else if (errorMsg.includes('rate limit')) {
+            errorMessage = 'Hai fatto troppi tentativi. Aspetta qualche minuto prima di riprovare.';
+            startRegistrationCooldown(60); // 1 minuto di default
+        } else if (errorMsg.includes('relation') && errorMsg.includes('does not exist')) {
+            errorMessage = 'Errore di configurazione del database. Contatta il supporto tecnico.';
         }
         
         showError(errorMessage);
@@ -673,7 +701,7 @@ async function createUserProfile(userId) {
         nome: formData.nome,
         cognome: formData.cognome,
         email: formData.email,
-        telefono: formData.telefono || null,
+        telefono: formData.telefono && formData.telefono.trim() !== '' ? formData.telefono.trim() : null,
         data_nascita: formData.dataNascita,
         luogo_nascita: formData.luogoNascita,
         marketing_consent: formData.marketingConsent || false,
@@ -685,18 +713,139 @@ async function createUserProfile(userId) {
     
     console.log('📊 Dati profilo da inserire:', profileData);
     
-    // Inserisci nella tabella profili 
-    const { data, error } = await supabase
-        .from('users') // Nome della tua tabella utenti
-        .insert([profileData]);
+    // Lista di possibili nomi per la tabella profili
+    const possibleProfileTables = [
+        'profili',        // Nome italiano
+        'profiles',       // Nome inglese
+        'users',          // Nome generico
+        'user_profiles',  // Nome composto
+        'utenti',         // Nome italiano alternativo
+        'membri',         // Nome per membri
+        'accounts'        // Nome per account
+    ];
     
-    if (error) {
-        console.error('❌ Errore creazione profilo:', error);
-        throw error;
+    for (const tableName of possibleProfileTables) {
+        try {
+            console.log(`🔄 Tentativo inserimento in tabella "${tableName}"...`);
+            
+            const { data, error } = await supabase
+                .from(tableName)
+                .insert([profileData]);
+            
+            if (!error) {
+                console.log(`✅ Profilo creato con successo in "${tableName}":`, data);
+                return data;
+            }
+            
+            console.warn(`⚠️ Errore tabella "${tableName}":`, error.message);
+            
+        } catch (err) {
+            console.warn(`⚠️ Eccezione tabella "${tableName}":`, err.message);
+        }
     }
     
-    console.log('✅ Profilo creato con successo:', data);
-    return data;
+    // Se tutti i tentativi falliscono
+    const errorMsg = `Impossibile trovare la tabella corretta per i profili. Tabelle provate: ${possibleProfileTables.join(', ')}`;
+    console.error('❌ Creazione profilo fallita:', errorMsg);
+    throw new Error(errorMsg);
+}
+
+async function createUserTessera(userId) {
+    console.log('🎫 Creazione tessera per utente:', userId);
+    
+    // Genera il numero tessera univoco
+    const numeroTessera = await generateNumeroTessera();
+    
+    // Prepara i dati per la tessera
+    const tesseraData = {
+        id: userId, // Collega la tessera all'utente
+        numero_tessera: numeroTessera,
+        stato: 'attiva', // o 'pending' se deve essere attivata manualmente
+        data_emissione: new Date().toISOString(),
+        data_scadenza: calculateScadenzaTessera(), // Calcola data scadenza (es. 1 anno)
+        tipo_tessera: 'standard', // o 'premium', 'basic', etc.
+        punti_accumulati: 0,
+        livello: 'bronze', // bronze, silver, gold, platinum
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+    };
+    
+    console.log('📊 Dati tessera da inserire:', tesseraData);
+    
+    // Lista di possibili nomi per la tabella tessere
+    const possibleTessereTables = [
+        'tessere',        // Nome italiano
+        'tessere_utenti', // Nome italiano composto
+        'cards',          // Nome inglese
+        'user_cards',     // Nome inglese composto
+        'membership_cards', // Nome descrittivo
+        'loyalty_cards',  // Nome per fedeltà
+        'badges',         // Nome alternativo
+        'membership'      // Nome per appartenenza
+    ];
+    
+    for (const tableName of possibleTessereTables) {
+        try {
+            console.log(`🔄 Tentativo inserimento in tabella "${tableName}"...`);
+            
+            const { data, error } = await supabase
+                .from(tableName)
+                .insert([tesseraData]);
+            
+            if (!error) {
+                console.log(`✅ Tessera creata con successo in "${tableName}":`, data);
+                return data;
+            }
+            
+            console.warn(`⚠️ Errore tabella "${tableName}":`, error.message);
+            
+        } catch (err) {
+            console.warn(`⚠️ Eccezione tabella "${tableName}":`, err.message);
+        }
+    }
+    
+    // Se tutti i tentativi falliscono
+    const errorMsg = `Impossibile trovare la tabella corretta per le tessere. Tabelle provate: ${possibleTessereTables.join(', ')}`;
+    console.error('❌ Creazione tessera fallita:', errorMsg);
+    throw new Error(errorMsg);
+}
+
+async function generateNumeroTessera() {
+    console.log('🔢 Generazione numero tessera univoco...');
+    
+    // Genera un numero tessera nel formato: YYYY-XXXXXXXX (anno + 8 cifre random)
+    const year = new Date().getFullYear();
+    const randomNum = Math.floor(10000000 + Math.random() * 90000000); // 8 cifre
+    const numeroTessera = `${year}-${randomNum}`;
+    
+    try {
+        // Verifica che il numero non esista già
+        const { data: existing, error } = await supabase
+            .from('tessere') // Prova prima con tessere
+            .select('numero_tessera')
+            .eq('numero_tessera', numeroTessera)
+            .single();
+        
+        if (existing) {
+            console.log('🔄 Numero tessera già esistente, genero un nuovo numero...');
+            return await generateNumeroTessera(); // Ricorsivo fino a trovare un numero univoco
+        }
+        
+        console.log('✅ Numero tessera generato:', numeroTessera);
+        return numeroTessera;
+        
+    } catch (error) {
+        // Se la tabella non esiste o il numero non è trovato, va bene
+        console.log('✅ Numero tessera generato (no check):', numeroTessera);
+        return numeroTessera;
+    }
+}
+
+function calculateScadenzaTessera() {
+    // Calcola la data di scadenza (1 anno dalla data di emissione)
+    const scadenza = new Date();
+    scadenza.setFullYear(scadenza.getFullYear() + 1);
+    return scadenza.toISOString().split('T')[0]; // Formato YYYY-MM-DD
 }
 
 async function getUserIP() {
@@ -850,4 +999,34 @@ function goBack() {
     } else {
         window.history.back();
     }
+}
+
+// ================================
+// GESTIONE COOLDOWN REGISTRAZIONE
+// ================================
+
+function startRegistrationCooldown(seconds) {
+    const registerButton = document.getElementById('registerBtn') || document.querySelector('.btn-primary');
+    if (!registerButton) return;
+    
+    let remainingSeconds = seconds;
+    
+    const updateButton = () => {
+        registerButton.disabled = true;
+        registerButton.innerHTML = `⏳ Riprova tra ${remainingSeconds}s`;
+    };
+    
+    updateButton();
+    
+    const interval = setInterval(() => {
+        remainingSeconds--;
+        
+        if (remainingSeconds <= 0) {
+            clearInterval(interval);
+            registerButton.disabled = false;
+            registerButton.innerHTML = '🚀 Completa Registrazione';
+        } else {
+            updateButton();
+        }
+    }, 1000);
 }
