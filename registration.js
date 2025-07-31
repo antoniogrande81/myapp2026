@@ -2,9 +2,9 @@
 // CONFIGURAZIONE SUPABASE
 // ================================
 
-// SOSTITUISCI CON LE TUE CREDENZIALI SUPABASE
-const SUPABASE_URL = 'https://your-project-url.supabase.co';
-const SUPABASE_ANON_KEY = 'your-anon-key-here';
+// CREDENZIALI SUPABASE DEL PROGETTO
+const SUPABASE_URL = 'https://lycrgzptkdkksukcwrld.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
 
 // Variabile per il client Supabase
 let supabase = null;
