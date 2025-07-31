@@ -74,6 +74,43 @@ function initializeForm() {
 }
 
 // ================================
+// VERIFICA EMAIL ESISTENTE
+// ================================
+
+async function checkEmailExists(email) {
+    try {
+        // Verifica nella tabella profiles
+        const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('email')
+            .eq('email', email)
+            .single();
+
+        if (profileData) {
+            console.log('❌ Email già registrata nei profiles:', email);
+            return true;
+        }
+
+        // Verifica anche negli utenti auth (backup check)
+        const { data: users, error: authError } = await supabase.auth.admin.listUsers();
+        
+        if (users?.users) {
+            const existingUser = users.users.find(user => user.email === email);
+            if (existingUser) {
+                console.log('❌ Email già registrata in auth:', email);
+                return true;
+            }
+        }
+
+        return false;
+    } catch (error) {
+        console.warn('⚠️ Impossibile verificare email esistente:', error);
+        // In caso di errore nella verifica, procediamo comunque
+        return false;
+    }
+}
+
+// ================================
 // GESTIONE STEP DEL FORM
 // ================================
 
@@ -167,10 +204,10 @@ function updateSummary() {
     }
 }
 
-function nextStep() {
+async function nextStep() {
     console.log('▶️ Tentativo di andare al prossimo step. Step corrente:', currentStep);
     
-    if (validateCurrentStep()) {
+    if (await validateCurrentStep()) {
         if (currentStep < 3) {
             saveCurrentStepData();
             showStep(currentStep + 1);
@@ -233,10 +270,10 @@ function setupRealTimeValidation() {
 }
 
 // ================================
-// VALIDAZIONE
+// VALIDAZIONE MIGLIORATA
 // ================================
 
-function validateCurrentStep() {
+async function validateCurrentStep() {
     console.log('🔍 Validazione step', currentStep);
     clearMessages();
     
@@ -247,7 +284,7 @@ function validateCurrentStep() {
     
     switch (currentStep) {
         case 1:
-            return validateStep1();
+            return await validateStep1();
         case 2:
             return validateStep2();
         case 3:
@@ -258,7 +295,7 @@ function validateCurrentStep() {
     }
 }
 
-function validateStep1() {
+async function validateStep1() {
     let isValid = true;
     
     // Validazione Nome
@@ -295,7 +332,14 @@ function validateStep1() {
         showFieldError('email', 'Inserisci un\'email valida');
         isValid = false;
     } else {
-        clearFieldError('email');
+        // Verifica se l'email esiste già
+        const emailExists = await checkEmailExists(email);
+        if (emailExists) {
+            showFieldError('email', 'Questa email è già registrata. Prova ad effettuare il login.');
+            isValid = false;
+        } else {
+            clearFieldError('email');
+        }
     }
     
     // Validazione Conferma Email
@@ -584,7 +628,7 @@ function saveCurrentStepData() {
 }
 
 // ================================
-// REGISTRAZIONE UTENTE - VERSIONE SEMPLIFICATA CON TRIGGER AUTOMATICO
+// REGISTRAZIONE UTENTE MIGLIORATA
 // ================================
 
 async function handleRegistration() {
@@ -605,15 +649,20 @@ async function handleRegistration() {
             throw new Error('Dati incompleti per la registrazione');
         }
         
-        console.log('👤 Registrazione utente con trigger automatico...');
+        console.log('👤 Registrazione utente con email:', formData.email);
         
-        // Registrazione semplificata - il trigger gestisce tutto automaticamente
+        // Prima verifica: controlla se l'email esiste già
+        const emailExists = await checkEmailExists(formData.email);
+        if (emailExists) {
+            throw new Error('EMAIL_ALREADY_EXISTS');
+        }
+        
+        // Registrazione con Supabase Auth
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: formData.email,
             password: formData.password,
             options: {
                 data: {
-                    // Dati per il trigger automatico
                     nome: formData.nome,
                     cognome: formData.cognome,
                     full_name: `${formData.nome} ${formData.cognome}`,
@@ -633,54 +682,22 @@ async function handleRegistration() {
         
         console.log('✅ Utente registrato con successo:', authData.user?.id);
         
-        // Verifica che il trigger abbia creato profilo e tessera
-        if (authData.user) {
-            try {
-                console.log('🔍 Verifica creazione automatica di profilo e tessera...');
+        // Mostra messaggio di successo
+        if (authData.user && !authData.user.email_confirmed_at) {
+            showSuccess(`Registrazione completata! 
+                Controlla la tua email (${formData.email}) per confermare l'account.
+                Dopo la conferma potrai accedere a tutti i servizi.`);
                 
-                // Attesa breve per permettere al trigger di completare
-                await new Promise(resolve => setTimeout(resolve, 1000));
-                
-                // Verifica profilo
-                const { data: profile, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('id, nome, cognome')
-                    .eq('id', authData.user.id)
-                    .single();
-                
-                if (profile) {
-                    console.log('✅ Profilo creato automaticamente:', profile);
-                } else {
-                    console.warn('⚠️ Profilo non trovato, potrebbe essere creato dal trigger con delay');
-                }
-                
-                // Verifica tessera
-                const { data: tessera, error: tesseraError } = await supabase
-                    .from('tessere')
-                    .select('numero_tessera, data_scadenza')
-                    .eq('id', authData.user.id)
-                    .single();
-                
-                if (tessera) {
-                    console.log('✅ Tessera creata automaticamente:', tessera.numero_tessera);
-                    showSuccess(`Registrazione completata! 
-                        Tessera ${tessera.numero_tessera} creata con successo.
-                        Controlla la tua email per confermare l'account.`);
-                } else {
-                    console.warn('⚠️ Tessera non trovata, potrebbe essere creata dal trigger con delay');
-                    showSuccess('Registrazione completata! La tessera verrà generata automaticamente. Controlla la tua email per confermare l\'account.');
-                }
-                
-            } catch (verificationError) {
-                console.warn('⚠️ Impossibile verificare creazione automatica:', verificationError);
-                showSuccess('Registrazione completata! Profilo e tessera saranno disponibili dopo la conferma email.');
-            }
+            // Reindirizza alla pagina di login dopo qualche secondo
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 4000);
+        } else {
+            showSuccess('Registrazione completata con successo!');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 2000);
         }
-        
-        // Reindirizza dopo un breve delay
-        setTimeout(() => {
-            window.location.href = 'login.html';
-        }, 3000);
         
     } catch (error) {
         console.error('❌ Errore durante la registrazione:', error);
@@ -688,8 +705,12 @@ async function handleRegistration() {
         let errorMessage = 'Si è verificato un errore durante la registrazione.';
         const errorMsg = error?.message || error?.error_description || error?.msg || '';
         
-        if (errorMsg.includes('already registered') || errorMsg.includes('User already registered')) {
-            errorMessage = 'Questa email è già registrata. Prova ad effettuare il login.';
+        if (errorMsg === 'EMAIL_ALREADY_EXISTS' || 
+            errorMsg.includes('already registered') || 
+            errorMsg.includes('User already registered') ||
+            errorMsg.includes('duplicate key') ||
+            errorMsg.includes('profiles_email_key')) {
+            errorMessage = 'Questa email è già registrata. Prova ad effettuare il login o utilizza un\'altra email.';
         } else if (errorMsg.includes('invalid email')) {
             errorMessage = 'L\'indirizzo email non è valido.';
         } else if (errorMsg.includes('weak password')) {
@@ -710,7 +731,7 @@ async function handleRegistration() {
         // Ripristina il bottone
         if (registerButton) {
             registerButton.disabled = false;
-            registerButton.innerHTML = '🚀 Registrati';
+            registerButton.innerHTML = '🚀 Completa Registrazione';
         }
     }
 }
