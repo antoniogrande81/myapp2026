@@ -2,7 +2,7 @@
 // CONFIGURAZIONE SUPABASE
 // ================================
 const SUPABASE_URL = 'https://lycrgzptkdkksukcwrld.supabase.co';
-const SUPABASE_ANON_KEY = '<la tua chiave anon>';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
 
 // ================================
 // FUNZIONI GLOBALI USATE DA HTML
@@ -14,6 +14,13 @@ function validateDataNascita(dateStr) {
     const md = today.getMonth() - bd.getMonth();
     if (md < 0 || (md === 0 && today.getDate() < bd.getDate())) age--;
     return age >= 14;
+}
+
+function validateTelefono(telefono) {
+    if (!telefono) return true; // Il telefono è opzionale
+    // Espressione regolare per numeri italiani e internazionali
+    const telefonoRegex = /^[\+]?[1-9][\d]{0,15}$/;
+    return telefonoRegex.test(telefono.replace(/[\s\-\(\)]/g, ''));
 }
 
 function nextStep() {
@@ -46,7 +53,9 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('✅ Supabase pronto');
         } else if (attempts < maxAttempts) {
             setTimeout(checkSupabase, 200);
-        } else showError('Errore caricamento Supabase');
+        } else {
+            showError('Errore caricamento Supabase');
+        }
     };
     checkSupabase();
 });
@@ -71,7 +80,10 @@ function setupEventListeners() {
 function showStep(step) {
     document.querySelectorAll('.step-form').forEach(el => el.classList.add('hidden'));
     const stepElement = document.getElementById(`step${step}Form`);
-    if (!stepElement) return console.error('Step non trovato:', step);
+    if (!stepElement) {
+        console.error('Step non trovato:', step);
+        return;
+    }
     stepElement.classList.remove('hidden');
     currentStep = step;
     updateStepIndicator();
@@ -109,7 +121,10 @@ function updateSummary() {
         summaryLuogoNascita: formData.luogoNascita || '-'
     };
     Object.entries(summary).forEach(([id, val]) => {
-        document.getElementById(id)?.textContent = val;
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = val;
+        }
     });
 }
 
@@ -132,13 +147,17 @@ function validateStep1() {
     if (!nome || nome.length < 2) {
         showFieldError('nome', 'Nome obbligatorio (≥2 char)');
         isValid = false;
-    } else clearFieldError('nome');
+    } else {
+        clearFieldError('nome');
+    }
 
     const cognome = getElementValue('cognome');
     if (!cognome || cognome.length < 2) {
         showFieldError('cognome', 'Cognome obbligatorio');
         isValid = false;
-    } else clearFieldError('cognome');
+    } else {
+        clearFieldError('cognome');
+    }
 
     const email = getElementValue('email');
     const confirmEmail = getElementValue('confirmEmail');
@@ -146,30 +165,40 @@ function validateStep1() {
     if (!email || !emailRegex.test(email)) {
         showFieldError('email', 'Email valida richiesta');
         isValid = false;
-    } else clearFieldError('email');
+    } else {
+        clearFieldError('email');
+    }
 
     if (!confirmEmail || confirmEmail !== email) {
         showFieldError('confirmEmail', 'Email non coincidono');
         isValid = false;
-    } else clearFieldError('confirmEmail');
+    } else {
+        clearFieldError('confirmEmail');
+    }
 
     const telefono = getElementValue('telefono');
     if (telefono && !validateTelefono(telefono)) {
         showFieldError('telefono', 'Formato telefono errato');
         isValid = false;
-    } else clearFieldError('telefono');
+    } else {
+        clearFieldError('telefono');
+    }
 
     const dataNascita = getElementValue('dataNascita');
     if (!dataNascita || !validateDataNascita(dataNascita)) {
         showFieldError('dataNascita', 'Età minima 14 anni');
         isValid = false;
-    } else clearFieldError('dataNascita');
+    } else {
+        clearFieldError('dataNascita');
+    }
 
     const luogoNascita = getElementValue('luogoNascita');
     if (!luogoNascita || luogoNascita.length < 2) {
         showFieldError('luogoNascita', 'Luogo di nascita obbligatorio');
         isValid = false;
-    } else clearFieldError('luogoNascita');
+    } else {
+        clearFieldError('luogoNascita');
+    }
 
     return isValid;
 }
@@ -180,13 +209,17 @@ function validateStep2() {
     if (!password || !validatePassword(password)) {
         showFieldError('password', 'Password debole');
         isValid = false;
-    } else clearFieldError('password');
+    } else {
+        clearFieldError('password');
+    }
 
     const confirmPassword = getElementValue('confirmPassword');
     if (!confirmPassword || confirmPassword !== password) {
         showFieldError('confirmPassword', 'Le password non coincidono');
         isValid = false;
-    } else clearFieldError('confirmPassword');
+    } else {
+        clearFieldError('confirmPassword');
+    }
 
     return isValid;
 }
@@ -205,25 +238,44 @@ function validatePassword(password) {
 
 function validateEmailRealTime() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    emailRegex.test(getElementValue('email')) ? setFieldValid('email') : setFieldError('email');
+    const email = getElementValue('email');
+    if (emailRegex.test(email)) {
+        setFieldValid('email');
+    } else {
+        setFieldError('email');
+    }
 }
 
 function validateEmailConfirmRealTime() {
-    getElementValue('confirmEmail') === getElementValue('email') ? setFieldValid('confirmEmail') : setFieldError('confirmEmail');
+    const email = getElementValue('email');
+    const confirmEmail = getElementValue('confirmEmail');
+    if (confirmEmail === email) {
+        setFieldValid('confirmEmail');
+    } else {
+        setFieldError('confirmEmail');
+    }
 }
 
 function validateTelefonoRealTime() {
-    validateTelefono(getElementValue('telefono')) ? setFieldValid('telefono') : setFieldError('telefono');
+    const telefono = getElementValue('telefono');
+    if (validateTelefono(telefono)) {
+        setFieldValid('telefono');
+    } else {
+        setFieldError('telefono');
+    }
 }
 
 // ================================
 // PASSWORD STRENGTH
 // ================================
 function setupPasswordValidation() {
-    document.getElementById('password')?.addEventListener('input', function() {
-        updatePasswordStrength(this.value);
-        updatePasswordRequirements(this.value);
-    });
+    const passwordField = document.getElementById('password');
+    if (passwordField) {
+        passwordField.addEventListener('input', function() {
+            updatePasswordStrength(this.value);
+            updatePasswordRequirements(this.value);
+        });
+    }
 }
 
 function calculatePasswordStrength(password) {
@@ -272,7 +324,13 @@ function updatePasswordRequirements(password) {
     };
     Object.entries(requirements).forEach(([id, met]) => {
         const element = document.getElementById(id)?.querySelector('.requirement-indicator');
-        if (element) met ? element.classList.add('met') : element.classList.remove('met');
+        if (element) {
+            if (met) {
+                element.classList.add('met');
+            } else {
+                element.classList.remove('met');
+            }
+        }
     });
 }
 
@@ -281,7 +339,9 @@ function updatePasswordRequirements(password) {
 // ================================
 function saveCurrentStepData() {
     if (currentStep === 1) {
-        ['nome', 'cognome', 'email', 'telefono', 'dataNascita', 'luogoNascita'].forEach(field => formData[field] = getElementValue(field));
+        ['nome', 'cognome', 'email', 'telefono', 'dataNascita', 'luogoNascita'].forEach(field => {
+            formData[field] = getElementValue(field);
+        });
     } else if (currentStep === 2) {
         formData.password = getElementValue('password');
     } else if (currentStep === 3) {
@@ -294,11 +354,17 @@ function saveCurrentStepData() {
 // UTILITY FUNZIONI UI
 // ================================
 function getElementValue(id) {
-    return document.getElementById(id)?.value.trim() || '';
+    const element = document.getElementById(id);
+    return element ? element.value.trim() : '';
 }
 
 function clearMessages() {
-    ['errorMessage', 'successMessage', 'infoMessage'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+    ['errorMessage', 'successMessage', 'infoMessage'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.classList.add('hidden');
+        }
+    });
 }
 
 function showError(message) {
@@ -332,13 +398,19 @@ function showInfo(message) {
 }
 
 function setFieldError(id) {
-    document.getElementById(id)?.classList.add('error');
-    document.getElementById(id)?.classList.remove('valid');
+    const element = document.getElementById(id);
+    if (element) {
+        element.classList.add('error');
+        element.classList.remove('valid');
+    }
 }
 
 function setFieldValid(id) {
-    document.getElementById(id)?.classList.remove('error');
-    document.getElementById(id)?.classList.add('valid');
+    const element = document.getElementById(id);
+    if (element) {
+        element.classList.remove('error');
+        element.classList.add('valid');
+    }
 }
 
 function showFieldError(fieldId, message) {
@@ -351,7 +423,10 @@ function showFieldError(fieldId, message) {
 }
 
 function clearFieldError(fieldId) {
-    document.getElementById(`${fieldId}Error`)?.classList.add('hidden');
+    const errorElement = document.getElementById(`${fieldId}Error`);
+    if (errorElement) {
+        errorElement.classList.add('hidden');
+    }
     setFieldValid(fieldId);
 }
 
@@ -366,7 +441,10 @@ async function handleRegistration() {
     }
     try {
         saveCurrentStepData();
-        if (!validateCurrentStep()) throw new Error('Dati mancanti');
+        if (!validateCurrentStep()) {
+            throw new Error('Dati mancanti');
+        }
+        
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: formData.email,
             password: formData.password,
@@ -383,15 +461,29 @@ async function handleRegistration() {
                 }
             }
         });
+        
         if (authError) throw authError;
+        
         const userId = authData.user?.id;
         if (!userId) throw new Error('ID utente mancante');
+        
+        // Controlla se il profilo esiste già
         const { data: existingProfile } = await supabase.from('profiles').select('id').eq('id', userId).single();
-        existingProfile ? await updateUserProfile(userId) : await createUserProfile(userId);
+        
+        if (existingProfile) {
+            await updateUserProfile(userId);
+        } else {
+            await createUserProfile(userId);
+        }
+        
         const tessera = await createUserTessera(userId);
         console.log('Tessera scadenza:', tessera.data_scadenza_europeo);
+        
         showSuccess('Registrazione completata! Controlla la tua email.');
-        setTimeout(() => window.location.href = 'login.html', 3000);
+        setTimeout(() => {
+            window.location.href = 'login.html';
+        }, 3000);
+        
     } catch (error) {
         console.error(error);
         showError(error.message || 'Errore registrazione');
@@ -420,7 +512,12 @@ async function createUserProfile(userId) {
         ip_registrazione: await getUserIP(),
         user_agent: navigator.userAgent
     };
-    const { error } = await supabase.from('profiles').upsert([profileData], { onConflict: 'id', ignoreDuplicates: false }).select();
+    
+    const { error } = await supabase.from('profiles').upsert([profileData], { 
+        onConflict: 'id', 
+        ignoreDuplicates: false 
+    }).select();
+    
     if (error) throw error;
 }
 
@@ -441,7 +538,9 @@ async function updateUserProfile(userId) {
         user_agent: navigator.userAgent,
         updated_at: new Date().toISOString()
     };
-    await supabase.from('profiles').update(profileData).eq('id', userId).select();
+    
+    const { error } = await supabase.from('profiles').update(profileData).eq('id', userId).select();
+    if (error) throw error;
 }
 
 // ================================
@@ -449,16 +548,22 @@ async function updateUserProfile(userId) {
 // ================================
 function calculateScadenzaTessera() {
     const year = new Date().getFullYear();
-    return { iso: `${year}-12-31`, eu: `31/12/${year}` };
+    return { 
+        iso: `${year}-12-31`, 
+        eu: `31/12/${year}` 
+    };
 }
 
 async function createUserTessera(userId) {
+    // Controlla se la tessera esiste già
     const { data: existingTessera, error } = await supabase.from('tessere').select('id,data_scadenza').eq('id', userId).single();
+    
     if (error && error.code !== 'PGRST116') throw error;
     if (existingTessera) return existingTessera;
 
     const numeroTessera = await generateNumeroTessera();
     const scadenza = calculateScadenzaTessera();
+    
     const tesseraData = {
         id: userId,
         numero_tessera: numeroTessera,
@@ -472,24 +577,46 @@ async function createUserTessera(userId) {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
     };
-    const { data } = await supabase.from('tessere').insert([tesseraData]).select();
-    return { ...data[0], data_scadenza_europeo: scadenza.eu };
+    
+    const { data, error: insertError } = await supabase.from('tessere').insert([tesseraData]).select();
+    if (insertError) throw insertError;
+    
+    return { 
+        ...data[0], 
+        data_scadenza_europeo: scadenza.eu 
+    };
 }
 
 async function generateNumeroTessera() {
     const year = new Date().getFullYear();
     const candidate = `${year}-${Math.floor(1e7 + Math.random() * 9e7)}`;
-    const exists = await Promise.any(['tessere', 'cards', 'user_cards', 'membership_cards']
-        .map(tbl => supabase.from(tbl).select('numero_tessera').eq('numero_tessera', candidate).single().then(r => !!r.data).catch(() => false)))
-        .catch(() => false);
-    return exists ? generateNumeroTessera() : candidate;
+    
+    // Verifica se il numero esiste già
+    const tables = ['tessere', 'cards', 'user_cards', 'membership_cards'];
+    
+    for (const table of tables) {
+        try {
+            const { data } = await supabase.from(table).select('numero_tessera').eq('numero_tessera', candidate).single();
+            if (data) {
+                // Il numero esiste già, genera uno nuovo
+                return await generateNumeroTessera();
+            }
+        } catch (error) {
+            // Tabella non esiste o numero non trovato, continua
+            continue;
+        }
+    }
+    
+    return candidate;
 }
 
 async function getUserIP() {
     try {
         const response = await fetch('https://api.ipify.org?format=json');
-        return (await response.json()).ip;
-    } catch {
+        const data = await response.json();
+        return data.ip;
+    } catch (error) {
+        console.warn('Impossibile ottenere IP:', error);
         return null;
     }
 }
@@ -514,6 +641,8 @@ function startRegistrationCooldown(seconds) {
             clearInterval(interval);
             button.disabled = false;
             button.innerHTML = '🚀 Completa Registrazione';
-        } else updateButton();
+        } else {
+            updateButton();
+        }
     }, 1000);
 }
