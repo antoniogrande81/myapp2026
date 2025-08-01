@@ -569,47 +569,51 @@ async function handleRegistration() {
             console.log('✅ Login automatico riuscito');
         }
         
-        // 5. STEP 3: Crea Profilo con INSERT diretto
-        console.log('👤 Step 3: Creazione profilo...');
-        const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .insert([{
-                user_id: userId,
-                nome: formData.nome,
-                cognome: formData.cognome,
-                email: formData.email,
-                data_nascita: formData.dataNascita,
-                luogo_nascita: formData.luogoNascita,
-                codice_fiscale: formData.codiceFiscale || null,
-                telefono: formData.telefono || null,
-                telefono_emergenza: formData.telefonoEmergenza || null,
-                indirizzo_via: formData.indirizzoVia || null,
-                indirizzo_civico: formData.indirizzoCivico || null,
-                indirizzo_cap: formData.indirizzoCap || null,
-                indirizzo_citta: formData.indirizzoCitta || null,
-                indirizzo_provincia: formData.indirizzoProvincia || null,
-                indirizzo_regione: formData.indirizzoRegione || null,
-                professione: formData.professione || null,
-                titolo_studio: formData.titoloStudio || null,
-                email_secondaria: formData.emailSecondaria || null,
-                sito_web: formData.sitoWeb || null,
-                ruolo: 'ISCRITTO',
-                stato: 'ATTIVO',
-                privacy_accepted: formData.privacyAccepted,
-                marketing_consent: formData.marketingConsent || false,
-                newsletter_consent: formData.newsletterConsent || false,
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            }])
-            .select();
-        
-        if (profileError) {
-            console.error('❌ Errore profilo:', profileError);
-            throw new Error(`Errore creazione profilo: ${profileError.message}`);
-        }
-        
-        console.log('✅ Profilo creato:', profileData);
-        
+  // ================================
+// CREAZIONE PROFILO CORRETTA (sostituisci nel tuo registration.js)
+// ================================
+
+// 5. STEP 3: Crea Profilo - VERSIONE CORRETTA
+console.log('👤 Step 3: Creazione profilo...');
+const { data: profileData, error: profileError } = await supabase
+    .from('profiles')
+    .insert([{
+        user_id: userId,
+        nome: formData.nome,
+        cognome: formData.cognome,
+        email: formData.email,
+        data_nascita: formData.dataNascita,
+        luogo_nascita: formData.luogoNascita,
+        codice_fiscale: formData.codiceFiscale || null,
+        telefono: formData.telefono || null,
+        // RIMUOVI TUTTI I CAMPI CHE NON ESISTONO:
+        // telefono_emergenza: formData.telefonoEmergenza || null,
+        // indirizzo_via: formData.indirizzoVia || null,
+        // indirizzo_civico: formData.indirizzoCivico || null,
+        // indirizzo_cap: formData.indirizzoCap || null,
+        // indirizzo_citta: formData.indirizzoCitta || null,
+        // indirizzo_provincia: formData.indirizzoProvincia || null,
+        // indirizzo_regione: formData.indirizzoRegione || null,
+        // professione: formData.professione || null,
+        // titolo_studio: formData.titoloStudio || null,
+        // email_secondaria: formData.emailSecondaria || null,
+        // sito_web: formData.sitoWeb || null,
+        // ruolo: 'ISCRITTO',
+        // stato: 'ATTIVO',  <-- QUESTO CAMPO NON ESISTE!
+        // privacy_accepted: formData.privacyAccepted,
+        // marketing_consent: formData.marketingConsent || false,
+        // newsletter_consent: formData.newsletterConsent || false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+    }])
+    .select();
+
+if (profileError) {
+    console.error('❌ Errore profilo:', profileError);
+    throw new Error(`Errore creazione profilo: ${profileError.message}`);
+}
+
+console.log('✅ Profilo creato:', profileData);        
         // 6. STEP 4: Crea Tessera
         console.log('🎫 Step 4: Creazione tessera...');
         const numeroTessera = await generateNumeroTessera();
