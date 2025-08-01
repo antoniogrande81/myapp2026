@@ -12,7 +12,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 let supabase = null;
 let currentStep = 1;
 let formData = {};
-let totalSteps = 4; // Aumentato a 4 step
+let totalSteps = 4;
 
 // ================================
 // INIZIALIZZAZIONE
@@ -21,66 +21,42 @@ let totalSteps = 4; // Aumentato a 4 step
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Inizializzazione applicazione...');
     
-    let attempts = 0;
-    const maxAttempts = 20;
-    
-    function checkSupabase() {
-        attempts++;
-        console.log('🔍 Tentativo ' + attempts + ': controllo Supabase...');
-        
-        if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-            console.log('✅ Supabase trovato, inizializzazione...');
-            initializeSupabase();
-            initializeForm();
-            setupEventListeners();
-            setupPasswordValidation();
-            setupFormValidation();
-        } else if (attempts < maxAttempts) {
-            console.log('⏳ Supabase non ancora disponibile, riprovo...');
-            setTimeout(checkSupabase, 200);
-        } else {
-            console.error('❌ Impossibile caricare Supabase dopo ' + maxAttempts + ' tentativi');
-            showError('Errore di caricamento. Ricarica la pagina.');
-        }
-    }
-    
-    checkSupabase();
-});
-
-function initializeSupabase() {
-    try {
-        console.log('🔧 Inizializzazione Supabase...');
-        console.log('📍 URL:', SUPABASE_URL);
-        console.log('🔑 Key presente:', SUPABASE_ANON_KEY ? 'Sì' : 'No');
-        
+    // Inizializza Supabase
+    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('✅ Supabase client creato con successo');
-    } catch (error) {
-        console.error('❌ Errore inizializzazione Supabase:', error);
-        showError('Errore di configurazione del servizio. Ricarica la pagina.');
+        console.log('✅ Supabase inizializzato');
+        
+        // Inizializza il form
+        initializeForm();
+        setupEventListeners();
+        setupPasswordValidation();
+    } else {
+        console.error('❌ Supabase non disponibile');
+        showError('Errore di caricamento. Ricarica la pagina.');
     }
-}
+});
 
 function initializeForm() {
     currentStep = 1;
     formData = {};
     showStep(1);
     updateStepIndicator();
-    console.log('✅ Form inizializzato - Step corrente:', currentStep);
+    console.log('✅ Form inizializzato');
 }
 
 // ================================
-// GESTIONE STEP DEL FORM
+// GESTIONE STEP
 // ================================
 
 function showStep(step) {
-    console.log('🔄 Cambio step da ' + currentStep + ' a ' + step);
+    console.log('🔄 Cambio step:', currentStep, '→', step);
     
     // Nascondi tutti gli step
-    const stepForms = document.querySelectorAll('.step-form');
-    stepForms.forEach(form => form.classList.add('hidden'));
+    document.querySelectorAll('.step-form').forEach(form => {
+        form.classList.add('hidden');
+    });
     
-    // Mostra lo step richiesto
+    // Mostra step richiesto
     const stepElement = document.getElementById('step' + step + 'Form');
     if (stepElement) {
         stepElement.classList.remove('hidden');
@@ -88,14 +64,9 @@ function showStep(step) {
         updateStepIndicator();
         updateStepLabel();
         
-        // Aggiorna il riepilogo per gli ultimi step
         if (step === 4) {
             updateSummary();
         }
-        
-        console.log('✅ Step ' + step + ' mostrato correttamente');
-    } else {
-        console.error('❌ Elemento step non trovato: step' + step + 'Form');
     }
 }
 
@@ -103,7 +74,6 @@ function updateStepIndicator() {
     const steps = ['step1', 'step2', 'step3', 'step4'];
     const lines = ['line1', 'line2', 'line3'];
     
-    // Aggiorna gli indicatori degli step
     steps.forEach((stepId, index) => {
         const stepElement = document.getElementById(stepId);
         const stepNumber = index + 1;
@@ -123,7 +93,6 @@ function updateStepIndicator() {
         }
     });
     
-    // Aggiorna le linee di connessione
     lines.forEach((lineId, index) => {
         const lineElement = document.getElementById(lineId);
         if (lineElement) {
@@ -159,7 +128,7 @@ function updateSummary() {
         'summaryLuogoNascita': formData.luogoNascita || '-',
         'summaryCodiceFiscale': formData.codiceFiscale || 'Non fornito',
         'summaryTelefono': formData.telefono || 'Non fornito',
-        'summaryIndirizzo': formData.indirizzoCompleto || 'Non fornito',
+        'summaryIndirizzo': createAddressString() || 'Non fornito',
         'summaryProfessione': formData.professione || 'Non specificata'
     };
     
@@ -171,10 +140,26 @@ function updateSummary() {
     });
 }
 
-async function nextStep() {
-    console.log('▶️ Tentativo di andare al prossimo step. Step corrente:', currentStep);
+function createAddressString() {
+    const parts = [
+        formData.indirizzoVia,
+        formData.indirizzoCivico,
+        formData.indirizzoCap,
+        formData.indirizzoCitta,
+        formData.indirizzoProvincia
+    ].filter(part => part && part.trim());
     
-    if (await validateCurrentStep()) {
+    return parts.length > 0 ? parts.join(', ') : '';
+}
+
+// ================================
+// NAVIGAZIONE
+// ================================
+
+function nextStep() {
+    console.log('▶️ Tentativo prossimo step. Step corrente:', currentStep);
+    
+    if (validateCurrentStep()) {
         if (currentStep < totalSteps) {
             saveCurrentStepData();
             showStep(currentStep + 1);
@@ -188,39 +173,41 @@ async function nextStep() {
 }
 
 function prevStep() {
-    console.log('◀️ Tornando al step precedente. Step corrente:', currentStep);
+    console.log('◀️ Step precedente. Step corrente:', currentStep);
     if (currentStep > 1) {
         showStep(currentStep - 1);
     }
 }
 
+function goBack() {
+    if (currentStep > 1) {
+        prevStep();
+    } else {
+        history.back();
+    }
+}
+
 // ================================
-// VALIDAZIONE COMPLETA
+// VALIDAZIONE
 // ================================
 
-async function validateCurrentStep() {
+function validateCurrentStep() {
     console.log('🔍 Validazione step', currentStep);
     clearMessages();
     
     switch (currentStep) {
-        case 1:
-            return validateStep1();
-        case 2:
-            return validateStep2();
-        case 3:
-            return validateStep3();
-        case 4:
-            return validateStep4();
-        default:
-            console.error('❌ Step non valido:', currentStep);
-            return false;
+        case 1: return validateStep1();
+        case 2: return validateStep2();
+        case 3: return validateStep3();
+        case 4: return validateStep4();
+        default: return false;
     }
 }
 
 function validateStep1() {
     let isValid = true;
     
-    // Validazione Nome
+    // Nome
     const nome = getElementValue('nome');
     if (!nome || nome.length < 2) {
         showFieldError('nome', 'Il nome deve contenere almeno 2 caratteri');
@@ -229,7 +216,7 @@ function validateStep1() {
         clearFieldError('nome');
     }
     
-    // Validazione Cognome
+    // Cognome
     const cognome = getElementValue('cognome');
     if (!cognome || cognome.length < 2) {
         showFieldError('cognome', 'Il cognome deve contenere almeno 2 caratteri');
@@ -238,7 +225,7 @@ function validateStep1() {
         clearFieldError('cognome');
     }
     
-    // Validazione Email
+    // Email
     const email = getElementValue('email');
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email) {
@@ -251,7 +238,7 @@ function validateStep1() {
         clearFieldError('email');
     }
     
-    // Validazione Conferma Email
+    // Conferma Email
     const confirmEmail = getElementValue('confirmEmail');
     if (!confirmEmail) {
         showFieldError('confirmEmail', 'Conferma l\'email');
@@ -263,7 +250,7 @@ function validateStep1() {
         clearFieldError('confirmEmail');
     }
     
-    // Validazione Data di Nascita
+    // Data di Nascita
     const dataNascita = getElementValue('dataNascita');
     if (!dataNascita) {
         showFieldError('dataNascita', 'La data di nascita è obbligatoria');
@@ -275,7 +262,7 @@ function validateStep1() {
         clearFieldError('dataNascita');
     }
     
-    // Validazione Luogo di Nascita
+    // Luogo di Nascita
     const luogoNascita = getElementValue('luogoNascita');
     if (!luogoNascita || luogoNascita.length < 2) {
         showFieldError('luogoNascita', 'Il luogo di nascita è obbligatorio');
@@ -290,7 +277,7 @@ function validateStep1() {
 function validateStep2() {
     let isValid = true;
     
-    // Validazione Codice Fiscale (opzionale ma se presente deve essere valido)
+    // Codice Fiscale (opzionale ma se presente deve essere valido)
     const codiceFiscale = getElementValue('codiceFiscale');
     if (codiceFiscale && !validateCodiceFiscale(codiceFiscale)) {
         showFieldError('codiceFiscale', 'Inserisci un codice fiscale valido');
@@ -299,7 +286,7 @@ function validateStep2() {
         clearFieldError('codiceFiscale');
     }
     
-    // Validazione Telefono (opzionale ma se presente deve essere valido)
+    // Telefono (opzionale ma se presente deve essere valido)
     const telefono = getElementValue('telefono');
     if (telefono && !validateTelefono(telefono)) {
         showFieldError('telefono', 'Inserisci un numero di telefono valido');
@@ -314,7 +301,7 @@ function validateStep2() {
 function validateStep3() {
     let isValid = true;
     
-    // Validazione Password
+    // Password
     const password = getElementValue('password');
     if (!password) {
         showFieldError('password', 'La password è obbligatoria');
@@ -326,7 +313,7 @@ function validateStep3() {
         clearFieldError('password');
     }
     
-    // Validazione Conferma Password
+    // Conferma Password
     const confirmPassword = getElementValue('confirmPassword');
     if (!confirmPassword) {
         showFieldError('confirmPassword', 'Conferma la password');
@@ -342,13 +329,11 @@ function validateStep3() {
 }
 
 function validateStep4() {
-    // Validazione accettazione privacy
     const privacyAccept = document.getElementById('privacyAccept');
     if (!privacyAccept || !privacyAccept.checked) {
-        showError('Devi accettare i Termini e Condizioni e l\'Informativa sulla Privacy per procedere');
+        showError('Devi accettare i Termini e Condizioni per procedere');
         return false;
     }
-    
     return true;
 }
 
@@ -357,14 +342,10 @@ function validateStep4() {
 // ================================
 
 function validatePassword(password) {
-    const requirements = {
-        length: password.length >= 8,
-        upper: /[A-Z]/.test(password),
-        lower: /[a-z]/.test(password),
-        number: /\d/.test(password)
-    };
-    
-    return requirements.length && requirements.upper && requirements.lower && requirements.number;
+    return password.length >= 8 && 
+           /[A-Z]/.test(password) && 
+           /[a-z]/.test(password) && 
+           /\d/.test(password);
 }
 
 function validateTelefono(telefono) {
@@ -375,7 +356,6 @@ function validateTelefono(telefono) {
 
 function validateCodiceFiscale(cf) {
     if (!cf || cf.length !== 16) return false;
-    
     const cfRegex = /^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$/;
     return cfRegex.test(cf.toUpperCase());
 }
@@ -437,14 +417,12 @@ function updatePasswordStrength(password) {
 
 function calculatePasswordStrength(password) {
     let score = 0;
-    
     if (password.length >= 8) score++;
     if (password.length >= 12) score++;
     if (/[a-z]/.test(password)) score++;
     if (/[A-Z]/.test(password)) score++;
     if (/\d/.test(password)) score++;
     if (/[^a-zA-Z\d]/.test(password)) score++;
-    
     return Math.min(score, 4);
 }
 
@@ -485,92 +463,11 @@ function togglePassword(inputId) {
 }
 
 // ================================
-// VALIDAZIONE IN TEMPO REALE
-// ================================
-
-function setupFormValidation() {
-    // Validazione email in tempo reale
-    const emailInput = document.getElementById('email');
-    const confirmEmailInput = document.getElementById('confirmEmail');
-    
-    if (emailInput) {
-        emailInput.addEventListener('input', validateEmailRealTime);
-    }
-    
-    if (confirmEmailInput) {
-        confirmEmailInput.addEventListener('input', validateEmailConfirmRealTime);
-    }
-    
-    // Validazione telefono in tempo reale
-    const telefonoInput = document.getElementById('telefono');
-    if (telefonoInput) {
-        telefonoInput.addEventListener('input', validateTelefonoRealTime);
-    }
-    
-    // Validazione codice fiscale in tempo reale
-    const cfInput = document.getElementById('codiceFiscale');
-    if (cfInput) {
-        cfInput.addEventListener('input', validateCodiceFiscaleRealTime);
-    }
-}
-
-function validateEmailRealTime() {
-    const email = getElementValue('email');
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
-    if (email && emailRegex.test(email)) {
-        setFieldValid('email');
-    } else if (email) {
-        setFieldError('email');
-    } else {
-        clearFieldValidation('email');
-    }
-}
-
-function validateEmailConfirmRealTime() {
-    const email = getElementValue('email');
-    const confirmEmail = getElementValue('confirmEmail');
-    
-    if (confirmEmail && email === confirmEmail) {
-        setFieldValid('confirmEmail');
-    } else if (confirmEmail) {
-        setFieldError('confirmEmail');
-    } else {
-        clearFieldValidation('confirmEmail');
-    }
-}
-
-function validateTelefonoRealTime() {
-    const telefono = getElementValue('telefono');
-    
-    if (telefono && validateTelefono(telefono)) {
-        setFieldValid('telefono');
-    } else if (telefono) {
-        setFieldError('telefono');
-    } else {
-        clearFieldValidation('telefono');
-    }
-}
-
-function validateCodiceFiscaleRealTime() {
-    const cf = getElementValue('codiceFiscale');
-    
-    if (cf && validateCodiceFiscale(cf)) {
-        setFieldValid('codiceFiscale');
-    } else if (cf) {
-        setFieldError('codiceFiscale');
-    } else {
-        clearFieldValidation('codiceFiscale');
-    }
-}
-
-// ================================
 // GESTIONE EVENTI
 // ================================
 
 function setupEventListeners() {
     const form = document.getElementById('registrationForm');
-    
     if (form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -602,17 +499,6 @@ function saveCurrentStepData() {
             formData.indirizzoProvincia = getElementValue('indirizzoProvincia');
             formData.professione = getElementValue('professione');
             formData.titoloStudio = getElementValue('titoloStudio');
-            
-            // Crea indirizzo completo per il riepilogo
-            const indirizzoParts = [
-                formData.indirizzoVia,
-                formData.indirizzoCivico,
-                formData.indirizzoCap,
-                formData.indirizzoCitta,
-                formData.indirizzoProvincia
-            ].filter(part => part && part.trim());
-            
-            formData.indirizzoCompleto = indirizzoParts.length > 0 ? indirizzoParts.join(', ') : '';
             break;
         case 3:
             formData.password = getElementValue('password');
@@ -624,38 +510,37 @@ function saveCurrentStepData() {
             break;
     }
     
-    console.log('💾 Dati step ' + currentStep + ' salvati:', formData);
+    console.log('💾 Dati step salvati:', formData);
 }
 
 // ================================
-// REGISTRAZIONE UTENTE
+// REGISTRAZIONE UTENTE SEMPLIFICATA
 // ================================
 
 async function handleRegistration() {
-    console.log('🚀 Inizio processo di registrazione...');
+    console.log('🚀 Inizio registrazione...');
     
-    const registerButton = document.querySelector('#registerBtn');
+    const registerButton = document.getElementById('registerBtn');
     if (registerButton) {
         registerButton.disabled = true;
         registerButton.innerHTML = '<span class="loading-spinner"></span>Registrazione in corso...';
     }
     
     try {
-        // Salva i dati dell'ultimo step
+        // Salva dati ultimo step
         saveCurrentStepData();
         
-        // Verifica che tutti i dati necessari siano presenti
+        // Verifica dati completi
         if (!validateAllData()) {
-            throw new Error('Dati incompleti per la registrazione');
+            throw new Error('Dati incompleti');
         }
         
-        console.log('👤 Registrazione utente con email:', formData.email);
+        console.log('📤 Invio dati a Supabase...');
         
-        // Prepara i metadati per Supabase
+        // Prepara metadata SEMPLICI per il trigger
         const metadata = {
             nome: formData.nome,
             cognome: formData.cognome,
-            full_name: `${formData.nome} ${formData.cognome}`,
             data_nascita: formData.dataNascita,
             luogo_nascita: formData.luogoNascita,
             codice_fiscale: formData.codiceFiscale || null,
@@ -669,11 +554,13 @@ async function handleRegistration() {
             professione: formData.professione || null,
             titolo_studio: formData.titoloStudio || null,
             privacy_accepted: formData.privacyAccepted,
-            marketing_consent: formData.marketingConsent,
-            newsletter_consent: formData.newsletterConsent
+            marketing_consent: formData.marketingConsent || false,
+            newsletter_consent: formData.newsletterConsent || false
         };
         
-        // Registrazione con Supabase Auth
+        console.log('📋 Metadata preparati:', metadata);
+        
+        // Registrazione Supabase
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: formData.email,
             password: formData.password,
@@ -683,78 +570,72 @@ async function handleRegistration() {
         });
         
         if (authError) {
-            console.error('❌ Errore registrazione Auth:', authError);
+            console.error('❌ Errore Supabase Auth:', authError);
             throw authError;
         }
         
-        console.log('✅ Utente registrato con successo:', authData.user?.id);
+        console.log('✅ Utente registrato:', authData.user?.id);
         
-        // Attendi un momento per permettere ai trigger di completare
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Attendi che il trigger completi
+        console.log('⏳ Attendo creazione profilo e tessera...');
+        await new Promise(resolve => setTimeout(resolve, 3000));
         
-        // Verifica che profilo e tessera siano stati creati
+        // Verifica creazione
         try {
             if (authData.user) {
-                const { data: profileData, error: profileError } = await supabase
+                // Controlla profilo
+                const { data: profileData } = await supabase
                     .from('profiles')
-                    .select('id, nome, cognome')
+                    .select('id, nome, cognome, ruolo')
                     .eq('id', authData.user.id)
                     .single();
                 
-                const { data: tesseraData, error: tesseraError } = await supabase
+                // Controlla tessera
+                const { data: tesseraData } = await supabase
                     .from('tessere')
-                    .select('numero_tessera, data_scadenza')
+                    .select('numero_tessera')
                     .eq('id', authData.user.id)
                     .single();
                 
                 if (profileData && tesseraData) {
                     showSuccess(`🎉 Registrazione completata con successo!
                         
-                        ✅ Profilo creato
+                        ✅ Profilo creato (Ruolo: ${profileData.ruolo})
                         ✅ Tessera ${tesseraData.numero_tessera} generata
-                        📧 Email di conferma inviata a: ${formData.email}
+                        📧 Email di conferma inviata
                         
                         Controlla la tua email per attivare l'account.`);
                 } else {
-                    showSuccess(`🎉 Registrazione completata!
-                        📧 Controlla la tua email per confermare l'account.
-                        Il profilo e la tessera saranno disponibili dopo la conferma.`);
+                    showSuccess('🎉 Registrazione completata! Controlla la tua email per confermare l\'account.');
                 }
             }
         } catch (verificationError) {
-            console.warn('⚠️ Impossibile verificare creazione profilo/tessera:', verificationError);
-            showSuccess(`🎉 Registrazione completata!
-                📧 Controlla la tua email per confermare l'account.`);
+            console.warn('⚠️ Impossibile verificare creazione:', verificationError);
+            showSuccess('🎉 Registrazione completata! Controlla la tua email per confermare l\'account.');
         }
         
-        // Reindirizza dopo qualche secondo
+        // Reindirizza dopo 4 secondi
         setTimeout(() => {
             window.location.href = 'login.html';
-        }, 5000);
+        }, 4000);
         
     } catch (error) {
-        console.error('❌ Errore durante la registrazione:', error);
+        console.error('❌ Errore registrazione:', error);
         
         let errorMessage = 'Si è verificato un errore durante la registrazione.';
-        const errorMsg = error?.message || error?.error_description || error?.msg || '';
+        const errorMsg = error?.message || '';
         
-        if (errorMsg.includes('duplicate key') || 
-            errorMsg.includes('already registered') ||
-            errorMsg.includes('User already registered')) {
-            errorMessage = `⚠️ Questa email è già registrata nel sistema.
-                Prova ad effettuare il login o utilizza un'email diversa.`;
-        } else if (errorMsg.includes('invalid email')) {
-            errorMessage = '❌ L\'indirizzo email non è valido.';
-        } else if (errorMsg.includes('weak password')) {
-            errorMessage = '❌ La password non è sufficientemente sicura.';
-        } else if (errorMsg.includes('rate limit') || errorMsg.includes('Too Many Requests')) {
-            errorMessage = '⏳ Troppi tentativi. Riprova tra qualche minuto.';
+        if (errorMsg.includes('User already registered')) {
+            errorMessage = '⚠️ Questa email è già registrata. Prova ad effettuare il login.';
+        } else if (errorMsg.includes('Invalid email')) {
+            errorMessage = '❌ Email non valida.';
+        } else if (errorMsg.includes('Password')) {
+            errorMessage = '❌ Password non valida.';
         }
         
         showError(errorMessage);
         
     } finally {
-        // Ripristina il bottone
         if (registerButton) {
             registerButton.disabled = false;
             registerButton.innerHTML = '🚀 Completa Registrazione';
@@ -817,19 +698,6 @@ function showSuccess(message) {
     console.log('✅ Successo mostrato:', message);
 }
 
-function showInfo(message) {
-    clearMessages();
-    const infoDiv = document.getElementById('infoMessage');
-    const infoText = document.getElementById('infoText');
-    
-    if (infoDiv && infoText) {
-        infoText.textContent = message;
-        infoDiv.classList.remove('hidden');
-    }
-    
-    console.log('ℹ️ Info mostrata:', message);
-}
-
 function clearMessages() {
     const messages = ['errorMessage', 'successMessage', 'infoMessage'];
     messages.forEach(messageId => {
@@ -868,84 +736,3 @@ function clearFieldError(fieldId) {
         input.classList.add('valid');
     }
 }
-
-function setFieldValid(fieldId) {
-    const input = document.getElementById(fieldId);
-    if (input) {
-        input.classList.remove('error');
-        input.classList.add('valid');
-    }
-}
-
-function setFieldError(fieldId) {
-    const input = document.getElementById(fieldId);
-    if (input) {
-        input.classList.add('error');
-        input.classList.remove('valid');
-    }
-}
-
-function clearFieldValidation(fieldId) {
-    const input = document.getElementById(fieldId);
-    if (input) {
-        input.classList.remove('error', 'valid');
-    }
-}
-
-// ================================
-// FUNZIONI GLOBALI PER HTML
-// ================================
-
-function goBack() {
-    if (currentStep > 1) {
-        prevStep();
-    } else {
-        window.history.back();
-    }
-}
-
-// ================================
-// FORMATTAZIONE AUTOMATICA
-// ================================
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Formattazione automatica telefono
-    const telefonoInputs = ['telefono', 'telefonoEmergenza'];
-    telefonoInputs.forEach(inputId => {
-        const input = document.getElementById(inputId);
-        if (input) {
-            input.addEventListener('input', function(e) {
-                let value = e.target.value.replace(/\D/g, '');
-                
-                if (value.startsWith('39')) {
-                    value = '+' + value;
-                } else if (value.startsWith('3') && value.length >= 3) {
-                    value = '+39 ' + value;
-                }
-                
-                if (value.startsWith('+39')) {
-                    value = value.replace(/(\+39)(\d{3})(\d{3})(\d{4})/, '$1 $2 $3 $4');
-                }
-                
-                e.target.value = value;
-            });
-        }
-    });
-    
-    // Formattazione automatica codice fiscale
-    const cfInput = document.getElementById('codiceFiscale');
-    if (cfInput) {
-        cfInput.addEventListener('input', function(e) {
-            e.target.value = e.target.value.toUpperCase();
-        });
-    }
-    
-    // Formattazione automatica CAP
-    const capInput = document.getElementById('indirizzoCap');
-    if (capInput) {
-        capInput.addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            e.target.value = value.substring(0, 5);
-        });
-    }
-});
