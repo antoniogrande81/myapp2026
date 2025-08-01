@@ -16,13 +16,13 @@ const STATIC_CACHE_URLS = [
   '/dirigenti.html',
   '/contatti.html',
   '/area-riservata.html',
-+ '/Area Dirigenti.html',
+  '/Area%20Dirigenti.html', // 🔧 FIX: URL encode degli spazi
   '/manifest.json',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png',
-  '/icons/apple-touch-icon.png',
-  '/icons/favicon-16x16.png',
-  '/icons/favicon-32x32.png',
+  '/public/icons/icon-192x192.png', // 🔧 FIX: Percorso corretto
+  '/public/icons/icon-512x512.png',
+  '/public/icons/apple-touch-icon.png',
+  '/public/icons/favicon-16x16.png',
+  '/public/icons/favicon-32x32.png',
   '/favicon.ico',
   '/offline.html'
 ];
@@ -46,7 +46,7 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        // Carica solo i file che esistono davvero
+        // 🔧 FIX: Gestione corretta degli errori
         return Promise.allSettled(
           STATIC_CACHE_URLS.map(url => 
             fetch(url)
@@ -59,7 +59,8 @@ self.addEventListener('install', (event) => {
                 }
               })
               .catch(error => {
-                console.warn(`[SW] Errore caricamento: ${url}`, error);
+                // 🚨 FIX: Qui era il problema del NaN
+                console.warn(`[SW] File non trovato: ${url} (404)`);
                 return Promise.resolve();
               })
           )
@@ -93,7 +94,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// FETCH
+// FETCH - 🔧 FIX: Gestione errori migliorata
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -117,12 +118,17 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(request, cloned);
           });
+        } else if (response.status === 404) {
+          // 🔧 FIX: Log corretto per 404
+          console.warn(`[SW] File non trovato: ${request.url} (404)`);
         }
         return response;
       })
-      .catch(() =>
-        caches.match(request).then((res) => res || offlineFallback(request))
-      )
+      .catch((error) => {
+        // 🔧 FIX: Log errore di rete
+        console.warn(`[SW] Errore fetch: ${request.url} - ${error.message}`);
+        return caches.match(request).then((res) => res || offlineFallback(request));
+      })
   );
 });
 
