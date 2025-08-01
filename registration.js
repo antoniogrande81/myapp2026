@@ -1,544 +1,328 @@
-// ================================
-// CONFIGURAZIONE SUPABASE
-// ================================
+/**
+ * 🚀 SISTEMA REGISTRAZIONE MINIMALISTA v3.0
+ * Con conferma email - Solo dati essenziali
+ * Utilizzando lo stile Aurora Boreale
+ */
 
-const SUPABASE_URL = 'https://lycrgzptkdkksukcwrld.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
+// ========================================
+// 🔧 CONFIGURAZIONE
+// ========================================
 
-// ================================
-// VARIABILI GLOBALI
-// ================================
+const CONFIG = {
+    // Supabase (aggiorna con i tuoi dati)
+    SUPABASE_URL: 'https://lycrgzptkdkksukcwrld.supabase.co',
+    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQxMDQwNjYsImV4cCI6MjA0OTY4MDA2Nn0.cU73nwcSrPMu88dHKZf3LpQwKD6yTcWLiWWL2eLNMhU',
+    
+    // Validazione
+    MIN_PASSWORD_LENGTH: 8,
+    MIN_AGE: 16,
+    MAX_AGE: 100,
+    
+    // URL conferma
+    CONFIRMATION_URL: window.location.origin + '/conferma-email.html',
+    
+    // UI
+    TOTAL_STEPS: 3
+};
 
-let supabase = null;
+// ========================================
+// 🔌 GLOBALI
+// ========================================
+
+let supabase;
 let currentStep = 1;
 let formData = {};
-let totalSteps = 4;
 
-// ================================
-// INIZIALIZZAZIONE
-// ================================
+// ========================================
+// 🚀 INIZIALIZZAZIONE
+// ========================================
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Inizializzazione applicazione...');
-    
-    // Inizializza Supabase
-    if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+function initializeSupabase() {
+    try {
+        if (!window.supabase) {
+            throw new Error('Supabase library non caricata');
+        }
+        
+        supabase = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
         console.log('✅ Supabase inizializzato');
-        
-        // Inizializza il form
-        initializeForm();
-        setupEventListeners();
-        setupPasswordValidation();
-    } else {
-        console.error('❌ Supabase non disponibile');
-        showError('Errore di caricamento. Ricarica la pagina.');
+        return true;
+    } catch (error) {
+        console.error('❌ Errore inizializzazione Supabase:', error);
+        return false;
     }
-});
-
-function initializeForm() {
-    currentStep = 1;
-    formData = {};
-    showStep(1);
-    updateStepIndicator();
-    console.log('✅ Form inizializzato');
 }
 
-// ================================
-// GESTIONE STEP
-// ================================
+// ========================================
+// 🎨 GESTIONE UI
+// ========================================
 
-function showStep(step) {
-    console.log('🔄 Cambio step:', currentStep, '→', step);
-    
+function showStep(stepNumber) {
     // Nascondi tutti gli step
-    document.querySelectorAll('.step-form').forEach(form => {
-        form.classList.add('hidden');
+    document.querySelectorAll('.step').forEach(step => {
+        step.classList.remove('active');
     });
     
-    // Mostra step richiesto
-    const stepElement = document.getElementById('step' + step + 'Form');
-    if (stepElement) {
-        stepElement.classList.remove('hidden');
-        currentStep = step;
-        updateStepIndicator();
-        updateStepLabel();
+    // Mostra step target
+    const targetStep = document.querySelector(`[data-step="${stepNumber}"]`);
+    if (targetStep) {
+        targetStep.classList.add('active');
+        currentStep = stepNumber;
+        updateProgress();
+        hideMessages();
         
-        if (step === 4) {
-            updateSummary();
+        // Se step 3, mostra riepilogo
+        if (stepNumber === 3) {
+            showDataSummary();
+        }
+        
+        console.log(`📄 Step ${stepNumber} mostrato`);
+    }
+}
+
+function updateProgress() {
+    const percentage = (currentStep / CONFIG.TOTAL_STEPS) * 100;
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    
+    if (progressFill) {
+        progressFill.style.width = `${percentage}%`;
+    }
+    
+    if (progressText) {
+        progressText.textContent = `Step ${currentStep} di ${CONFIG.TOTAL_STEPS}`;
+    }
+}
+
+function showMessage(text, type = 'info') {
+    const container = document.getElementById('messagesContainer');
+    if (!container) return;
+    
+    const icons = {
+        success: '✅',
+        error: '❌',
+        info: 'ℹ️'
+    };
+    
+    container.innerHTML = `
+        <div class="message-${type}">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 mr-3 text-xl">
+                    ${icons[type] || 'ℹ️'}
+                </div>
+                <div>
+                    <p class="font-semibold">${text}</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Scroll al messaggio
+    container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function hideMessages() {
+    const container = document.getElementById('messagesContainer');
+    if (container) {
+        container.innerHTML = '';
+    }
+}
+
+function showLoading(show = true) {
+    const overlay = document.getElementById('loadingOverlay');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    if (show) {
+        if (overlay) overlay.style.display = 'flex';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div>';
+        }
+    } else {
+        if (overlay) overlay.style.display = 'none';
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '🚀 Registrati';
         }
     }
 }
 
-function updateStepIndicator() {
-    const steps = ['step1', 'step2', 'step3', 'step4'];
-    const lines = ['line1', 'line2', 'line3'];
+function showDataSummary() {
+    collectCurrentStepData();
+    const summary = document.getElementById('dataSummary');
+    if (!summary) return;
     
-    steps.forEach((stepId, index) => {
-        const stepElement = document.getElementById(stepId);
-        const stepNumber = index + 1;
-        
-        if (stepElement) {
-            stepElement.className = 'step-circle';
-            
-            if (stepNumber < currentStep) {
-                stepElement.classList.add('completed');
-                stepElement.innerHTML = '✓';
-            } else if (stepNumber === currentStep) {
-                stepElement.classList.add('active');
-                stepElement.innerHTML = stepNumber;
+    summary.innerHTML = `
+        <div><strong>Nome:</strong> ${formData.nome || '-'} ${formData.cognome || '-'}</div>
+        <div><strong>Data nascita:</strong> ${formData.data_nascita ? new Date(formData.data_nascita).toLocaleDateString('it-IT') : '-'}</div>
+        <div><strong>Luogo nascita:</strong> ${formData.luogo_nascita || '-'}</div>
+        <div><strong>Email:</strong> ${formData.email || '-'}</div>
+        <div><strong>Cellulare:</strong> ${formData.cellulare || '-'}</div>
+    `;
+}
+
+// ========================================
+// 📝 GESTIONE FORM
+// ========================================
+
+function collectCurrentStepData() {
+    const currentStepEl = document.querySelector(`[data-step="${currentStep}"]`);
+    if (!currentStepEl) return;
+
+    currentStepEl.querySelectorAll('input, select, textarea').forEach(field => {
+        const name = field.name;
+        if (name) {
+            if (field.type === 'checkbox') {
+                formData[name] = field.checked;
             } else {
-                stepElement.innerHTML = stepNumber;
+                formData[name] = field.value.trim();
             }
         }
     });
-    
-    lines.forEach((lineId, index) => {
-        const lineElement = document.getElementById(lineId);
-        if (lineElement) {
-            if (index + 1 < currentStep) {
-                lineElement.classList.add('completed');
-            } else {
-                lineElement.classList.remove('completed');
-            }
-        }
-    });
+
+    console.log(`💾 Dati step ${currentStep} salvati:`, formData);
 }
 
-function updateStepLabel() {
-    const labels = {
-        1: 'Dati Personali',
-        2: 'Dati di Contatto',
-        3: 'Password e Sicurezza',
-        4: 'Riepilogo e Conferma'
-    };
-    
-    const labelElement = document.getElementById('stepLabel');
-    if (labelElement) {
-        labelElement.textContent = labels[currentStep];
-    }
-}
-
-function updateSummary() {
-    const summaryData = {
-        'summaryNome': formData.nome || '-',
-        'summaryCognome': formData.cognome || '-',
-        'summaryEmail': formData.email || '-',
-        'summaryDataNascita': formData.dataNascita || '-',
-        'summaryLuogoNascita': formData.luogoNascita || '-',
-        'summaryCodiceFiscale': formData.codiceFiscale || 'Non fornito',
-        'summaryTelefono': formData.telefono || 'Non fornito',
-        'summaryIndirizzo': createAddressString() || 'Non fornito',
-        'summaryProfessione': formData.professione || 'Non specificata'
-    };
-    
-    Object.entries(summaryData).forEach(([elementId, value]) => {
-        const element = document.getElementById(elementId);
-        if (element) {
-            element.textContent = value;
-        }
-    });
-}
-
-function createAddressString() {
-    const parts = [
-        formData.indirizzoVia,
-        formData.indirizzoCivico,
-        formData.indirizzoCap,
-        formData.indirizzoCitta,
-        formData.indirizzoProvincia
-    ].filter(part => part && part.trim());
-    
-    return parts.length > 0 ? parts.join(', ') : '';
-}
-
-// ================================
-// NAVIGAZIONE
-// ================================
-
-function nextStep() {
-    console.log('▶️ Tentativo prossimo step. Step corrente:', currentStep);
-    
-    if (validateCurrentStep()) {
-        if (currentStep < totalSteps) {
-            saveCurrentStepData();
-            showStep(currentStep + 1);
-        } else {
-            console.log('🚀 Avvio registrazione...');
-            handleRegistration();
-        }
-    } else {
-        console.log('❌ Validazione fallita per step', currentStep);
-    }
-}
-
-function prevStep() {
-    console.log('◀️ Step precedente. Step corrente:', currentStep);
-    if (currentStep > 1) {
-        showStep(currentStep - 1);
-    }
-}
-
-function goBack() {
-    if (currentStep > 1) {
-        prevStep();
-    } else {
-        history.back();
-    }
-}
-
-// ================================
-// VALIDAZIONE
-// ================================
+// ========================================
+// 🛡️ VALIDAZIONE
+// ========================================
 
 function validateCurrentStep() {
-    console.log('🔍 Validazione step', currentStep);
-    clearMessages();
+    collectCurrentStepData();
     
     switch (currentStep) {
         case 1: return validateStep1();
         case 2: return validateStep2();
         case 3: return validateStep3();
-        case 4: return validateStep4();
-        default: return false;
+        default: return { valid: true };
     }
 }
 
 function validateStep1() {
-    let isValid = true;
+    const errors = [];
     
-    const nome = getElementValue('nome');
-    if (!nome || nome.length < 2) {
-        showFieldError('nome', 'Il nome deve contenere almeno 2 caratteri');
-        isValid = false;
-    } else {
-        clearFieldError('nome');
+    // Nome
+    if (!formData.nome || formData.nome.length < 2) {
+        errors.push('Nome obbligatorio (min 2 caratteri)');
     }
     
-    const cognome = getElementValue('cognome');
-    if (!cognome || cognome.length < 2) {
-        showFieldError('cognome', 'Il cognome deve contenere almeno 2 caratteri');
-        isValid = false;
-    } else {
-        clearFieldError('cognome');
+    // Cognome
+    if (!formData.cognome || formData.cognome.length < 2) {
+        errors.push('Cognome obbligatorio (min 2 caratteri)');
     }
     
-    const email = getElementValue('email');
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) {
-        showFieldError('email', 'L\'email è obbligatoria');
-        isValid = false;
-    } else if (!emailRegex.test(email)) {
-        showFieldError('email', 'Inserisci un\'email valida');
-        isValid = false;
+    // Data nascita
+    if (!formData.data_nascita) {
+        errors.push('Data di nascita obbligatoria');
     } else {
-        clearFieldError('email');
+        const birthDate = new Date(formData.data_nascita);
+        const today = new Date();
+        const age = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
+        
+        if (age < CONFIG.MIN_AGE) {
+            errors.push(`Età minima ${CONFIG.MIN_AGE} anni`);
+        }
+        if (age > CONFIG.MAX_AGE) {
+            errors.push('Età non valida');
+        }
     }
     
-    const confirmEmail = getElementValue('confirmEmail');
-    if (!confirmEmail) {
-        showFieldError('confirmEmail', 'Conferma l\'email');
-        isValid = false;
-    } else if (email !== confirmEmail) {
-        showFieldError('confirmEmail', 'Le email non coincidono');
-        isValid = false;
-    } else {
-        clearFieldError('confirmEmail');
+    // Luogo nascita
+    if (!formData.luogo_nascita || formData.luogo_nascita.length < 2) {
+        errors.push('Luogo di nascita obbligatorio');
     }
     
-    const dataNascita = getElementValue('dataNascita');
-    if (!dataNascita) {
-        showFieldError('dataNascita', 'La data di nascita è obbligatoria');
-        isValid = false;
-    } else if (!validateDataNascita(dataNascita)) {
-        showFieldError('dataNascita', 'Devi avere almeno 14 anni per registrarti');
-        isValid = false;
-    } else {
-        clearFieldError('dataNascita');
-    }
-    
-    const luogoNascita = getElementValue('luogoNascita');
-    if (!luogoNascita || luogoNascita.length < 2) {
-        showFieldError('luogoNascita', 'Il luogo di nascita è obbligatorio');
-        isValid = false;
-    } else {
-        clearFieldError('luogoNascita');
-    }
-    
-    return isValid;
+    return { valid: errors.length === 0, errors };
 }
 
 function validateStep2() {
-    let isValid = true;
+    const errors = [];
     
-    const codiceFiscale = getElementValue('codiceFiscale');
-    if (codiceFiscale && !validateCodiceFiscale(codiceFiscale)) {
-        showFieldError('codiceFiscale', 'Inserisci un codice fiscale valido');
-        isValid = false;
-    } else {
-        clearFieldError('codiceFiscale');
+    // Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email) {
+        errors.push('Email obbligatoria');
+    } else if (!emailRegex.test(formData.email)) {
+        errors.push('Email non valida');
     }
     
-    const telefono = getElementValue('telefono');
-    if (telefono && !validateTelefono(telefono)) {
-        showFieldError('telefono', 'Inserisci un numero di telefono valido');
-        isValid = false;
-    } else {
-        clearFieldError('telefono');
+    // Cellulare
+    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{8,15}$/;
+    if (!formData.cellulare) {
+        errors.push('Cellulare obbligatorio');
+    } else if (!phoneRegex.test(formData.cellulare)) {
+        errors.push('Numero di cellulare non valido');
     }
     
-    return isValid;
+    // Password
+    if (!formData.password) {
+        errors.push('Password obbligatoria');
+    } else if (formData.password.length < CONFIG.MIN_PASSWORD_LENGTH) {
+        errors.push(`Password minimo ${CONFIG.MIN_PASSWORD_LENGTH} caratteri`);
+    }
+    
+    return { valid: errors.length === 0, errors };
 }
 
 function validateStep3() {
-    let isValid = true;
+    const errors = [];
     
-    const password = getElementValue('password');
-    if (!password) {
-        showFieldError('password', 'La password è obbligatoria');
-        isValid = false;
-    } else if (!validatePassword(password)) {
-        showFieldError('password', 'La password non soddisfa i requisiti di sicurezza');
-        isValid = false;
-    } else {
-        clearFieldError('password');
+    if (!formData.privacy_accepted) {
+        errors.push('Accettazione privacy obbligatoria');
     }
     
-    const confirmPassword = getElementValue('confirmPassword');
-    if (!confirmPassword) {
-        showFieldError('confirmPassword', 'Conferma la password');
-        isValid = false;
-    } else if (password !== confirmPassword) {
-        showFieldError('confirmPassword', 'Le password non coincidono');
-        isValid = false;
-    } else {
-        clearFieldError('confirmPassword');
+    return { valid: errors.length === 0, errors };
+}
+
+// ========================================
+// 🚀 NAVIGAZIONE
+// ========================================
+
+function nextStep() {
+    const validation = validateCurrentStep();
+    
+    if (!validation.valid) {
+        showMessage(validation.errors.join('<br>'), 'error');
+        return;
     }
     
-    return isValid;
-}
-
-function validateStep4() {
-    const privacyAccept = document.getElementById('privacyAccept');
-    if (!privacyAccept || !privacyAccept.checked) {
-        showError('Devi accettare i Termini e Condizioni per procedere');
-        return false;
-    }
-    return true;
-}
-
-function validatePassword(password) {
-    return password.length >= 8 && 
-           /[A-Z]/.test(password) && 
-           /[a-z]/.test(password) && 
-           /\d/.test(password);
-}
-
-function validateTelefono(telefono) {
-    const cleanPhone = telefono.replace(/[\s\-\(\)]/g, '');
-    const phoneRegex = /^(\+39|0039|39)?[0-9]{9,11}$/;
-    return phoneRegex.test(cleanPhone);
-}
-
-function validateCodiceFiscale(cf) {
-    if (!cf || cf.length !== 16) return false;
-    const cfRegex = /^[A-Z]{6}[0-9LMNPQRSTUV]{2}[ABCDEHLMPRST][0-9LMNPQRSTUV]{2}[A-Z][0-9LMNPQRSTUV]{3}[A-Z]$/;
-    return cfRegex.test(cf.toUpperCase());
-}
-
-function validateDataNascita(dataNascita) {
-    const today = new Date();
-    const birthDate = new Date(dataNascita);
-    const age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
-    
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        return age - 1 >= 14;
-    }
-    return age >= 14;
-}
-
-// ================================
-// GESTIONE PASSWORD
-// ================================
-
-function setupPasswordValidation() {
-    const passwordInput = document.getElementById('password');
-    if (passwordInput) {
-        passwordInput.addEventListener('input', function() {
-            updatePasswordStrength(this.value);
-            updatePasswordRequirements(this.value);
-        });
+    if (currentStep < CONFIG.TOTAL_STEPS) {
+        showStep(currentStep + 1);
     }
 }
 
-function updatePasswordStrength(password) {
-    const strengthBar = document.getElementById('strengthBar');
-    const strengthText = document.getElementById('strengthText');
-    
-    if (!strengthBar || !strengthText) return;
-    
-    const score = calculatePasswordStrength(password);
-    
-    strengthBar.className = 'strength-bar';
-    
-    if (score < 2) {
-        strengthBar.classList.add('strength-weak');
-        strengthText.textContent = 'Troppo debole';
-        strengthText.style.color = '#ef4444';
-    } else if (score < 3) {
-        strengthBar.classList.add('strength-medium');
-        strengthText.textContent = 'Debole';
-        strengthText.style.color = '#f59e0b';
-    } else if (score < 4) {
-        strengthBar.classList.add('strength-good');
-        strengthText.textContent = 'Buona';
-        strengthText.style.color = '#eab308';
-    } else {
-        strengthBar.classList.add('strength-strong');
-        strengthText.textContent = 'Forte';
-        strengthText.style.color = '#10b981';
+function prevStep() {
+    if (currentStep > 1) {
+        showStep(currentStep - 1);
     }
 }
 
-function calculatePasswordStrength(password) {
-    let score = 0;
-    if (password.length >= 8) score++;
-    if (password.length >= 12) score++;
-    if (/[a-z]/.test(password)) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/\d/.test(password)) score++;
-    if (/[^a-zA-Z\d]/.test(password)) score++;
-    return Math.min(score, 4);
-}
+// ========================================
+// 📧 REGISTRAZIONE CON CONFERMA EMAIL
+// ========================================
 
-function updatePasswordRequirements(password) {
-    const requirements = {
-        'req-length': password.length >= 8,
-        'req-upper': /[A-Z]/.test(password),
-        'req-lower': /[a-z]/.test(password),
-        'req-number': /\d/.test(password)
-    };
+async function submitRegistration() {
+    console.log('🚀 Inizio registrazione con conferma email...');
     
-    Object.entries(requirements).forEach(([reqId, isMet]) => {
-        const reqElement = document.getElementById(reqId);
-        if (reqElement) {
-            const indicator = reqElement.querySelector('.requirement-indicator');
-            if (indicator) {
-                if (isMet) {
-                    indicator.classList.add('met');
-                } else {
-                    indicator.classList.remove('met');
-                }
-            }
-        }
-    });
-}
-
-function togglePassword(inputId) {
-    const input = document.getElementById(inputId);
-    const button = input.nextElementSibling;
-    
-    if (input.type === 'password') {
-        input.type = 'text';
-        button.textContent = '🙈';
-    } else {
-        input.type = 'password';
-        button.textContent = '👁️';
-    }
-}
-
-function setupEventListeners() {
-    const form = document.getElementById('registrationForm');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-        });
-    }
-}
-
-// ================================
-// SALVATAGGIO DATI
-// ================================
-
-function saveCurrentStepData() {
-    switch (currentStep) {
-        case 1:
-            formData.nome = getElementValue('nome');
-            formData.cognome = getElementValue('cognome');
-            formData.email = getElementValue('email');
-            formData.dataNascita = getElementValue('dataNascita');
-            formData.luogoNascita = getElementValue('luogoNascita');
-            break;
-        case 2:
-            formData.codiceFiscale = getElementValue('codiceFiscale');
-            formData.telefono = getElementValue('telefono');
-            formData.telefonoEmergenza = getElementValue('telefonoEmergenza');
-            formData.indirizzoVia = getElementValue('indirizzoVia');
-            formData.indirizzoCivico = getElementValue('indirizzoCivico');
-            formData.indirizzoCap = getElementValue('indirizzoCap');
-            formData.indirizzoCitta = getElementValue('indirizzoCitta');
-            formData.indirizzoProvincia = getElementValue('indirizzoProvincia');
-            formData.indirizzoRegione = getElementValue('indirizzoRegione');
-            formData.professione = getElementValue('professione');
-            formData.titoloStudio = getElementValue('titoloStudio');
-            formData.emailSecondaria = getElementValue('emailSecondaria');
-            formData.sitoWeb = getElementValue('sitoWeb');
-            break;
-        case 3:
-            formData.password = getElementValue('password');
-            break;
-        case 4:
-            formData.privacyAccepted = document.getElementById('privacyAccept')?.checked || false;
-            formData.marketingConsent = document.getElementById('marketingAccept')?.checked || false;
-            formData.newsletterConsent = document.getElementById('newsletterAccept')?.checked || false;
-            break;
+    // Validazione finale
+    const validation = validateCurrentStep();
+    if (!validation.valid) {
+        showMessage(validation.errors.join('<br>'), 'error');
+        return;
     }
     
-    console.log('💾 Dati step salvati:', formData);
-}
-
-// ================================
-// GESTIONE REGISTRAZIONE COMPLETA LOCALE
-// ================================
-
-async function handleRegistration() {
-    console.log('🚀 Inizio registrazione completa locale...');
-    
-    const registerButton = document.getElementById('registerBtn');
-    if (registerButton) {
-        registerButton.disabled = true;
-        registerButton.innerHTML = '<span class="loading-spinner"></span>Registrazione in corso...';
-    }
+    showLoading(true);
     
     try {
-        // 1. Salva dati ultimo step
-        saveCurrentStepData();
-        
-        // 2. Verifica dati essenziali
-        if (!validateBasicData()) {
-            throw new Error('Dati essenziali mancanti');
-        }
-        
-        console.log('📋 Dati da registrare:', formData);
-        
-        // 3. STEP 1: Registrazione Auth SENZA conferma email
-        console.log('🔐 Step 1: Registrazione Auth...');
+        // Step 1: Registrazione Auth con email confirmation
+        console.log('🔐 Creazione utente Auth...');
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: formData.email,
             password: formData.password,
             options: {
-                // RIMUOVI emailRedirectTo per evitare conferma email
+                emailRedirectTo: CONFIG.CONFIRMATION_URL,
                 data: {
                     nome: formData.nome,
-                    cognome: formData.cognome,
-                    dataNascita: formData.dataNascita,
-                    luogoNascita: formData.luogoNascita,
-                    codiceFiscale: formData.codiceFiscale || '',
-                    telefono: formData.telefono || '',
-                    indirizzoVia: formData.indirizzoVia || '',
-                    indirizzoCitta: formData.indirizzoCitta || '',
-                    provincia: formData.indirizzoProvincia || ''
+                    cognome: formData.cognome
                 }
             }
         });
@@ -549,319 +333,295 @@ async function handleRegistration() {
         }
         
         if (!authData.user) {
-            throw new Error('Utente non creato');
+            throw new Error('Utente non creato correttamente');
         }
         
-        const userId = authData.user.id;
-        console.log('✅ Utente Auth creato:', userId);
+        console.log('✅ Utente Auth creato:', authData.user.id);
         
-        // 4. STEP 2: Login automatico per avere sessione
-        console.log('🔑 Step 2: Login automatico...');
-        const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+        // Step 2: Creazione profilo (stato: in_attesa)
+        console.log('👤 Creazione profilo...');
+        const profileData = {
+            user_id: authData.user.id,
+            nome: formData.nome,
+            cognome: formData.cognome,
             email: formData.email,
-            password: formData.password
-        });
+            data_nascita: formData.data_nascita,
+            luogo_nascita: formData.luogo_nascita,
+            cellulare: formData.cellulare,
+            email_confermata: false,
+            stato: 'in_attesa'
+        };
         
-        if (loginError) {
-            console.warn('⚠️ Login automatico fallito:', loginError);
-            // Procediamo comunque
-        } else {
-            console.log('✅ Login automatico riuscito');
+        const { data: profileResult, error: profileError } = await supabase
+            .from('profiles')
+            .insert(profileData)
+            .select()
+            .single();
+        
+        if (profileError) {
+            console.error('❌ Errore creazione profilo:', profileError);
+            throw profileError;
         }
         
-  // ================================
-// CREAZIONE PROFILO CORRETTA (sostituisci nel tuo registration.js)
-// ================================
-
-// 5. STEP 3: Crea Profilo - VERSIONE CORRETTA
-console.log('👤 Step 3: Creazione profilo...');
-const { data: profileData, error: profileError } = await supabase
-    .from('profiles')
-    .insert([{
-        user_id: userId,
-        nome: formData.nome,
-        cognome: formData.cognome,
-        email: formData.email,
-        data_nascita: formData.dataNascita,
-        luogo_nascita: formData.luogoNascita,
-        codice_fiscale: formData.codiceFiscale || null,
-        telefono: formData.telefono || null,
-        // RIMUOVI TUTTI I CAMPI CHE NON ESISTONO:
-        // telefono_emergenza: formData.telefonoEmergenza || null,
-        // indirizzo_via: formData.indirizzoVia || null,
-        // indirizzo_civico: formData.indirizzoCivico || null,
-        // indirizzo_cap: formData.indirizzoCap || null,
-        // indirizzo_citta: formData.indirizzoCitta || null,
-        // indirizzo_provincia: formData.indirizzoProvincia || null,
-        // indirizzo_regione: formData.indirizzoRegione || null,
-        // professione: formData.professione || null,
-        // titolo_studio: formData.titoloStudio || null,
-        // email_secondaria: formData.emailSecondaria || null,
-        // sito_web: formData.sitoWeb || null,
-        // ruolo: 'ISCRITTO',
-        // stato: 'ATTIVO',  <-- QUESTO CAMPO NON ESISTE!
-        // privacy_accepted: formData.privacyAccepted,
-        // marketing_consent: formData.marketingConsent || false,
-        // newsletter_consent: formData.newsletterConsent || false,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-    }])
-    .select();
-
-if (profileError) {
-    console.error('❌ Errore profilo:', profileError);
-    throw new Error(`Errore creazione profilo: ${profileError.message}`);
-}
-
-console.log('✅ Profilo creato:', profileData);        
-        // 6. STEP 4: Crea Tessera
-        console.log('🎫 Step 4: Creazione tessera...');
-        const numeroTessera = await generateNumeroTessera();
+        console.log('✅ Profilo creato:', profileResult.id);
         
-        const { data: tesseraData, error: tesseraError } = await supabase
+        // Step 3: Creazione tessera (stato: in_attesa)
+        console.log('🎫 Generazione tessera...');
+        
+        // Prima generiamo il numero tessera
+        const { data: numeroTessera, error: numeroError } = await supabase
+            .rpc('generate_tessera_number');
+        
+        if (numeroError) {
+            console.error('❌ Errore generazione numero:', numeroError);
+            throw numeroError;
+        }
+        
+        const tesseraData = {
+            user_id: authData.user.id,
+            profile_id: profileResult.id,
+            numero_tessera: numeroTessera,
+            stato_tessera: 'in_attesa'
+        };
+        
+        const { data: tesseraResult, error: tesseraError } = await supabase
             .from('tessere')
-            .insert([{
-                user_id: userId,
-                numero_tessera: numeroTessera,
-                nome: formData.nome,
-                cognome: formData.cognome,
-                data_nascita: formData.dataNascita,
-                luogo_nascita: formData.luogoNascita,
-                codice_fiscale: formData.codiceFiscale || null,
-                data_emissione: new Date().toISOString().split('T')[0],
-                data_scadenza: getDataScadenza(),
-                stato: 'ATTIVA',
-                tipo_tessera: 'STANDARD',
-                qr_code_data: JSON.stringify({
-                    user_id: userId,
-                    numero: numeroTessera,
-                    nome: formData.nome,
-                    cognome: formData.cognome,
-                    data_emissione: new Date().toISOString().split('T')[0]
-                }),
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-            }])
-            .select();
+            .insert(tesseraData)
+            .select()
+            .single();
         
         if (tesseraError) {
-            console.error('❌ Errore tessera:', tesseraError);
-            throw new Error(`Errore creazione tessera: ${tesseraError.message}`);
+            console.error('❌ Errore creazione tessera:', tesseraError);
+            throw tesseraError;
         }
         
-        console.log('✅ Tessera creata:', tesseraData);
+        console.log('✅ Tessera creata:', tesseraResult.numero_tessera);
         
-        // 7. SUCCESSO COMPLETO
-        showSuccess(`🎉 REGISTRAZIONE COMPLETATA CON SUCCESSO!
-
-✅ Account creato e confermato
-✅ Profilo utente configurato  
-✅ Tessera ${numeroTessera} generata
-✅ Accesso automatico effettuato
-
-Il tuo account è pronto all'uso!
-Verrai reindirizzato alla dashboard...`);
-        
-        // Pulisci i dati salvati
-        localStorage.removeItem('registrationFormData');
-        
-        // Reindirizza alla dashboard dopo 4 secondi
-        setTimeout(() => {
-            window.location.href = 'dashboard.html';
-        }, 4000);
+        // Success!
+        showLoading(false);
+        showRegistrationSuccess(tesseraResult.numero_tessera);
         
     } catch (error) {
         console.error('❌ Errore registrazione:', error);
+        showLoading(false);
         
-        let errorMessage = 'Si è verificato un errore durante la registrazione.';
-        const errorMsg = error?.message || '';
-        
-        if (errorMsg.includes('already been registered') || errorMsg.includes('User already registered')) {
-            errorMessage = '⚠️ Questa email è già registrata.\n\nProva ad effettuare il login o usa "Password dimenticata".';
-            setTimeout(() => {
-                window.location.href = 'login.html?email=' + encodeURIComponent(formData.email);
-            }, 4000);
-        } else if (errorMsg.includes('Invalid email')) {
-            errorMessage = '❌ Formato email non valido.';
-        } else if (errorMsg.includes('Password')) {
-            errorMessage = '❌ Password non valida (minimo 8 caratteri).';
-        } else if (errorMsg.includes('profilo')) {
-            errorMessage = '❌ Errore nella creazione del profilo: ' + errorMsg;
-        } else if (errorMsg.includes('tessera')) {
-            errorMessage = '❌ Errore nella creazione della tessera: ' + errorMsg;
-        } else if (errorMsg.includes('policy') || errorMsg.includes('security')) {
-            errorMessage = '🔒 Errore di sicurezza database. Contatta il supporto.';
-        }
-        
-        showError(errorMessage);
-        
-    } finally {
-        if (registerButton) {
-            registerButton.disabled = false;
-            registerButton.innerHTML = '🚀 Completa Registrazione';
-        }
+        const errorMessage = getErrorMessage(error);
+        showMessage(errorMessage, 'error');
     }
 }
 
-// ================================
-// FUNZIONI UTILITY PER TESSERA
-// ================================
-
-async function generateNumeroTessera() {
-    try {
-        // Ottieni l'ultimo numero tessera
-        const { data, error } = await supabase
-            .from('tessere')
-            .select('numero_tessera')
-            .order('created_at', { ascending: false })
-            .limit(1);
-        
-        if (error) {
-            console.warn('Errore ricerca ultimo numero tessera:', error);
-            return 'TESS-' + Date.now().toString().slice(-6);
-        }
-        
-        if (data && data.length > 0) {
-            const ultimoNumero = data[0].numero_tessera;
-            const numeroMatch = ultimoNumero.match(/TESS-(\d+)/);
-            if (numeroMatch) {
-                const prossimoNumero = parseInt(numeroMatch[1]) + 1;
-                return 'TESS-' + prossimoNumero.toString().padStart(6, '0');
-            }
-        }
-        
-        // Primo numero tessera
-        return 'TESS-000001';
-        
-    } catch (error) {
-        console.warn('Errore generazione numero tessera:', error);
-        return 'TESS-' + Date.now().toString().slice(-6);
-    }
+function showRegistrationSuccess(numeroTessera) {
+    const container = document.querySelector('.glass-card');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="text-center">
+            <div class="text-6xl mb-6">🎉</div>
+            <h2 class="text-3xl font-black text-gray-800 mb-4">
+                Registrazione Completata!
+            </h2>
+            
+            <div class="glass-morphism rounded-2xl p-6 mb-6">
+                <h3 class="text-white font-bold mb-3">📧 Controlla la tua email</h3>
+                <p class="text-white text-sm mb-4">
+                    Ti abbiamo inviato un'email di conferma a:<br>
+                    <strong>${formData.email}</strong>
+                </p>
+                <p class="text-white text-sm">
+                    Clicca il link nell'email per attivare il tuo account e la tessera.
+                </p>
+            </div>
+            
+            <div class="glass-morphism rounded-2xl p-6 mb-6">
+                <h3 class="text-white font-bold mb-3">🎫 La tua tessera</h3>
+                <p class="text-white text-sm">
+                    Numero tessera: <strong>${numeroTessera}</strong><br>
+                    <span class="text-yellow-300">⏳ In attesa di attivazione</span>
+                </p>
+            </div>
+            
+            <div class="space-y-4">
+                <button onclick="window.location.reload()" class="btn-aurora w-full">
+                    🔄 Nuova Registrazione
+                </button>
+                <a href="/login.html" class="btn-aurora w-full block text-center" 
+                   style="background: rgba(255,255,255,0.2);">
+                    🔑 Vai al Login
+                </a>
+            </div>
+        </div>
+    `;
 }
 
-function getDataScadenza() {
-    const now = new Date();
-    const scadenza = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
-    return scadenza.toISOString().split('T')[0];
-}
-
-function validateBasicData() {
-    const required = ['nome', 'cognome', 'email', 'password', 'dataNascita', 'luogoNascita'];
+function getErrorMessage(error) {
+    const errorMessages = {
+        'User already registered': 'Email già registrata nel sistema',
+        'Invalid email': 'Email non valida',
+        'Password too short': 'Password troppo corta',
+        'Invalid credentials': 'Credenziali non valide',
+        'duplicate key value': 'Utente già esistente',
+        'connection timeout': 'Errore di connessione. Riprova.',
+        'network error': 'Errore di rete. Controlla la connessione.'
+    };
     
-    for (const field of required) {
-        if (!formData[field] || formData[field].trim() === '') {
-            console.error('❌ Campo obbligatorio mancante:', field);
-            showError(`Il campo "${field}" è obbligatorio per completare la registrazione`);
-            return false;
+    // Cerca messaggio specifico
+    for (const [key, message] of Object.entries(errorMessages)) {
+        if (error.message && error.message.toLowerCase().includes(key.toLowerCase())) {
+            return message;
         }
     }
     
-    if (!formData.privacyAccepted) {
-        console.error('❌ Privacy non accettata');
-        showError('Devi accettare i Termini e Condizioni per procedere con la registrazione');
+    return error.message || 'Errore durante la registrazione. Riprova.';
+}
+
+// ========================================
+// 🚀 INIZIALIZZAZIONE APP
+// ========================================
+
+function initializeApp() {
+    console.log('🚀 Inizializzazione app registrazione...');
+    
+    // Controlla dipendenze
+    if (!window.supabase) {
+        showMessage('Librerie mancanti. Ricarica la pagina.', 'error');
         return false;
     }
     
-    // Validazione email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-        showError('Inserisci un indirizzo email valido');
+    // Inizializza Supabase
+    if (!initializeSupabase()) {
+        showMessage('Errore di connessione. Ricarica la pagina.', 'error');
         return false;
     }
     
-    // Validazione password
-    if (!validatePassword(formData.password)) {
-        showError('La password deve contenere almeno 8 caratteri, inclusi maiuscole, minuscole e numeri');
-        return false;
-    }
+    // Binding eventi
+    bindEvents();
     
-    console.log('✅ Tutti i dati essenziali sono validi');
+    // Mostra primo step
+    showStep(1);
+    
+    console.log('✅ App inizializzata');
     return true;
 }
 
-// ================================
-// UTILITY FUNCTIONS
-// ================================
-
-function getElementValue(elementId) {
-    const element = document.getElementById(elementId);
-    return element ? element.value.trim() : '';
-}
-
-function showError(message) {
-    clearMessages();
-    const errorDiv = document.getElementById('errorMessage');
-    const errorText = document.getElementById('errorText');
+function bindEvents() {
+    // Auto-save su input blur
+    document.querySelectorAll('input, select, textarea').forEach(input => {
+        input.addEventListener('blur', collectCurrentStepData);
+    });
     
-    if (errorDiv && errorText) {
-        errorText.innerHTML = message.replace(/\n/g, '<br>');
-        errorDiv.classList.remove('hidden');
-        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    // Prevenzione submit form
+    const form = document.getElementById('registrationForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
     }
     
-    console.error('❌ Errore mostrato:', message);
-}
-
-function showSuccess(message) {
-    clearMessages();
-    const successDiv = document.getElementById('successMessage');
-    const successText = document.getElementById('successText');
+    // Gestione Enter key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            if (currentStep < CONFIG.TOTAL_STEPS) {
+                nextStep();
+            } else {
+                submitRegistration();
+            }
+        }
+    });
     
-    if (successDiv && successText) {
-        successText.innerHTML = message.replace(/\n/g, '<br>');
-        successDiv.classList.remove('hidden');
-        successDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
+    // Auto-save su visibilità pagina
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+            collectCurrentStepData();
+            console.log('💾 Auto-save prima di nascondere pagina');
+        }
+    });
     
-    console.log('✅ Successo mostrato:', message);
-}
-
-function clearMessages() {
-    const messages = ['errorMessage', 'successMessage', 'infoMessage'];
-    messages.forEach(messageId => {
-        const element = document.getElementById(messageId);
-        if (element) {
-            element.classList.add('hidden');
+    // Prevenzione perdita dati su refresh
+    window.addEventListener('beforeunload', (event) => {
+        if (Object.keys(formData).length > 0 && currentStep > 1) {
+            collectCurrentStepData();
+            event.preventDefault();
+            event.returnValue = 'Hai dati non salvati. Sei sicuro di voler uscire?';
+            return event.returnValue;
         }
     });
 }
 
-function showFieldError(fieldId, message) {
-    const errorDiv = document.getElementById(fieldId + 'Error');
-    const input = document.getElementById(fieldId);
-    
-    if (errorDiv) {
-        errorDiv.textContent = message;
-        errorDiv.classList.remove('hidden');
-    }
-    
-    if (input) {
-        input.classList.add('error');
-        input.classList.remove('valid');
-    }
-}
+// ========================================
+// 🌐 FUNZIONI GLOBALI (per HTML inline)
+// ========================================
 
-function clearFieldError(fieldId) {
-    const errorDiv = document.getElementById(fieldId + 'Error');
-    const input = document.getElementById(fieldId);
-    
-    if (errorDiv) {
-        errorDiv.classList.add('hidden');
-    }
-    
-    if (input) {
-        input.classList.remove('error');
-        input.classList.add('valid');
-    }
-}
-
-// ================================
-// FUNZIONI GLOBALI PER HTML
-// ================================
-
-// Esponi le funzioni necessarie a livello globale per l'HTML
+// Esporta funzioni per uso nel HTML
 window.nextStep = nextStep;
 window.prevStep = prevStep;
-window.goBack = goBack;
-window.togglePassword = togglePassword;
-window.handleRegistration = handleRegistration;
+window.submitRegistration = submitRegistration;
+
+// ========================================
+// 🚀 AVVIO AUTOMATICO
+// ========================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Piccolo delay per assicurarsi che tutto sia caricato
+    setTimeout(() => {
+        initializeApp();
+    }, 100);
+});
+
+// ========================================
+// 🔧 GESTIONE ERRORI GLOBALI
+// ========================================
+
+window.addEventListener('error', (event) => {
+    console.error('🚨 Errore JavaScript globale:', {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        error: event.error
+    });
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+    console.error('🚨 Promise rifiutata:', event.reason);
+});
+
+// ========================================
+// 📊 UTILITÀ DEBUG (solo sviluppo)
+// ========================================
+
+if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    // Funzioni debug disponibili solo in locale
+    window.debugFormData = () => {
+        console.log('🔍 Form Data:', formData);
+        return formData;
+    };
+    
+    window.debugStep = (step) => {
+        if (step) {
+            showStep(step);
+        }
+        console.log('🔍 Current Step:', currentStep);
+        return currentStep;
+    };
+    
+    window.debugSupabase = () => {
+        console.log('🔍 Supabase:', supabase);
+        return supabase;
+    };
+    
+    console.log('🔧 Debug functions available: debugFormData(), debugStep(), debugSupabase()');
+}
+
+// ========================================
+// 📝 EXPORT per TEST (se necessario)
+// ========================================
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        validateStep1,
+        validateStep2,
+        validateStep3,
+        getErrorMessage,
+        CONFIG
+    };
+}
