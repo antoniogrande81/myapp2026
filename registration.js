@@ -541,10 +541,10 @@ async function handleRegistration() {
         const userId = authData.user.id;
         console.log('✅ Utente Auth creato:', userId);
         
-        // 4. PASSO 2: Crea Profilo
-        console.log('👤 Step 2: Creazione profilo...');
+        // 4. PASSO 2-4: Crea Profilo, Log e Tessera con funzione sicura
+        console.log('👤 Step 2-4: Creazione profilo completo...');
+        
         const profileData = {
-            id: userId,
             nome: formData.nome,
             cognome: formData.cognome,
             email: formData.email,
@@ -568,72 +568,29 @@ async function handleRegistration() {
             newsletter_consent: formData.newsletterConsent
         };
         
-        const { data: profileResult, error: profileError } = await supabase
-            .from('profiles')
-            .insert(profileData)
-            .select()
-            .single();
-        
-        if (profileError) {
-            console.error('❌ Errore profilo:', profileError);
-            throw new Error(`Errore creazione profilo: ${profileError.message}`);
-        }
-        
-        console.log('✅ Profilo creato:', profileResult);
-        
-        // 5. PASSO 3: Crea Log Ruolo
-        console.log('📝 Step 3: Creazione log ruolo...');
-        const { error: logError } = await supabase
-            .from('ruoli_log')
-            .insert({
-                utente_id: userId,
-                ruolo_nuovo: 'USER',
-                motivo: 'Registrazione iniziale utente',
-                note: 'Ruolo assegnato automaticamente alla registrazione'
-            });
-        
-        if (logError) {
-            console.warn('⚠️ Errore log ruolo:', logError);
-            // Non blocchiamo per questo errore
-        } else {
-            console.log('✅ Log ruolo creato');
-        }
-        
-        // 6. PASSO 4: Crea Tessera
-        console.log('🎫 Step 4: Creazione tessera...');
-        const numeroTessera = await generateNumeroTessera();
-        const tesseraId = generateUUID();
-        
-        const tesseraData = {
-            id: tesseraId,
-            numero_tessera: numeroTessera,
-            nome: formData.nome,
-            cognome: formData.cognome,
-            data_nascita: formData.dataNascita,
-            luogo_nascita: formData.luogoNascita,
-            codice_fiscale: formData.codiceFiscale || null,
+        const tesseraQRData = {
             qr_code_data: JSON.stringify({
                 user_id: userId,
-                tessera_id: tesseraId,
-                numero: numeroTessera,
                 nome: formData.nome,
                 cognome: formData.cognome,
                 data_emissione: new Date().toISOString().split('T')[0]
             })
         };
         
-        const { data: tesseraResult, error: tesseraError } = await supabase
-            .from('tessere')
-            .insert(tesseraData)
-            .select()
-            .single();
+        const { data: result, error: functionError } = await supabase
+            .rpc('create_user_profile', {
+                user_id: userId,
+                profile_data: profileData,
+                tessera_data: tesseraQRData
+            });
         
-        if (tesseraError) {
-            console.error('❌ Errore tessera:', tesseraError);
-            throw new Error(`Errore creazione tessera: ${tesseraError.message}`);
+        if (functionError || !result?.success) {
+            console.error('❌ Errore funzione registrazione:', functionError || result);
+            throw new Error(`Errore creazione profilo completo: ${functionError?.message || result?.error}`);
         }
         
-        console.log('✅ Tessera creata:', tesseraResult);
+        console.log('✅ Profilo completo creato:', result);
+        const numeroTessera = result.tessera?.numero_tessera;
         
         // 7. SUCCESSO COMPLETO
         showSuccess(`🎉 Registrazione completata con successo!
