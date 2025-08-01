@@ -168,18 +168,13 @@
       document.getElementById('loadingState').style.display = 'block';
 
       try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const accessToken = urlParams.get('access_token');
+        const { data, error } = await supabase.auth.exchangeCodeForSession();
 
-        if (accessToken) {
-          const { data, error } = await supabase.auth.getSession();
-          if (error || !data.session) {
-            showError();
-          } else {
-            showSuccess();
-          }
-        } else {
+        if (error || !data.session) {
+          console.error("Errore nella conferma:", error);
           showError();
+        } else {
+          showSuccess();
         }
       } catch (e) {
         console.error('Errore generale:', e);
