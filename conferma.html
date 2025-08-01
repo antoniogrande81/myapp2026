@@ -1,241 +1,202 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Confermato - MyApp</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        :root {
-            --gradient-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #e94560 75%, #00d4ff 100%);
-            --gradient-magic: linear-gradient(135deg, #ff006e 0%, #e94560 50%, #03dac6 100%);
-            --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.2);
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conferma Account - MyApp</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --gradient-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #e94560 75%, #00d4ff 100%);
+      --gradient-magic: linear-gradient(135deg, #ff006e 0%, #e94560 50%, #03dac6 100%);
+      --shadow-card: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
 
-        body {
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            text-align: center;
-            background: var(--gradient-bg);
-            background-size: 400% 400%;
-            animation: gradientShift 20s ease infinite;
-            color: white;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+    body {
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+      background: var(--gradient-bg);
+      background-size: 400% 400%;
+      animation: gradientShift 20s ease infinite;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
 
-        .card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #1C1C1E;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: var(--shadow-card);
-            width: 100%;
-        }
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #1C1C1E;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: var(--shadow-card);
+      width: 100%;
+      max-width: 500px;
+    }
 
-        .logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #e94560, #00d4ff);
-            border-radius: 20px;
-            margin: 0 auto 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-        }
+    .logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #e94560, #00d4ff);
+      border-radius: 20px;
+      margin: 0 auto 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+    }
 
-        h1 {
-            color: #1a1a2e;
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
+    h1 {
+      color: #1a1a2e;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
 
-        p {
-            color: #6b7280;
-            font-size: 1rem;
-            margin-bottom: 0.5rem;
-        }
+    p {
+      color: #6b7280;
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
 
-        .success-icon {
-            font-size: 4rem;
-            color: #10b981;
-            margin-bottom: 20px;
-        }
+    .success-icon {
+      font-size: 4rem;
+      color: #10b981;
+      margin-bottom: 20px;
+    }
 
-        .loading-icon {
-            font-size: 4rem;
-            color: #f59e0b;
-            margin-bottom: 20px;
-            animation: pulse 1.5s infinite ease-in-out;
-        }
+    .loading-icon {
+      font-size: 4rem;
+      color: #f59e0b;
+      margin-bottom: 20px;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+    .error-icon {
+      font-size: 4rem;
+      color: #ef4444;
+      margin-bottom: 20px;
+    }
 
-        .error-icon {
-            font-size: 4rem;
-            color: #ef4444;
-            margin-bottom: 20px;
-        }
+    .button {
+      display: inline-block;
+      padding: 1rem 2rem;
+      background: var(--gradient-magic);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+      border: 2px solid rgba(233, 69, 96, 0.3);
+    }
 
-        .button {
-            display: inline-block;
-            padding: 1rem 2rem;
-            background: var(--gradient-magic);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-            border: 2px solid rgba(233, 69, 96, 0.3);
-        }
+    .button:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 20px 40px rgba(233, 69, 96, 0.4);
+      border-color: rgba(233, 69, 96, 0.8);
+    }
 
-        .button:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 20px 40px rgba(233, 69, 96, 0.4);
-            border-color: rgba(233, 69, 96, 0.8);
-        }
-
-        /* Stati */
-        #loadingState, #errorState {
-            display: none;
-        }
-    </style>
+    #loadingState, #errorState {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-    <div class="card">
-        <!-- Stato di caricamento -->
-        <div id="loadingState">
-            <div class="loading-icon">⏳</div>
-            <h1>Conferma Account in Corso...</h1>
-            <p>Stiamo confermando il tuo account, attendere...</p>
-        </div>
-
-        <!-- Stato di successo -->
-        <div id="successState">
-            <div class="logo">🔐</div>
-            <div class="success-icon">✅</div>
-            <h1>Account Confermato!</h1>
-            <p>Il tuo account è stato confermato con successo.</p>
-            <p>Ora puoi effettuare il login e iniziare a utilizzare tutti i servizi.</p>
-            <a href="login.html?confirmed=true" class="button">Vai al Login</a>
-        </div>
-
-        <!-- Stato di errore -->
-        <div id="errorState">
-            <div class="error-icon">❌</div>
-            <h1>Errore Conferma</h1>
-            <p>Si è verificato un errore durante la conferma dell'account.</p>
-            <a href="login.html" class="button">Vai al Login</a>
-        </div>
+  <div class="card">
+    <!-- Stato di caricamento -->
+    <div id="loadingState">
+      <div class="loading-icon">⏳</div>
+      <h1>Conferma Account in Corso...</h1>
+      <p>Stiamo confermando il tuo account, attendere...</p>
     </div>
 
-    <script>
-        // Configurazione Supabase
-        const SUPABASE_URL = 'https://lycrgzptkdkksukcwrld.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
-        
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <!-- Stato di successo -->
+    <div id="successState">
+      <div class="logo">🔐</div>
+      <div class="success-icon">✅</div>
+      <h1>Account Confermato!</h1>
+      <p>Il tuo account è stato confermato con successo.</p>
+      <p>Ora puoi effettuare il login e iniziare a utilizzare tutti i servizi.</p>
+      <a href="login.html?confirmed=true" class="button">Vai al Login</a>
+    </div>
 
-        // Mostra solo lo stato di caricamento inizialmente
-        document.getElementById('loadingState').style.display = 'block';
-        document.getElementById('successState').style.display = 'none';
-        document.getElementById('errorState').style.display = 'none';
+    <!-- Stato di errore -->
+    <div id="errorState">
+      <div class="error-icon">❌</div>
+      <h1>Errore Conferma</h1>
+      <p>Si è verificato un errore durante la conferma dell'account.</p>
+      <a href="login.html" class="button">Vai al Login</a>
+    </div>
+  </div>
 
-        async function handleEmailConfirmation() {
-            try {
-                console.log('🔍 Controllo parametri URL...');
-                const urlParams = new URLSearchParams(window.location.search);
-                
-                // Controlla prima i token diretti
-                const accessToken = urlParams.get('access_token');
-                const refreshToken = urlParams.get('refresh_token');
-                
-                // Poi controlla il token hash
-                const tokenHash = urlParams.get('token_hash');
-                const type = urlParams.get('type');
+  <script>
+    const SUPABASE_URL = 'https://lycrgzptkdkksukcwrld.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-                console.log('Token hash:', tokenHash);
-                console.log('Type:', type);
-                console.log('Access token:', accessToken ? 'presente' : 'non presente');
+    function showSuccess() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('successState').style.display = 'block';
+      document.getElementById('errorState').style.display = 'none';
+      setTimeout(() => {
+        window.location.href = 'login.html?confirmed=true';
+      }, 5000);
+    }
 
-                // Se ci sono token diretti, imposta la sessione
-                if (accessToken && refreshToken) {
-                    console.log('✅ Token di accesso trovati, imposto sessione...');
-                    
-                    await supabase.auth.setSession({
-                        access_token: accessToken,
-                        refresh_token: refreshToken
-                    });
-                    
-                    console.log('✅ Sessione impostata con successo');
-                    showSuccess();
-                    
-                // Altrimenti, verifica con token_hash
-                } else if (tokenHash && type === 'signup') {
-                    console.log('✅ Parametri di conferma trovati, confermo...');
-                    
-                    const { data, error } = await supabase.auth.verifyOtp({
-                        token_hash: tokenHash,
-                        type: 'signup'
-                    });
+    function showError() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('successState').style.display = 'none';
+      document.getElementById('errorState').style.display = 'block';
+    }
 
-                    if (error) {
-                        console.error('❌ Errore conferma:', error);
-                        showError();
-                    } else {
-                        console.log('✅ Account confermato:', data);
-                        showSuccess();
-                    }
-                } else {
-                    console.log('⚠️ Parametri di conferma mancanti');
-                    // Mostra comunque successo per UX migliore
-                    showSuccess();
-                }
-            } catch (error) {
-                console.error('❌ Errore generale:', error);
-                showError();
-            }
+    async function handleEmailConfirmation() {
+      document.getElementById('loadingState').style.display = 'block';
+
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const accessToken = urlParams.get('access_token');
+        const refreshToken = urlParams.get('refresh_token');
+        const tokenHash = urlParams.get('token_hash');
+        const type = urlParams.get('type');
+
+        if (accessToken && refreshToken) {
+          await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          showSuccess();
+        } else if (tokenHash && type && ['signup', 'email_change'].includes(type)) {
+          const { data, error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type });
+          if (error) {
+            showError();
+          } else {
+            showSuccess();
+          }
+        } else {
+          showError();
         }
+      } catch (e) {
+        console.error('Errore generale:', e);
+        showError();
+      }
+    }
 
-        function showSuccess() {
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('successState').style.display = 'block';
-            document.getElementById('errorState').style.display = 'none';
-            
-            // Reindirizza dopo 5 secondi
-            setTimeout(() => {
-                window.location.href = 'login.html?confirmed=true';
-            }, 5000);
-        }
-
-        function showError() {
-            document.getElementById('loadingState').style.display = 'none';
-            document.getElementById('successState').style.display = 'none';
-            document.getElementById('errorState').style.display = 'block';
-        }
-
-        // Avvia la conferma quando la pagina si carica
-        document.addEventListener('DOMContentLoaded', handleEmailConfirmation);
-    </script>
+    document.addEventListener('DOMContentLoaded', handleEmailConfirmation);
+  </script>
 </body>
 </html>
