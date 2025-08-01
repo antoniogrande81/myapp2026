@@ -467,35 +467,53 @@
             fallbackRedirect: 'app/home.html'
         };
 
-        // 🚨 INIZIALIZZAZIONE SUPABASE CON GESTIONE ERRORI
+        // 🚨 INIZIALIZZAZIONE SUPABASE CON GESTIONE ERRORI AVANZATA
         let supabaseClient = null;
         
         try {
             if (typeof supabase !== 'undefined' && supabase.createClient) {
                 const { createClient } = supabase;
-                supabaseClient = createClient(APP_CONFIG.supabaseUrl, APP_CONFIG.supabaseKey);
-                console.log('✅ Supabase inizializzato');
+                
+                // 🔧 CONFIGURAZIONE SUPABASE MIGLIORATA
+                supabaseClient = createClient(APP_CONFIG.supabaseUrl, APP_CONFIG.supabaseKey, {
+                    auth: {
+                        persistSession: true,
+                        autoRefreshToken: true,
+                        detectSessionInUrl: true,
+                        flowType: 'pkce'
+                    }
+                });
+                console.log('✅ Supabase inizializzato con configurazione avanzata');
                 
                 // 🚨 GESTIONE ERRORI AUTH IMMEDIATA
                 supabaseClient.auth.onAuthStateChange((event, session) => {
-                    console.log('🔄 Auth Event:', event);
+                    console.log('🔄 Auth Event:', event, session ? 'con sessione' : 'senza sessione');
                     
-                    if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
-                        console.log('🧹 Pulizia auth e reload...');
+                    if (event === 'SIGNED_OUT') {
+                        console.log('👋 Utente disconnesso');
+                    } else if (event === 'TOKEN_REFRESHED' && !session) {
+                        console.log('🧹 Token refresh fallito, pulizia...');
                         localStorage.clear();
                         sessionStorage.clear();
                         setTimeout(() => location.reload(), 500);
+                    } else if (event === 'SIGNED_IN' && session) {
+                        console.log('🎉 Utente connesso:', session.user.email);
                     }
                 });
 
-                // 🚨 GESTIONE ERRORI REFRESH TOKEN
-                supabaseClient.auth.getSession().catch(error => {
-                    if (error.message && error.message.includes('Invalid Refresh Token')) {
-                        console.log('🧹 Token non valido rilevato, pulizia in corso...');
-                        localStorage.clear();
-                        sessionStorage.clear();
-                        location.reload();
+                // 🚨 PULIZIA SESSIONE INIZIALE SE CORROTTA
+                supabaseClient.auth.getSession().then(({ data, error }) => {
+                    if (error) {
+                        console.warn('⚠️ Sessione corrotta rilevata:', error.message);
+                        if (error.message.includes('Invalid') || error.message.includes('expired')) {
+                            console.log('🧹 Pulizia sessione corrotta...');
+                            supabaseClient.auth.signOut({ scope: 'local' });
+                        }
+                    } else if (data.session) {
+                        console.log('✅ Sessione valida trovata per:', data.session.user.email);
                     }
+                }).catch(error => {
+                    console.warn('⚠️ Errore controllo sessione:', error);
                 });
                 
             }
@@ -649,6 +667,7 @@
                     const email = document.getElementById('email').value.trim();
                     const password = document.getElementById('password').value;
                     
+                    // 🔧 VALIDAZIONI MIGLIORATE
                     if (!email || !password) {
                         throw new Error('Inserisci email e password');
                     }
@@ -658,20 +677,40 @@
                     }
                     
                     if (password.length < 6) {
-                        throw new Error('Password troppo corta');
+                        throw new Error('Password troppo corta (minimo 6 caratteri)');
                     }
                     
+                    console.log('🔐 Tentativo login per:', email);
+                    
+                    // 🚨 LOGOUT FORZATO PRIMA DEL LOGIN
+                    try {
+                        await supabaseClient.auth.signOut({ scope: 'local' });
+                        console.log('🧹 Sessione precedente pulita');
+                    } catch (e) {
+                        console.log('⚠️ Nessuna sessione da pulire');
+                    }
+                    
+                    // 🔐 TENTATIVO LOGIN
                     const { data, error } = await supabaseClient.auth.signInWithPassword({
-                        email,
-                        password
+                        email: email.toLowerCase().trim(),
+                        password: password
                     });
                     
-                    if (error) throw error;
+                    if (error) {
+                        console.error('❌ Errore login:', error);
+                        throw error;
+                    }
                     
                     if (data?.user) {
                         Utils.showMessage('✅ Accesso riuscito!', 'success');
                         
                         console.log('🎉 Login successful per:', data.user.email);
+                        console.log('📋 Dati utente:', {
+                            id: data.user.id,
+                            email: data.user.email,
+                            email_confirmed: data.user.email_confirmed_at ? 'Sì' : 'No',
+                            last_sign_in: data.user.last_sign_in_at
+                        });
                         
                         // Carica il profilo utente
                         const userProfile = await AuthManager.getUserRole(data.user.id);
@@ -682,17 +721,25 @@
                         console.log('🚀 Reindirizzamento a:', redirectUrl);
                         
                         Utils.safeRedirect(redirectUrl, 2000);
+                    } else {
+                        throw new Error('Dati di login non validi');
                     }
                     
                 } catch (error) {
+                    console.error('❌ Errore handleLogin:', error);
+                    
                     let errorMessage = '❌ Errore di accesso';
                     
                     if (error.message.includes('Invalid login credentials')) {
                         errorMessage = '❌ Email o password errati';
                     } else if (error.message.includes('Email not confirmed')) {
-                        errorMessage = '📧 Conferma prima la tua email';
+                        errorMessage = '📧 Devi confermare la tua email prima di accedere';
                     } else if (error.message.includes('Too many requests')) {
-                        errorMessage = '⏰ Troppi tentativi. Riprova più tardi';
+                        errorMessage = '⏰ Troppi tentativi. Riprova tra 5 minuti';
+                    } else if (error.message.includes('Network')) {
+                        errorMessage = '📡 Problema di connessione. Controlla internet';
+                    } else if (error.message.includes('User not found')) {
+                        errorMessage = '👤 Utente non trovato. Verifica l\'email';
                     } else if (error.message) {
                         errorMessage = `❌ ${error.message}`;
                     }
