@@ -522,11 +522,14 @@ async function handleRegistration() {
         
         console.log('📋 Dati da registrare:', formData);
         
-        // 3. PASSO 1: Registrazione Auth
+        // 3. PASSO 1: Registrazione Auth (con redirect URL corretto)
         console.log('🔐 Step 1: Registrazione Auth...');
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: formData.email,
-            password: formData.password
+            password: formData.password,
+            options: {
+                emailRedirectTo: `${window.location.origin}/conferma.html`
+            }
         });
         
         if (authError) {
@@ -802,43 +805,43 @@ function showSuccess(message) {
     }
     
     console.log('✅ Successo mostrato:', message);
-}
+    }
 
 function clearMessages() {
-    const messages = ['errorMessage', 'successMessage', 'infoMessage'];
-    messages.forEach(messageId => {
-        const element = document.getElementById(messageId);
-        if (element) {
-            element.classList.add('hidden');
-        }
-    });
+   const messages = ['errorMessage', 'successMessage', 'infoMessage'];
+   messages.forEach(messageId => {
+       const element = document.getElementById(messageId);
+       if (element) {
+           element.classList.add('hidden');
+       }
+   });
 }
 
 function showFieldError(fieldId, message) {
-    const errorDiv = document.getElementById(fieldId + 'Error');
-    const input = document.getElementById(fieldId);
-    
-    if (errorDiv) {
-        errorDiv.textContent = message;
-        errorDiv.classList.remove('hidden');
-    }
-    
-    if (input) {
-        input.classList.add('error');
-        input.classList.remove('valid');
-    }
+   const errorDiv = document.getElementById(fieldId + 'Error');
+   const input = document.getElementById(fieldId);
+   
+   if (errorDiv) {
+       errorDiv.textContent = message;
+       errorDiv.classList.remove('hidden');
+   }
+   
+   if (input) {
+       input.classList.add('error');
+       input.classList.remove('valid');
+   }
 }
 
 function clearFieldError(fieldId) {
-    const errorDiv = document.getElementById(fieldId + 'Error');
-    const input = document.getElementById(fieldId);
-    
-    if (errorDiv) {
-        errorDiv.classList.add('hidden');
-    }
-    
-    if (input) {
-        input.classList.remove('error');
-        input.classList.add('valid');
-    }
+   const errorDiv = document.getElementById(fieldId + 'Error');
+   const input = document.getElementById(fieldId);
+   
+   if (errorDiv) {
+       errorDiv.classList.add('hidden');
+   }
+   
+   if (input) {
+       input.classList.remove('error');
+       input.classList.add('valid');
+   }
 }
