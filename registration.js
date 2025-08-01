@@ -11,7 +11,7 @@
 const CONFIG = {
     // Supabase (aggiorna con i tuoi dati)
     SUPABASE_URL: 'https://lycrgzptkdkksukcwrld.supabase.co',
-    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQxMDQwNjYsImV4cCI6MjA0OTY4MDA2Nn0.cU73nwcSrPMu88dHKZf3LpQwKD6yTcWLiWWL2eLNMhU',
+    SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk',
     
     // Validazione
     MIN_PASSWORD_LENGTH: 8,
