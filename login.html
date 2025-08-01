@@ -388,6 +388,16 @@
         
         <div id="messages"></div>
         
+        <!-- 🔍 DEBUG PANEL -->
+        <div id="debugPanel" style="background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 8px; padding: 15px; margin-bottom: 20px; font-family: monospace; font-size: 12px;">
+            <h3 style="margin: 0 0 10px 0; color: #0369a1;">🔍 Debug Supabase</h3>
+            <div id="debugOutput">Caricamento debug...</div>
+            <div style="margin-top: 10px;">
+                <input type="email" id="debugEmail" placeholder="tuaemail@gmail.com" style="padding: 5px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                <button onclick="testEmailRegistration()" style="background: #0ea5e9; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Test Email</button>
+            </div>
+        </div>
+        
         <form id="loginForm">
             <!-- EMAIL SEMPLIFICATO -->
             <div class="form-group">
@@ -484,6 +494,177 @@
                     }
                 });
                 console.log('✅ Supabase inizializzato con configurazione avanzata');
+                
+                // 🔍 SCRIPT DEBUG EMAIL SUPABASE
+                const debugSupabaseConfig = async () => {
+                  try {
+                    console.log('🔍 SUPABASE EMAIL DEBUG ATTIVO');
+                    console.log('📋 CONFIGURAZIONE:');
+                    console.log('- URL:', APP_CONFIG.supabaseUrl);
+                    console.log('- Key:', APP_CONFIG.supabaseKey.substring(0, 20) + '...');
+                    
+                    // Funzione test registrazione
+                    window.testEmailRegistration = async (testEmail) => {
+                      console.log('🧪 TEST REGISTRAZIONE EMAIL:', testEmail);
+                      
+                      try {
+                        const { data, error } = await supabaseClient.auth.signUp({
+                          email: testEmail,
+                          password: 'Test123456!',
+                          options: {
+                            emailRedirectTo: `${window.location.origin}/login.html?confirmed=true`
+                          }
+                        });
+                        
+                        if (error) {
+                          console.error('❌ ERRORE REGISTRAZIONE:', error);
+                          console.log('🔍 DETTAGLI ERRORE:', {
+                            message: error.message,
+                            status: error.status,
+                            statusText: error.statusText
+                          });
+                          return;
+                        }
+                        
+                        console.log('✅ REGISTRAZIONE RIUSCITA:', {
+                          user: data.user ? {
+                            id: data.user.id,
+                            email: data.user.email,
+                            email_confirmed_at: data.user.email_confirmed_at,
+                            confirmation_sent_at: data.user.confirmation_sent_at,
+                            created_at: data.user.created_at
+                          } : 'No user data',
+                          session: data.session ? 'Sessione creata' : 'Nessuna sessione (normale per email confirmation)'
+                        });
+                        
+                        if (!data.session && data.user && !data.user.email_confirmed_at) {
+                          console.log('📧 EMAIL CONFERMA RICHIESTA - Controlla:');
+                          console.log('- Casella email:', testEmail);
+                          console.log('- Cartella spam/promozioni');
+                          console.log('- Tempo limite: 24 ore');
+                          console.log('- Provider email: Default Supabase (max 3/ora)');
+                        }
+                        
+                      } catch (error) {
+                        console.error('💥 ERRORE INASPETTATO:', error);
+                      }
+                    };
+                    
+                    // Funzione reinvio email
+                    window.resendConfirmationEmail = async (email) => {
+                      console.log('📧 REINVIO EMAIL CONFERMA:', email);
+                      
+                      try {
+                        const { error } = await supabaseClient.auth.resend({
+                          type: 'signup',
+                          email: email,
+                          options: {
+                            emailRedirectTo: `${window.location.origin}/login.html?confirmed=true`
+                          }
+                        });
+                        
+                        if (error) {
+                          console.error('❌ ERRORE REINVIO:', error);
+                          return;
+                        }
+                        
+                        console.log('✅ EMAIL REINVIATA CON SUCCESSO');
+                        
+                      } catch (error) {
+                        console.error('💥 ERRORE REINVIO:', error);
+                      }
+                    };
+                    
+                    console.log('🛠️ FUNZIONI DEBUG DISPONIBILI:');
+                    console.log('- testEmailRegistration("tuaemail@gmail.com")');
+                    console.log('- resendConfirmationEmail("tuaemail@gmail.com")');
+                    
+                  } catch (error) {
+                    console.error('❌ Errore debug config:', error);
+                  }
+                };
+                
+                // Esegui debug
+                setTimeout(debugSupabaseConfig, 1000);
+                
+                // 🔍 FUNZIONE TEST EMAIL GLOBALE
+                window.testEmailRegistration = async () => {
+                    const email = document.getElementById('debugEmail').value;
+                    const output = document.getElementById('debugOutput');
+                    
+                    if (!email) {
+                        output.innerHTML = '❌ Inserisci una email per il test';
+                        return;
+                    }
+                    
+                    output.innerHTML = `🧪 Testing registrazione per: ${email}...`;
+                    
+                    try {
+                        const { data, error } = await supabaseClient.auth.signUp({
+                            email: email,
+                            password: 'Test123456!',
+                            options: {
+                                emailRedirectTo: `${window.location.origin}/login.html?confirmed=true`
+                            }
+                        });
+                        
+                        if (error) {
+                            let errorMsg = `❌ ERRORE: ${error.message}<br>`;
+                            
+                            if (error.message.includes('rate limit')) {
+                                errorMsg += '💡 CAUSA: Limite email raggiunto (3/ora)<br>';
+                                errorMsg += '🔧 SOLUZIONE: Aspetta 1 ora o configura SMTP custom';
+                            } else if (error.message.includes('already registered')) {
+                                errorMsg += '💡 CAUSA: Utente già esistente<br>';
+                                errorMsg += '🔧 SOLUZIONE: Prova a fare login invece';
+                            } else if (error.message.includes('Invalid email')) {
+                                errorMsg += '💡 CAUSA: Email non valida<br>';
+                                errorMsg += '🔧 SOLUZIONE: Controlla formato email';
+                            } else if (error.message.includes('Signup is disabled')) {
+                                errorMsg += '💡 CAUSA: Registrazione disabilitata<br>';
+                                errorMsg += '🔧 SOLUZIONE: Abilita signup nel dashboard Supabase';
+                            }
+                            
+                            output.innerHTML = errorMsg;
+                        } else {
+                            let successMsg = `✅ REGISTRAZIONE RIUSCITA!<br>`;
+                            successMsg += `👤 User ID: ${data.user?.id}<br>`;
+                            successMsg += `📧 Email: ${data.user?.email}<br>`;
+                            successMsg += `✉️ Email confermata: ${data.user?.email_confirmed_at ? 'Sì' : 'No'}<br>`;
+                            successMsg += `📅 Creato: ${data.user?.created_at}<br><br>`;
+                            
+                            if (!data.user?.email_confirmed_at) {
+                                successMsg += `📬 PROSSIMI PASSI:<br>`;
+                                successMsg += `1. Controlla casella email: ${email}<br>`;
+                                successMsg += `2. Controlla cartella SPAM/Promozioni<br>`;
+                                successMsg += `3. Provider: Default Supabase (max 3/ora)<br>`;
+                                successMsg += `4. Link scade in 24 ore<br>`;
+                                successMsg += `<br>⚠️ Se non arriva email = problema provider/configurazione`;
+                            }
+                            
+                            output.innerHTML = successMsg;
+                        }
+                    } catch (unexpectedError) {
+                        output.innerHTML = `💥 ERRORE INASPETTATO: ${unexpectedError.message}`;
+                    }
+                };
+                
+                // 🔍 DEBUG INFO INIZIALE
+                const updateDebugInfo = () => {
+                    const output = document.getElementById('debugOutput');
+                    if (output) {
+                        let info = `📋 CONFIGURAZIONE SUPABASE:<br>`;
+                        info += `- Client: ${supabaseClient ? '✅ OK' : '❌ Errore'}<br>`;
+                        info += `- URL: ${APP_CONFIG.supabaseUrl}<br>`;
+                        info += `- Key: ${APP_CONFIG.supabaseKey.substring(0, 30)}...<br>`;
+                        info += `- Origin: ${window.location.origin}<br><br>`;
+                        info += `🧪 Inserisci email sopra e clicca "Test Email"`;
+                        
+                        output.innerHTML = info;
+                    }
+                };
+                
+                setTimeout(updateDebugInfo, 2000);
                 
                 // 🚨 GESTIONE ERRORI AUTH IMMEDIATA
                 supabaseClient.auth.onAuthStateChange((event, session) => {
