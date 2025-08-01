@@ -488,7 +488,7 @@ function saveCurrentStepData() {
         case 3:
             formData.password = getElementValue('password');
             break;
-        case 4:
+            case 4:
             formData.privacyAccepted = document.getElementById('privacyAccept')?.checked || false;
             formData.marketingConsent = document.getElementById('marketingAccept')?.checked || false;
             formData.newsletterConsent = document.getElementById('newsletterAccept')?.checked || false;
@@ -499,11 +499,11 @@ function saveCurrentStepData() {
 }
 
 // ================================
-// NUOVA GESTIONE REGISTRAZIONE COMPLETA
+// NUOVA GESTIONE REGISTRAZIONE SEMPLIFICATA (SOLO AUTH)
 // ================================
 
 async function handleRegistration() {
-    console.log('🚀 Inizio registrazione completa...');
+    console.log('🚀 Inizio registrazione (solo auth)...');
     
     const registerButton = document.getElementById('registerBtn');
     if (registerButton) {
@@ -515,20 +515,43 @@ async function handleRegistration() {
         // 1. Salva dati ultimo step
         saveCurrentStepData();
         
-        // 2. Verifica dati completi
-        if (!validateAllData()) {
-            throw new Error('Dati incompleti');
+        // 2. Verifica dati essenziali
+        if (!validateBasicData()) {
+            throw new Error('Dati essenziali mancanti');
         }
         
         console.log('📋 Dati da registrare:', formData);
         
-        // 3. PASSO 1: Registrazione Auth (con redirect URL corretto)
-        console.log('🔐 Step 1: Registrazione Auth...');
+        // 3. SOLO REGISTRAZIONE AUTH con metadata completi
+        console.log('🔐 Registrazione Auth con metadata...');
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: formData.email,
             password: formData.password,
             options: {
-                emailRedirectTo: `${window.location.origin}/conferma.html`
+                emailRedirectTo: `${window.location.origin}/conferma.html`,
+                data: {
+                    // Tutti i dati nel metadata per il recupero in conferma.html
+                    nome: formData.nome,
+                    cognome: formData.cognome,
+                    dataNascita: formData.dataNascita,
+                    luogoNascita: formData.luogoNascita,
+                    codiceFiscale: formData.codiceFiscale || '',
+                    telefono: formData.telefono || '',
+                    telefonoEmergenza: formData.telefonoEmergenza || '',
+                    indirizzoVia: formData.indirizzoVia || '',
+                    indirizzoCivico: formData.indirizzoCivico || '',
+                    indirizzoCap: formData.indirizzoCap || '',
+                    indirizzoCitta: formData.indirizzoCitta || '',
+                    indirizzoProvincia: formData.indirizzoProvincia || '',
+                    indirizzoRegione: formData.indirizzoRegione || '',
+                    professione: formData.professione || '',
+                    titoloStudio: formData.titoloStudio || '',
+                    emailSecondaria: formData.emailSecondaria || '',
+                    sitoWeb: formData.sitoWeb || '',
+                    privacyAccepted: formData.privacyAccepted,
+                    marketingConsent: formData.marketingConsent || false,
+                    newsletterConsent: formData.newsletterConsent || false
+                }
             }
         });
         
@@ -541,136 +564,28 @@ async function handleRegistration() {
             throw new Error('Utente non creato');
         }
         
-        const userId = authData.user.id;
-        console.log('✅ Utente Auth creato:', userId);
+        console.log('✅ Utente Auth creato:', authData.user.id);
         
-        // 4. PASSO 2: Crea Profilo (approccio diretto)
-        console.log('👤 Step 2: Creazione profilo...');
-        const { data: profileResult, error: profileError } = await supabase
-            .from('profiles')
-            .insert({
-                id: userId,
-                nome: formData.nome,
-                cognome: formData.cognome,
-                email: formData.email,
-                data_nascita: formData.dataNascita,
-                luogo_nascita: formData.luogoNascita,
-                codice_fiscale: formData.codiceFiscale || null,
-                telefono: formData.telefono || null,
-                telefono_emergenza: formData.telefonoEmergenza || null,
-                indirizzo_via: formData.indirizzoVia || null,
-                indirizzo_civico: formData.indirizzoCivico || null,
-                indirizzo_cap: formData.indirizzoCap || null,
-                indirizzo_citta: formData.indirizzoCitta || null,
-                indirizzo_provincia: formData.indirizzoProvincia || null,
-                indirizzo_regione: formData.indirizzoRegione || null,
-                professione: formData.professione || null,
-                titolo_studio: formData.titoloStudio || null,
-                email_secondaria: formData.emailSecondaria || null,
-                sito_web: formData.sitoWeb || null,
-                privacy_accepted: formData.privacyAccepted,
-                marketing_consent: formData.marketingConsent || false,
-                newsletter_consent: formData.newsletterConsent || false
-            })
-            .select()
-            .single();
-        
-        if (profileError) {
-            console.error('❌ Errore profilo:', profileError);
-            throw new Error(`Errore creazione profilo: ${profileError.message}`);
-        }
-        
-        console.log('✅ Profilo creato:', profileResult);
-        
-        // 5. PASSO 3: Crea Log Ruolo
-        console.log('📝 Step 3: Creazione log ruolo...');
-        const { error: logError } = await supabase
-            .from('ruoli_log')
-            .insert({
-                utente_id: userId,
-                ruolo_nuovo: 'USER',
-                motivo: 'Registrazione iniziale utente',
-                note: 'Ruolo assegnato automaticamente alla registrazione'
-            });
-        
-        if (logError) {
-            console.warn('⚠️ Errore log ruolo:', logError);
-            // Non blocchiamo per questo errore
-        } else {
-            console.log('✅ Log ruolo creato');
-        }
-        
-        // 6. PASSO 4: Crea Tessera (semplificata)
-        console.log('🎫 Step 4: Creazione tessera...');
-        const numeroTessera = 'TESS' + Date.now().toString().slice(-6); // Numero semplice basato su timestamp
-        
-        const { data: tesseraResult, error: tesseraError } = await supabase
-            .from('tessere')
-            .insert({
-                // NON mettere ID se c'è un foreign key constraint
-                numero_tessera: numeroTessera,
-                nome: formData.nome,
-                cognome: formData.cognome,
-                data_nascita: formData.dataNascita,
-                luogo_nascita: formData.luogoNascita,
-                codice_fiscale: formData.codiceFiscale || null,
-                qr_code_data: JSON.stringify({
-                    user_id: userId,
-                    numero: numeroTessera,
-                    nome: formData.nome,
-                    cognome: formData.cognome,
-                    data_emissione: new Date().toISOString().split('T')[0]
-                })
-            })
-            .select()
-            .single();
-        
-        if (tesseraError) {
-            console.error('❌ Errore tessera:', tesseraError);
-            // Proviamo senza il campo ID
-            console.log('🔄 Tentativo tessera senza ID...');
-            const { data: tesseraResult2, error: tesseraError2 } = await supabase
-                .from('tessere')
-                .insert({
-                    numero_tessera: numeroTessera,
-                    nome: formData.nome,
-                    cognome: formData.cognome,
-                    data_nascita: formData.dataNascita,
-                    luogo_nascita: formData.luogoNascita,
-                    qr_code_data: JSON.stringify({
-                        user_id: userId,
-                        numero: numeroTessera,
-                        nome: formData.nome,
-                        cognome: formData.cognome
-                    })
-                })
-                .select()
-                .single();
-            
-            if (tesseraError2) {
-                console.error('❌ Errore tessera 2:', tesseraError2);
-                throw new Error(`Errore creazione tessera: ${tesseraError2.message}`);
-            }
-            console.log('✅ Tessera creata (secondo tentativo):', tesseraResult2);
-        } else {
-            console.log('✅ Tessera creata:', tesseraResult);
-        }
-        
-        // 7. SUCCESSO COMPLETO
-        showSuccess(`🎉 Registrazione completata con successo!
+        // 4. SUCCESSO! - Il resto lo farà conferma.html
+        showSuccess(`🎉 Registrazione completata!
 
-✅ Account creato e configurato
-✅ Profilo utente completo
-✅ Tessera ${numeroTessera} generata
-📧 Email di conferma inviata
+✅ Account creato con successo
+📧 Email di conferma inviata a: ${formData.email}
 
-La tua registrazione è completa!
+IMPORTANTE: 
+• Controlla la tua casella email (anche lo spam)
+• Clicca sul link di conferma per attivare l'account
+• Il profilo e la tessera verranno creati automaticamente dopo la conferma
+
 Verrai reindirizzato al login tra pochi secondi...`);
         
-        // Reindirizza dopo 4 secondi
+        // Pulisci i dati salvati
+        localStorage.removeItem('registrationFormData');
+        
+        // Reindirizza dopo 6 secondi per dare tempo di leggere
         setTimeout(() => {
-            window.location.href = 'login.html';
-        }, 4000);
+            window.location.href = 'login.html?registration=success';
+        }, 6000);
         
     } catch (error) {
         console.error('❌ Errore registrazione:', error);
@@ -679,18 +594,18 @@ Verrai reindirizzato al login tra pochi secondi...`);
         const errorMsg = error?.message || '';
         
         if (errorMsg.includes('already been registered') || errorMsg.includes('User already registered')) {
-            errorMessage = '⚠️ Questa email è già registrata. Prova ad effettuare il login.';
+            errorMessage = '⚠️ Questa email è già registrata.\n\nSe hai già un account, prova ad effettuare il login.\nSe non ricordi la password, usa "Password dimenticata".';
             setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 3000);
+                window.location.href = 'login.html?email=' + encodeURIComponent(formData.email);
+            }, 4000);
         } else if (errorMsg.includes('Invalid email')) {
-            errorMessage = '❌ Formato email non valido.';
+            errorMessage = '❌ Formato email non valido.\nControlla che l\'email sia scritta correttamente.';
         } else if (errorMsg.includes('Password')) {
-            errorMessage = '❌ La password deve contenere almeno 6 caratteri.';
-        } else if (errorMsg.includes('profilo')) {
-            errorMessage = '❌ Errore nella creazione del profilo. Riprova.';
-        } else if (errorMsg.includes('tessera')) {
-            errorMessage = '❌ Errore nella creazione della tessera. Riprova.';
+            errorMessage = '❌ Password non valida.\nLa password deve contenere almeno 8 caratteri, inclusi maiuscole, minuscole e numeri.';
+        } else if (errorMsg.includes('rate limit') || errorMsg.includes('too many')) {
+            errorMessage = '⏳ Troppi tentativi di registrazione.\nRiprova tra qualche minuto.';
+        } else if (errorMsg.includes('network') || errorMsg.includes('fetch')) {
+            errorMessage = '🌐 Errore di connessione.\nControlla la tua connessione internet e riprova.';
         }
         
         showError(errorMessage);
@@ -704,69 +619,40 @@ Verrai reindirizzato al login tra pochi secondi...`);
 }
 
 // ================================
-// FUNZIONI UTILITY PER LA REGISTRAZIONE
+// FUNZIONI UTILITY SEMPLIFICATE
 // ================================
 
-async function generateNumeroTessera() {
-    try {
-        // Ottieni il prossimo numero sequenziale
-        const { data, error } = await supabase
-            .from('tessere')
-            .select('numero_tessera')
-            .order('created_at', { ascending: false })
-            .limit(1);
-        
-        if (error) {
-            console.warn('Errore ricerca ultimo numero tessera:', error);
-            // Fallback a timestamp
-            return 'TESS' + Date.now().toString().slice(-6);
-        }
-        
-        if (data && data.length > 0) {
-            const ultimoNumero = data[0].numero_tessera;
-            const numeroMatch = ultimoNumero.match(/TESS(\d+)/);
-            if (numeroMatch) {
-                const prossimoNumero = parseInt(numeroMatch[1]) + 1;
-                return 'TESS' + prossimoNumero.toString().padStart(6, '0');
-            }
-        }
-        
-        // Primo numero tessera
-        return 'TESS000001';
-        
-    } catch (error) {
-        console.warn('Errore generazione numero tessera:', error);
-        return 'TESS' + Date.now().toString().slice(-6);
-    }
-}
-
-function generateUUID() {
-    // Semplice generatore UUID v4
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        const r = Math.random() * 16 | 0;
-        const v = c == 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
-
-function validateAllData() {
+function validateBasicData() {
     const required = ['nome', 'cognome', 'email', 'password', 'dataNascita', 'luogoNascita'];
     
     for (const field of required) {
         if (!formData[field] || formData[field].trim() === '') {
             console.error('❌ Campo obbligatorio mancante:', field);
-            showError(`Il campo "${field}" è obbligatorio`);
+            showError(`Il campo "${field}" è obbligatorio per completare la registrazione`);
             return false;
         }
     }
     
     if (!formData.privacyAccepted) {
         console.error('❌ Privacy non accettata');
-        showError('Devi accettare i Termini e Condizioni per procedere');
+        showError('Devi accettare i Termini e Condizioni per procedere con la registrazione');
         return false;
     }
     
-    console.log('✅ Tutti i dati obbligatori sono presenti');
+    // Validazione email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+        showError('Inserisci un indirizzo email valido');
+        return false;
+    }
+    
+    // Validazione password
+    if (!validatePassword(formData.password)) {
+        showError('La password deve contenere almeno 8 caratteri, inclusi maiuscole, minuscole e numeri');
+        return false;
+    }
+    
+    console.log('✅ Tutti i dati essenziali sono validi');
     return true;
 }
 
@@ -805,43 +691,43 @@ function showSuccess(message) {
     }
     
     console.log('✅ Successo mostrato:', message);
-    }
+}
 
 function clearMessages() {
-   const messages = ['errorMessage', 'successMessage', 'infoMessage'];
-   messages.forEach(messageId => {
-       const element = document.getElementById(messageId);
-       if (element) {
-           element.classList.add('hidden');
-       }
-   });
+    const messages = ['errorMessage', 'successMessage', 'infoMessage'];
+    messages.forEach(messageId => {
+        const element = document.getElementById(messageId);
+        if (element) {
+            element.classList.add('hidden');
+        }
+    });
 }
 
 function showFieldError(fieldId, message) {
-   const errorDiv = document.getElementById(fieldId + 'Error');
-   const input = document.getElementById(fieldId);
-   
-   if (errorDiv) {
-       errorDiv.textContent = message;
-       errorDiv.classList.remove('hidden');
-   }
-   
-   if (input) {
-       input.classList.add('error');
-       input.classList.remove('valid');
-   }
+    const errorDiv = document.getElementById(fieldId + 'Error');
+    const input = document.getElementById(fieldId);
+    
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.remove('hidden');
+    }
+    
+    if (input) {
+        input.classList.add('error');
+        input.classList.remove('valid');
+    }
 }
 
 function clearFieldError(fieldId) {
-   const errorDiv = document.getElementById(fieldId + 'Error');
-   const input = document.getElementById(fieldId);
-   
-   if (errorDiv) {
-       errorDiv.classList.add('hidden');
-   }
-   
-   if (input) {
-       input.classList.remove('error');
-       input.classList.add('valid');
-   }
+    const errorDiv = document.getElementById(fieldId + 'Error');
+    const input = document.getElementById(fieldId);
+    
+    if (errorDiv) {
+        errorDiv.classList.add('hidden');
+    }
+    
+    if (input) {
+        input.classList.remove('error');
+        input.classList.add('valid');
+    }
 }
