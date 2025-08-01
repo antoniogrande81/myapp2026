@@ -35,6 +35,34 @@
     <!-- Tailwind CSS - Per produzione, sostituire con build locale -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- 🚨 SOLUZIONE URGENTE - PULIZIA TOKEN CORROTTI -->
+    <script>
+        console.log('🧹 Avvio pulizia tokens corrotti...');
+        
+        // Pulisci tutti i tokens di Supabase corrotti
+        try {
+            Object.keys(localStorage).forEach(key => {
+                if (key.includes('supabase') || key.includes('sb-lycrgzptkdkksukcwrld')) {
+                    localStorage.removeItem(key);
+                    console.log('🗑️ Rimosso localStorage:', key);
+                }
+            });
+
+            // Pulisci anche sessionStorage
+            Object.keys(sessionStorage).forEach(key => {
+                if (key.includes('supabase') || key.includes('sb-lycrgzptkdkksukcwrld')) {
+                    sessionStorage.removeItem(key);
+                    console.log('🗑️ Rimosso sessionStorage:', key);
+                }
+            });
+            
+            console.log('✅ Pulizia tokens completata');
+        } catch (error) {
+            console.log('⚠️ Errore durante pulizia:', error);
+        }
+    </script>
+    
     <script>
         // Nascondi warning Tailwind in produzione
         if (typeof tailwind !== 'undefined') {
@@ -439,7 +467,7 @@
             fallbackRedirect: 'app/home.html'
         };
 
-        // Inizializzazione Supabase
+        // 🚨 INIZIALIZZAZIONE SUPABASE CON GESTIONE ERRORI
         let supabaseClient = null;
         
         try {
@@ -447,6 +475,29 @@
                 const { createClient } = supabase;
                 supabaseClient = createClient(APP_CONFIG.supabaseUrl, APP_CONFIG.supabaseKey);
                 console.log('✅ Supabase inizializzato');
+                
+                // 🚨 GESTIONE ERRORI AUTH IMMEDIATA
+                supabaseClient.auth.onAuthStateChange((event, session) => {
+                    console.log('🔄 Auth Event:', event);
+                    
+                    if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
+                        console.log('🧹 Pulizia auth e reload...');
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        setTimeout(() => location.reload(), 500);
+                    }
+                });
+
+                // 🚨 GESTIONE ERRORI REFRESH TOKEN
+                supabaseClient.auth.getSession().catch(error => {
+                    if (error.message && error.message.includes('Invalid Refresh Token')) {
+                        console.log('🧹 Token non valido rilevato, pulizia in corso...');
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        location.reload();
+                    }
+                });
+                
             }
         } catch (error) {
             console.error('❌ Errore Supabase:', error);
@@ -490,7 +541,6 @@
                         window.location.href = url;
                     } catch (error) {
                         console.error('❌ Errore redirect:', error);
-                        // Fallback
                         window.location.href = APP_CONFIG.fallbackRedirect;
                     }
                 }, delay);
@@ -670,10 +720,8 @@
             // Controlla se l'utente arriva dalla conferma email
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('confirmed') === 'true') {
-                // Mostra messaggio di successo
                 Utils.showMessage('✅ Account confermato con successo! Ora puoi effettuare il login.', 'success');
                 
-                // Rimuovi il parametro dall'URL dopo 5 secondi
                 setTimeout(() => {
                     window.history.replaceState({}, document.title, window.location.pathname);
                 }, 5000);
