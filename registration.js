@@ -541,56 +541,117 @@ async function handleRegistration() {
         const userId = authData.user.id;
         console.log('✅ Utente Auth creato:', userId);
         
-        // 4. PASSO 2-4: Crea Profilo, Log e Tessera con funzione sicura
-        console.log('👤 Step 2-4: Creazione profilo completo...');
-        
-        const profileData = {
-            nome: formData.nome,
-            cognome: formData.cognome,
-            email: formData.email,
-            data_nascita: formData.dataNascita,
-            luogo_nascita: formData.luogoNascita,
-            codice_fiscale: formData.codiceFiscale || null,
-            telefono: formData.telefono || null,
-            telefono_emergenza: formData.telefonoEmergenza || null,
-            indirizzo_via: formData.indirizzoVia || null,
-            indirizzo_civico: formData.indirizzoCivico || null,
-            indirizzo_cap: formData.indirizzoCap || null,
-            indirizzo_citta: formData.indirizzoCitta || null,
-            indirizzo_provincia: formData.indirizzoProvincia || null,
-            indirizzo_regione: formData.indirizzoRegione || null,
-            professione: formData.professione || null,
-            titolo_studio: formData.titoloStudio || null,
-            email_secondaria: formData.emailSecondaria || null,
-            sito_web: formData.sitoWeb || null,
-            privacy_accepted: formData.privacyAccepted,
-            marketing_consent: formData.marketingConsent,
-            newsletter_consent: formData.newsletterConsent
-        };
-        
-        const tesseraQRData = {
-            qr_code_data: JSON.stringify({
-                user_id: userId,
+        // 4. PASSO 2: Crea Profilo (approccio diretto)
+        console.log('👤 Step 2: Creazione profilo...');
+        const { data: profileResult, error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+                id: userId,
                 nome: formData.nome,
                 cognome: formData.cognome,
-                data_emissione: new Date().toISOString().split('T')[0]
+                email: formData.email,
+                data_nascita: formData.dataNascita,
+                luogo_nascita: formData.luogoNascita,
+                codice_fiscale: formData.codiceFiscale || null,
+                telefono: formData.telefono || null,
+                telefono_emergenza: formData.telefonoEmergenza || null,
+                indirizzo_via: formData.indirizzoVia || null,
+                indirizzo_civico: formData.indirizzoCivico || null,
+                indirizzo_cap: formData.indirizzoCap || null,
+                indirizzo_citta: formData.indirizzoCitta || null,
+                indirizzo_provincia: formData.indirizzoProvincia || null,
+                indirizzo_regione: formData.indirizzoRegione || null,
+                professione: formData.professione || null,
+                titolo_studio: formData.titoloStudio || null,
+                email_secondaria: formData.emailSecondaria || null,
+                sito_web: formData.sitoWeb || null,
+                privacy_accepted: formData.privacyAccepted,
+                marketing_consent: formData.marketingConsent || false,
+                newsletter_consent: formData.newsletterConsent || false
             })
-        };
+            .select()
+            .single();
         
-        const { data: result, error: functionError } = await supabase
-            .rpc('create_user_profile', {
-                user_id: userId,
-                profile_data: profileData,
-                tessera_data: tesseraQRData
-            });
-        
-        if (functionError || !result?.success) {
-            console.error('❌ Errore funzione registrazione:', functionError || result);
-            throw new Error(`Errore creazione profilo completo: ${functionError?.message || result?.error}`);
+        if (profileError) {
+            console.error('❌ Errore profilo:', profileError);
+            throw new Error(`Errore creazione profilo: ${profileError.message}`);
         }
         
-        console.log('✅ Profilo completo creato:', result);
-        const numeroTessera = result.tessera?.numero_tessera;
+        console.log('✅ Profilo creato:', profileResult);
+        
+        // 5. PASSO 3: Crea Log Ruolo
+        console.log('📝 Step 3: Creazione log ruolo...');
+        const { error: logError } = await supabase
+            .from('ruoli_log')
+            .insert({
+                utente_id: userId,
+                ruolo_nuovo: 'USER',
+                motivo: 'Registrazione iniziale utente',
+                note: 'Ruolo assegnato automaticamente alla registrazione'
+            });
+        
+        if (logError) {
+            console.warn('⚠️ Errore log ruolo:', logError);
+            // Non blocchiamo per questo errore
+        } else {
+            console.log('✅ Log ruolo creato');
+        }
+        
+        // 6. PASSO 4: Crea Tessera (semplificata)
+        console.log('🎫 Step 4: Creazione tessera...');
+        const numeroTessera = 'TESS' + Date.now().toString().slice(-6); // Numero semplice basato su timestamp
+        
+        const { data: tesseraResult, error: tesseraError } = await supabase
+            .from('tessere')
+            .insert({
+                // NON mettere ID se c'è un foreign key constraint
+                numero_tessera: numeroTessera,
+                nome: formData.nome,
+                cognome: formData.cognome,
+                data_nascita: formData.dataNascita,
+                luogo_nascita: formData.luogoNascita,
+                codice_fiscale: formData.codiceFiscale || null,
+                qr_code_data: JSON.stringify({
+                    user_id: userId,
+                    numero: numeroTessera,
+                    nome: formData.nome,
+                    cognome: formData.cognome,
+                    data_emissione: new Date().toISOString().split('T')[0]
+                })
+            })
+            .select()
+            .single();
+        
+        if (tesseraError) {
+            console.error('❌ Errore tessera:', tesseraError);
+            // Proviamo senza il campo ID
+            console.log('🔄 Tentativo tessera senza ID...');
+            const { data: tesseraResult2, error: tesseraError2 } = await supabase
+                .from('tessere')
+                .insert({
+                    numero_tessera: numeroTessera,
+                    nome: formData.nome,
+                    cognome: formData.cognome,
+                    data_nascita: formData.dataNascita,
+                    luogo_nascita: formData.luogoNascita,
+                    qr_code_data: JSON.stringify({
+                        user_id: userId,
+                        numero: numeroTessera,
+                        nome: formData.nome,
+                        cognome: formData.cognome
+                    })
+                })
+                .select()
+                .single();
+            
+            if (tesseraError2) {
+                console.error('❌ Errore tessera 2:', tesseraError2);
+                throw new Error(`Errore creazione tessera: ${tesseraError2.message}`);
+            }
+            console.log('✅ Tessera creata (secondo tentativo):', tesseraResult2);
+        } else {
+            console.log('✅ Tessera creata:', tesseraResult);
+        }
         
         // 7. SUCCESSO COMPLETO
         showSuccess(`🎉 Registrazione completata con successo!
