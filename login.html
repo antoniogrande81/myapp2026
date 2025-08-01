@@ -667,6 +667,18 @@
                 });
             }
             
+            // Controlla se l'utente arriva dalla conferma email
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('confirmed') === 'true') {
+                // Mostra messaggio di successo
+                Utils.showMessage('✅ Account confermato con successo! Ora puoi effettuare il login.', 'success');
+                
+                // Rimuovi il parametro dall'URL dopo 5 secondi
+                setTimeout(() => {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }, 5000);
+            }
+            
             // Password toggle
             const toggleBtn = document.getElementById('togglePassword');
             const passwordInput = document.getElementById('password');
