@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Confermato</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .card {
+            background: white;
+            color: #333;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .success-icon {
+            font-size: 4rem;
+            color: #10b981;
+            margin-bottom: 20px;
+        }
+        .button {
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        .button:hover {
+            background: #5a6fd8;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="success-icon">✅</div>
+        <h1>Account Confermato!</h1>
+        <p>Il tuo account è stato confermato con successo.</p>
+        <p>Ora puoi effettuare il login e iniziare a utilizzare tutti i servizi.</p>
+        
+        <a href="login.html" class="button">Vai al Login</a>
+    </div>
+
+    <script>
+        // Gestisci il token di conferma da Supabase
+        const SUPABASE_URL = 'https://lycrgzptkdkksukcwrld.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Controlla se ci sono parametri di conferma nell'URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const accessToken = urlParams.get('access_token');
+        const refreshToken = urlParams.get('refresh_token');
+        
+        if (accessToken) {
+            // Imposta la sessione con i token ricevuti
+            supabase.auth.setSession({
+                access_token: accessToken,
+                refresh_token: refreshToken
+            }).then(() => {
+                console.log('✅ Sessione impostata dopo conferma email');
+                // Reindirizza al login dopo 3 secondi
+                setTimeout(() => {
+                    window.location.href = 'login.html?confirmed=true';
+                }, 3000);
+            });
+        } else {
+            // Reindirizza comunque al login
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
