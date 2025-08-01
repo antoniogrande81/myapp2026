@@ -497,8 +497,11 @@ function saveCurrentStepData() {
             formData.indirizzoCap = getElementValue('indirizzoCap');
             formData.indirizzoCitta = getElementValue('indirizzoCitta');
             formData.indirizzoProvincia = getElementValue('indirizzoProvincia');
+            formData.indirizzoRegione = getElementValue('indirizzoRegione');
             formData.professione = getElementValue('professione');
             formData.titoloStudio = getElementValue('titoloStudio');
+            formData.emailSecondaria = getElementValue('emailSecondaria');
+            formData.sitoWeb = getElementValue('sitoWeb');
             break;
         case 3:
             formData.password = getElementValue('password');
@@ -514,7 +517,7 @@ function saveCurrentStepData() {
 }
 
 // ================================
-// REGISTRAZIONE UTENTE SEMPLIFICATA
+// REGISTRAZIONE UTENTE AGGIORNATA
 // ================================
 
 async function handleRegistration() {
@@ -536,13 +539,18 @@ async function handleRegistration() {
         }
         
         console.log('📤 Invio dati a Supabase...');
+        console.log('📋 Dati completi:', formData);
         
-        // Prepara metadata SEMPLICI per il trigger
+        // Prepara metadata con NOMI CORRETTI per il trigger
         const metadata = {
+            // Campi obbligatori
             nome: formData.nome,
             cognome: formData.cognome,
-            data_nascita: formData.dataNascita,
+            data_nascita: formData.dataNascita, // formato YYYY-MM-DD
             luogo_nascita: formData.luogoNascita,
+            privacy_accepted: formData.privacyAccepted,
+            
+            // Campi opzionali
             codice_fiscale: formData.codiceFiscale || null,
             telefono: formData.telefono || null,
             telefono_emergenza: formData.telefonoEmergenza || null,
@@ -551,16 +559,18 @@ async function handleRegistration() {
             indirizzo_cap: formData.indirizzoCap || null,
             indirizzo_citta: formData.indirizzoCitta || null,
             indirizzo_provincia: formData.indirizzoProvincia || null,
+            indirizzo_regione: formData.indirizzoRegione || null,
             professione: formData.professione || null,
             titolo_studio: formData.titoloStudio || null,
-            privacy_accepted: formData.privacyAccepted,
+            email_secondaria: formData.emailSecondaria || null,
+            sito_web: formData.sitoWeb || null,
             marketing_consent: formData.marketingConsent || false,
             newsletter_consent: formData.newsletterConsent || false
         };
         
-        console.log('📋 Metadata preparati:', metadata);
+        console.log('📋 Metadata preparati per il trigger:', metadata);
         
-        // Registrazione Supabase
+        // Registrazione Supabase Auth
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: formData.email,
             password: formData.password,
@@ -574,50 +584,89 @@ async function handleRegistration() {
             throw authError;
         }
         
-        console.log('✅ Utente registrato:', authData.user?.id);
+        console.log('✅ Utente registrato in auth.users:', authData.user?.id);
+        console.log('⏳ Il trigger dovrebbe ora popolare profiles, ruoli_log e tessere...');
         
-        // Attendi che il trigger completi
-        console.log('⏳ Attendo creazione profilo e tessera...');
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        // Attendi che il trigger completi (aumentato il tempo)
+        await new Promise(resolve => setTimeout(resolve, 4000));
         
-        // Verifica creazione
-        try {
-            if (authData.user) {
+        // Verifica che tutto sia stato creato correttamente
+        let profileCreated = false;
+        let tesseraCreated = false;
+        let numeroTessera = null;
+        
+        if (authData.user) {
+            try {
                 // Controlla profilo
-                const { data: profileData } = await supabase
+                const { data: profileData, error: profileError } = await supabase
                     .from('profiles')
-                    .select('id, nome, cognome, ruolo')
+                    .select('id, nome, cognome, ruolo, created_at')
                     .eq('id', authData.user.id)
                     .single();
                 
-                // Controlla tessera
-                const { data: tesseraData } = await supabase
+                profileCreated = !profileError && profileData;
+                console.log('👤 Profilo:', profileCreated ? '✅ Creato' : '❌ Non trovato', profileData);
+                
+                // Controlla tessera (cerca per nome/cognome dato che non c'è relazione diretta)
+                const { data: tesseraData, error: tesseraError } = await supabase
                     .from('tessere')
-                    .select('numero_tessera')
-                    .eq('id', authData.user.id)
+                    .select('id, numero_tessera, stato, created_at')
+                    .eq('nome', formData.nome)
+                    .eq('cognome', formData.cognome)
                     .single();
                 
-                if (profileData && tesseraData) {
-                    showSuccess(`🎉 Registrazione completata con successo!
-                        
-                        ✅ Profilo creato (Ruolo: ${profileData.ruolo})
-                        ✅ Tessera ${tesseraData.numero_tessera} generata
-                        📧 Email di conferma inviata
-                        
-                        Controlla la tua email per attivare l'account.`);
-                } else {
-                    showSuccess('🎉 Registrazione completata! Controlla la tua email per confermare l\'account.');
+                tesseraCreated = !tesseraError && tesseraData;
+                if (tesseraCreated) {
+                    numeroTessera = tesseraData.numero_tessera;
                 }
+                console.log('🎫 Tessera:', tesseraCreated ? '✅ Creata' : '❌ Non trovata', tesseraData);
+                
+                // Controlla log ruolo
+                const { data: logData } = await supabase
+                    .from('ruoli_log')
+                    .select('ruolo_nuovo, created_at')
+                    .eq('utente_id', authData.user.id)
+                    .single();
+                
+                console.log('📝 Log ruolo:', logData ? '✅ Creato' : '❌ Non trovato', logData);
+                
+            } catch (verificationError) {
+                console.warn('⚠️ Errore durante verifica:', verificationError);
             }
-        } catch (verificationError) {
-            console.warn('⚠️ Impossibile verificare creazione:', verificationError);
-            showSuccess('🎉 Registrazione completata! Controlla la tua email per confermare l\'account.');
         }
         
-        // Reindirizza dopo 4 secondi
+        // Mostra messaggio di successo basato su cosa è stato creato
+        if (profileCreated && tesseraCreated) {
+            showSuccess(`🎉 Registrazione completata con successo!
+                
+                ✅ Account creato e confermato
+                ✅ Profilo utente configurato
+                ✅ Tessera ${numeroTessera} generata
+                📧 Email di conferma inviata
+                
+                Verrai reindirizzato al login tra pochi secondi...`);
+        } else if (profileCreated) {
+            showSuccess(`🎉 Registrazione completata!
+                
+                ✅ Account e profilo creati
+                ⚠️ Tessera in elaborazione
+                📧 Controlla la tua email per confermare l'account
+                
+                Verrai reindirizzato al login tra pochi secondi...`);
+        } else {
+            showSuccess(`🎉 Registrazione in elaborazione...
+                
+                ✅ Account creato
+                ⏳ Profilo e tessera in elaborazione
+                📧 Controlla la tua email per confermare l'account
+                
+                Verrai reindirizzato al login tra pochi secondi...`);
+        }
+        
+        // Reindirizza dopo 5 secondi
         setTimeout(() => {
             window.location.href = 'login.html';
-        }, 4000);
+        }, 5000);
         
     } catch (error) {
         console.error('❌ Errore registrazione:', error);
@@ -625,15 +674,26 @@ async function handleRegistration() {
         let errorMessage = 'Si è verificato un errore durante la registrazione.';
         const errorMsg = error?.message || '';
         
-        if (errorMsg.includes('User already registered')) {
-            errorMessage = '⚠️ Questa email è già registrata. Prova ad effettuare il login.';
+        if (errorMsg.includes('User already registered') || errorMsg.includes('already been registered')) {
+            errorMessage = '⚠️ Questa email è già registrata. Prova ad effettuare il login o usa un\'altra email.';
         } else if (errorMsg.includes('Invalid email')) {
-            errorMessage = '❌ Email non valida.';
-        } else if (errorMsg.includes('Password')) {
-            errorMessage = '❌ Password non valida.';
+            errorMessage = '❌ Formato email non valido.';
+        } else if (errorMsg.includes('Password should be at least')) {
+            errorMessage = '❌ La password deve contenere almeno 6 caratteri.';
+        } else if (errorMsg.includes('Email not confirmed')) {
+            errorMessage = '📧 Controlla la tua email per confermare l\'account prima di effettuare il login.';
+        } else if (errorMsg.includes('Invalid login credentials')) {
+            errorMessage = '❌ Credenziali non valide.';
         }
         
         showError(errorMessage);
+        
+        // Se l'utente è già registrato, reindirizza al login
+        if (errorMsg.includes('already been registered')) {
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 3000);
+        }
         
     } finally {
         if (registerButton) {
@@ -648,16 +708,19 @@ function validateAllData() {
     
     for (const field of required) {
         if (!formData[field]) {
-            console.error('❌ Campo mancante:', field);
+            console.error('❌ Campo obbligatorio mancante:', field, 'Valore:', formData[field]);
+            showError(`Campo obbligatorio mancante: ${field}`);
             return false;
         }
     }
     
     if (!formData.privacyAccepted) {
         console.error('❌ Privacy non accettata');
+        showError('Devi accettare i Termini e Condizioni per procedere');
         return false;
     }
     
+    console.log('✅ Tutti i dati obbligatori sono presenti');
     return true;
 }
 
@@ -676,7 +739,7 @@ function showError(message) {
     const errorText = document.getElementById('errorText');
     
     if (errorDiv && errorText) {
-        errorText.textContent = message;
+        errorText.innerHTML = message.replace(/\n/g, '<br>');
         errorDiv.classList.remove('hidden');
         errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
@@ -690,7 +753,7 @@ function showSuccess(message) {
     const successText = document.getElementById('successText');
     
     if (successDiv && successText) {
-        successText.textContent = message;
+        successText.innerHTML = message.replace(/\n/g, '<br>');
         successDiv.classList.remove('hidden');
         successDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
