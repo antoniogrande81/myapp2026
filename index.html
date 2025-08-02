@@ -53,26 +53,66 @@
       0%, 100% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
     }
+    
+    .text-shadow {
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    }
+    
+    .hover-scale {
+      transition: transform 0.3s ease;
+    }
+    
+    .hover-scale:hover {
+      transform: scale(1.05);
+    }
   </style>
+
+  <!-- Appwrite SDK per controllo sessione -->
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.1"></script>
 </head>
 <body class="text-white overflow-x-hidden">
 
 <!-- HERO -->
 <section class="min-h-screen flex flex-col justify-center items-center text-center px-4 space-y-10">
   <div class="flex flex-col items-center space-y-4">
-    <img src="icons/icon-128x128.png" alt="Logo" class="w-16 h-16" />
-    <h1 class="text-5xl md:text-6xl font-black">MyApp</h1>
-    <p class="text-xl md:text-2xl font-semibold">Il tuo dirigente sempre con te</p>
+    <img src="icons/icon-128x128.png" alt="Logo MyApp" class="w-16 h-16" />
+    <h1 class="text-5xl md:text-6xl font-black text-shadow">MyApp</h1>
+    <p class="text-xl md:text-2xl font-semibold text-shadow">Il tuo dirigente sempre con te</p>
   </div>
 
   <div class="max-w-2xl p-6 bg-white bg-opacity-10 rounded-2xl backdrop-blur-md shadow-lg space-y-6">
-    <p class="text-2xl font-bold text-white">
+    <p class="text-2xl font-bold text-white text-shadow">
       Un mondo al tuo servizio<br/>
       <span class="text-aurora">In un'app il tuo mondo sindacale nelle mani</span>
     </p>
-    <div class="flex flex-col md:flex-row justify-center gap-4">
-      <a href="login.html" class="bg-aurora py-3 px-8 rounded-xl text-white font-bold border-2 border-white hover:scale-105 transition-all shadow-lg">🔐 Accedi</a>
-      <a href="registrazione.html" class="bg-cyan py-3 px-8 rounded-xl text-white font-bold border-2 border-white hover:scale-105 transition-all shadow-lg">⭐ Registrati</a>
+    
+    <!-- Pulsanti di accesso aggiornati -->
+    <div class="flex flex-col md:flex-row justify-center gap-4" id="authButtons">
+      <a href="login.html" class="bg-aurora py-3 px-8 rounded-xl text-white font-bold border-2 border-white hover-scale transition-all shadow-lg">
+        🔐 Accedi
+      </a>
+      <a href="registrazione.html" class="bg-cyan py-3 px-8 rounded-xl text-white font-bold border-2 border-white hover-scale transition-all shadow-lg">
+        ⭐ Registrati
+      </a>
+    </div>
+
+    <!-- Area utente loggato (nascosta di default) -->
+    <div id="userArea" class="hidden space-y-4">
+      <div class="bg-white bg-opacity-20 rounded-lg p-4">
+        <p class="text-lg font-semibold">Benvenuto, <span id="userName">Utente</span>!</p>
+        <p class="text-sm text-cyan font-medium">Ruolo: <span id="userRole">User</span></p>
+      </div>
+      <div class="flex flex-col md:flex-row justify-center gap-4">
+        <a href="app/home.html" id="userDashboard" class="bg-success py-3 px-8 rounded-xl text-white font-bold border-2 border-white hover-scale transition-all shadow-lg">
+          📊 Dashboard Utente
+        </a>
+        <a href="app/home_dirigenti.html" id="adminDashboard" class="bg-magenta py-3 px-8 rounded-xl text-white font-bold border-2 border-white hover-scale transition-all shadow-lg hidden">
+          👑 Dashboard Dirigenti
+        </a>
+        <button id="logoutButton" class="bg-error py-3 px-8 rounded-xl text-white font-bold border-2 border-white hover-scale transition-all shadow-lg">
+          🚪 Logout
+        </button>
+      </div>
     </div>
   </div>
 </section>
@@ -80,14 +120,14 @@
 <!-- SERVIZI -->
 <section class="py-20 px-4 bg-dark text-white">
   <div class="max-w-6xl mx-auto text-center mb-16">
-    <h2 class="text-4xl md:text-5xl font-extrabold mb-4">I Nostri Servizi</h2>
+    <h2 class="text-4xl md:text-5xl font-extrabold mb-4 text-shadow">I Nostri Servizi</h2>
     <p class="text-cyan text-lg md:text-xl mb-4 font-semibold">Supporto completo in ogni ambito</p>
     <span class="inline-block px-6 py-2 bg-gold text-dark font-bold rounded-full shadow-md">Esteso al nucleo familiare</span>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
     <!-- Card 1 -->
-    <div class="bg-gradient-to-br from-accent to-aurora p-6 rounded-3xl shadow-lg hover:scale-105 transition-all">
+    <div class="bg-gradient-to-br from-accent to-aurora p-6 rounded-3xl shadow-lg hover-scale transition-all">
       <div class="text-3xl mb-3">📋</div>
       <h3 class="text-2xl font-black mb-4">Area Legale Civile</h3>
       <ul class="space-y-2">
@@ -98,7 +138,7 @@
     </div>
 
     <!-- Card 2 -->
-    <div class="bg-gradient-to-br from-aurora to-magenta p-6 rounded-3xl shadow-lg hover:scale-105 transition-all">
+    <div class="bg-gradient-to-br from-aurora to-magenta p-6 rounded-3xl shadow-lg hover-scale transition-all">
       <div class="text-3xl mb-3">⚖️</div>
       <h3 class="text-2xl font-black mb-4">Area Penale</h3>
       <ul class="space-y-2">
@@ -109,7 +149,7 @@
     </div>
 
     <!-- Card 3 -->
-    <div class="bg-gradient-to-br from-success to-teal p-6 rounded-3xl shadow-lg hover:scale-105 transition-all">
+    <div class="bg-gradient-to-br from-success to-teal p-6 rounded-3xl shadow-lg hover-scale transition-all">
       <div class="text-3xl mb-3">📊</div>
       <h3 class="text-2xl font-black mb-4">Servizi Fiscali F.I.TE.S.C.</h3>
       <ul class="space-y-2">
@@ -121,7 +161,7 @@
     </div>
 
     <!-- Card 4 -->
-    <div class="bg-gradient-to-br from-accent to-secondary p-6 rounded-3xl shadow-lg hover:scale-105 transition-all">
+    <div class="bg-gradient-to-br from-accent to-secondary p-6 rounded-3xl shadow-lg hover-scale transition-all">
       <div class="text-3xl mb-3">📄</div>
       <h3 class="text-2xl font-black mb-4">Area Amministrativa</h3>
       <ul class="space-y-2">
@@ -133,15 +173,16 @@
     </div>
   </div>
 </section>
+
 <!-- BOX CHIEDI INFORMAZIONI -->
 <section class="py-20 px-4 bg-dark text-white">
-  <div class="max-w-3xl mx-auto text-center bg-gradient-to-br from-cyan to-teal rounded-3xl shadow-elevated p-10 space-y-6">
-    <h3 class="text-3xl md:text-4xl font-extrabold">Hai bisogno di aiuto?</h3>
+  <div class="max-w-3xl mx-auto text-center bg-gradient-to-br from-cyan to-teal rounded-3xl shadow-lg p-10 space-y-6">
+    <h3 class="text-3xl md:text-4xl font-extrabold text-shadow">Hai bisogno di aiuto?</h3>
     <p class="text-light text-lg md:text-xl font-medium">
       Contatta uno dei nostri dirigenti per ricevere assistenza o informazioni dettagliate sul servizio che ti interessa.
     </p>
     <a href="dirigenti_index.html"
-       class="inline-block bg-white text-dark font-bold py-3 px-8 rounded-xl text-lg shadow-lg hover:bg-light hover:scale-105 transition-all">
+       class="inline-block bg-white text-dark font-bold py-3 px-8 rounded-xl text-lg shadow-lg hover:bg-light hover-scale transition-all">
       🤝 Contatta i Dirigenti
     </a>
   </div>
@@ -159,29 +200,157 @@
 
 <!-- HELP FLOATING BUTTON -->
 <a href="mailto:veneto@carabinierinsc.it"
-   class="fixed bottom-6 right-6 z-50 bg-aurora hover:bg-cyan text-white p-4 rounded-full shadow-xl transition-all text-2xl"
+   class="fixed bottom-6 right-6 z-50 bg-aurora hover:bg-cyan text-white p-4 rounded-full shadow-xl transition-all text-2xl hover-scale"
    title="Scrivici via email">
   💬
 </a>
 
-<!-- JS -->
-<script src="js/app.js" defer></script>
-<script src="js/observer.js" defer></script>
-<script>
-  // Intersection Observer semplice per fade-in
-  document.addEventListener("DOMContentLoaded", () => {
+<!-- JavaScript per controllo sessione Appwrite -->
+<script type="module">
+  // === CONFIGURAZIONE APPWRITE ===
+  const { Client, Account, Databases, Query } = Appwrite;
+
+  const client = new Client()
+    .setEndpoint('https://cloud.appwrite.io/v1')
+    .setProject('688db9670010e3113d56');
+
+  const account = new Account(client);
+  const databases = new Databases(client);
+
+  // Database e Collection IDs
+  const DATABASE_ID = '688dbfaf001fcce68c0f';
+  const COLLECTIONS = {
+    profiles: '688dc04f0034554d752f'
+  };
+
+  // === ELEMENTI DOM ===
+  const authButtons = document.getElementById('authButtons');
+  const userArea = document.getElementById('userArea');
+  const userName = document.getElementById('userName');
+  const userRole = document.getElementById('userRole');
+  const userDashboard = document.getElementById('userDashboard');
+  const adminDashboard = document.getElementById('adminDashboard');
+  const logoutButton = document.getElementById('logoutButton');
+
+  // === FUNZIONI UTILITY ===
+  async function getUserProfile(userId) {
+    try {
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.profiles,
+        [Query.equal('user_id', userId)]
+      );
+      return response.documents.length > 0 ? response.documents[0] : null;
+    } catch (error) {
+      console.error('Errore nel recupero profilo:', error);
+      return null;
+    }
+  }
+
+  function capitalizeFirst(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  function showUserArea(profile) {
+    authButtons.classList.add('hidden');
+    userArea.classList.remove('hidden');
+    
+    userName.textContent = profile.nome_cognome || 'Utente';
+    userRole.textContent = capitalizeFirst(profile.ruolo);
+    
+    // Mostra dashboard appropriata
+    if (profile.ruolo === 'dirigente' || profile.ruolo === 'admin') {
+      adminDashboard.classList.remove('hidden');
+      userDashboard.textContent = '📊 Dashboard Utente';
+    } else {
+      adminDashboard.classList.add('hidden');
+    }
+  }
+
+  function showAuthButtons() {
+    authButtons.classList.remove('hidden');
+    userArea.classList.add('hidden');
+  }
+
+  // === CONTROLLO SESSIONE ===
+  async function checkSession() {
+    try {
+      const user = await account.get();
+      const profile = await getUserProfile(user.$id);
+      
+      if (profile) {
+        showUserArea(profile);
+      } else {
+        showAuthButtons();
+      }
+    } catch (error) {
+      // Nessuna sessione attiva o errore
+      showAuthButtons();
+    }
+  }
+
+  // === LOGOUT ===
+  logoutButton.addEventListener('click', async () => {
+    try {
+      await account.deleteSession('current');
+      showAuthButtons();
+      // Ricarica la pagina per pulire lo stato
+      window.location.reload();
+    } catch (error) {
+      console.error('Errore logout:', error);
+      showAuthButtons();
+    }
+  });
+
+  // === AGGIORNAMENTO LINK ===
+  function updateAuthLinks() {
+    // Aggiorna i link per puntare al nuovo sistema
+    const loginLink = document.querySelector('a[href="login.html"]');
+    const registerLink = document.querySelector('a[href="registrazione.html"]');
+    
+    if (loginLink) {
+      loginLink.href = 'login.html'; // Mantieni il link originale o aggiorna se necessario
+    }
+    
+    if (registerLink) {
+      registerLink.href = 'registrazione.html'; // Mantieni il link originale o aggiorna se necessario
+    }
+  }
+
+  // === INIZIALIZZAZIONE ===
+  document.addEventListener('DOMContentLoaded', () => {
+    checkSession();
+    updateAuthLinks();
+    
+    // Intersection Observer per animazioni
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          entry.target.classList.add('animate-fade-in');
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
           observer.unobserve(entry.target);
         }
       });
     }, { threshold: 0.1 });
 
-    document.querySelectorAll('.fade-in, .service-card').forEach(el => observer.observe(el));
+    // Applica animazione fade-in a tutte le cards
+    document.querySelectorAll('.hover-scale').forEach(el => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(el);
+    });
   });
+
+  // Aggiungi Query helper per compatibilità
+  const Query = {
+    equal: (attribute, value) => `equal("${attribute}", "${value}")`
+  };
 </script>
+
+<!-- JS originali -->
+<script src="js/app.js" defer></script>
+<script src="js/observer.js" defer></script>
 
 </body>
 </html>

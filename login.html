@@ -388,6 +388,16 @@
         
         <div id="messages"></div>
         
+        <!-- 🔍 DEBUG PANEL -->
+        <div id="debugPanel" style="background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 8px; padding: 15px; margin-bottom: 20px; font-family: monospace; font-size: 12px;">
+            <h3 style="margin: 0 0 10px 0; color: #0369a1;">🔍 Debug Supabase</h3>
+            <div id="debugOutput">Caricamento debug...</div>
+            <div style="margin-top: 10px;">
+                <input type="email" id="debugEmail" placeholder="tuaemail@gmail.com" style="padding: 5px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px;">
+                <button onclick="testEmailRegistration()" style="background: #0ea5e9; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Test Email</button>
+            </div>
+        </div>
+        
         <form id="loginForm">
             <!-- EMAIL SEMPLIFICATO -->
             <div class="form-group">
@@ -467,12 +477,17 @@
             fallbackRedirect: 'app/home.html'
         };
 
+<<<<<<< HEAD
         // 🚨 INIZIALIZZAZIONE SUPABASE CON GESTIONE ERRORI
+=======
+        // 🚨 INIZIALIZZAZIONE SUPABASE CON GESTIONE ERRORI AVANZATA
+>>>>>>> b0ae989e8a555024883eeeddeb87fc6d774240b4
         let supabaseClient = null;
         
         try {
             if (typeof supabase !== 'undefined' && supabase.createClient) {
                 const { createClient } = supabase;
+<<<<<<< HEAD
                 supabaseClient = createClient(APP_CONFIG.supabaseUrl, APP_CONFIG.supabaseKey);
                 console.log('✅ Supabase inizializzato');
                 
@@ -496,6 +511,220 @@
                         sessionStorage.clear();
                         location.reload();
                     }
+=======
+                
+                // 🔧 CONFIGURAZIONE SUPABASE MIGLIORATA
+                supabaseClient = createClient(APP_CONFIG.supabaseUrl, APP_CONFIG.supabaseKey, {
+                    auth: {
+                        persistSession: true,
+                        autoRefreshToken: true,
+                        detectSessionInUrl: true,
+                        flowType: 'pkce'
+                    }
+                });
+                console.log('✅ Supabase inizializzato con configurazione avanzata');
+                
+                // 🔍 SCRIPT DEBUG EMAIL SUPABASE
+                const debugSupabaseConfig = async () => {
+                  try {
+                    console.log('🔍 SUPABASE EMAIL DEBUG ATTIVO');
+                    console.log('📋 CONFIGURAZIONE:');
+                    console.log('- URL:', APP_CONFIG.supabaseUrl);
+                    console.log('- Key:', APP_CONFIG.supabaseKey.substring(0, 20) + '...');
+                    
+                    // Funzione test registrazione
+                    window.testEmailRegistration = async (testEmail) => {
+                      console.log('🧪 TEST REGISTRAZIONE EMAIL:', testEmail);
+                      
+                      try {
+                        const { data, error } = await supabaseClient.auth.signUp({
+                          email: testEmail,
+                          password: 'Test123456!',
+                          options: {
+                            emailRedirectTo: `${window.location.origin}/login.html?confirmed=true`
+                          }
+                        });
+                        
+                        if (error) {
+                          console.error('❌ ERRORE REGISTRAZIONE:', error);
+                          console.log('🔍 DETTAGLI ERRORE:', {
+                            message: error.message,
+                            status: error.status,
+                            statusText: error.statusText
+                          });
+                          return;
+                        }
+                        
+                        console.log('✅ REGISTRAZIONE RIUSCITA:', {
+                          user: data.user ? {
+                            id: data.user.id,
+                            email: data.user.email,
+                            email_confirmed_at: data.user.email_confirmed_at,
+                            confirmation_sent_at: data.user.confirmation_sent_at,
+                            created_at: data.user.created_at
+                          } : 'No user data',
+                          session: data.session ? 'Sessione creata' : 'Nessuna sessione (normale per email confirmation)'
+                        });
+                        
+                        if (!data.session && data.user && !data.user.email_confirmed_at) {
+                          console.log('📧 EMAIL CONFERMA RICHIESTA - Controlla:');
+                          console.log('- Casella email:', testEmail);
+                          console.log('- Cartella spam/promozioni');
+                          console.log('- Tempo limite: 24 ore');
+                          console.log('- Provider email: Default Supabase (max 3/ora)');
+                        }
+                        
+                      } catch (error) {
+                        console.error('💥 ERRORE INASPETTATO:', error);
+                      }
+                    };
+                    
+                    // Funzione reinvio email
+                    window.resendConfirmationEmail = async (email) => {
+                      console.log('📧 REINVIO EMAIL CONFERMA:', email);
+                      
+                      try {
+                        const { error } = await supabaseClient.auth.resend({
+                          type: 'signup',
+                          email: email,
+                          options: {
+                            emailRedirectTo: `${window.location.origin}/login.html?confirmed=true`
+                          }
+                        });
+                        
+                        if (error) {
+                          console.error('❌ ERRORE REINVIO:', error);
+                          return;
+                        }
+                        
+                        console.log('✅ EMAIL REINVIATA CON SUCCESSO');
+                        
+                      } catch (error) {
+                        console.error('💥 ERRORE REINVIO:', error);
+                      }
+                    };
+                    
+                    console.log('🛠️ FUNZIONI DEBUG DISPONIBILI:');
+                    console.log('- testEmailRegistration("tuaemail@gmail.com")');
+                    console.log('- resendConfirmationEmail("tuaemail@gmail.com")');
+                    
+                  } catch (error) {
+                    console.error('❌ Errore debug config:', error);
+                  }
+                };
+                
+                // Esegui debug
+                setTimeout(debugSupabaseConfig, 1000);
+                
+                // 🔍 FUNZIONE TEST EMAIL GLOBALE
+                window.testEmailRegistration = async () => {
+                    const email = document.getElementById('debugEmail').value;
+                    const output = document.getElementById('debugOutput');
+                    
+                    if (!email) {
+                        output.innerHTML = '❌ Inserisci una email per il test';
+                        return;
+                    }
+                    
+                    output.innerHTML = `🧪 Testing registrazione per: ${email}...`;
+                    
+                    try {
+                        const { data, error } = await supabaseClient.auth.signUp({
+                            email: email,
+                            password: 'Test123456!',
+                            options: {
+                                emailRedirectTo: `${window.location.origin}/login.html?confirmed=true`
+                            }
+                        });
+                        
+                        if (error) {
+                            let errorMsg = `❌ ERRORE: ${error.message}<br>`;
+                            
+                            if (error.message.includes('rate limit')) {
+                                errorMsg += '💡 CAUSA: Limite email raggiunto (3/ora)<br>';
+                                errorMsg += '🔧 SOLUZIONE: Aspetta 1 ora o configura SMTP custom';
+                            } else if (error.message.includes('already registered')) {
+                                errorMsg += '💡 CAUSA: Utente già esistente<br>';
+                                errorMsg += '🔧 SOLUZIONE: Prova a fare login invece';
+                            } else if (error.message.includes('Invalid email')) {
+                                errorMsg += '💡 CAUSA: Email non valida<br>';
+                                errorMsg += '🔧 SOLUZIONE: Controlla formato email';
+                            } else if (error.message.includes('Signup is disabled')) {
+                                errorMsg += '💡 CAUSA: Registrazione disabilitata<br>';
+                                errorMsg += '🔧 SOLUZIONE: Abilita signup nel dashboard Supabase';
+                            }
+                            
+                            output.innerHTML = errorMsg;
+                        } else {
+                            let successMsg = `✅ REGISTRAZIONE RIUSCITA!<br>`;
+                            successMsg += `👤 User ID: ${data.user?.id}<br>`;
+                            successMsg += `📧 Email: ${data.user?.email}<br>`;
+                            successMsg += `✉️ Email confermata: ${data.user?.email_confirmed_at ? 'Sì' : 'No'}<br>`;
+                            successMsg += `📅 Creato: ${data.user?.created_at}<br><br>`;
+                            
+                            if (!data.user?.email_confirmed_at) {
+                                successMsg += `📬 PROSSIMI PASSI:<br>`;
+                                successMsg += `1. Controlla casella email: ${email}<br>`;
+                                successMsg += `2. Controlla cartella SPAM/Promozioni<br>`;
+                                successMsg += `3. Provider: Default Supabase (max 3/ora)<br>`;
+                                successMsg += `4. Link scade in 24 ore<br>`;
+                                successMsg += `<br>⚠️ Se non arriva email = problema provider/configurazione`;
+                            }
+                            
+                            output.innerHTML = successMsg;
+                        }
+                    } catch (unexpectedError) {
+                        output.innerHTML = `💥 ERRORE INASPETTATO: ${unexpectedError.message}`;
+                    }
+                };
+                
+                // 🔍 DEBUG INFO INIZIALE
+                const updateDebugInfo = () => {
+                    const output = document.getElementById('debugOutput');
+                    if (output) {
+                        let info = `📋 CONFIGURAZIONE SUPABASE:<br>`;
+                        info += `- Client: ${supabaseClient ? '✅ OK' : '❌ Errore'}<br>`;
+                        info += `- URL: ${APP_CONFIG.supabaseUrl}<br>`;
+                        info += `- Key: ${APP_CONFIG.supabaseKey.substring(0, 30)}...<br>`;
+                        info += `- Origin: ${window.location.origin}<br><br>`;
+                        info += `🧪 Inserisci email sopra e clicca "Test Email"`;
+                        
+                        output.innerHTML = info;
+                    }
+                };
+                
+                setTimeout(updateDebugInfo, 2000);
+                
+                // 🚨 GESTIONE ERRORI AUTH IMMEDIATA
+                supabaseClient.auth.onAuthStateChange((event, session) => {
+                    console.log('🔄 Auth Event:', event, session ? 'con sessione' : 'senza sessione');
+                    
+                    if (event === 'SIGNED_OUT') {
+                        console.log('👋 Utente disconnesso');
+                    } else if (event === 'TOKEN_REFRESHED' && !session) {
+                        console.log('🧹 Token refresh fallito, pulizia...');
+                        localStorage.clear();
+                        sessionStorage.clear();
+                        setTimeout(() => location.reload(), 500);
+                    } else if (event === 'SIGNED_IN' && session) {
+                        console.log('🎉 Utente connesso:', session.user.email);
+                    }
+                });
+
+                // 🚨 PULIZIA SESSIONE INIZIALE SE CORROTTA
+                supabaseClient.auth.getSession().then(({ data, error }) => {
+                    if (error) {
+                        console.warn('⚠️ Sessione corrotta rilevata:', error.message);
+                        if (error.message.includes('Invalid') || error.message.includes('expired')) {
+                            console.log('🧹 Pulizia sessione corrotta...');
+                            supabaseClient.auth.signOut({ scope: 'local' });
+                        }
+                    } else if (data.session) {
+                        console.log('✅ Sessione valida trovata per:', data.session.user.email);
+                    }
+                }).catch(error => {
+                    console.warn('⚠️ Errore controllo sessione:', error);
+>>>>>>> b0ae989e8a555024883eeeddeb87fc6d774240b4
                 });
                 
             }
@@ -649,6 +878,7 @@
                     const email = document.getElementById('email').value.trim();
                     const password = document.getElementById('password').value;
                     
+                    // 🔧 VALIDAZIONI MIGLIORATE
                     if (!email || !password) {
                         throw new Error('Inserisci email e password');
                     }
@@ -658,20 +888,40 @@
                     }
                     
                     if (password.length < 6) {
-                        throw new Error('Password troppo corta');
+                        throw new Error('Password troppo corta (minimo 6 caratteri)');
                     }
                     
+                    console.log('🔐 Tentativo login per:', email);
+                    
+                    // 🚨 LOGOUT FORZATO PRIMA DEL LOGIN
+                    try {
+                        await supabaseClient.auth.signOut({ scope: 'local' });
+                        console.log('🧹 Sessione precedente pulita');
+                    } catch (e) {
+                        console.log('⚠️ Nessuna sessione da pulire');
+                    }
+                    
+                    // 🔐 TENTATIVO LOGIN
                     const { data, error } = await supabaseClient.auth.signInWithPassword({
-                        email,
-                        password
+                        email: email.toLowerCase().trim(),
+                        password: password
                     });
                     
-                    if (error) throw error;
+                    if (error) {
+                        console.error('❌ Errore login:', error);
+                        throw error;
+                    }
                     
                     if (data?.user) {
                         Utils.showMessage('✅ Accesso riuscito!', 'success');
                         
                         console.log('🎉 Login successful per:', data.user.email);
+                        console.log('📋 Dati utente:', {
+                            id: data.user.id,
+                            email: data.user.email,
+                            email_confirmed: data.user.email_confirmed_at ? 'Sì' : 'No',
+                            last_sign_in: data.user.last_sign_in_at
+                        });
                         
                         // Carica il profilo utente
                         const userProfile = await AuthManager.getUserRole(data.user.id);
@@ -682,17 +932,25 @@
                         console.log('🚀 Reindirizzamento a:', redirectUrl);
                         
                         Utils.safeRedirect(redirectUrl, 2000);
+                    } else {
+                        throw new Error('Dati di login non validi');
                     }
                     
                 } catch (error) {
+                    console.error('❌ Errore handleLogin:', error);
+                    
                     let errorMessage = '❌ Errore di accesso';
                     
                     if (error.message.includes('Invalid login credentials')) {
                         errorMessage = '❌ Email o password errati';
                     } else if (error.message.includes('Email not confirmed')) {
-                        errorMessage = '📧 Conferma prima la tua email';
+                        errorMessage = '📧 Devi confermare la tua email prima di accedere';
                     } else if (error.message.includes('Too many requests')) {
-                        errorMessage = '⏰ Troppi tentativi. Riprova più tardi';
+                        errorMessage = '⏰ Troppi tentativi. Riprova tra 5 minuti';
+                    } else if (error.message.includes('Network')) {
+                        errorMessage = '📡 Problema di connessione. Controlla internet';
+                    } else if (error.message.includes('User not found')) {
+                        errorMessage = '👤 Utente non trovato. Verifica l\'email';
                     } else if (error.message) {
                         errorMessage = `❌ ${error.message}`;
                     }

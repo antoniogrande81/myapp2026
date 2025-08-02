@@ -857,4 +857,8 @@ function goBack() {
     } else {
         window.location.href = 'index.html';
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> b0ae989e8a555024883eeeddeb87fc6d774240b4
