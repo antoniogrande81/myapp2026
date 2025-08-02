@@ -70,6 +70,140 @@ function initializeForm() {
     console.log('✅ Form inizializzato - Step corrente:', currentStep);
 }
 
+function setupEventListeners() {
+    // Aggiungi event listeners per i pulsanti
+    const form = document.getElementById('registrationForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+        });
+    }
+}
+
+// ================================
+// UTILITY FUNCTIONS
+// ================================
+
+function getElementValue(elementId, trimValue = true) {
+    const element = document.getElementById(elementId);
+    if (!element) {
+        console.warn('Elemento non trovato:', elementId);
+        return '';
+    }
+    return trimValue ? element.value.trim() : element.value;
+}
+
+function showError(message) {
+    const errorElement = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
+    
+    if (errorElement && errorText) {
+        errorText.textContent = message;
+        errorElement.classList.remove('hidden');
+    }
+    
+    clearOtherMessages('error');
+    console.error('❌ Errore:', message);
+}
+
+function showSuccess(message) {
+    const successElement = document.getElementById('successMessage');
+    const successText = document.getElementById('successText');
+    
+    if (successElement && successText) {
+        successText.textContent = message;
+        successElement.classList.remove('hidden');
+    }
+    
+    clearOtherMessages('success');
+    console.log('✅ Successo:', message);
+}
+
+function showInfo(message) {
+    const infoElement = document.getElementById('infoMessage');
+    const infoText = document.getElementById('infoText');
+    
+    if (infoElement && infoText) {
+        infoText.textContent = message;
+        infoElement.classList.remove('hidden');
+    }
+    
+    clearOtherMessages('info');
+    console.log('ℹ️ Info:', message);
+}
+
+function clearMessages() {
+    const messages = ['errorMessage', 'successMessage', 'infoMessage'];
+    messages.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.classList.add('hidden');
+        }
+    });
+}
+
+function clearOtherMessages(keep) {
+    const allMessages = {
+        'error': 'errorMessage',
+        'success': 'successMessage',
+        'info': 'infoMessage'
+    };
+    
+    for (const type in allMessages) {
+        if (type !== keep) {
+            const element = document.getElementById(allMessages[type]);
+            if (element) {
+                element.classList.add('hidden');
+            }
+        }
+    }
+}
+
+function showFieldError(fieldId, message) {
+    const errorElement = document.getElementById(fieldId + 'Error');
+    const inputElement = document.getElementById(fieldId);
+    
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.classList.remove('hidden');
+    }
+    
+    if (inputElement) {
+        inputElement.classList.add('error');
+        inputElement.classList.remove('valid');
+    }
+}
+
+function clearFieldError(fieldId) {
+    const errorElement = document.getElementById(fieldId + 'Error');
+    const inputElement = document.getElementById(fieldId);
+    
+    if (errorElement) {
+        errorElement.classList.add('hidden');
+    }
+    
+    if (inputElement) {
+        inputElement.classList.remove('error');
+        inputElement.classList.add('valid');
+    }
+}
+
+function showLoading() {
+    const registerBtn = document.getElementById('registerBtn');
+    if (registerBtn) {
+        registerBtn.disabled = true;
+        registerBtn.innerHTML = '<span class="loading-spinner"></span>Registrazione in corso...';
+    }
+}
+
+function hideLoading() {
+    const registerBtn = document.getElementById('registerBtn');
+    if (registerBtn) {
+        registerBtn.disabled = false;
+        registerBtn.innerHTML = '🚀 Completa Registrazione';
+    }
+}
+
 // ================================
 // GESTIONE STEP DEL FORM
 // ================================
@@ -693,3 +827,34 @@ function startResendTimer() {
     if (timerContainer) {
         timerContainer.style.display = 'block';
     }
+    
+    if (timerElement) {
+        const timer = setInterval(() => {
+            seconds--;
+            timerElement.textContent = seconds;
+            
+            if (seconds <= 0) {
+                clearInterval(timer);
+                if (resendButton) {
+                    resendButton.disabled = false;
+                    resendButton.textContent = '📤 Invia nuovamente l\'email';
+                }
+                if (timerContainer) {
+                    timerContainer.style.display = 'none';
+                }
+            }
+        }, 1000);
+    }
+}
+
+// ================================
+// UTILITY FUNCTIONS PER NAVIGAZIONE
+// ================================
+
+function goBack() {
+    if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        window.location.href = 'index.html';
+    }
+}
