@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tessera Digitale - MyApp Aurora</title>
+    <title>Tessera Digitale - MyApp Sindacato</title>
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json">
@@ -31,12 +31,14 @@
     <!-- Preconnect per performance -->
     <link rel="preconnect" href="https://cdn.tailwindcss.com">
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://lycrgzptkdkksukcwrld.supabase.co">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <!-- Appwrite SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.1"></script>
     
     <style>
         /* Aurora Boreale 2025 System */
@@ -54,10 +56,10 @@
             --dark: #0a0a23;
             --light: #f8fafc;
             
-            /* Colori Carabinieri */
-            --carabinieri-red: #dc143c;
-            --carabinieri-blue: #000080;
-            --carabinieri-gold: #ffd700;
+            /* Colori MyApp */
+            --myapp-primary: #e94560;
+            --myapp-secondary: #00d4ff;
+            --myapp-accent: #1a1a2e;
             
             /* Shadows e Effects */
             --shadow-card: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -189,8 +191,8 @@
             background: #f9fafb;
         }
 
-        /* TESSERA CARABINIERI PREMIUM DESIGN */
-        .tessera-carabinieri {
+        /* TESSERA MYAPP PREMIUM DESIGN */
+        .tessera-myapp {
             background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 25%, #ffffff 50%, #f0f4ff 75%, #ffffff 100%);
             background-size: 400% 400%;
             animation: tessera-shimmer 8s ease-in-out infinite;
@@ -200,20 +202,20 @@
             overflow: hidden;
             box-shadow: 
                 0 25px 50px rgba(0,0,0,0.15),
-                0 0 0 2px rgba(220, 20, 60, 0.1),
+                0 0 0 2px rgba(233, 69, 96, 0.1),
                 inset 0 1px 0 rgba(255,255,255,0.9);
             border: 3px solid transparent;
             background-clip: padding-box;
         }
 
-        .tessera-carabinieri::before {
+        .tessera-myapp::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, var(--carabinieri-red), var(--carabinieri-blue), var(--aurora));
+            background: linear-gradient(135deg, var(--myapp-primary), var(--myapp-secondary), var(--aurora));
             border-radius: 24px;
             padding: 3px;
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -221,14 +223,14 @@
             z-index: -1;
         }
 
-        .tessera-carabinieri::after {
+        .tessera-myapp::after {
             content: '';
             position: absolute;
             top: -50%;
             left: -50%;
             width: 200%;
             height: 200%;
-            background: conic-gradient(from 0deg, transparent, rgba(220, 20, 60, 0.1), transparent, rgba(0, 0, 128, 0.1), transparent);
+            background: conic-gradient(from 0deg, transparent, rgba(233, 69, 96, 0.1), transparent, rgba(0, 212, 255, 0.1), transparent);
             animation: tessera-rotate 20s linear infinite;
             z-index: -1;
         }
@@ -243,26 +245,25 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Stemma Carabinieri */
-        .stemma-carabinieri {
+        /* Logo MyApp */
+        .logo-myapp {
             position: absolute;
             top: 1rem;
             right: 1rem;
             width: 60px;
             height: 60px;
-            background: linear-gradient(135deg, var(--carabinieri-red), var(--carabinieri-blue));
+            background: linear-gradient(135deg, var(--myapp-primary), var(--myapp-secondary));
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 8px 20px rgba(220, 20, 60, 0.3);
+            box-shadow: 0 8px 20px rgba(233, 69, 96, 0.3);
             border: 3px solid rgba(255, 255, 255, 0.9);
             z-index: 10;
         }
 
-        .stemma-carabinieri::before {
-            content: '★';
-            color: var(--carabinieri-gold);
+        .logo-myapp::before {
+            content: '🚀';
             font-size: 1.5rem;
             font-weight: 900;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -276,9 +277,9 @@
         }
 
         .tessera-header h1 {
-            font-size: clamp(1rem, 4vw, 1.2rem);
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
             font-weight: 900;
-            color: var(--carabinieri-blue);
+            color: var(--myapp-accent);
             text-transform: uppercase;
             letter-spacing: 2px;
             margin-bottom: 0.5rem;
@@ -286,9 +287,9 @@
         }
 
         .tessera-header h2 {
-            font-size: clamp(0.9rem, 3vw, 1rem);
+            font-size: clamp(1rem, 3vw, 1.2rem);
             font-weight: 700;
-            color: var(--carabinieri-red);
+            color: var(--myapp-primary);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -302,14 +303,14 @@
             padding: 1rem;
             background: rgba(255, 255, 255, 0.7);
             border-radius: 16px;
-            border: 1px solid rgba(220, 20, 60, 0.1);
+            border: 1px solid rgba(233, 69, 96, 0.1);
         }
 
         .profile-avatar {
             width: 80px;
             height: 80px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--carabinieri-red), var(--carabinieri-blue));
+            background: linear-gradient(135deg, var(--myapp-primary), var(--myapp-secondary));
             display: flex;
             align-items: center;
             justify-content: center;
@@ -336,14 +337,14 @@
 
         /* Numero Tessera */
         .numero-tessera {
-            background: linear-gradient(135deg, var(--carabinieri-blue), var(--primary));
+            background: linear-gradient(135deg, var(--myapp-accent), var(--primary));
             color: white;
             text-align: center;
             padding: 1rem;
             border-radius: 16px;
             margin-bottom: 1.5rem;
-            border: 2px solid rgba(0, 0, 128, 0.3);
-            box-shadow: 0 8px 20px rgba(0, 0, 128, 0.2);
+            border: 2px solid rgba(26, 26, 46, 0.3);
+            box-shadow: 0 8px 20px rgba(26, 26, 46, 0.2);
         }
 
         .numero-tessera p:first-child {
@@ -371,7 +372,7 @@
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 1rem;
-            border: 3px solid rgba(220, 20, 60, 0.2);
+            border: 3px solid rgba(233, 69, 96, 0.2);
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
             position: relative;
         }
@@ -383,7 +384,7 @@
             left: -2px;
             right: -2px;
             bottom: -2px;
-            background: linear-gradient(45deg, var(--carabinieri-red), var(--carabinieri-blue), var(--aurora));
+            background: linear-gradient(45deg, var(--myapp-primary), var(--myapp-secondary), var(--aurora));
             border-radius: 20px;
             z-index: -1;
             animation: qr-glow 3s ease-in-out infinite;
@@ -444,19 +445,7 @@
             font-weight: 600;
         }
 
-        /* Watermark */
-        .watermark {
-            position: absolute;
-            bottom: 1rem;
-            right: 1rem;
-            font-size: 0.8rem;
-            opacity: 0.4;
-            background: linear-gradient(45deg, var(--primary), var(--aurora));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 700;
-        }
+        /* Watermark rimosso - non più necessario */
 
         /* Actions Buttons */
         .actions-container {
@@ -541,7 +530,7 @@
                 --header-height: 56px;
             }
             
-            .tessera-carabinieri {
+            .tessera-myapp {
                 padding: 1.5rem;
                 margin: 0.5rem;
                 border-radius: 20px;
@@ -553,7 +542,7 @@
                 gap: 1rem;
             }
             
-            .stemma-carabinieri {
+            .logo-myapp {
                 width: 50px;
                 height: 50px;
                 top: 0.5rem;
@@ -572,7 +561,7 @@
         }
 
         @media (max-width: 480px) {
-            .tessera-carabinieri {
+            .tessera-myapp {
                 padding: 1rem;
                 margin: 0.25rem;
                 border-radius: 16px;
@@ -603,7 +592,7 @@
 
         /* Dark Mode Support */
         @media (prefers-color-scheme: dark) {
-            .tessera-carabinieri {
+            .tessera-myapp {
                 background: linear-gradient(135deg, #1f2937 0%, #111827 25%, #1f2937 50%, #111827 75%, #1f2937 100%);
                 color: #f9fafb;
             }
@@ -637,30 +626,27 @@
     <!-- Header -->
     <header class="header w-full flex justify-between items-center px-4 py-4 relative z-10">
         <div class="flex items-center space-x-4">
-            <button onclick="history.back()" class="back-button flex items-center justify-center transition-all duration-300 hover:scale-110">
+            <button onclick="smartBackNavigation()" class="back-button flex items-center justify-center transition-all duration-300 hover:scale-110">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path>
                 </svg>
             </button>
             <h1 class="text-xl font-black text-ultra-visible">Tessera Digitale</h1>
         </div>
-        <button id="logoutBtn" class="btn-secondary text-sm px-4 py-2 font-bold transition-all shadow-lg">
-            Logout
-        </button>
     </header>
 
     <!-- Main Content -->
     <main class="flex-1 flex items-center justify-center px-4 pb-20">
         <div class="w-full max-w-md">
-            <!-- Tessera Carabinieri -->
-            <div id="tesseraCard" class="tessera-carabinieri relative">
-                <!-- Stemma Carabinieri -->
-                <div class="stemma-carabinieri"></div>
+            <!-- Tessera MyApp -->
+            <div id="tesseraCard" class="tessera-myapp relative">
+                <!-- Logo MyApp -->
+                <div class="logo-myapp"></div>
                 
                 <!-- Header Tessera -->
                 <div class="tessera-header">
-                    <h1>Arma dei Carabinieri</h1>
-                    <h2>Sindacato MyApp</h2>
+                    <h1>MyApp Sindacato</h1>
+                    <h2>Tessera Digitale</h2>
                 </div>
 
                 <!-- Sezione Utente -->
@@ -700,11 +686,6 @@
                     <span class="status-active">
                         ✓ Tessera Attiva
                     </span>
-                </div>
-
-                <!-- Watermark -->
-                <div class="watermark">
-                    Powered by MyApp Aurora
                 </div>
             </div>
 
@@ -757,14 +738,22 @@
         </div>
     </nav>
 
-    <script type="module">
-        // Configurazione Supabase
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-        
-        const supabaseUrl = 'https://lycrgzptkdkksukcwrld.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
-        
-        const supabase = createClient(supabaseUrl, supabaseKey);
+    <script>
+        // 🔧 CONFIGURAZIONE APPWRITE
+        const { Client, Account, Databases, Query } = Appwrite;
+
+        const client = new Client()
+            .setEndpoint('https://fra.cloud.appwrite.io/v1')
+            .setProject('688db9670010e3113d56');
+
+        const account = new Account(client);
+        const databases = new Databases(client);
+
+        const DATABASE_ID = '688dbfaf001fcce68c0f';
+        const COLLECTIONS = {
+            profiles: '688dc04f0034554d752f',
+            tessere: '688e6222002987f97521'
+        };
 
         // Variabili globali
         let userData = null;
@@ -826,7 +815,30 @@
         }
 
         // Funzione per verificare lo stato della tessera
-        function verificaStatoTessera(dataScadenza) {
+        function verificaStatoTessera(dataScadenza, stato) {
+            // Prima controlla lo stato nel database
+            if (stato && stato !== 'ATTIVA') {
+                if (stato === 'SCADUTA') {
+                    return { 
+                        valida: false, 
+                        messaggio: '❌ Tessera Scaduta',
+                        classe: 'status-expired'
+                    };
+                } else if (stato === 'SOSPESA') {
+                    return { 
+                        valida: false, 
+                        messaggio: '⏸️ Tessera Sospesa',
+                        classe: 'status-expired'
+                    };
+                } else if (stato === 'REVOCATA') {
+                    return { 
+                        valida: false, 
+                        messaggio: '🚫 Tessera Revocata',
+                        classe: 'status-expired'
+                    };
+                }
+            }
+            
             if (!dataScadenza) return { 
                 valida: false, 
                 messaggio: '❓ Stato non disponibile',
@@ -869,56 +881,53 @@
         // Funzione per caricare i dati utente
         async function caricaDatiUtente() {
             try {
-                console.log('Verifica autenticazione...');
+                console.log('🔍 Verifica autenticazione Appwrite...');
                 
                 // Verifica autenticazione
-                const { data: { user }, error: userError } = await supabase.auth.getUser();
-                
-                if (userError || !user) {
-                    throw new Error('Utente non autenticato');
-                }
+                const user = await account.get();
+                console.log('✅ Utente autenticato:', user.$id);
+                console.log('📧 Email utente:', user.email);
 
-                console.log('Utente autenticato:', user.id);
-                console.log('Email utente:', user.email);
-
-                // Carica profilo utente (se esiste)
+                // Carica profilo utente
                 let profile = null;
                 try {
-                    const { data: profileData, error: profileError } = await supabase
-                        .from('profiles')
-                        .select('nome, cognome, email')
-                        .eq('id', user.id)
-                        .single();
-
-                    if (!profileError && profileData) {
-                        profile = profileData;
-                    }
-                    console.log('Profilo caricato:', profile);
+                    console.log('📋 Caricamento profilo utente...');
+                    profile = await databases.getDocument(
+                        DATABASE_ID,
+                        COLLECTIONS.profiles,
+                        user.$id
+                    );
+                    console.log('✅ Profilo caricato:', profile);
                 } catch (profileErr) {
-                    console.log('Nessun profilo trovato, uso dati utente base');
+                    console.warn('⚠️ Profilo non trovato, uso dati utente base:', profileErr);
+                    profile = {
+                        nome: user.name ? user.name.split(' ')[0] : 'Nome',
+                        cognome: user.name ? user.name.split(' ').slice(1).join(' ') : 'Cognome',
+                        email: user.email
+                    };
                 }
 
                 // Carica dati tessera
-                console.log('Caricamento tessera per user_id:', user.id);
-                const { data: tessera, error: tesseraError } = await supabase
-                    .from('tessere')
-                    .select('numero_tessera, data_scadenza, qr_code')
-                    .eq('user_id', user.id)
-                    .single();
+                console.log('🎫 Caricamento tessera per user_id:', user.$id);
+                const tessereResponse = await databases.listDocuments(
+                    DATABASE_ID,
+                    COLLECTIONS.tessere,
+                    [Query.equal('user_id', user.$id)]
+                );
 
-                if (tesseraError) {
-                    console.error('Errore tessera:', tesseraError);
-                    throw new Error('Tessera non trovata per questo utente');
+                if (!tessereResponse.documents || tessereResponse.documents.length === 0) {
+                    throw new Error('Nessuna tessera trovata per questo utente. Contatta l\'amministratore.');
                 }
 
-                console.log('Tessera caricata:', tessera);
+                const tessera = tessereResponse.documents[0];
+                console.log('✅ Tessera caricata:', tessera);
 
                 // Combina i dati
                 userData = {
-                    id: user.id,
+                    id: user.$id,
                     email: user.email,
-                    nome: profile?.nome || 'Nome',
-                    cognome: profile?.cognome || 'Cognome'
+                    nome: profile.nome || 'Nome',
+                    cognome: profile.cognome || 'Cognome'
                 };
                 tesseraData = tessera;
 
@@ -927,21 +936,23 @@
                 hideLoading();
 
             } catch (error) {
-                console.error('Errore caricamento dati:', error);
+                console.error('❌ Errore caricamento dati:', error);
                 showError(error.message);
-                // Reindirizza al login dopo 2 secondi
+                // Reindirizza al login dopo 3 secondi
                 setTimeout(() => {
-                    window.location.href = '/login.html';
-                }, 2000);
+                    window.location.href = '../login.html';
+                }, 3000);
             }
         }
 
         // Funzione per aggiornare l'interfaccia
         function aggiornaInterfaccia() {
             if (!userData || !tesseraData) {
-                console.error('Dati mancanti per aggiornare interfaccia');
+                console.error('❌ Dati mancanti per aggiornare interfaccia');
                 return;
             }
+
+            console.log('🎨 Aggiornamento interfaccia...');
 
             // Nome completo
             const nomeCompleto = `${userData.nome} ${userData.cognome}`.trim();
@@ -959,12 +970,18 @@
             // Data scadenza
             document.getElementById('dataScadenza').textContent = formatDate(tesseraData.data_scadenza);
 
-            // QR Code
-            const qrData = tesseraData.qr_code || tesseraData.numero_tessera || 'TESSERA_NON_VALIDA';
+            // QR Code - combina numero tessera + user ID per unicità
+            const qrData = JSON.stringify({
+                tessera: tesseraData.numero_tessera,
+                user: userData.id,
+                nome: nomeCompleto,
+                valida_fino: tesseraData.data_scadenza,
+                app: 'MyApp_Sindacato'
+            });
             generateQRCode(qrData);
 
             // Stato tessera
-            const stato = verificaStatoTessera(tesseraData.data_scadenza);
+            const stato = verificaStatoTessera(tesseraData.data_scadenza, tesseraData.stato);
             const statoElement = document.getElementById('statoTessera');
             statoElement.innerHTML = `
                 <span class="${stato.classe}">
@@ -972,12 +989,13 @@
                 </span>
             `;
 
-            console.log('Interfaccia aggiornata con successo');
+            console.log('✅ Interfaccia aggiornata con successo');
         }
 
         // Funzione per scaricare PDF
         async function downloadPDF() {
             try {
+                console.log('📄 Generazione PDF...');
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF({
                     orientation: 'portrait',
@@ -1018,7 +1036,7 @@
                 // Aggiungi header
                 pdf.setFontSize(20);
                 pdf.setTextColor(26, 26, 46); // Primary color
-                pdf.text('Tessera Digitale - Arma dei Carabinieri', pdfWidth / 2, 20, { align: 'center' });
+                pdf.text('Tessera Digitale - MyApp Sindacato', pdfWidth / 2, 20, { align: 'center' });
                 
                 // Aggiungi l'immagine
                 pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
@@ -1027,13 +1045,16 @@
                 pdf.setFontSize(10);
                 pdf.setTextColor(100, 100, 100);
                 pdf.text(`Generata il: ${new Date().toLocaleDateString('it-IT')} alle ${new Date().toLocaleTimeString('it-IT')}`, pdfWidth / 2, imgHeight + y + 20, { align: 'center' });
-                pdf.text('Documento ufficiale - Sindacato Carabinieri MyApp Aurora', pdfWidth / 2, imgHeight + y + 30, { align: 'center' });
+                pdf.text('Documento ufficiale - MyApp Sindacato', pdfWidth / 2, imgHeight + y + 30, { align: 'center' });
                 
                 // Scarica il PDF
-                pdf.save(`tessera_carabinieri_${tesseraData?.numero_tessera || 'myapp'}_${new Date().getTime()}.pdf`);
+                const filename = `tessera_myapp_${tesseraData?.numero_tessera || 'sindacato'}_${new Date().getTime()}.pdf`;
+                pdf.save(filename);
+
+                console.log('✅ PDF generato:', filename);
 
             } catch (error) {
-                console.error('Errore nella generazione del PDF:', error);
+                console.error('❌ Errore nella generazione del PDF:', error);
                 alert('Errore nella generazione del PDF. Riprova tra qualche istante.');
             }
         }
@@ -1042,8 +1063,8 @@
         async function condividiTessera() {
             try {
                 const shareData = {
-                    title: 'Tessera Digitale - Arma dei Carabinieri',
-                    text: `Tessera Digitale N° ${tesseraData?.numero_tessera || ''} - Sindacato Carabinieri MyApp`,
+                    title: 'Tessera Digitale - MyApp Sindacato',
+                    text: `Tessera Digitale N° ${tesseraData?.numero_tessera || ''} - MyApp Sindacato`,
                     url: window.location.href
                 };
 
@@ -1052,7 +1073,7 @@
                 } else {
                     // Fallback per browser che non supportano Web Share API
                     const url = window.location.href;
-                    const text = `Tessera Digitale N° ${tesseraData?.numero_tessera || ''} - Sindacato Carabinieri`;
+                    const text = `Tessera Digitale N° ${tesseraData?.numero_tessera || ''} - MyApp Sindacato`;
                     
                     if (navigator.clipboard && window.isSecureContext) {
                         await navigator.clipboard.writeText(`${text}\n${url}`);
@@ -1070,9 +1091,9 @@
                     }
                 }
             } catch (error) {
-                console.error('Errore nella condivisione:', error);
+                console.error('❌ Errore nella condivisione:', error);
                 // Fallback in caso di errore
-                const fallbackText = `Tessera Digitale Carabinieri N° ${tesseraData?.numero_tessera || ''}`;
+                const fallbackText = `Tessera Digitale MyApp N° ${tesseraData?.numero_tessera || ''}`;
                 prompt('Copia queste informazioni:', fallbackText);
             }
         }
@@ -1081,55 +1102,20 @@
         async function logout() {
             if (confirm('Sei sicuro di voler uscire?')) {
                 try {
-                    await supabase.auth.signOut();
-                    window.location.href = '/login.html';
+                    await account.deleteSession('current');
+                    window.location.href = '../login.html';
                 } catch (error) {
-                    console.error('Errore durante il logout:', error);
-                    window.location.href = '/login.html';
+                    console.error('❌ Errore durante il logout:', error);
+                    window.location.href = '../login.html';
                 }
             }
         }
 
-        // Event listeners
-        document.getElementById('logoutBtn').addEventListener('click', logout);
-        document.getElementById('downloadPDF').addEventListener('click', downloadPDF);
-        document.getElementById('condividi').addEventListener('click', condividiTessera);
-
-        // Inizializzazione
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM caricato, avvio caricamento dati...');
-            caricaDatiUtente();
-        });
-
-        // Aggiorna dati quando la finestra diventa visibile
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && userData && tesseraData) {
-                console.log('Pagina visibile, aggiorno interfaccia...');
-                aggiornaInterfaccia();
-            }
-        });
-
-        // Handle auth state changes
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_OUT') {
-                window.location.href = '/login.html';
-            }
-        });
-    </script>
-
-    <!-- Smart Navigation System -->
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-        
-        const supabase = createClient(
-            'https://lycrgzptkdkksukcwrld.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk'
-        );
-
-        // Smart Home Redirect
-        async function smartHomeRedirect() {
+        // Smart Back Navigation - Vai alla home corretta
+        async function smartBackNavigation() {
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                console.log('🔄 Smart back navigation...');
+                const user = await account.get();
                 
                 if (!user) {
                     window.location.href = '../login.html';
@@ -1137,28 +1123,65 @@
                 }
 
                 // Ottieni ruoli utente
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('ruoli')
-                    .eq('id', user.id)
-                    .single();
+                const profile = await databases.getDocument(
+                    DATABASE_ID,
+                    COLLECTIONS.profiles,
+                    user.$id
+                );
 
                 const userRoles = profile?.ruoli || ['USER'];
+                console.log('🎯 Ruoli utente:', userRoles);
                 
                 // Determina la home corretta
                 if (userRoles.includes('DIRIGENTE') || userRoles.includes('ADMIN')) {
-                    window.location.href = '../app/home_dirigenti.html';
+                    console.log('📋 Redirect a home dirigenti');
+                    window.location.href = 'home_dirigenti.html';
                 } else {
-                    window.location.href = '../app/home.html';
+                    console.log('👤 Redirect a home utente');
+                    window.location.href = 'home.html';
                 }
             } catch (error) {
-                console.error('Errore smart navigation:', error);
-                window.location.href = '../app/home.html';
+                console.error('❌ Errore smart back navigation:', error);
+                // Fallback alla home utente
+                window.location.href = 'home.html';
             }
         }
 
-        // Esponi globalmente
-        window.smartHomeRedirect = smartHomeRedirect;
+        // Smart Home Redirect per navigation bar
+        async function smartHomeRedirect() {
+            return smartBackNavigation(); // Usa la stessa logica
+        }
+
+        // Event listeners
+        document.getElementById('downloadPDF').addEventListener('click', downloadPDF);
+        document.getElementById('condividi').addEventListener('click', condividiTessera);
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 MyApp Tessera - Inizializzazione...');
+            caricaDatiUtente();
+        });
+
+        // Aggiorna dati quando la finestra diventa visibile
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && userData && tesseraData) {
+                console.log('👁️ Pagina visibile, aggiorno interfaccia...');
+                aggiornaInterfaccia();
+            }
+        });
+
+        // Handle auth state changes - monitora logout automatico
+        const checkAuthPeriodically = setInterval(async () => {
+            try {
+                await account.get();
+            } catch (error) {
+                console.log('🔒 Sessione scaduta, redirect al login');
+                clearInterval(checkAuthPeriodically);
+                window.location.href = '../login.html';
+            }
+        }, 300000); // Controlla ogni 5 minuti
+
+        console.log('🎫 MyApp Tessera Digitale - Sistema caricato!');
     </script>
 </body>
 </html>

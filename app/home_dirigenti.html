@@ -3,12 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Home Dirigenti</title>
+  <title>Home Dirigenti - MyApp Sindacato Carabinieri</title>
   
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="background-color" content="#1a1a2e">
+
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Appwrite SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
   
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -176,6 +184,40 @@
       box-shadow: 0 10px 25px rgba(0, 212, 255, 0.1);
     }
 
+    .organico-item {
+      background: linear-gradient(145deg, #ffffff, #f8fafc);
+      border: 2px solid rgba(255, 215, 0, 0.1);
+      border-radius: 16px;
+      padding: 1.25rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border-left: 5px solid #ffd700;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .organico-item::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, #ffd700, #ffb347);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .organico-item:hover::after {
+      opacity: 1;
+    }
+
+    .organico-item:hover {
+      background: linear-gradient(145deg, #ffffff, #fffbeb);
+      transform: translateX(6px);
+      border-color: rgba(255, 215, 0, 0.2);
+      box-shadow: 0 10px 25px rgba(255, 215, 0, 0.1);
+    }
+
     .badge {
       display: inline-block;
       padding: 0.25rem 0.75rem;
@@ -336,6 +378,36 @@
       border: 2px solid rgba(255, 215, 0, 0.2);
     }
 
+    /* Loading spinner */
+    .loading-spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #ffd700;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Error states */
+    .error-state {
+      text-align: center;
+      padding: 2rem;
+      color: #6b7280;
+    }
+
+    .error-state .icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.7;
+    }
+
     /* Loading skeleton */
     .skeleton {
       background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -389,12 +461,12 @@
 <header class="sticky top-0 z-50 header-glass px-6 py-4 flex justify-between items-center">
   <div class="flex items-center space-x-3">
     <div class="icon-badge">
-      <span class="text-white font-bold">A</span>
+      <span class="text-white font-bold">👑</span>
     </div>
-    <h1 class="text-xl font-black text-primary">MyApp Admin</h1>
+    <h1 class="text-xl font-black text-primary">MyApp Dirigenti</h1>
   </div>
   <div class="flex items-center gap-3">
-    <span class="badge gold text-xs">👑 DIRIGENTE</span>
+    <span id="roleDisplay" class="badge gold text-xs">👑 DIRIGENTE</span>
     <button id="logoutBtn" class="btn-secondary">Logout</button>
   </div>
 </header>
@@ -404,8 +476,11 @@
   <!-- Benvenuto Dirigente -->
   <section class="welcome-card">
     <div class="admin-badge">👑 Area Dirigenti</div>
-    <h2 id="salutoPersonalizzato" class="text-3xl font-bold mb-3">Benvenuto Dirigente!</h2>
-    <p id="dataOdierna" class="text-gray-600 text-lg mb-4">Caricamento...</p>
+    <h2 id="salutoPersonalizzato" class="text-3xl font-bold mb-3">
+      <span class="loading-spinner"></span>
+      Caricamento...
+    </h2>
+    <p id="dataOdierna" class="text-gray-600 text-lg mb-4">Preparazione dashboard dirigenti...</p>
     <a href="areadirigenti.html" class="btn-gold">
       <span class="mr-2">🏛️</span>
       Accedi all'Area Riservata Dirigenti
@@ -416,17 +491,17 @@
   <section class="section-card">
     <h3 class="text-xl font-bold mb-6 flex items-center">
       <span class="mr-3 text-2xl">🚀</span>
-      Accesso Rapido
+      Accesso Rapido Dirigenti
     </h3>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <div onclick="navigateTo('tessera.html')" class="card-item text-center" tabindex="0" role="button">
         <span class="service-icon">🆔</span>
         <div class="font-semibold">Tessera</div>
-        <div class="text-sm text-gray-500 mt-1">ID Digitale</div>
+        <div class="text-sm text-gray-500 mt-1">ID Dirigente</div>
       </div>
-      <div onclick="navigateTo('strumenti.html')" class="card-item text-center" tabindex="0" role="button">
-        <span class="service-icon">🛠️</span>
-        <div class="font-semibold">Strumenti</div>
+      <div onclick="navigateTo('organico.html')" class="card-item text-center" tabindex="0" role="button">
+        <span class="service-icon">👥</span>
+        <div class="font-semibold">Organico</div>
         <div class="text-sm text-gray-500 mt-1">Gestione</div>
       </div>
       <div onclick="navigateTo('virgilio.html')" class="card-item text-center" tabindex="0" role="button">
@@ -442,32 +517,65 @@
     </div>
   </section>
 
+  <!-- Organico Dirigenti -->
+  <section class="section-card">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-bold flex items-center">
+        <span class="mr-3 text-2xl">👥</span>
+        Organico Dirigenti
+        <span class="badge gold text-xs ml-2">Admin View</span>
+      </h3>
+      <a href="organico.html" class="btn-secondary">Gestisci</a>
+    </div>
+    <div id="organicoContainer" class="space-y-4">
+      <!-- Loading skeleton -->
+      <div class="organico-item">
+        <div class="flex items-center gap-3">
+          <div class="loading-spinner"></div>
+          <span class="text-gray-600">Caricamento organico...</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Notizie -->
   <section class="section-card">
-    <h3 class="text-xl font-bold mb-6 flex items-center">
-      <span class="mr-3 text-2xl">📰</span>
-      Ultime Notizie
-      <span class="badge gold text-xs ml-2">Admin View</span>
-    </h3>
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-bold flex items-center">
+        <span class="mr-3 text-2xl">📰</span>
+        Ultime Notizie
+        <span class="badge gold text-xs ml-2">Admin View</span>
+      </h3>
+      <a href="notizie-admin.html" class="btn-secondary">Gestisci</a>
+    </div>
     <div id="notizieContainer" class="space-y-4">
-      <div class="news-item skeleton">
-        <div class="h-4 rounded w-3/4 mb-2"></div>
-        <div class="h-3 rounded w-1/2"></div>
+      <!-- Loading skeleton -->
+      <div class="news-item">
+        <div class="flex items-center gap-3">
+          <div class="loading-spinner"></div>
+          <span class="text-gray-600">Caricamento notizie...</span>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Convenzioni -->
   <section class="section-card">
-    <h3 class="text-xl font-bold mb-6 flex items-center">
-      <span class="mr-3 text-2xl">🏷️</span>
-      Convenzioni Attive
-      <span class="badge gold text-xs ml-2">Admin View</span>
-    </h3>
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-bold flex items-center">
+        <span class="mr-3 text-2xl">🏷️</span>
+        Convenzioni Attive
+        <span class="badge gold text-xs ml-2">Admin View</span>
+      </h3>
+      <a href="convenzioni-admin.html" class="btn-secondary">Gestisci</a>
+    </div>
     <div id="convenzioniContainer" class="space-y-4">
-      <div class="convenzione-item skeleton">
-        <div class="h-4 rounded w-3/4 mb-2"></div>
-        <div class="h-3 rounded w-1/2"></div>
+      <!-- Loading skeleton -->
+      <div class="convenzione-item">
+        <div class="flex items-center gap-3">
+          <div class="loading-spinner"></div>
+          <span class="text-gray-600">Caricamento convenzioni...</span>
+        </div>
       </div>
     </div>
   </section>
@@ -476,7 +584,7 @@
   <section class="section-card">
     <h3 class="text-xl font-bold mb-6 flex items-center">
       <span class="mr-3 text-2xl">🛡️</span>
-      Servizi di Tutela BestBadge
+      Servizi di Tutela Sindacato Carabinieri
       <span class="badge gold text-xs ml-2">Controllo Dirigenti</span>
     </h3>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -510,185 +618,606 @@
   👥 Contatta altri dirigenti
 </a>
 
-<!-- Supabase Script -->
-<script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-  const supabase = createClient(
-    'https://lycrgzptkdkksukcwrld.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk'
-  );
+<!-- JavaScript -->
+<script>
+  // === CONFIGURAZIONE APPWRITE ===
+  const { Client, Account, Databases, Query } = Appwrite;
 
+  const client = new Client()
+    .setEndpoint('https://cloud.appwrite.io/v1')
+    .setProject('688db9670010e3113d56');
+
+  const account = new Account(client);
+  const databases = new Databases(client);
+
+  // Database e Collection IDs - AGGIORNATI
+  const DATABASE_ID = '688dbf61001b1d821cc7';
+  const COLLECTIONS = {
+    user_profiles: '688dc04f00345547d52f',    // user_profiles
+    notizie: '688e02b3000595a16b2c',          // notizie  
+    convenzioni: '688e03f0001958f71d9e',      // convenzioni
+    organico_dirigenti: '688e0501000254ad0966' // organico_dirigenti
+  };
+
+  // Stato applicazione
+  let currentUser = null;
+  let userProfile = null;
+
+  // === INIZIALIZZAZIONE ===
   async function init() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return location.href = '../login.html';
+    try {
+      console.log('👑 Inizializzazione MyApp Home Dirigenti...');
+      
+      // Verifica autenticazione
+      currentUser = await account.get();
+      console.log('👤 Utente autenticato:', currentUser);
+      
+      if (!currentUser) {
+        console.log('❌ Utente non autenticato, redirect al login');
+        window.location.href = 'login.html';
+        return;
+      }
 
-    // Controlla se l'utente ha i privilegi di dirigente
-    const { data: profile } = await supabase.from('profiles').select('nome, ruoli').eq('id', user.id).single();
-    const nome = profile?.nome || 'Utente';
-    const ruoli = profile?.ruoli || ['USER'];
+      // Carica profilo utente
+      userProfile = await getUserProfile(currentUser.$id);
+      console.log('📋 Profilo utente:', userProfile);
 
-    // Verifica privilegi dirigente/admin
-    if (!ruoli.includes('DIRIGENTE') && !ruoli.includes('ADMIN')) {
-      // Reindirizza alla home normale se non è dirigente
-      window.location.href = 'home.html';
-      return;
+      // Verifica che sia un dirigente/admin
+      if (!userProfile || (userProfile.role !== 'DIRIGENTE' && userProfile.role !== 'ADMIN')) {
+        console.log('👤 Utente normale, redirect alla home utenti');
+        window.location.href = 'home.html';
+        return;
+      }
+
+      // Aggiorna interfaccia utente
+      updateWelcomeSection();
+      
+      // Carica contenuti
+      await Promise.all([
+        loadOrganico(),
+        loadNotizie(),
+        loadConvenzioni()
+      ]);
+      
+      console.log('✅ Inizializzazione dirigenti completata');
+      
+    } catch (error) {
+      console.error('❌ Errore inizializzazione:', error);
+      
+      // Se errore di autenticazione, redirect al login
+      if (error.code === 401) {
+        console.log('🔐 Errore autenticazione, redirect al login');
+        window.location.href = 'login.html';
+      } else {
+        // Altri errori, mostra messaggio
+        showError('Errore nel caricamento dell\'area dirigenti. Riprova.');
+      }
     }
-
-    const ora = new Date().getHours();
-    const saluto = ora < 12 ? "Buongiorno" : ora < 18 ? "Buon pomeriggio" : "Buonasera";
-    const titoloRuolo = ruoli.includes('ADMIN') ? 'Amministratore' : 'Dirigente';
-    
-    document.getElementById("salutoPersonalizzato").textContent = `${saluto}, ${titoloRuolo} ${nome}!`;
-    document.getElementById("dataOdierna").textContent = new Date().toLocaleDateString('it-IT', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
-
-    loadNotizie();
-    loadConvenzioni();
   }
 
-  async function loadNotizie() {
+  // === GESTIONE PROFILO UTENTE ===
+  async function getUserProfile(userId) {
     try {
-      const { data } = await supabase
-        .from('notizie')
-        .select('id, titolo, contenuto, data_pubblicazione, priorita, icona, pubblicata')
-        .order('data_pubblicazione', { ascending: false })
-        .limit(4); // Mostra più notizie per i dirigenti, incluse quelle non pubblicate
+      console.log('🔍 Caricamento profilo per user:', userId);
+      
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.user_profiles,
+        [Query.equal('user_id', userId)]
+      );
+      
+      if (response.documents.length > 0) {
+        const profile = response.documents[0];
+        console.log('✅ Profilo trovato:', profile);
+        return profile;
+      } else {
+        console.log('⚠️ Profilo non trovato per utente:', userId);
+        return null;
+      }
+      
+    } catch (error) {
+      console.error('❌ Errore caricamento profilo:', error);
+      return null;
+    }
+  }
 
-      const container = document.getElementById("notizieContainer");
-      if (!data || !data.length) {
+  // === AGGIORNAMENTO INTERFACCIA ===
+  function updateWelcomeSection() {
+    try {
+      // Determina il nome da mostrare
+      let nomeUtente = 'Dirigente';
+      
+      if (userProfile) {
+        if (userProfile.full_name) {
+          nomeUtente = userProfile.full_name;
+        } else if (userProfile.cognome) {
+          nomeUtente = userProfile.cognome;
+        }
+      } else if (currentUser && currentUser.name) {
+        nomeUtente = currentUser.name;
+      }
+
+      // Determina il ruolo
+      const isAdmin = userProfile && userProfile.role === 'ADMIN';
+      const roleTitle = isAdmin ? 'Amministratore' : 'Dirigente';
+      const roleIcon = isAdmin ? '👑 ADMIN' : '👑 DIRIGENTE';
+
+      // Aggiorna badge ruolo
+      document.getElementById("roleDisplay").textContent = roleIcon;
+
+      // Saluto personalizzato basato sull'ora
+      const ora = new Date().getHours();
+      let saluto = 'Benvenuto';
+      
+      if (ora >= 5 && ora < 12) {
+        saluto = 'Buongiorno';
+      } else if (ora >= 12 && ora < 18) {
+        saluto = 'Buon pomeriggio';
+      } else if (ora >= 18 && ora < 22) {
+        saluto = 'Buonasera';
+      } else {
+        saluto = 'Buonanotte';
+      }
+
+      // Aggiorna il saluto
+      document.getElementById("salutoPersonalizzato").innerHTML = `${saluto}, ${roleTitle} ${nomeUtente}! 👑`;
+      
+      // Aggiorna la data
+      const dataOdierna = new Date().toLocaleDateString('it-IT', {
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric'
+      });
+      
+      document.getElementById("dataOdierna").textContent = `Dashboard dirigenti - ${dataOdierna}`;
+      
+    } catch (error) {
+      console.error('❌ Errore aggiornamento interfaccia:', error);
+      document.getElementById("salutoPersonalizzato").textContent = 'Benvenuto Dirigente!';
+      document.getElementById("dataOdierna").textContent = 'MyApp Sindacato Carabinieri - Area Dirigenti';
+    }
+  }
+
+  // === CARICAMENTO ORGANICO DIRIGENTI ===
+  async function loadOrganico() {
+    try {
+      console.log('👥 Caricamento organico dirigenti...');
+      
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.organico_dirigenti,
+        [
+          Query.orderDesc('$createdAt'),
+          Query.limit(5)
+        ]
+      );
+
+      const organico = response.documents;
+      console.log('👥 Organico caricato:', organico.length);
+      
+      const container = document.getElementById("organicoContainer");
+      
+      if (!organico || organico.length === 0) {
         container.innerHTML = `
-          <div class="news-item text-center py-6">
-            <div class="text-3xl mb-3">📰</div>
-            <p class="text-gray-600 font-semibold">Nessuna notizia disponibile</p>
-            <p class="text-gray-500 text-sm mt-1">Controlla più tardi per aggiornamenti</p>
+          <div class="organico-item text-center py-8">
+            <div class="text-4xl mb-4">👥</div>
+            <h4 class="font-bold text-gray-700 mb-2">Nessun dirigente registrato</h4>
+            <p class="text-gray-500 text-sm">I dati dell'organico verranno caricati dal sistema</p>
           </div>
         `;
         return;
       }
       
-      container.innerHTML = data.map(n => `
-        <div class="news-item cursor-pointer" onclick="viewNotizia('${n.id}')">
-          <div class="flex items-start gap-3">
-            <div class="text-2xl flex-shrink-0">${n.icona || '📰'}</div>
+      container.innerHTML = organico.map(dirigente => `
+        <div class="organico-item cursor-pointer" onclick="viewDirigente('${dirigente.$id}')">
+          <div class="flex items-start gap-4">
+            <div class="text-2xl flex-shrink-0">${getDirigenteIcon(dirigente)}</div>
             <div class="flex-1">
-              <div class="font-bold text-gray-900 text-base mb-2 flex items-center gap-2">
-                ${n.titolo}
-                ${!n.pubblicata ? '<span class="badge text-xs">🔒 Bozza</span>' : ''}
-              </div>
-              <p class="text-sm text-gray-700 mb-3 leading-relaxed">${n.contenuto.slice(0, 120)}${n.contenuto.length > 120 ? '...' : ''}</p>
-              <div class="flex items-center gap-3">
-                <span class="text-xs text-aurora font-bold bg-red-50 px-2 py-1 rounded-full">
-                  ${new Date(n.data_pubblicazione).toLocaleDateString('it-IT')}
-                </span>
-                ${n.priorita === 'alta' ? '<span class="badge aurora text-xs">🔥 Importante</span>' : ''}
-                ${n.priorita === 'urgente' ? '<span class="badge aurora text-xs">⚡ Urgente</span>' : ''}
-                <span class="badge gold text-xs">👑 Admin</span>
+              <h4 class="font-bold text-gray-900 text-base mb-2 flex items-center gap-2">
+                ${dirigente.nome_completo || dirigente.nome || 'Dirigente'}
+                ${dirigente.ruolo === 'SEGRETARIO' ? '<span class="badge aurora text-xs">📋 Segretario</span>' : ''}
+                ${dirigente.ruolo === 'PROVINCIALE' ? '<span class="badge success text-xs">🏛️ Provinciale</span>' : ''}
+                ${dirigente.ruolo === 'REGIONALE' ? '<span class="badge gold text-xs">👑 Regionale</span>' : ''}
+              </h4>
+              <p class="text-sm text-gray-700 mb-3 line-clamp-2 leading-relaxed">
+                ${dirigente.sede || dirigente.zona || 'Sede non specificata'} ${dirigente.provincia ? `- ${dirigente.provincia}` : ''}
+              </p>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="badge text-xs">${dirigente.ruolo || 'Dirigente'}</span>
+                ${dirigente.email ? `<span class="text-xs text-gray-500">📧 ${dirigente.email}</span>` : ''}
+                ${dirigente.telefono ? `<span class="text-xs text-gray-500">📞 ${dirigente.telefono}</span>` : ''}
               </div>
             </div>
           </div>
         </div>
       `).join('');
+      
     } catch (error) {
-      console.error('Errore caricamento notizie:', error);
-      document.getElementById("notizieContainer").innerHTML = `
-        <div class="news-item text-center py-6">
-          <div class="text-3xl mb-3">⚠️</div>
-          <p class="text-gray-600 font-semibold">Errore nel caricamento delle notizie</p>
-          <p class="text-gray-500 text-sm mt-1">Riprova più tardi</p>
+      console.error('❌ Errore caricamento organico:', error);
+      document.getElementById("organicoContainer").innerHTML = `
+        <div class="error-state">
+          <div class="icon">⚠️</div>
+          <h4 class="font-bold text-gray-700 mb-2">Errore nel caricamento</h4>
+          <p class="text-gray-500 text-sm">Non è stato possibile caricare l'organico. Riprova più tardi.</p>
         </div>
       `;
     }
   }
 
-  async function loadConvenzioni() {
+  // === CARICAMENTO NOTIZIE ===
+  async function loadNotizie() {
     try {
-      const { data } = await supabase
-        .from('convenzioni')
-        .select('id, nome_partner, descrizione, categoria, sconto_percentuale, icona, data_inizio, data_fine, attiva')
-        .order('created_at', { ascending: false })
-        .limit(5); // Mostra più convenzioni per i dirigenti, incluse quelle non attive
+      console.log('📰 Caricamento notizie dirigenti...');
+      
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.notizie,
+        [
+          Query.orderDesc('$createdAt'),
+          Query.limit(4) // Più notizie per i dirigenti
+        ]
+      );
 
-      const container = document.getElementById("convenzioniContainer");
-      if (!data || !data.length) {
+      const notizie = response.documents;
+      console.log('📰 Notizie caricate:', notizie.length);
+      
+      const container = document.getElementById("notizieContainer");
+      
+      if (!notizie || notizie.length === 0) {
         container.innerHTML = `
-          <div class="convenzione-item text-center py-6">
-            <div class="text-3xl mb-3">🏷️</div>
-            <p class="text-gray-600 font-semibold">Nessuna convenzione disponibile</p>
-            <p class="text-gray-500 text-sm mt-1">Nuove offerte in arrivo presto</p>
+          <div class="news-item text-center py-8">
+            <div class="text-4xl mb-4">📰</div>
+            <h4 class="font-bold text-gray-700 mb-2">Nessuna notizia disponibile</h4>
+            <p class="text-gray-500 text-sm">Controlla più tardi per nuovi aggiornamenti dal sindacato</p>
           </div>
         `;
         return;
       }
       
-      container.innerHTML = data.map(c => {
-        const isNew = c.data_inizio && new Date(c.data_inizio) > new Date(Date.now() - 7*24*60*60*1000);
-        const hasExpiry = c.data_fine && new Date(c.data_fine) > new Date();
-        
-        return `
-          <div class="convenzione-item cursor-pointer" onclick="viewConvenzione('${c.id}')">
-            <div class="flex items-start gap-3">
-              <div class="text-2xl flex-shrink-0">${c.icona || '🏷️'}</div>
-              <div class="flex-1">
-                <div class="font-bold text-gray-900 text-base mb-2 flex items-center gap-2 flex-wrap">
-                  ${c.nome_partner}
-                  ${isNew ? '<span class="badge aurora text-xs">✨ Nuovo</span>' : ''}
-                  ${!c.attiva ? '<span class="badge text-xs">⏸️ Inattiva</span>' : ''}
-                </div>
-                <p class="text-sm text-gray-700 mb-3 leading-relaxed">${c.descrizione?.slice(0, 100) || 'Offerta speciale riservata ai soci'}${c.descrizione && c.descrizione.length > 100 ? '...' : ''}</p>
-                <div class="flex items-center gap-2 flex-wrap">
-                  <span class="badge text-xs">${c.categoria}</span>
-                  ${c.sconto_percentuale ? `<span class="badge success text-xs">💰 -${c.sconto_percentuale}%</span>` : ''}
-                  ${hasExpiry ? `<span class="text-xs text-gray-500">Scade: ${new Date(c.data_fine).toLocaleDateString('it-IT')}</span>` : ''}
-                  <span class="badge gold text-xs">👑 Admin</span>
-                </div>
+      container.innerHTML = notizie.map(notizia => `
+        <div class="news-item cursor-pointer" onclick="viewNotizia('${notizia.$id}')">
+          <div class="flex items-start gap-4">
+            <div class="text-2xl flex-shrink-0">${getNotiziaIcon(notizia)}</div>
+            <div class="flex-1">
+              <h4 class="font-bold text-gray-900 text-base mb-2 flex items-center gap-2 flex-wrap">
+                ${notizia.titolo || 'Notizia importante'}
+                ${getNotiziaAdminBadges(notizia)}
+              </h4>
+              <p class="text-sm text-gray-700 mb-3 line-clamp-3 leading-relaxed">
+                ${(notizia.contenuto || notizia.descrizione || 'Contenuto della notizia non disponibile').slice(0, 150)}${(notizia.contenuto || notizia.descrizione || '').length > 150 ? '...' : ''}
+              </p>
+              <div class="flex items-center gap-3 flex-wrap">
+                <span class="text-xs text-aurora font-bold bg-red-50 px-2 py-1 rounded-full">
+                  ${formatDate(notizia.$createdAt)}
+                </span>
+                ${getNotiziaStatus(notizia)}
+                <span class="badge gold text-xs">👑 Admin View</span>
               </div>
             </div>
           </div>
-        `;
-      }).join('');
+        </div>
+      `).join('');
+      
     } catch (error) {
-      console.error('Errore caricamento convenzioni:', error);
-      document.getElementById("convenzioniContainer").innerHTML = `
-        <div class="convenzione-item text-center py-6">
-          <div class="text-3xl mb-3">⚠️</div>
-          <p class="text-gray-600 font-semibold">Errore nel caricamento delle convenzioni</p>
-          <p class="text-gray-500 text-sm mt-1">Riprova più tardi</p>
+      console.error('❌ Errore caricamento notizie:', error);
+      document.getElementById("notizieContainer").innerHTML = `
+        <div class="error-state">
+          <div class="icon">⚠️</div>
+          <h4 class="font-bold text-gray-700 mb-2">Errore nel caricamento</h4>
+          <p class="text-gray-500 text-sm">Non è stato possibile caricare le notizie. Riprova più tardi.</p>
         </div>
       `;
     }
   }
 
-  // Funzioni per visualizzare dettagli (da implementare se necessario)
-  window.viewNotizia = (id) => {
+  // === CARICAMENTO CONVENZIONI ===
+  async function loadConvenzioni() {
+    try {
+      console.log('🏷️ Caricamento convenzioni dirigenti...');
+      
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.convenzioni,
+        [
+          Query.orderDesc('$createdAt'),
+          Query.limit(5) // Più convenzioni per i dirigenti
+        ]
+      );
+
+      const convenzioni = response.documents;
+      console.log('🏷️ Convenzioni caricate:', convenzioni.length);
+      
+      const container = document.getElementById("convenzioniContainer");
+      
+      if (!convenzioni || convenzioni.length === 0) {
+        container.innerHTML = `
+          <div class="convenzione-item text-center py-8">
+            <div class="text-4xl mb-4">🏷️</div>
+            <h4 class="font-bold text-gray-700 mb-2">Nessuna convenzione attiva</h4>
+            <p class="text-gray-500 text-sm">Nuove offerte esclusive in arrivo presto per i soci</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = convenzioni.map(convenzione => `
+        <div class="convenzione-item cursor-pointer" onclick="viewConvenzione('${convenzione.$id}')">
+          <div class="flex items-start gap-4">
+            <div class="text-2xl flex-shrink-0">${getConvenzioneIcon(convenzione)}</div>
+            <div class="flex-1">
+              <h4 class="font-bold text-gray-900 text-base mb-2 flex items-center gap-2 flex-wrap">
+                ${convenzione.nome_partner || convenzione.titolo || 'Partner Convenzionato'}
+                ${getConvenzioneAdminBadges(convenzione)}
+              </h4>
+              <p class="text-sm text-gray-700 mb-3 line-clamp-2 leading-relaxed">
+                ${(convenzione.descrizione || 'Offerta speciale riservata ai soci del Sindacato Carabinieri').slice(0, 120)}${(convenzione.descrizione || '').length > 120 ? '...' : ''}
+              </p>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="badge text-xs">${convenzione.categoria || 'Convenzione'}</span>
+                ${convenzione.sconto_percentuale ? `<span class="badge success text-xs">💰 -${convenzione.sconto_percentuale}%</span>` : ''}
+                ${convenzione.sconto_fisso ? `<span class="badge success text-xs">💰 -€${convenzione.sconto_fisso}</span>` : ''}
+                <span class="text-xs text-gray-500">${formatDate(convenzione.$createdAt)}</span>
+                <span class="badge gold text-xs">👑 Admin View</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+    } catch (error) {
+      console.error('❌ Errore caricamento convenzioni:', error);
+      document.getElementById("convenzioniContainer").innerHTML = `
+        <div class="error-state">
+          <div class="icon">⚠️</div>
+          <h4 class="font-bold text-gray-700 mb-2">Errore nel caricamento</h4>
+          <p class="text-gray-500 text-sm">Non è stato possibile caricare le convenzioni. Riprova più tardi.</p>
+        </div>
+      `;
+    }
+  }
+
+  // === UTILITY FUNCTIONS ===
+  function getDirigenteIcon(dirigente) {
+    if (dirigente.ruolo) {
+      switch (dirigente.ruolo.toUpperCase()) {
+        case 'SEGRETARIO': return '📋';
+        case 'PROVINCIALE': return '🏛️';
+        case 'REGIONALE': return '👑';
+        default: return '👤';
+      }
+    }
+    return '👤';
+  }
+
+  function getNotiziaIcon(notizia) {
+    if (notizia.icona) return notizia.icona;
+    if (notizia.categoria) {
+      switch (notizia.categoria.toLowerCase()) {
+        case 'importante': return '🔥';
+        case 'urgente': return '⚡';
+        case 'evento': return '📅';
+        case 'comunicazione': return '📢';
+        case 'dirigenti': return '👑';
+        default: return '📰';
+      }
+    }
+    return '📰';
+  }
+
+  function getConvenzioneIcon(convenzione) {
+    if (convenzione.icona) return convenzione.icona;
+    if (convenzione.categoria) {
+      switch (convenzione.categoria.toLowerCase()) {
+        case 'shopping': return '🛍️';
+        case 'viaggi': return '✈️';
+        case 'salute': return '🏥';
+        case 'auto': return '🚗';
+        case 'casa': return '🏠';
+        case 'sport': return '⚽';
+        case 'tecnologia': return '💻';
+        default: return '🏷️';
+      }
+    }
+    return '🏷️';
+  }
+
+  function getNotiziaStatus(notizia) {
+    const badges = [];
+    
+    if (notizia.priorita === 'importante') {
+      badges.push('<span class="badge aurora text-xs">🔥 Importante</span>');
+    }
+    if (notizia.priorita === 'urgente') {
+      badges.push('<span class="badge aurora text-xs">⚡ Urgente</span>');
+    }
+    if (notizia.categoria === 'evento') {
+      badges.push('<span class="badge text-xs">📅 Evento</span>');
+    }
+    if (notizia.categoria === 'dirigenti') {
+      badges.push('<span class="badge gold text-xs">👑 Dirigenti</span>');
+    }
+    
+    return badges.join(' ');
+  }
+
+  function getNotiziaAdminBadges(notizia) {
+    const badges = [];
+    
+    // Se ha campo pubblicata e non è pubblicata
+    if (notizia.hasOwnProperty('pubblicata') && !notizia.pubblicata) {
+      badges.push('<span class="badge text-xs">🔒 Bozza</span>');
+    }
+    
+    // Se è visibile solo ai dirigenti
+    if (notizia.visibilita === 'dirigenti' || notizia.categoria === 'dirigenti') {
+      badges.push('<span class="badge gold text-xs">👑 Solo Dirigenti</span>');
+    }
+    
+    return badges.join(' ');
+  }
+
+  function getConvenzioneAdminBadges(convenzione) {
+    const badges = [];
+    
+    // Se è nuova (ultimi 7 giorni)
+    if (isNewConvenzione(convenzione)) {
+      badges.push('<span class="badge aurora text-xs">✨ Nuovo</span>');
+    }
+    
+    // Se ha campo attiva e non è attiva
+    if (convenzione.hasOwnProperty('attiva') && !convenzione.attiva) {
+      badges.push('<span class="badge text-xs">⏸️ Inattiva</span>');
+    }
+    
+    // Se è in scadenza (prossimi 7 giorni)
+    if (convenzione.data_fine && isExpiringSoon(convenzione.data_fine)) {
+      badges.push('<span class="badge aurora text-xs">⏰ In scadenza</span>');
+    }
+    
+    return badges.join(' ');
+  }
+
+  function isNewConvenzione(convenzione) {
+    if (!convenzione.$createdAt) return false;
+    const createdDate = new Date(convenzione.$createdAt);
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    return createdDate > weekAgo;
+  }
+
+  function isExpiringSoon(dataFine) {
+    if (!dataFine) return false;
+    const endDate = new Date(dataFine);
+    const weekFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    return endDate < weekFromNow && endDate > new Date();
+  }
+
+  function formatDate(dateString) {
+    if (!dateString) return 'Data non disponibile';
+    
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('it-IT', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch (error) {
+      console.error('Errore formattazione data:', error);
+      return 'Data non valida';
+    }
+  }
+
+  function showError(message) {
+    // Mostra errore nella welcome card
+    const welcomeCard = document.querySelector('.welcome-card');
+    if (welcomeCard) {
+      welcomeCard.innerHTML = `
+        <div class="text-center">
+          <div class="text-4xl mb-4">⚠️</div>
+          <h2 class="text-2xl font-bold mb-3 text-red-600">Errore</h2>
+          <p class="text-gray-600">${message}</p>
+          <button onclick="location.reload()" class="btn-primary mt-4">
+            🔄 Riprova
+          </button>
+        </div>
+      `;
+    }
+  }
+
+  // === NAVIGAZIONE ===
+  window.navigateTo = function(url) {
+    console.log('🔗 Navigazione a:', url);
+    window.location.href = url;
+  };
+
+  window.viewNotizia = function(id) {
+    console.log('👁️ Visualizza notizia (Admin):', id);
     // Implementa navigazione a dettaglio notizia con privilegi admin
-    console.log('Visualizza notizia (Admin):', id);
     // window.location.href = `admin/notizia.html?id=${id}`;
+    alert('Funzionalità in sviluppo - Gestione notizie dirigenti');
   };
 
-  window.viewConvenzione = (id) => {
-    // Implementa navigazione a dettaglio convenzione con privilegi admin
-    console.log('Visualizza convenzione (Admin):', id);
+  window.viewConvenzione = function(id) {
+    console.log('👁️ Visualizza convenzione (Admin):', id);
+    // Implementa navigazione a dettaglio convenzione con privilegi admin  
     // window.location.href = `admin/convenzione.html?id=${id}`;
+    alert('Funzionalità in sviluppo - Gestione convenzioni dirigenti');
   };
 
-  window.navigateTo = (url) => window.location.href = url;
+  window.viewDirigente = function(id) {
+    console.log('👁️ Visualizza dirigente:', id);
+    // Implementa navigazione a dettaglio dirigente
+    // window.location.href = `dirigente.html?id=${id}`;
+    alert('Funzionalità in sviluppo - Dettaglio dirigente');
+  };
 
-  // Keyboard navigation for cards
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && e.target.classList.contains('card-item')) {
-      e.target.click();
+  // === EVENT LISTENERS ===
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('👑 DOM caricato, inizializzazione MyApp Dirigenti...');
+    
+    // Inizializza l'applicazione
+    init();
+    
+    // Keyboard navigation per accessibilità
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.target.classList.contains('card-item')) {
+        e.target.click();
+      }
+    });
+    
+    // Logout handler
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        if (confirm("Sei sicuro di voler uscire dall'area dirigenti?")) {
+          try {
+            console.log('🚪 Logout dirigenti in corso...');
+            await account.deleteSession('current');
+            console.log('✅ Logout completato');
+            window.location.href = 'login.html';
+          } catch (error) {
+            console.error('❌ Errore durante il logout:', error);
+            // Forza il redirect anche in caso di errore
+            window.location.href = 'login.html';
+          }
+        }
+      });
     }
   });
 
-  document.getElementById("logoutBtn").addEventListener("click", async () => {
-    if (confirm("Vuoi davvero uscire dall'area dirigenti?")) {
-      await supabase.auth.signOut();
-      location.href = '../login.html';
+  // === ERROR HANDLING GLOBALE ===
+  window.addEventListener('unhandledrejection', function(event) {
+    console.error('❌ Promise rejection non gestita:', event.reason);
+    
+    // Se è un errore di autenticazione, redirect al login
+    if (event.reason && event.reason.code === 401) {
+      console.log('🔐 Errore autenticazione globale, redirect al login');
+      window.location.href = 'login.html';
     }
   });
 
-  init();
+  window.addEventListener('error', function(event) {
+    console.error('❌ Errore JavaScript globale:', event.error);
+  });
+
+  // === REFRESH AUTOMATICO CONTENUTI ===
+  // Aggiorna contenuti ogni 3 minuti (più frequente per dirigenti)
+  setInterval(async () => {
+    try {
+      console.log('🔄 Aggiornamento automatico contenuti dirigenti...');
+      await Promise.all([
+        loadOrganico(),
+        loadNotizie(),
+        loadConvenzioni()
+      ]);
+      console.log('✅ Contenuti dirigenti aggiornati automaticamente');
+    } catch (error) {
+      console.error('❌ Errore aggiornamento automatico dirigenti:', error);
+    }
+  }, 3 * 60 * 1000); // 3 minuti
+
+  console.log('👑 MyApp Home Dirigenti script caricato e pronto');
 </script>
 
 </body>

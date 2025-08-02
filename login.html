@@ -18,7 +18,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Appwrite SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
     
     <!-- CONFIGURAZIONE COLORI TAILWIND -->
     <script>
@@ -664,18 +664,16 @@
         const { Client, Account, Databases, ID, Query } = Appwrite;
 
         const client = new Client()
-            .setEndpoint('https://fra.cloud.appwrite.io/v1')
-            .setProject('688db9670010e3113d56');
+            .setEndpoint('https://cloud.appwrite.io/v1')  // Updated to latest endpoint
+            .setProject('YOUR_PROJECT_ID');  // Replace with your project ID
 
         const account = new Account(client);
         const databases = new Databases(client);
 
-        const DATABASE_ID = '688dbfaf001fcce68c0f';
+        const DATABASE_ID = 'YOUR_DATABASE_ID';  // Replace with your database ID
         const COLLECTIONS = {
-            profiles: '688dc04f0034554d752f',  // user_profiles
-            notizie: '688e02b3000595a16b2c',
-            convenzioni: '688e03f0001958f71d9e',
-            organico: '688e0501000254ad0966'
+            user_profiles: '688dc04f00345547d52f',  // user_profiles collection
+            tessere: '688e6222002987f97521'          // tessere collection
         };
 
         // 🎯 STATO APPLICAZIONE
@@ -716,6 +714,12 @@
 
             isValidPhone: (phone) => {
                 return /^\+?[1-9]\d{1,14}$/.test(phone.replace(/[\s\-\(\)]/g, ''));
+            },
+
+            generateTessera: () => {
+                const year = new Date().getFullYear();
+                const random = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+                return `SC${year}${random}`;
             },
 
             safeRedirect: (url, delay = 1500) => {
@@ -760,6 +764,11 @@
             
             document.getElementById('messages').innerHTML = '';
             
+            // Set max date for birth date (18 years ago)
+            const maxDate = new Date();
+            maxDate.setFullYear(maxDate.getFullYear() - 18);
+            document.getElementById('registerDataNascita').max = maxDate.toISOString().split('T')[0];
+            
             setTimeout(() => {
                 document.getElementById('registerNome')?.focus();
             }, 100);
@@ -781,113 +790,112 @@
                 try {
                     console.log('🔍 Caricamento profilo per:', userId);
                     
-                    const profile = await databases.getDocument(
+                    const response = await databases.listDocuments(
                         DATABASE_ID,
-                        COLLECTIONS.profiles,
-                        userId
+                        COLLECTIONS.user_profiles,
+                        [Query.equal('user_id', userId)]
                     );
                     
-                    console.log('👤 Profilo caricato:', profile);
-                    
-                    // Normalizza i ruoli
-                    let ruoli = [];
-                    if (Array.isArray(profile.ruoli)) {
-                        ruoli = profile.ruoli;
-                    } else if (typeof profile.ruoli === 'string') {
-                        ruoli = [profile.ruoli];
+                    if (response.documents.length > 0) {
+                        const profile = response.documents[0];
+                        console.log('👤 Profilo trovato:', profile);
+                        
                     } else {
-                        ruoli = ['USER']; // Default fallback
+                        console.log('❌ Profilo non trovato per utente:', userId);
+                        return null;
                     }
-                    
-                    const isDirigente = ruoli.includes('DIRIGENTE');
-                    const isAdmin = ruoli.includes('ADMIN');
-                    
-                    console.log('🎯 Ruoli analizzati:', {
-                        ruoli_raw: profile.ruoli,
-                        ruoli_normalized: ruoli,
-                        isDirigente: isDirigente,
-                        isAdmin: isAdmin
-                    });
-                    
-                    return {
-                        ...profile,
-                        ruoli: ruoli,
-                        isDirigente: isDirigente,
-                        isAdmin: isAdmin
-                    };
                     
                 } catch (error) {
-                    console.warn('⚠️ Profilo non trovato, creazione automatica...');
-                    console.log('🔧 Errore dettagli:', error);
-                    
-                    // Crea profilo basic per nuovi utenti
-                    try {
-                        const userData = await account.get();
-                        console.log('👤 Dati utente Appwrite:', userData);
-                        
-                        const newProfile = await databases.createDocument(
-                            DATABASE_ID,
-                            COLLECTIONS.profiles,
-                            userId,
-                            {
-                                nome: userData.name || 'Nuovo Utente',
-                                email: userData.email,
-                                ruoli: ['USER'], // Array di default
-                                created_at: new Date().toISOString()
-                            }
-                        );
-                        
-                        console.log('✅ Profilo USER creato automaticamente:', newProfile);
-                        
-                        return {
-                            ...newProfile,
-                            ruoli: ['USER'],
-                            isDirigente: false,
-                            isAdmin: false
-                        };
-                        
-                    } catch (createError) {
-                        console.error('❌ Errore creazione profilo automatico:', createError);
-                        
-                        // Fallback completo - profilo minimale in memoria
-                        return {
-                            ruoli: ['USER'],
-                            isDirigente: false,
-                            isAdmin: false,
-                            nome: 'Utente',
-                            email: '',
-                            $id: userId
-                        };
-                    }
+                    console.error('❌ Errore caricamento profilo:', error);
+                    return null;
                 }
             },
 
-            // Determine redirect URL based on role with detailed logging
+            // Create user profile
+            createUserProfile: async (userData, userId) => {
+                try {
+                    console.log('🆕 Creazione profilo utente:', { userData, userId });
+                    
+                    const profileData = {
+                        user_id: userId,
+                        email: userData.email,
+                        full_name: `${userData.nome} ${userData.cognome}`.trim(),
+                        cognome: userData.cognome,
+                        telefono: userData.telefono,
+                        role: 'USER', // Default role - campo stringa
+                        data_nascita: userData.data_nascita,
+                        luogo_nascita: userData.luogo_nascita,
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
+                    };
+                    
+                    const profile = await databases.createDocument(
+                        DATABASE_ID,
+                        COLLECTIONS.user_profiles,
+                        ID.unique(),
+                        profileData
+                    );
+                    
+                    console.log('✅ Profilo creato:', profile);
+                    return profile;
+                    
+                } catch (error) {
+                    console.error('❌ Errore creazione profilo:', error);
+                    throw error;
+                }
+            },
+
+            // Create tessera
+            createTessera: async (userId, profileData) => {
+                try {
+                    console.log('🎫 Creazione tessera per utente:', userId);
+                    
+                    const tesseraData = {
+                        user_id: userId,
+                        numero_tessera: Utils.generateTessera(),
+                        nome_completo: profileData.full_name,
+                        email: profileData.email,
+                        telefono: profileData.telefono,
+                        data_emissione: new Date().toISOString(),
+                        data_scadenza: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year from now
+                        stato: 'ATTIVA',
+                        tipo: 'STANDARD',
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    const tessera = await databases.createDocument(
+                        DATABASE_ID,
+                        COLLECTIONS.tessere,
+                        ID.unique(),
+                        tesseraData
+                    );
+                    
+                    console.log('✅ Tessera creata:', tessera);
+                    return tessera;
+                    
+                } catch (error) {
+                    console.error('❌ Errore creazione tessera:', error);
+                    throw error;
+                }
+            },
+
+            // Determine redirect URL based on role
             getRedirectUrl: (userProfile) => {
-                console.log('🎯 ANALISI REDIRECT - Profilo completo:', userProfile);
+                console.log('🎯 Determinazione redirect per profilo:', userProfile);
                 
-                const ruoli = userProfile.ruoli || [];
-                const isDirigente = userProfile.isDirigente || ruoli.includes('DIRIGENTE');
-                const isAdmin = userProfile.isAdmin || ruoli.includes('ADMIN');
+                if (!userProfile || !userProfile.role) {
+                    console.log('👤 Default redirect → home.html');
+                    return 'home.html';
+                }
                 
-                console.log('🔍 LOGIC REDIRECT:', {
-                    ruoli_array: ruoli,
-                    isDirigente: isDirigente,
-                    isAdmin: isAdmin,
-                    check_dirigente: ruoli.includes('DIRIGENTE'),
-                    check_admin: ruoli.includes('ADMIN')
-                });
+                const role = userProfile.role.toUpperCase();
                 
-                // Priorità: ADMIN > DIRIGENTE > USER
-                if (isAdmin) {
-                    console.log('👑 REDIRECT ADMIN → app/home_dirigenti.html');
-                    return 'app/home_dirigenti.html';
-                } else if (isDirigente) {
-                    console.log('📋 REDIRECT DIRIGENTE → app/home_dirigenti.html');
-                    return 'app/home_dirigenti.html';
+                if (role === 'ADMIN' || role === 'DIRIGENTE') {
+                    console.log('👑 Redirect dirigenti → home_dirigenti.html');
+                    return 'home_dirigenti.html';
                 } else {
-                    console.log('👤 REDIRECT USER → app/home.html');
-                    return 'app/home.html';
+                    console.log('👤 Redirect utente → home.html');
+                    return 'home.html';
                 }
             },
 
@@ -898,3 +906,228 @@
                     
                     const email = document.getElementById('loginEmail').value.trim();
                     const password = document.getElementById('loginPassword').value;
+                    
+                    // Validation
+                    if (!email || !password) {
+                        Utils.showMessage('❌ Inserisci email e password', 'error');
+                        return;
+                    }
+                    
+                    if (!Utils.isValidEmail(email)) {
+                        Utils.showMessage('❌ Formato email non valido', 'error');
+                        return;
+                    }
+                    
+                    console.log('🔐 Tentativo login per:', email);
+                    
+                    // Appwrite login
+                    const session = await account.createEmailPasswordSession(email, password);
+                    console.log('✅ Login riuscito:', session);
+                    
+                    // Get user info
+                    const user = await account.get();
+                    console.log('👤 Dati utente:', user);
+                    
+                    // Load user profile
+                    const userProfile = await AuthManager.getUserProfile(user.$id);
+                    
+                    if (!userProfile) {
+                        Utils.showMessage('❌ Profilo utente non trovato. Contatta l\'amministratore.', 'error');
+                        return;
+                    }
+                    
+                    Utils.showMessage('✅ Login eseguito con successo! Reindirizzamento...', 'success');
+                    
+                    // Redirect based on role
+                    const redirectUrl = AuthManager.getRedirectUrl(userProfile);
+                    Utils.safeRedirect(redirectUrl);
+                    
+                } catch (error) {
+                    console.error('❌ Errore login:', error);
+                    
+                    let errorMessage = 'Errore durante il login';
+                    if (error.code === 401) {
+                        errorMessage = 'Email o password non corretti';
+                    } else if (error.code === 429) {
+                        errorMessage = 'Troppi tentativi. Riprova più tardi';
+                    } else if (error.message) {
+                        errorMessage = error.message;
+                    }
+                    
+                    Utils.showMessage(`❌ ${errorMessage}`, 'error');
+                } finally {
+                    Utils.setLoading('loginBtn', false);
+                }
+            },
+
+            // Handle registration
+            handleRegister: async () => {
+                try {
+                    Utils.setLoading('registerBtn', true);
+                    
+                    // Get form data
+                    const formData = {
+                        nome: document.getElementById('registerNome').value.trim(),
+                        cognome: document.getElementById('registerCognome').value.trim(),
+                        email: document.getElementById('registerEmail').value.trim(),
+                        telefono: document.getElementById('registerTelefono').value.trim(),
+                        data_nascita: document.getElementById('registerDataNascita').value,
+                        luogo_nascita: document.getElementById('registerLuogoNascita').value.trim(),
+                        password: document.getElementById('registerPassword').value,
+                        confirmPassword: document.getElementById('confirmPassword').value,
+                        privacyAccept: document.getElementById('privacyAccept').checked,
+                        newsletterAccept: document.getElementById('newsletterAccept').checked
+                    };
+                    
+                    // Validation
+                    if (!formData.nome || !formData.cognome || !formData.email || !formData.telefono || 
+                        !formData.data_nascita || !formData.luogo_nascita || !formData.password) {
+                        Utils.showMessage('❌ Compila tutti i campi obbligatori', 'error');
+                        return;
+                    }
+                    
+                    if (!Utils.isValidEmail(formData.email)) {
+                        Utils.showMessage('❌ Formato email non valido', 'error');
+                        return;
+                    }
+                    
+                    if (!Utils.isValidPhone(formData.telefono)) {
+                        Utils.showMessage('❌ Formato telefono non valido', 'error');
+                        return;
+                    }
+                    
+                    if (formData.password.length < 8) {
+                        Utils.showMessage('❌ La password deve avere almeno 8 caratteri', 'error');
+                        return;
+                    }
+                    
+                    if (formData.password !== formData.confirmPassword) {
+                        Utils.showMessage('❌ Le password non coincidono', 'error');
+                        return;
+                    }
+                    
+                    if (!formData.privacyAccept) {
+                        Utils.showMessage('❌ Devi accettare l\'informativa privacy', 'error');
+                        return;
+                    }
+                    
+                    console.log('🆕 Inizio registrazione per:', formData.email);
+                    
+                    // Create Appwrite account
+                    const user = await account.create(
+                        ID.unique(),
+                        formData.email,
+                        formData.password,
+                        `${formData.nome} ${formData.cognome}`
+                    );
+                    
+                    console.log('✅ Account Appwrite creato:', user);
+                    
+                    // Login the user immediately
+                    await account.createEmailPasswordSession(formData.email, formData.password);
+                    console.log('✅ Login automatico eseguito');
+                    
+                    // Create user profile
+                    const profile = await AuthManager.createUserProfile(formData, user.$id);
+                    
+                    // Create tessera
+                    const tessera = await AuthManager.createTessera(user.$id, profile);
+                    
+                    Utils.showMessage('✅ Registrazione completata! Benvenuto nel Sindacato Carabinieri!', 'success');
+                    
+                    console.log('🎉 Registrazione completata:', {
+                        user: user,
+                        profile: profile,
+                        tessera: tessera
+                    });
+                    
+                    // Redirect to user home (new users are always USER role)
+                    Utils.safeRedirect('home.html');
+                    
+                } catch (error) {
+                    console.error('❌ Errore registrazione:', error);
+                    
+                    let errorMessage = 'Errore durante la registrazione';
+                    if (error.code === 409) {
+                        errorMessage = 'Email già registrata. Prova ad effettuare il login';
+                    } else if (error.code === 400) {
+                        errorMessage = 'Dati non validi. Controlla i campi inseriti';
+                    } else if (error.message) {
+                        errorMessage = error.message;
+                    }
+                    
+                    Utils.showMessage(`❌ ${errorMessage}`, 'error');
+                } finally {
+                    Utils.setLoading('registerBtn', false);
+                }
+            }
+        };
+
+        // 📝 EVENT LISTENERS
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Login/Register page loaded');
+            
+            // Login form
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    AuthManager.handleLogin();
+                });
+            }
+            
+            // Register form
+            const registerForm = document.getElementById('registerForm');
+            if (registerForm) {
+                registerForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    AuthManager.handleRegister();
+                });
+            }
+            
+            // Password validation on register
+            const registerPassword = document.getElementById('registerPassword');
+            const confirmPassword = document.getElementById('confirmPassword');
+            
+            if (confirmPassword) {
+                confirmPassword.addEventListener('input', function() {
+                    const password = registerPassword.value;
+                    const confirm = this.value;
+                    
+                    if (confirm && password !== confirm) {
+                        this.style.borderColor = '#dc2626';
+                    } else {
+                        this.style.borderColor = '#e5e7eb';
+                    }
+                });
+            }
+            
+            // Check if user is already logged in
+            account.get()
+                .then(user => {
+                    console.log('👤 Utente già autenticato:', user);
+                    Utils.showMessage('Sei già autenticato. Reindirizzamento...', 'info');
+                    
+                    // Get profile and redirect
+                    AuthManager.getUserProfile(user.$id)
+                        .then(profile => {
+                            const redirectUrl = AuthManager.getRedirectUrl(profile);
+                            Utils.safeRedirect(redirectUrl, 500);
+                        })
+                        .catch(() => {
+                            Utils.safeRedirect('home.html', 500);
+                        });
+                })
+                .catch(() => {
+                    console.log('👤 Utente non autenticato, mostra form login');
+                });
+            
+            // Set focus on email field
+            setTimeout(() => {
+                document.getElementById('loginEmail')?.focus();
+            }, 100);
+        });
+
+    </script>
+</body>
+</html>

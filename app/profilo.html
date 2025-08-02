@@ -28,10 +28,8 @@
     <meta name="application-name" content="MyApp">
     <meta name="msapplication-TileColor" content="#1a1a2e">
     
-    <!-- Preconnect per performance -->
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://lycrgzptkdkksukcwrld.supabase.co">
+    <!-- Appwrite SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -223,7 +221,7 @@
             font-weight: 700;
         }
 
-        /* Profile Avatar - Rimosso movimento */
+        /* Profile Avatar */
         .profile-avatar {
             width: 100px;
             height: 100px;
@@ -237,7 +235,7 @@
             transition: all 0.3s ease;
         }
 
-        /* Buttons Aurora - Rimosso movimento */
+        /* Buttons Aurora */
         .btn-aurora {
             background: var(--gradient-magic);
             color: white;
@@ -294,7 +292,7 @@
             border-color: rgba(107, 114, 128, 0.8);
         }
 
-        /* Settings icons - Rimosso movimento */
+        /* Settings icons */
         .setting-icon {
             width: 48px;
             height: 48px;
@@ -442,18 +440,11 @@
             <form id="profileForm" class="glass-effect rounded-3xl p-8">
                 <h3 class="section-title text-textDark mb-8">Modifica Dati Personali</h3>
                 
-                <!-- Nome -->
+                <!-- Full Name -->
                 <div class="form-group">
-                    <label class="form-label" for="nome">Nome *</label>
-                    <input type="text" id="nome" name="nome" class="form-input" required>
-                    <div class="validation-error" id="nomeError" style="display: none;"></div>
-                </div>
-
-                <!-- Cognome -->
-                <div class="form-group">
-                    <label class="form-label" for="cognome">Cognome *</label>
-                    <input type="text" id="cognome" name="cognome" class="form-input" required>
-                    <div class="validation-error" id="cognomeError" style="display: none;"></div>
+                    <label class="form-label" for="full_name">Nome Completo *</label>
+                    <input type="text" id="full_name" name="full_name" class="form-input" required>
+                    <div class="validation-error" id="fullNameError" style="display: none;"></div>
                 </div>
 
                 <!-- Email (readonly) -->
@@ -470,10 +461,31 @@
                     <div class="validation-error" id="telefonoError" style="display: none;"></div>
                 </div>
 
+                <!-- Data di Nascita -->
+                <div class="form-group">
+                    <label class="form-label" for="data_nascita">Data di Nascita</label>
+                    <input type="date" id="data_nascita" name="data_nascita" class="form-input">
+                    <div class="validation-error" id="dataNascitaError" style="display: none;"></div>
+                </div>
+
+                <!-- Luogo di Nascita -->
+                <div class="form-group">
+                    <label class="form-label" for="luogo_nascita">Luogo di Nascita</label>
+                    <input type="text" id="luogo_nascita" name="luogo_nascita" class="form-input" placeholder="Es: Roma (RM)">
+                    <div class="validation-error" id="luogoNascitaError" style="display: none;"></div>
+                </div>
+
+                <!-- Cognome -->
+                <div class="form-group">
+                    <label class="form-label" for="cognome">Cognome *</label>
+                    <input type="text" id="cognome" name="cognome" class="form-input" required>
+                    <div class="validation-error" id="cognomeError" style="display: none;"></div>
+                </div>
+
                 <!-- Ruolo (readonly) -->
                 <div class="form-group">
-                    <label class="form-label" for="ruolo">Ruolo</label>
-                    <input type="text" id="ruolo" name="ruolo" class="form-input" readonly>
+                    <label class="form-label" for="role">Ruolo</label>
+                    <input type="text" id="role" name="role" class="form-input" readonly>
                     <small class="text-gray-600 text-sm font-semibold">Il ruolo è gestito dall'amministratore</small>
                 </div>
 
@@ -531,16 +543,24 @@
     </main>
 
     <!-- JavaScript -->
-    <script type="module">
-        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+    <script>
+        // Configurazione Appwrite
+        const { Client, Account, Databases, Query, ID } = Appwrite;
 
-        // Configurazione Supabase
-        const supabaseUrl = 'https://lycrgzptkdkksukcwrld.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk';
-        const supabase = createClient(supabaseUrl, supabaseKey);
+        const client = new Client()
+            .setEndpoint('https://cloud.appwrite.io/v1') // Your Appwrite Endpoint
+            .setProject('YOUR_PROJECT_ID'); // Replace with your project ID
+
+        const account = new Account(client);
+        const databases = new Databases(client);
+
+        // IDs Database e Collection
+        const DATABASE_ID = 'YOUR_DATABASE_ID'; // Replace with your database ID
+        const USER_PROFILES_COLLECTION_ID = '688dc04f00345547d52f'; // user_profiles collection
 
         // Variabili globali
         let currentUser = null;
+        let currentProfile = null;
         let originalData = {};
 
         // Elementi DOM
@@ -560,16 +580,20 @@
             telefonoDisplay: document.getElementById('telefonoDisplay'),
             
             // Form inputs
-            nome: document.getElementById('nome'),
-            cognome: document.getElementById('cognome'),
+            full_name: document.getElementById('full_name'),
             email: document.getElementById('email'),
             telefono: document.getElementById('telefono'),
-            ruolo: document.getElementById('ruolo'),
+            data_nascita: document.getElementById('data_nascita'),
+            luogo_nascita: document.getElementById('luogo_nascita'),
+            cognome: document.getElementById('cognome'),
+            role: document.getElementById('role'),
             
             // Error displays
-            nomeError: document.getElementById('nomeError'),
+            fullNameError: document.getElementById('fullNameError'),
             cognomeError: document.getElementById('cognomeError'),
-            telefonoError: document.getElementById('telefonoError')
+            telefonoError: document.getElementById('telefonoError'),
+            dataNascitaError: document.getElementById('dataNascitaError'),
+            luogoNascitaError: document.getElementById('luogoNascitaError')
         };
 
         // Utilità per mostrare/nascondere messaggi
@@ -595,9 +619,11 @@
 
         // Utilità per la validazione
         function clearValidationErrors() {
-            elements.nomeError.style.display = 'none';
+            elements.fullNameError.style.display = 'none';
             elements.cognomeError.style.display = 'none';
             elements.telefonoError.style.display = 'none';
+            elements.dataNascitaError.style.display = 'none';
+            elements.luogoNascitaError.style.display = 'none';
         }
 
         function showValidationError(field, message) {
@@ -613,12 +639,12 @@
             clearValidationErrors();
             let isValid = true;
 
-            // Validazione nome
-            if (!elements.nome.value.trim()) {
-                showValidationError('nome', 'Il nome è obbligatorio');
+            // Validazione nome completo
+            if (!elements.full_name.value.trim()) {
+                showValidationError('fullName', 'Il nome completo è obbligatorio');
                 isValid = false;
-            } else if (elements.nome.value.length < 2) {
-                showValidationError('nome', 'Il nome deve avere almeno 2 caratteri');
+            } else if (elements.full_name.value.length < 2) {
+                showValidationError('fullName', 'Il nome deve avere almeno 2 caratteri');
                 isValid = false;
             }
 
@@ -640,22 +666,34 @@
                 }
             }
 
+            // Validazione data di nascita (se presente)
+            if (elements.data_nascita.value) {
+                const birthDate = new Date(elements.data_nascita.value);
+                const today = new Date();
+                const age = today.getFullYear() - birthDate.getFullYear();
+                
+                if (age < 18 || age > 100) {
+                    showValidationError('dataNascita', 'Inserisci una data di nascita valida');
+                    isValid = false;
+                }
+            }
+
             return isValid;
         }
 
         // Funzione per ottenere le iniziali
-        function getInitials(nome, cognome) {
-            const n = nome ? nome.charAt(0).toUpperCase() : '';
-            const c = cognome ? cognome.charAt(0).toUpperCase() : '';
-            return n + c || '--';
+        function getInitials(fullName, cognome) {
+            const nameParts = fullName ? fullName.trim().split(' ') : [];
+            const firstInitial = nameParts.length > 0 ? nameParts[0].charAt(0).toUpperCase() : '';
+            const lastInitial = cognome ? cognome.charAt(0).toUpperCase() : '';
+            return firstInitial + lastInitial || '--';
         }
 
         // Funzione per ottenere il ruolo in italiano
-        function getRoleInItalian(roles) {
-            if (!roles || !Array.isArray(roles) || roles.length === 0) return 'Utente';
+        function getRoleInItalian(role) {
+            if (!role) return 'Utente';
             
-            const role = roles[0]; // Prendi il primo ruolo
-            switch (role) {
+            switch (role.toUpperCase()) {
                 case 'ADMIN': return 'Amministratore';
                 case 'DIRIGENTE': return 'Dirigente';
                 case 'USER': return 'Utente';
@@ -664,11 +702,10 @@
         }
 
         // Funzione per ottenere la classe CSS del ruolo
-        function getRoleClass(roles) {
-            if (!roles || !Array.isArray(roles) || roles.length === 0) return 'role-user';
+        function getRoleClass(role) {
+            if (!role) return 'role-user';
             
-            const role = roles[0];
-            switch (role) {
+            switch (role.toUpperCase()) {
                 case 'ADMIN': return 'role-admin';
                 case 'DIRIGENTE': return 'role-dirigente';
                 case 'USER': return 'role-user';
@@ -679,14 +716,14 @@
         // Funzione per aggiornare la visualizzazione del profilo
         function updateProfileDisplay(profile) {
             // Aggiorna le iniziali
-            elements.initialsDisplay.textContent = getInitials(profile.nome, profile.cognome);
+            elements.initialsDisplay.textContent = getInitials(profile.full_name, profile.cognome);
             
             // Aggiorna il nome completo
-            elements.fullNameDisplay.textContent = `${profile.nome || ''} ${profile.cognome || ''}`.trim() || 'Nome non disponibile';
+            elements.fullNameDisplay.textContent = `${profile.full_name || ''} ${profile.cognome || ''}`.trim() || 'Nome non disponibile';
             
             // Aggiorna il ruolo
-            const roleText = getRoleInItalian(profile.ruoli);
-            const roleClass = getRoleClass(profile.ruoli);
+            const roleText = getRoleInItalian(profile.role);
+            const roleClass = getRoleClass(profile.role);
             elements.roleDisplay.textContent = roleText;
             elements.roleDisplay.className = `role-badge ${roleClass} mb-3`;
             
@@ -701,45 +738,68 @@
                 hideMessages();
 
                 // Verifica se l'utente è autenticato
-                const { data: { user }, error: authError } = await supabase.auth.getUser();
+                currentUser = await account.get();
                 
-                if (authError || !user) {
-                    console.error('Errore autenticazione:', authError);
+                if (!currentUser) {
                     window.location.href = '/login.html';
                     return;
                 }
 
-                currentUser = user;
+                // Carica i dati del profilo dalla collezione user_profiles
+                const response = await databases.listDocuments(
+                    DATABASE_ID,
+                    USER_PROFILES_COLLECTION_ID,
+                    [Query.equal('user_id', currentUser.$id)]
+                );
 
-                // Carica i dati del profilo dalla tabella profiles
-                const { data: profile, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .single();
+                if (response.documents.length === 0) {
+                    // Se non esiste il profilo, creane uno nuovo
+                    const newProfile = {
+                        user_id: currentUser.$id,
+                        email: currentUser.email,
+                        full_name: currentUser.name || '',
+                        cognome: '',
+                        telefono: '',
+                        role: 'USER',
+                        data_nascita: '',
+                        luogo_nascita: ''
+                    };
 
-                if (profileError) {
-                    console.error('Errore caricamento profilo:', profileError);
-                    showError('Errore nel caricamento del profilo');
-                    return;
+                    const createdProfile = await databases.createDocument(
+                        DATABASE_ID,
+                        USER_PROFILES_COLLECTION_ID,
+                        ID.unique(),
+                        newProfile
+                    );
+
+                    currentProfile = createdProfile;
+                } else {
+                    currentProfile = response.documents[0];
                 }
 
                 // Salva i dati originali per il reset
-                originalData = { ...profile };
+                originalData = { ...currentProfile };
 
                 // Popola i campi del form
-                elements.nome.value = profile.nome || '';
-                elements.cognome.value = profile.cognome || '';
-                elements.email.value = profile.email || user.email || '';
-                elements.telefono.value = profile.telefono || '';
-                elements.ruolo.value = getRoleInItalian(profile.ruoli);
+                elements.full_name.value = currentProfile.full_name || '';
+                elements.cognome.value = currentProfile.cognome || '';
+                elements.email.value = currentProfile.email || currentUser.email || '';
+                elements.telefono.value = currentProfile.telefono || '';
+                elements.role.value = getRoleInItalian(currentProfile.role);
+                elements.data_nascita.value = currentProfile.data_nascita || '';
+                elements.luogo_nascita.value = currentProfile.luogo_nascita || '';
 
                 // Aggiorna la visualizzazione
-                updateProfileDisplay(profile);
+                updateProfileDisplay(currentProfile);
 
             } catch (error) {
-                console.error('Errore generale:', error);
-                showError('Errore nel caricamento del profilo');
+                console.error('Errore nel caricamento del profilo:', error);
+                if (error.code === 401) {
+                    // Non autenticato
+                    window.location.href = '/login.html';
+                } else {
+                    showError('Errore nel caricamento del profilo');
+                }
             } finally {
                 elements.loading.style.display = 'none';
             }
@@ -760,35 +820,31 @@
                 hideMessages();
 
                 const updateData = {
-                    nome: elements.nome.value.trim(),
+                    full_name: elements.full_name.value.trim(),
                     cognome: elements.cognome.value.trim(),
                     telefono: elements.telefono.value.trim() || null,
-                    updated_at: new Date().toISOString()
+                    data_nascita: elements.data_nascita.value || null,
+                    luogo_nascita: elements.luogo_nascita.value.trim() || null
                 };
 
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .update(updateData)
-                    .eq('id', currentUser.id)
-                    .select()
-                    .single();
+                const updatedProfile = await databases.updateDocument(
+                    DATABASE_ID,
+                    USER_PROFILES_COLLECTION_ID,
+                    currentProfile.$id,
+                    updateData
+                );
 
-                if (error) {
-                    console.error('Errore salvataggio:', error);
-                    showError('Errore nel salvataggio delle modifiche');
-                    return;
-                }
-
-                // Aggiorna i dati originali
-                originalData = { ...originalData, ...updateData };
+                // Aggiorna i dati correnti
+                currentProfile = updatedProfile;
+                originalData = { ...updatedProfile };
                 
                 // Aggiorna la visualizzazione
-                updateProfileDisplay(data);
+                updateProfileDisplay(updatedProfile);
                 
                 showSuccess('Profilo aggiornato con successo!');
 
             } catch (error) {
-                console.error('Errore generale salvataggio:', error);
+                console.error('Errore nel salvataggio:', error);
                 showError('Errore nel salvataggio delle modifiche');
             } finally {
                 elements.saveBtn.classList.remove('btn-loading');
@@ -798,27 +854,27 @@
 
         // Funzione per resettare il form
         window.resetForm = function() {
-            elements.nome.value = originalData.nome || '';
+            elements.full_name.value = originalData.full_name || '';
             elements.cognome.value = originalData.cognome || '';
             elements.telefono.value = originalData.telefono || '';
+            elements.data_nascita.value = originalData.data_nascita || '';
+            elements.luogo_nascita.value = originalData.luogo_nascita || '';
             clearValidationErrors();
             hideMessages();
         };
 
         // Funzione per il tasto indietro basato sul ruolo
         function handleBackNavigation() {
-            if (!currentUser || !originalData.ruoli) {
+            if (!currentProfile || !currentProfile.role) {
                 // Fallback alla home standard se non abbiamo dati del ruolo
                 window.location.href = '/home.html';
                 return;
             }
 
-            const userRoles = originalData.ruoli;
-            const hasAdminRole = userRoles.includes('ADMIN');
-            const hasDirigenteRole = userRoles.includes('DIRIGENTE');
+            const userRole = currentProfile.role.toUpperCase();
 
             // Se è ADMIN o DIRIGENTE, va alla home dirigenti
-            if (hasAdminRole || hasDirigenteRole) {
+            if (userRole === 'ADMIN' || userRole === 'DIRIGENTE') {
                 window.location.href = '/home_dirigenti.html';
             } else {
                 // Altrimenti va alla home standard
@@ -837,16 +893,6 @@
 
         // Carica il profilo all'avvio
         loadProfile();
-
-        // Listener per i cambiamenti di autenticazione
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN') {
-                console.log('Utente autenticato:', session.user.email);
-            } else if (event === 'SIGNED_OUT') {
-                console.log('Utente disconnesso');
-                window.location.href = '/login.html';
-            }
-        });
 
     </script>
 </body>
