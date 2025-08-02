@@ -3,71 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrazione - MyApp</title>
-    
-    <!-- PWA Meta Tags -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1a1a2e">
-    <link rel="icon" href="/favicon.ico" type="image/x-icon">
-    
-    <!-- iOS PWA Support -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="MyApp">
-    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
-    
-    <!-- Supabase JS - versione stabile -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2.39.3/dist/umd/supabase.js"></script>
+    <title>Login - MyApp Sindacato Carabinieri</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- CONFIGURAZIONE COLORI TAILWIND -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        primary: '#1a1a2e',
-                        secondary: '#16213e',
-                        accent: '#0f3460',
-                        aurora: '#e94560',
-                        cyan: '#00d4ff',
-                        magenta: '#ff006e',
-                        gold: '#ffd700',
-                        teal: '#03dac6',
-                        dark: '#0a0a23',
-                        light: '#f8fafc',
+                        // Aurora Boreale 2025 Palette
+                        primary: '#1a1a2e',      // Blu notte profondo
+                        secondary: '#16213e',     // Blu oceano
+                        accent: '#0f3460',        // Blu acciaio
+                        aurora: '#e94560',        // Rosa aurora
+                        cyan: '#00d4ff',          // Cyan elettrico
+                        magenta: '#ff006e',       // Magenta vibrante
+                        gold: '#ffd700',          // Oro elegante
+                        teal: '#03dac6',          // Teal premium
+                        dark: '#0a0a23',          // Nero cyber
+                        light: '#f8fafc',         // Bianco ghiaccio
                         textDark: '#1C1C1E',
                         backgroundLight: '#F4F4F8',
+                    },
+                    screens: {
+                        'xs': '320px',
+                        'sm': '640px',
+                        'md': '768px',
+                        'lg': '1024px',
+                        'xl': '1280px',
+                        '2xl': '1536px',
+                        '3xl': '1920px',
+                        '4xl': '2560px',
                     }
                 }
             }
         }
     </script>
     
+    <!-- STILI CSS COMPLETI -->
     <style>
+        /* === VARIABILI CSS === */
         :root {
             --gradient-aurora: linear-gradient(135deg, #1a1a2e 0%, #16213e 25%, #0f3460 50%, #e94560 75%, #00d4ff 100%);
             --gradient-cyber: linear-gradient(135deg, #0a0a23 0%, #1a1a2e 50%, #00d4ff 100%);
             --gradient-magic: linear-gradient(135deg, #ff006e 0%, #e94560 50%, #03dac6 100%);
-            --shadow-primary: 0 8px 32px rgba(26, 26, 46, 0.3);
-            --shadow-elevated: 0 16px 64px rgba(26, 26, 46, 0.25);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* === SFONDO PRINCIPALE === */
         body {
             background: var(--gradient-aurora);
             background-size: 400% 400%;
-            animation: aurora 30s ease infinite;
+            animation: aurora 20s ease infinite;
             min-height: 100vh;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            font-weight: 500;
         }
 
+        /* === ANIMAZIONI === */
         @keyframes aurora {
             0%, 100% { background-position: 0% 50%; }
             25% { background-position: 100% 50%; }
@@ -75,489 +68,136 @@
             75% { background-position: 0% 100%; }
         }
 
-        header {
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(233, 69, 96, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.8); }
+        }
+
+        /* === TIPOGRAFIA ULTRA-VISIBILE === */
+        .text-ultra-visible {
+            color: #ffffff;
+            text-shadow: 0 8px 25px rgba(0, 0, 0, 0.9), 0 4px 12px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 1);
+            font-weight: 800;
+        }
+
+        .text-white {
+            text-shadow: 0 8px 25px rgba(0, 0, 0, 0.9), 0 4px 12px rgba(0, 0, 0, 0.8), 0 2px 6px rgba(0, 0, 0, 1);
+        }
+
+        /* === GLASSMORPHISM === */
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .glass-strong {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+
+        .glass-card {
             background: rgba(255, 255, 255, 0.95);
-            border-bottom: 3px solid rgba(233, 69, 96, 0.3);
-            box-shadow: var(--shadow-primary);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        .registration-container {
-            background: rgba(255, 255, 255, 0.98);
-            border: 3px solid rgba(255, 255, 255, 0.8);
-            border-radius: 28px;
-            padding: 2.5rem 2rem;
-            box-shadow: 
-                var(--shadow-elevated),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8);
-            position: relative;
-        }
-
-        .email-confirmation-container {
-            background: rgba(255, 255, 255, 0.98);
-            border: 3px solid rgba(16, 185, 129, 0.5);
-            border-radius: 28px;
-            padding: 2.5rem 2rem;
-            box-shadow: 
-                var(--shadow-elevated),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8);
-            position: relative;
-            text-align: center;
-        }
-
-        .email-icon {
-            width: 120px;
-            height: 120px;
-            background: linear-gradient(135deg, #10b981, #059669);
-            border-radius: 50%;
-            margin: 0 auto 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3.5rem;
-            border: 4px solid rgba(255, 255, 255, 0.8);
-            box-shadow: var(--shadow-primary);
-            animation: emailPulse 2s ease-in-out infinite;
-        }
-
-        @keyframes emailPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .resend-timer {
-            color: #6b7280;
-            font-size: 0.9rem;
-            margin-top: 1rem;
-        }
-
-        .step-indicator {
+        .glass-effect {
             background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* === BOTTONI === */
+        .btn-aurora {
+            background: var(--gradient-magic);
+            color: white;
             border: 2px solid rgba(233, 69, 96, 0.3);
-            border-radius: 16px;
-            padding: 1rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-primary);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 700;
         }
 
-        .step-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 3px solid #e5e7eb;
-            background: #ffffff;
-            color: #6b7280;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .step-circle.active {
-            border-color: #e94560;
-            background: #e94560;
-            color: white;
-            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.3);
-        }
-
-        .step-circle.completed {
-            border-color: #10b981;
-            background: #10b981;
-            color: white;
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
-        }
-
-        .step-line {
-            height: 4px;
-            background: #e5e7eb;
-            border-radius: 2px;
-            flex-grow: 1;
-            margin: 0 1rem;
-        }
-
-        .step-line.completed {
-            background: #10b981;
-        }
-
-        .logo-container {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .logo-icon {
-            width: 80px;
-            height: 80px;
-            background: var(--gradient-magic);
-            border-radius: 24px;
-            margin: 0 auto 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            border: 3px solid rgba(255, 255, 255, 0.8);
-            box-shadow: var(--shadow-primary);
-            transition: all 0.3s ease;
-        }
-
-        .logo-icon:hover {
-            transform: scale(1.05);
-            box-shadow: var(--shadow-elevated);
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 800;
-            color: #1a1a2e;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .input-container {
-            position: relative;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 1rem 1rem;
-            border: 3px solid #e94560;
-            border-radius: 16px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            background: #ffffff;
-            color: #1a1a2e;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow-primary);
-        }
-
-        .form-input::placeholder {
-            color: #6b7280;
-            font-weight: 500;
-            opacity: 0.8;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #00d4ff;
-            background: #ffffff;
-            box-shadow: 
-                0 12px 32px rgba(0, 212, 255, 0.3),
-                var(--shadow-primary);
-        }
-
-        .form-input:hover {
-            border-color: #ff006e;
-            box-shadow: 
-                0 10px 28px rgba(233, 69, 96, 0.25),
-                var(--shadow-primary);
-        }
-
-        .form-input.error {
-            border-color: #dc2626;
-            box-shadow: 
-                0 8px 25px rgba(220, 38, 38, 0.3),
-                var(--shadow-primary);
-        }
-
-        .form-input.valid {
-            border-color: #10b981;
-            box-shadow: 
-                0 8px 25px rgba(16, 185, 129, 0.3),
-                var(--shadow-primary);
-        }
-
-        .btn-primary {
-            background: var(--gradient-magic);
-            color: white;
-            border: 3px solid rgba(233, 69, 96, 0.5);
-            border-radius: 16px;
-            padding: 1rem 2rem;
-            font-size: 1.1rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow-primary);
-            text-shadow: 
-                0 2px 4px rgba(0, 0, 0, 0.5),
-                0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 
-                0 20px 40px rgba(233, 69, 96, 0.4),
-                var(--shadow-elevated);
+        .btn-aurora:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(233, 69, 96, 0.4);
             border-color: rgba(233, 69, 96, 0.8);
         }
 
-        .btn-primary:disabled {
-            background: linear-gradient(135deg, #9ca3af, #6b7280);
-            border-color: rgba(156, 163, 175, 0.3);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: var(--shadow-primary);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.95);
-            color: #1a1a2e;
-            border: 2px solid #e5e7eb;
-            border-radius: 16px;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow-primary);
-        }
-
-        .btn-secondary:hover {
-            background: #f9fafb;
-            border-color: #d1d5db;
-            transform: translateY(-2px);
-        }
-
-        .btn-ghost {
-            background: transparent;
-            color: #10b981;
-            border: 2px solid #10b981;
-            border-radius: 16px;
-            padding: 0.75rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-ghost:hover {
-            background: #10b981;
+        .btn-cyber {
+            background: var(--gradient-cyber);
+            border: 2px solid rgba(0, 212, 255, 0.3);
             color: white;
-            transform: translateY(-2px);
-        }
-
-        .btn-ghost:disabled {
-            background: transparent;
-            color: #9ca3af;
-            border-color: #9ca3af;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .message {
-            padding: 1rem 1.25rem;
-            margin: 1rem 0;
-            border-radius: 16px;
-            font-size: 0.95rem;
             font-weight: 700;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            box-shadow: var(--shadow-primary);
         }
 
-        .error-message {
-            background: rgba(239, 68, 68, 0.95);
+        .btn-cyber:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.4);
+            border-color: rgba(0, 212, 255, 0.8);
+        }
+
+        .btn-primary {
+            background: var(--gradient-aurora);
             color: white;
-            border-color: rgba(239, 68, 68, 0.8);
+            border: 2px solid rgba(26, 26, 46, 0.3);
+            font-weight: 700;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .success-message {
-            background: rgba(16, 185, 129, 0.95);
-            color: white;
-            border-color: rgba(16, 185, 129, 0.8);
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(26, 26, 46, 0.4);
+            border-color: rgba(26, 26, 46, 0.8);
         }
 
-        .info-message {
-            background: rgba(59, 130, 246, 0.95);
-            color: white;
-            border-color: rgba(59, 130, 246, 0.8);
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #6b7280;
-            cursor: pointer;
-            font-size: 1.1rem;
-            padding: 0.5rem;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .password-toggle:hover {
-            color: #1a1a2e;
-            background: rgba(0, 0, 0, 0.05);
-        }
-
-        .strength-bar {
-            height: 6px;
-            border-radius: 3px;
-            transition: all 0.3s ease;
-            margin-top: 0.5rem;
-        }
-
-        .strength-weak { background: #ef4444; width: 25%; }
-        .strength-medium { background: #f59e0b; width: 50%; }
-        .strength-good { background: #eab308; width: 75%; }
-        .strength-strong { background: #10b981; width: 100%; }
-
-        .requirements-list {
-            background: rgba(249, 250, 251, 0.95);
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 1rem;
-            margin-top: 1rem;
-        }
-
-        .requirement-item {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .requirement-indicator {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #e5e7eb;
-            transition: all 0.3s ease;
-        }
-
-        .requirement-indicator.met {
-            background: #10b981;
-        }
-
-        input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            accent-color: #e94560;
-            cursor: pointer;
-        }
-
-        .field-error {
-            color: #dc2626;
-            font-size: 0.85rem;
+        /* === FORM ELEMENTS === */
+        .input-field {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 14px 18px;
+            font-size: 16px;
             font-weight: 600;
-            margin-top: 0.5rem;
+            transition: all 0.3s ease;
         }
 
-        .loading-spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            display: inline-block;
-            margin-right: 0.5rem;
+        .input-field:focus {
+            outline: none;
+            border-color: #e94560;
+            box-shadow: 0 0 0 4px rgba(233, 69, 96, 0.2);
+            transform: scale(1.02);
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        /* === RESPONSIVE TYPOGRAPHY === */
+        .hero-title {
+            font-size: clamp(3rem, 12vw, 6rem);
+            font-weight: 900;
         }
 
-        nav {
-            background: rgba(255, 255, 255, 0.98);
-            border-top: 3px solid rgba(233, 69, 96, 0.3);
-            box-shadow: 0 -8px 32px rgba(26, 26, 46, 0.2);
+        .section-title {
+            font-size: clamp(2.2rem, 8vw, 4rem);
+            font-weight: 900;
         }
 
-        .hidden {
-            display: none !important;
+        .hero-subtitle {
+            font-size: clamp(1.5rem, 6vw, 2.5rem);
+            font-weight: 800;
         }
 
-        /* Stile migliorato per data di nascita */
-        .date-input-wrapper {
-            position: relative;
-        }
-
-        .date-label-helper {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6b7280;
-            font-size: 0.9rem;
-            pointer-events: none;
-            background: white;
-            padding: 0 0.5rem;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .registration-container,
-            .email-confirmation-container {
-                padding: 2rem 1.5rem;
-                margin: 1rem;
-            }
-            
-            .logo-icon,
-            .email-icon {
-                width: 70px;
-                height: 70px;
-                font-size: 2rem;
-            }
-
-            .email-icon {
-                width: 100px;
-                height: 100px;
-                font-size: 3rem;
-            }
-
-            .step-circle {
-                width: 35px;
-                height: 35px;
-                font-size: 0.9rem;
-            }
-
-            .form-input {
-                font-size: 1rem;
-                padding: 0.875rem;
-            }
-
-            .btn-primary {
-                font-size: 1rem;
-                padding: 0.875rem 1.5rem;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .registration-container,
-            .email-confirmation-container {
-                padding: 1.5rem 1rem;
-                margin: 0.5rem;
-            }
-            
-            .logo-icon {
-                width: 60px;
-                height: 60px;
-                font-size: 1.75rem;
-            }
-
-            .email-icon {
-                width: 80px;
-                height: 80px;
-                font-size: 2.5rem;
-            }
-
-            .step-circle {
-                width: 30px;
-                height: 30px;
-                font-size: 0.8rem;
-            }
-        }
-
+        /* === REDUCED MOTION === */
         @media (prefers-reduced-motion: reduce) {
             * {
                 animation-duration: 0.01ms !important;
@@ -566,560 +206,409 @@
             }
         }
 
-        *:focus-visible {
-            outline: 3px solid #00d4ff;
-            outline-offset: 2px;
+        /* === RESPONSIVE BREAKPOINTS === */
+        @media (max-width: 640px) {
+            .hero-title { font-size: 2.25rem; line-height: 2.5rem; }
+        }
+
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .hero-title { font-size: 3rem; line-height: 3.5rem; }
+        }
+
+        @media (min-width: 1025px) {
+            .max-w-md { max-width: 48rem; }
         }
     </style>
 </head>
-<body>
-    <!-- Header -->
-    <header class="w-full px-6 py-6 relative z-10">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-4">
-                <button onclick="goBack()" class="text-primary hover:text-aurora transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                </button>
-                <h1 class="text-2xl font-black text-primary">Registrazione</h1>
+<body class="flex flex-col min-h-screen font-sans">
+
+    <!-- HEADER -->
+    <header class="glass-morphism relative">
+        <div class="container mx-auto px-4 py-6">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-5xl font-black text-ultra-visible mb-2">
+                    🚔 MyApp Sindacato Carabinieri
+                </h1>
+                <p class="text-xl text-white font-semibold">
+                    Accedi al tuo portale riservato
+                </p>
             </div>
-            <a href="index.html" class="text-primary hover:text-aurora transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0 7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1v4a1 1 0 001 1m-6 0h6"></path>
-                </svg>
-            </a>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="flex-1 flex items-center justify-center px-6 pb-32">
-        <div class="w-full max-w-lg">
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex items-center justify-center px-4 py-8">
+        <div class="w-full max-w-md">
             
-            <!-- Logo -->
-            <div class="logo-container">
-                <div class="logo-icon">
-                    <span class="text-white font-black">📝</span>
-                </div>
-                <h2 class="text-3xl font-black text-white text-center mb-2">
-                    Benvenuto in MyApp!
-                </h2>
-                <p class="text-lg text-white text-center font-semibold">
-                    Crea il tuo account per accedere ai servizi riservati
-                </p>
-            </div>
-
-            <!-- Registration Form Container -->
-            <div id="registrationSection" class="registration-container">
+            <!-- LOGIN/REGISTER CARD -->
+            <div class="glass-card rounded-3xl p-8 shadow-2xl">
                 
-                <!-- Step Indicator -->
-                <div class="step-indicator">
-                    <div class="flex items-center justify-center">
-                        <div id="step1" class="step-circle active">1</div>
-                        <div id="line1" class="step-line"></div>
-                        <div id="step2" class="step-circle">2</div>
-                        <div id="line2" class="step-line"></div>
-                        <div id="step3" class="step-circle">3</div>
-                    </div>
-                    <div class="text-center mt-3">
-                        <span id="stepLabel" class="text-primary font-bold text-lg">Dati Personali</span>
-                    </div>
+                <!-- TOGGLE BUTTONS -->
+                <div class="flex mb-8 p-1 glass-morphism rounded-2xl">
+                    <button id="loginTab" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all duration-300 btn-aurora">
+                        Accedi
+                    </button>
+                    <button id="registerTab" class="flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all duration-300 text-gray-600 hover:text-gray-800">
+                        Registrati
+                    </button>
                 </div>
 
-                <!-- Messages -->
-                <div id="errorMessage" class="message error-message hidden">
-                    <div class="flex items-center space-x-2">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span id="errorText"></span>
-                    </div>
-                </div>
-
-                <div id="successMessage" class="message success-message hidden">
-                    <div class="flex items-center space-x-2">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        <span id="successText"></span>
-                    </div>
-                </div>
-
-                <div id="infoMessage" class="message info-message hidden">
-                    <div class="flex items-center space-x-2">
-                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span id="infoText"></span>
-                    </div>
-                </div>
-
-                <form id="registrationForm">
+                <!-- LOGIN FORM -->
+                <form id="loginForm" class="space-y-6">
+                    <h2 class="text-2xl font-black text-center text-gray-800 mb-6">
+                        Bentornato! 👋
+                    </h2>
                     
-                    <!-- Step 1: Dati Personali -->
-                    <div id="step1Form" class="step-form">
-                        <!-- Nome -->
-                        <div class="form-group">
-                            <label for="nome">Nome *</label>
-                            <input 
-                                type="text" 
-                                id="nome" 
-                                name="nome" 
-                                class="form-input"
-                                placeholder="Il tuo nome"
-                                required
-                                autocomplete="given-name"
-                                maxlength="50"
-                            >
-                            <div id="nomeError" class="field-error hidden"></div>
-                        </div>
-
-                        <!-- Cognome -->
-                        <div class="form-group">
-                            <label for="cognome">Cognome *</label>
-                            <input 
-                                type="text" 
-                                id="cognome" 
-                                name="cognome" 
-                                class="form-input"
-                                placeholder="Il tuo cognome"
-                                required
-                                autocomplete="family-name"
-                                maxlength="50"
-                            >
-                            <div id="cognomeError" class="field-error hidden"></div>
-                        </div>
-
-                        <!-- Email -->
-                        <div class="form-group">
-                            <label for="email">Email *</label>
-                            <input 
-                                type="email" 
-                                id="email" 
-                                name="email" 
-                                class="form-input"
-                                placeholder="nome@esempio.com"
-                                required
-                                autocomplete="email"
-                                maxlength="100"
-                            >
-                            <div id="emailError" class="field-error hidden"></div>
-                        </div>
-
-                        <!-- Conferma Email -->
-                        <div class="form-group">
-                            <label for="confirmEmail">Conferma Email *</label>
-                            <input 
-                                type="email" 
-                                id="confirmEmail" 
-                                name="confirmEmail" 
-                                class="form-input"
-                                placeholder="Ripeti l'indirizzo email"
-                                required
-                                autocomplete="email"
-                                maxlength="100"
-                            >
-                            <div id="confirmEmailError" class="field-error hidden"></div>
-                        </div>
-
-                        <!-- Telefono -->
-                        <div class="form-group">
-                            <label for="telefono">Telefono</label>
-                            <input 
-                                type="tel" 
-                                id="telefono" 
-                                name="telefono" 
-                                class="form-input"
-                                placeholder="+39 xxx xxx xxxx"
-                                autocomplete="tel"
-                                maxlength="20"
-                            >
-                            <div id="telefonoError" class="field-error hidden"></div>
-                            <small class="text-gray-500 text-sm mt-1 block">
-                                Formato consigliato: +39 123 456 7890 (opzionale)
-                            </small>
-                        </div>
-
-                        <!-- Data di Nascita -->
-                        <div class="form-group">
-                            <label for="dataNascita">Data di Nascita *</label>
-                            <div class="date-input-wrapper">
-                                <input 
-                                    type="date" 
-                                    id="dataNascita" 
-                                    name="dataNascita" 
-                                    class="form-input"
-                                    required
-                                    autocomplete="bday"
-                                    max="2010-12-31"
-                                    min="1900-01-01"
-                                >
-                                <span class="date-label-helper">📅</span>
-                            </div>
-                            <div id="dataNascitaError" class="field-error hidden"></div>
-                            <small class="text-gray-500 text-sm mt-1 block">
-                                Devi avere almeno 14 anni per registrarti
-                            </small>
-                        </div>
-
-                        <!-- Luogo di Nascita -->
-                        <div class="form-group">
-                            <label for="luogoNascita">Luogo di Nascita *</label>
-                            <input 
-                                type="text" 
-                                id="luogoNascita" 
-                                name="luogoNascita" 
-                                class="form-input"
-                                placeholder="Es: Roma, Milano, Napoli..."
-                                required
-                                autocomplete="address-level2"
-                                maxlength="100"
-                            >
-                            <div id="luogoNascitaError" class="field-error hidden"></div>
-                            <small class="text-gray-500 text-sm mt-1 block">
-                                Inserisci la città o il comune di nascita
-                            </small>
-                        </div>
-
-                        <!-- Bottoni Step 1 -->
-                        <div class="flex justify-between mt-8">
-                            <div></div>
-                            <button type="button" class="btn-primary" onclick="nextStep()">
-                                Continua →
-                            </button>
-                        </div>
+                    <div>
+                        <label for="loginEmail" class="block text-sm font-bold text-gray-700 mb-2">
+                            Email
+                        </label>
+                        <input type="email" id="loginEmail" name="email" required 
+                               class="input-field w-full" 
+                               placeholder="mario.rossi@email.com">
                     </div>
-
-                    <!-- Step 2: Password e Sicurezza -->
-                    <div id="step2Form" class="step-form hidden">
-                        <!-- Password -->
-                        <div class="form-group">
-                            <label for="password">Password *</label>
-                            <div class="input-container">
-                                <input 
-                                    type="password" 
-                                    id="password" 
-                                    name="password" 
-                                    class="form-input"
-                                    placeholder="Scegli una password sicura"
-                                    required
-                                    autocomplete="new-password"
-                                    maxlength="100"
-                                >
-                                <button type="button" class="password-toggle" onclick="togglePassword('password')">
-                                    👁️
-                                </button>
-                            </div>
-                            <div id="passwordError" class="field-error hidden"></div>
-                            
-                            <!-- Password Strength -->
-                            <div class="mt-3">
-                                <div class="flex justify-between text-sm text-gray-600 mb-2">
-                                    <span class="font-semibold">Sicurezza password:</span>
-                                    <span id="strengthText" class="font-bold">Troppo debole</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2">
-                                    <div id="strengthBar" class="strength-bar strength-weak"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Conferma Password -->
-                        <div class="form-group">
-                            <label for="confirmPassword">Conferma Password *</label>
-                            <div class="input-container">
-                                <input 
-                                    type="password" 
-                                    id="confirmPassword" 
-                                    name="confirmPassword" 
-                                    class="form-input"
-                                    placeholder="Ripeti la password"
-                                    required
-                                    autocomplete="new-password"
-                                    maxlength="100"
-                                >
-                                <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
-                                    👁️
-                                </button>
-                            </div>
-                            <div id="confirmPasswordError" class="field-error hidden"></div>
-                        </div>
-
-                        <!-- Password Requirements -->
-                        <div class="requirements-list">
-                            <p class="font-bold mb-3 text-primary">La password deve contenere:</p>
-                            <div class="space-y-2">
-                                <div id="req-length" class="requirement-item">
-                                    <div class="requirement-indicator"></div>
-                                    <span>Almeno 8 caratteri</span>
-                                </div>
-                                <div id="req-upper" class="requirement-item">
-                                    <div class="requirement-indicator"></div>
-                                    <span>Una lettera maiuscola</span>
-                                </div>
-                                <div id="req-lower" class="requirement-item">
-                                    <div class="requirement-indicator"></div>
-                                    <span>Una lettera minuscola</span>
-                                </div>
-                                <div id="req-number" class="requirement-item">
-                                    <div class="requirement-indicator"></div>
-                                    <span>Un numero</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Bottoni Step 2 -->
-                        <div class="flex justify-between mt-8">
-                            <button type="button" class="btn-secondary" onclick="prevStep()">
-                                ← Indietro
-                            </button>
-                            <button type="button" class="btn-primary" onclick="nextStep()">
-                                Continua →
-                            </button>
-                        </div>
+                    
+                    <div>
+                        <label for="loginPassword" class="block text-sm font-bold text-gray-700 mb-2">
+                            Password
+                        </label>
+                        <input type="password" id="loginPassword" name="password" required 
+                               class="input-field w-full" 
+                               placeholder="••••••••">
                     </div>
-
-                    <!-- Step 3: Termini e Condizioni -->
-                    <div id="step3Form" class="step-form hidden">
-                        <!-- Riepilogo Dati -->
-                        <div class="bg-gray-50 rounded-2xl p-4 mb-6">
-                            <h3 class="font-bold text-primary mb-3 flex items-center">
-                                <span class="mr-2">📋</span>
-                                Riepilogo della tua registrazione:
-                            </h3>
-                            <div class="space-y-2 text-sm">
-                                <div class="flex justify-between">
-                                    <span class="font-semibold text-gray-600">Nome:</span> 
-                                    <span id="summaryNome" class="text-primary font-bold">-</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="font-semibold text-gray-600">Cognome:</span> 
-                                    <span id="summaryCognome" class="text-primary font-bold">-</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="font-semibold text-gray-600">Email:</span> 
-                                    <span id="summaryEmail" class="text-primary font-bold">-</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="font-semibold text-gray-600">Telefono:</span> 
-                                    <span id="summaryTelefono" class="text-gray-600">-</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="font-semibold text-gray-600">Data di Nascita:</span> 
-                                    <span id="summaryDataNascita" class="text-primary font-bold">-</span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="font-semibold text-gray-600">Luogo di Nascita:</span> 
-                                    <span id="summaryLuogoNascita" class="text-primary font-bold">-</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Termini e Condizioni -->
-                        <div class="space-y-4">
-                            <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-                                <label class="flex items-start space-x-3 cursor-pointer">
-                                    <input type="checkbox" id="privacyAccept" required class="mt-1 accent-primary">
-                                    <div class="text-sm text-gray-700 leading-relaxed">
-                                        <span class="font-semibold">✅ Dichiaro di aver letto e accettato i</span>
-                                        <a href="privacy.html" target="_blank" class="text-aurora hover:underline font-bold ml-1">Termini e Condizioni</a>
-                                        <span class="font-semibold">e l'</span>
-                                        <a href="privacy.html#privacy" target="_blank" class="text-aurora hover:underline font-bold">Informativa sulla Privacy</a>
-                                        <span class="text-red-500 font-bold">*</span>
-                                    </div>
-                                </label>
-                            </div>
-                            
-                            <div class="bg-green-50 border-2 border-green-200 rounded-xl p-4">
-                                <label class="flex items-start space-x-3 cursor-pointer">
-                                    <input type="checkbox" id="marketingAccept" class="mt-1 accent-primary">
-                                    <div class="text-sm text-gray-700 leading-relaxed">
-                                        <span class="font-semibold">📧 Acconsento al trattamento dei miei dati per finalità di marketing e comunicazioni promozionali</span>
-                                        <span class="text-gray-500 block mt-1">(opzionale - puoi modificare questa preferenza in qualsiasi momento)</span>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Info aggiuntive -->
-                        <div class="bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4 mt-4">
-                            <div class="flex items-start space-x-2">
-                                <span class="text-yellow-600 text-lg">ℹ️</span>
-                                <div class="text-sm text-gray-700">
-                                    <p class="font-semibold mb-1">Cosa succede dopo la registrazione:</p>
-                                    <ul class="list-disc list-inside space-y-1 text-xs">
-                                        <li>Riceverai un'email di conferma all'indirizzo fornito</li>
-                                        <li>Dovrai cliccare sul link di conferma per attivare l'account</li>
-                                        <li>Una volta confermato, potrai accedere a tutti i servizi</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Bottoni Step 3 -->
-                        <div class="flex justify-between mt-8">
-                            <button type="button" class="btn-secondary" onclick="prevStep()">
-                                ← Indietro
-                            </button>
-                            <button type="button" class="btn-primary" onclick="handleRegistration()" id="registerBtn">
-                                🚀 Completa Registrazione
-                            </button>
-                        </div>
-                    </div>
-
+                    
+                    <button type="submit" class="w-full py-4 rounded-2xl font-bold text-lg transition-all duration-300 btn-aurora">
+                        🔓 Accedi
+                    </button>
                 </form>
+
+                <!-- REGISTER FORM -->
+                <form id="registerForm" class="space-y-6 hidden">
+                    <h2 class="text-2xl font-black text-center text-gray-800 mb-6">
+                        Crea il tuo account 🎯
+                    </h2>
+                    
+                    <div>
+                        <label for="registerFullName" class="block text-sm font-bold text-gray-700 mb-2">
+                            Nome Completo
+                        </label>
+                        <input type="text" id="registerFullName" name="fullName" required 
+                               class="input-field w-full" 
+                               placeholder="Mario Rossi">
+                    </div>
+                    
+                    <div>
+                        <label for="registerEmail" class="block text-sm font-bold text-gray-700 mb-2">
+                            Email
+                        </label>
+                        <input type="email" id="registerEmail" name="email" required 
+                               class="input-field w-full" 
+                               placeholder="mario.rossi@email.com">
+                    </div>
+                    
+                    <div>
+                        <label for="registerPassword" class="block text-sm font-bold text-gray-700 mb-2">
+                            Password
+                        </label>
+                        <input type="password" id="registerPassword" name="password" required 
+                               class="input-field w-full" 
+                               placeholder="••••••••" minlength="8">
+                    </div>
+                    
+                    <div>
+                        <label for="registerPasswordConfirm" class="block text-sm font-bold text-gray-700 mb-2">
+                            Conferma Password
+                        </label>
+                        <input type="password" id="registerPasswordConfirm" name="passwordConfirm" required 
+                               class="input-field w-full" 
+                               placeholder="••••••••" minlength="8">
+                    </div>
+                    
+                    <button type="submit" class="w-full py-4 rounded-2xl font-bold text-lg transition-all duration-300 btn-aurora">
+                        🚀 Registrati
+                    </button>
+                </form>
+
             </div>
 
-            <!-- Email Confirmation Screen (inizialmente nascosta) -->
-            <div id="emailConfirmationSection" class="email-confirmation-container hidden">
-                <div class="email-icon">
-                    📧
+            <!-- INFO CARDS -->
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass-morphism rounded-2xl p-6 text-center">
+                    <div class="text-3xl mb-2">🔒</div>
+                    <h3 class="font-bold text-white mb-2">Sicurezza</h3>
+                    <p class="text-sm text-white opacity-90">I tuoi dati sono protetti con crittografia avanzata</p>
                 </div>
                 
-                <h2 class="text-2xl font-bold text-primary mb-4">
-                    Controlla la tua email!
-                </h2>
-                
-                <p class="text-gray-600 mb-6 leading-relaxed">
-                    Abbiamo inviato un messaggio di conferma all'indirizzo:
-                </p>
-                
-                <div class="bg-gray-100 rounded-xl p-4 mb-6">
-                    <p id="confirmationEmail" class="font-bold text-primary text-lg">
-                        <!-- Email inserita dall'utente -->
-                    </p>
-                </div>
-                
-                <p class="text-gray-600 mb-6 text-sm">
-                    Clicca sul link di conferma nell'email per attivare il tuo account e completare la registrazione.
-                </p>
-                
-                <div class="space-y-4">
-                    <button type="button" class="btn-primary w-full" onclick="window.open('https://mail.google.com', '_blank')">
-                        📧 Apri Gmail
-                    </button>
-                    
-                    <button type="button" class="btn-secondary w-full" onclick="window.location.href='login.html'">
-                        🔑 Vai al Login
-                    </button>
-                    
-                    <div class="text-center">
-                        <button type="button" id="resendBtn" class="btn-ghost" onclick="resendConfirmationEmail()" disabled>
-                            📤 Invia nuovamente l'email
-                        </button>
-                        <div id="resendTimer" class="resend-timer">
-                            Potrai inviare nuovamente l'email tra <span id="timerSeconds">60</span> secondi
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mt-6 text-xs text-gray-500 text-center">
-                    <p>Non hai ricevuto l'email? Controlla anche la cartella spam/posta indesiderata.</p>
+                <div class="glass-morphism rounded-2xl p-6 text-center">
+                    <div class="text-3xl mb-2">⚡</div>
+                    <h3 class="font-bold text-white mb-2">Velocità</h3>
+                    <p class="text-sm text-white opacity-90">Accesso immediato a tutti i servizi sindacali</p>
                 </div>
             </div>
+
         </div>
     </main>
 
-    <!-- JavaScript esterno -->
-    <script src="registration.js"></script>
+    <!-- JavaScript con Appwrite -->
+    <script type="module">
+        import { Client, Account, Databases, ID } from 'https://cdn.skypack.dev/appwrite@14.0.1';
 
-    <!-- Script aggiuntivo per funzionalità extra -->
-    <script>
-        // Funzione per resend email
-        async function resendConfirmationEmail() {
-            if (!formData.email) return;
+        // Configurazione Appwrite
+        const client = new Client();
+        client
+            .setEndpoint('https://fra.cloud.appwrite.io/v1')
+            .setProject('688db970010e3113d56');
+
+        const account = new Account(client);
+        const databases = new Databases(client);
+
+        const DATABASE_ID = '688dbfaf001fcce68c0f';
+        const USER_PROFILES_COLLECTION_ID = '688dc04f00345547d52f';
+
+        // Gestione form toggle
+        const loginTab = document.getElementById('loginTab');
+        const registerTab = document.getElementById('registerTab');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+
+        loginTab.addEventListener('click', () => {
+            loginTab.classList.add('btn-aurora');
+            registerTab.classList.remove('btn-aurora');
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+        });
+
+        registerTab.addEventListener('click', () => {
+            registerTab.classList.add('btn-aurora');
+            loginTab.classList.remove('btn-aurora');
+            registerForm.classList.remove('hidden');
+            loginForm.classList.add('hidden');
+        });
+
+        // Utility functions
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white font-semibold min-w-80 transition-all duration-300 transform translate-x-full`;
             
-            const resendBtn = document.getElementById('resendBtn');
-            resendBtn.disabled = true;
-            resendBtn.innerHTML = '<span class="loading-spinner"></span>Invio in corso...';
+            const colors = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            
+            notification.classList.add(colors[type] || colors.info);
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+
+        function setLoading(button, loading) {
+            if (loading) {
+                button.disabled = true;
+                button.style.opacity = '0.7';
+                button.innerHTML = '<div class="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mx-auto"></div>';
+            } else {
+                button.disabled = false;
+                button.style.opacity = '1';
+            }
+        }
+
+        // Login function
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
             
             try {
-                const { error } = await supabase.auth.resend({
-                    type: 'signup',
-                    email: formData.email
-                });
+                setLoading(submitBtn, true);
                 
-                if (error) throw error;
+                const email = document.getElementById('loginEmail').value.trim();
+                const password = document.getElementById('loginPassword').value;
                 
-                showInfo('Email di conferma inviata nuovamente!');
-                startResendTimer();
+                if (!email || !password) {
+                    throw new Error('Email e password sono obbligatori');
+                }
+                
+                // Login con Appwrite
+                const session = await account.createEmailPasswordSession(email, password);
+                console.log('✅ Login successful:', session);
+                
+                // Ottieni informazioni utente
+                const user = await account.get();
+                console.log('✅ User info:', user);
+                
+                // Ottieni profilo utente
+                const userProfile = await getUserProfile(user.$id);
+                
+                showNotification('✅ Accesso riuscito!', 'success');
+                
+                // Determina dove reindirizzare
+                const redirectUrl = getRedirectUrl(userProfile);
+                
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 1500);
                 
             } catch (error) {
-                console.error('Errore resend:', error);
-                showError('Errore nell\'invio dell\'email. Riprova più tardi.');
-            } finally {
-                resendBtn.innerHTML = '📤 Invia nuovamente l\'email';
-            }
-        }
-        
-        // Timer per resend
-        function startResendTimer() {
-            let seconds = 60;
-            const timerElement = document.getElementById('timerSeconds');
-            const resendBtn = document.getElementById('resendBtn');
-            const timerDiv = document.getElementById('resendTimer');
-            
-            resendBtn.disabled = true;
-            timerDiv.style.display = 'block';
-            
-            const interval = setInterval(() => {
-                seconds--;
-                timerElement.textContent = seconds;
+                console.error('❌ Errore login:', error);
                 
-                if (seconds <= 0) {
-                    clearInterval(interval);
-                    resendBtn.disabled = false;
-                    timerDiv.style.display = 'none';
+                let errorMessage = '❌ Errore di accesso';
+                if (error.message.includes('Invalid credentials')) {
+                    errorMessage = '❌ Email o password errati';
+                } else if (error.message.includes('rate limit')) {
+                    errorMessage = '⏰ Troppi tentativi. Riprova più tardi';
+                } else if (error.message) {
+                    errorMessage = `❌ ${error.message}`;
                 }
-            }, 1000);
-        }
-        
-        // Mostra schermata conferma email
-        function showEmailConfirmation(email) {
-            document.getElementById('registrationSection').classList.add('hidden');
-            document.getElementById('emailConfirmationSection').classList.remove('hidden');
-            document.getElementById('confirmationEmail').textContent = email;
-            startResendTimer();
-        }
-        
-        // Formattazione automatica telefono
-        document.addEventListener('DOMContentLoaded', function() {
-            const telefonoInput = document.getElementById('telefono');
-            if (telefonoInput) {
-                telefonoInput.addEventListener('input', function(e) {
-                    let value = e.target.value.replace(/\D/g, '');
-                    
-                    if (value.startsWith('39')) {
-                        value = '+' + value;
-                    } else if (value.startsWith('3') && value.length >= 3) {
-                        value = '+39 ' + value;
-                    }
-                    
-                    // Formatta il numero
-                    if (value.startsWith('+39')) {
-                        value = value.replace(/(\+39)(\d{3})(\d{3})(\d{4})/, '$1 $2 $3 $4');
-                    }
-                    
-                    e.target.value = value;
-                });
+                
+                showNotification(errorMessage, 'error');
+                submitBtn.innerHTML = originalText;
+                setLoading(submitBtn, false);
             }
-        });
-        
-        // Validazione data di nascita in tempo reale
-        document.addEventListener('DOMContentLoaded', function() {
-            const dataNascitaInput = document.getElementById('dataNascita');
-            if (dataNascitaInput) {
-                dataNascitaInput.addEventListener('change', function() {
-                    const isValid = validateDataNascita(this.value);
-                    if (this.value) {
-                        if (isValid) {
-                            setFieldValid('dataNascita');
-                        } else {
-                            setFieldError('dataNascita');
-                        }
+        }
+
+        // Register function
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            try {
+                setLoading(submitBtn, true);
+                
+                const fullName = document.getElementById('registerFullName').value.trim();
+                const email = document.getElementById('registerEmail').value.trim();
+                const password = document.getElementById('registerPassword').value;
+                const confirmPassword = document.getElementById('registerPasswordConfirm').value;
+                
+                if (!fullName || !email || !password) {
+                    throw new Error('Tutti i campi sono obbligatori');
+                }
+                
+                if (password !== confirmPassword) {
+                    throw new Error('Le password non corrispondono');
+                }
+                
+                if (password.length < 8) {
+                    throw new Error('La password deve essere di almeno 8 caratteri');
+                }
+                
+                // Registrazione con Appwrite
+                const user = await account.create(ID.unique(), email, password, fullName);
+                console.log('✅ Account created:', user);
+                
+                // Login automatico
+                await account.createEmailPasswordSession(email, password);
+                
+                // Crea profilo utente
+                const userProfile = await databases.createDocument(
+                    DATABASE_ID,
+                    USER_PROFILES_COLLECTION_ID,
+                    ID.unique(),
+                    {
+                        user_id: user.$id,
+                        email: email,
+                        full_name: fullName,
+                        role: 'user',
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString()
                     }
-                });
+                );
+                
+                console.log('✅ User profile created:', userProfile);
+                
+                showNotification('✅ Registrazione completata!', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'app/home.html';
+                }, 1500);
+                
+            } catch (error) {
+                console.error('❌ Errore registrazione:', error);
+                
+                let errorMessage = '❌ Errore durante la registrazione';
+                if (error.message.includes('email already exists')) {
+                    errorMessage = '❌ Email già registrata';
+                } else if (error.message.includes('Invalid email')) {
+                    errorMessage = '❌ Email non valida';
+                } else if (error.message) {
+                    errorMessage = `❌ ${error.message}`;
+                }
+                
+                showNotification(errorMessage, 'error');
+                submitBtn.innerHTML = originalText;
+                setLoading(submitBtn, false);
             }
+        }
+
+        // Get user profile
+        async function getUserProfile(userId) {
+            try {
+                const response = await databases.listDocuments(
+                    DATABASE_ID,
+                    USER_PROFILES_COLLECTION_ID,
+                    [
+                        Query.equal('user_id', userId)
+                    ]
+                );
+                
+                if (response.documents.length > 0) {
+                    return response.documents[0];
+                } else {
+                    return { role: 'user' }; // Default
+                }
+            } catch (error) {
+                console.error('Errore nel recupero del profilo:', error);
+                return { role: 'user' }; // Default
+            }
+        }
+
+        // Determine redirect URL
+        function getRedirectUrl(userProfile) {
+            const role = userProfile?.role || 'user';
+            
+            if (role === 'dirigente' || role === 'admin') {
+                return 'app/home_dirigenti.html';
+            } else {
+                return 'app/home.html';
+            }
+        }
+
+        // Event listeners
+        loginForm.addEventListener('submit', handleLogin);
+        registerForm.addEventListener('submit', handleRegister);
+
+        // Check if user is already logged in
+        async function checkExistingSession() {
+            try {
+                const user = await account.get();
+                if (user) {
+                    console.log('✅ User already logged in:', user);
+                    const userProfile = await getUserProfile(user.$id);
+                    const redirectUrl = getRedirectUrl(userProfile);
+                    window.location.href = redirectUrl;
+                }
+            } catch (error) {
+                // User not logged in, which is fine
+                console.log('ℹ️ No existing session');
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 MyApp Appwrite Ready');
+            checkExistingSession();
         });
     </script>
 
