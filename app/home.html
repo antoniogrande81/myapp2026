@@ -337,6 +337,9 @@
       outline-offset: 2px;
     }
   </style>
+
+  <!-- Appwrite SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.1"></script>
 </head>
 <body>
 
@@ -459,42 +462,85 @@
   👥 Contatta un dirigente della tua zona
 </a>
 
-<!-- Supabase Script -->
+<!-- Appwrite Script -->
 <script type="module">
-  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-  const supabase = createClient(
-    'https://lycrgzptkdkksukcwrld.supabase.co',
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx5Y3JnenB0a2Rra3N1a2N3cmxkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTI3ODQyMzAsImV4cCI6MjA2ODM2MDIzMH0.ZJGOXAMC3hKKrnwXHKEa2_Eh7ZpOKeLYvYlYneBiEfk'
-  );
+  // === CONFIGURAZIONE APPWRITE ===
+  const { Client, Account, Databases, Query } = Appwrite;
+
+  const client = new Client()
+    .setEndpoint('https://cloud.appwrite.io/v1')
+    .setProject('688db9670010e3113d56');
+
+  const account = new Account(client);
+  const databases = new Databases(client);
+
+  // Database e Collection IDs
+  const DATABASE_ID = '688dbfaf001fcce68c0f';
+  const COLLECTIONS = {
+    profiles: '688dc04f0034554d752f',
+    notizie: '688e02b3000595a16b2c',
+    convenzioni: '688e03f0001958f71d9e'
+  };
 
   async function init() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return location.href = '../login.html';
+    try {
+      // Verifica autenticazione
+      const user = await account.get();
+      if (!user) return location.href = '../index.html';
 
-    const { data: profile } = await supabase.from('profiles').select('nome').eq('id', user.id).single();
-    const nome = profile?.nome || 'Utente';
+      // Ottieni profilo utente
+      const profile = await getUserProfile(user.$id);
+      const nome = profile?.nome_cognome || 'Utente';
 
-    const ora = new Date().getHours();
-    const saluto = ora < 12 ? "Buongiorno" : ora < 18 ? "Buon pomeriggio" : "Buonasera";
-    document.getElementById("salutoPersonalizzato").textContent = `${saluto}, ${nome}!`;
-    document.getElementById("dataOdierna").textContent = new Date().toLocaleDateString('it-IT', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
+      // Aggiorna saluto personalizzato
+      const ora = new Date().getHours();
+      const saluto = ora < 12 ? "Buongiorno" : ora < 18 ? "Buon pomeriggio" : "Buonasera";
+      document.getElementById("salutoPersonalizzato").textContent = `${saluto}, ${nome}!`;
+      
+      // Aggiorna data
+      document.getElementById("dataOdierna").textContent = new Date().toLocaleDateString('it-IT', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
 
-    loadNotizie();
-    loadConvenzioni();
+      // Carica contenuti
+      loadNotizie();
+      loadConvenzioni();
+      
+    } catch (error) {
+      console.error('Errore inizializzazione:', error);
+      location.href = '../index.html';
+    }
+  }
+
+  async function getUserProfile(userId) {
+    try {
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.profiles,
+        [Query.equal('user_id', userId)]
+      );
+      return response.documents.length > 0 ? response.documents[0] : null;
+    } catch (error) {
+      console.error('Errore nel recupero profilo:', error);
+      return null;
+    }
   }
 
   async function loadNotizie() {
     try {
-      const { data } = await supabase
-        .from('notizie')
-        .select('id, titolo, contenuto, data_pubblicazione, priorita, icona')
-        .eq('pubblicata', true)
-        .order('data_pubblicazione', { ascending: false })
-        .limit(3);
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.notizie,
+        [
+          Query.equal('pubblicata', true),
+          Query.orderDesc('data_pubblicazione'),
+          Query.limit(3)
+        ]
+      );
 
+      const data = response.documents;
       const container = document.getElementById("notizieContainer");
+      
       if (!data || !data.length) {
         container.innerHTML = `
           <div class="news-item text-center py-6">
@@ -507,7 +553,7 @@
       }
       
       container.innerHTML = data.map(n => `
-        <div class="news-item cursor-pointer" onclick="viewNotizia('${n.id}')">
+        <div class="news-item cursor-pointer" onclick="viewNotizia('${n.$id}')">
           <div class="flex items-start gap-3">
             <div class="text-2xl flex-shrink-0">${n.icona || '📰'}</div>
             <div class="flex-1">
@@ -517,7 +563,7 @@
                 <span class="text-xs text-aurora font-bold bg-red-50 px-2 py-1 rounded-full">
                   ${new Date(n.data_pubblicazione).toLocaleDateString('it-IT')}
                 </span>
-                ${n.priorita === 'alta' ? '<span class="badge aurora text-xs">🔥 Importante</span>' : ''}
+                ${n.priorita === 'importante' ? '<span class="badge aurora text-xs">🔥 Importante</span>' : ''}
                 ${n.priorita === 'urgente' ? '<span class="badge aurora text-xs">⚡ Urgente</span>' : ''}
               </div>
             </div>
@@ -538,14 +584,19 @@
 
   async function loadConvenzioni() {
     try {
-      const { data } = await supabase
-        .from('convenzioni')
-        .select('id, nome_partner, descrizione, categoria, sconto_percentuale, icona, data_inizio, data_fine')
-        .eq('attiva', true)
-        .order('created_at', { ascending: false })
-        .limit(4);
+      const response = await databases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.convenzioni,
+        [
+          Query.equal('attiva', true),
+          Query.orderDesc('created_at'),
+          Query.limit(4)
+        ]
+      );
 
+      const data = response.documents;
       const container = document.getElementById("convenzioniContainer");
+      
       if (!data || !data.length) {
         container.innerHTML = `
           <div class="convenzione-item text-center py-6">
@@ -562,7 +613,7 @@
         const hasExpiry = c.data_fine && new Date(c.data_fine) > new Date();
         
         return `
-          <div class="convenzione-item cursor-pointer" onclick="viewConvenzione('${c.id}')">
+          <div class="convenzione-item cursor-pointer" onclick="viewConvenzione('${c.$id}')">
             <div class="flex items-start gap-3">
               <div class="text-2xl flex-shrink-0">${c.icona || '🏷️'}</div>
               <div class="flex-1">
@@ -615,13 +666,28 @@
     }
   });
 
+  // Logout
   document.getElementById("logoutBtn").addEventListener("click", async () => {
     if (confirm("Vuoi davvero uscire?")) {
-      await supabase.auth.signOut();
-      location.href = '../login.html';
+      try {
+        await account.deleteSession('current');
+        location.href = '../index.html';
+      } catch (error) {
+        console.error('Errore logout:', error);
+        location.href = '../index.html';
+      }
     }
   });
 
+  // Aggiungi Query helper per compatibilità
+  const Query = {
+    equal: (attribute, value) => `equal("${attribute}", "${value}")`,
+    orderDesc: (attribute) => `orderDesc("${attribute}")`,
+    orderAsc: (attribute) => `orderAsc("${attribute}")`,
+    limit: (count) => `limit(${count})`
+  };
+
+  // Inizializza app
   init();
 </script>
 
